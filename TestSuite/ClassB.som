@@ -1,0 +1,3 @@
+ClassB = ClassA (
+  | c d |
+)
