@@ -1,0 +1,2 @@
+class SymbolTable(object):
+    pass

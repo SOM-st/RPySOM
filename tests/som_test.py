@@ -1,5 +1,6 @@
 import unittest
 from parameterized import parameterized
+from som.vm.universe import Universe
 
 class SomTest(unittest.TestCase):
     @parameterized.expand([
