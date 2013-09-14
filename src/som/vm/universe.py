@@ -1,6 +1,7 @@
 from som.interpreter.interpreter import Interpreter
 from som.vm.symbol_table         import SymbolTable
 from som.vmobjects.object        import Object
+from som.vmobjects.clazz         import Class 
 
 import os
 
@@ -34,7 +35,10 @@ class Universe(object):
         self._last_exit_code = 0
         self._classpath      = None
         self._dump_bytecodes = False        
-        
+    
+    @property
+    def nilObject(self):
+        return self._nilObject
         
     
     def interpret(self, arguments):
@@ -113,7 +117,7 @@ class Universe(object):
         self._doubleClass     = self.new_system_class()
 
         # Setup the class reference for the nil object
-        self._nilObject.setClass(self._nilClass)
+        self._nilObject.set_class(self._nilClass)
 
         # Initialize the system classes
         self._initialize_system_class(self._objectClass,                  None, "Object")
@@ -163,3 +167,14 @@ class Universe(object):
         self.setGlobal(self.symbol_for("system"), self._systemObject)
         self.setGlobal(self.symbol_for("System"), self._systemClass)
         self.setGlobal(self.symbol_for("Block"),  self._blockClass)
+    
+    def new_metaclass_class(self):
+        # Allocate the metaclass classes
+        result = Class(self)
+        result.set_class(Class(self))
+
+        # Setup the metaclass hierarchy
+        result.get_class().set_class(result)
+
+        # Return the freshly allocated metaclass class
+        return result
