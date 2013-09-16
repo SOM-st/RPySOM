@@ -1,12 +1,17 @@
 import unittest
 from parameterized import parameterized
 
+from som.vm.universe       import Universe
+
+from som.vmobjects.integer import Integer
+from som.vmobjects.clazz   import Class
+
 class BasicInterpreterTest(unittest.TestCase):
     @parameterized.expand([
         ("MethodCall",     "test",  42, Integer ),
         ("MethodCall",     "test2", 42, Integer ),
 
-        ("NonLocalReturn", "test",  "NonLocalReturn", som.vmobjects.Class ),
+        ("NonLocalReturn", "test",  "NonLocalReturn", Class ),
         ("NonLocalReturn", "test1", 42, Integer ),
         ("NonLocalReturn", "test2", 43, Integer ),
         ("NonLocalReturn", "test3",  3, Integer ),
@@ -18,16 +23,15 @@ class BasicInterpreterTest(unittest.TestCase):
         ("Blocks", "argAndLocal",    8, Integer ),
         ("Blocks", "argAndContext",  8, Integer ),
 
-        ("Return", "returnSelf",           "Return", som.vmobjects.Class ),
-        ("Return", "returnSelfImplicitly", "Return", som.vmobjects.Class ),
-        ("Return", "noReturnReturnsSelf",  "Return", som.vmobjects.Class ),
-        ("Return", "blockReturnsImplicitlyLastValue", 4, Integer )
-        ])
+        ("Return", "returnSelf",           "Return", Class ),
+        ("Return", "returnSelfImplicitly", "Return", Class ),
+        ("Return", "noReturnReturnsSelf",  "Return", Class ),
+        ("Return", "blockReturnsImplicitlyLastValue", 4, Integer )])
     def test_basic_interpreter_behavior(self, test_class, test_selector, expected_result, result_type):
         u = Universe()
         u.setup_classpath("Smalltalk:BasicInterpreterTests")
         
-        actual_result = u.interpret(test_class, test_selector)
+        actual_result = u.execute_method(test_class, test_selector)
         
         self._assertEqualsSOMValue(expected_result, actual_result, result_type)
     
@@ -36,7 +40,7 @@ class BasicInterpreterTest(unittest.TestCase):
             self.assertEquals(expected_result, actual_result.embedded_integer)
             return
         
-        if result_type is som.vmobjects.Class:
+        if result_type is Class:
             self.assertEquals(expected_result, actual_result.name.string)
             return
 

@@ -44,3 +44,51 @@ class Object(object):
     def set_field(self, index, value):
         # Set the field with the given index to the given value
         self._fields[index] = value
+    
+    def send(self, selectorString, arguments, universe, interpreter):
+        # Turn the selector string into a selector
+        selector = self._universe.symbol_for(selectorString)
+
+        # Push the receiver onto the stack
+        self._interpreter.get_frame().push(self)
+
+        # Push the arguments onto the stack
+        for arg in arguments:
+            interpreter.get_frame().push(arg)
+
+        # Lookup the invokable
+        invokable = self.get_class().lookup_invokable(selector)
+
+        # Invoke the invokable
+        invokable.invoke(self._interpreter.get_frame(), self_.interpreter);
+  
+
+    def send_does_not_understand(self, selector, universe, interpreter):
+        # Compute the number of arguments
+        number_of_arguments = selector.get_number_of_signature_arguments()
+
+        frame = interpreter.get_frame()
+
+        # Allocate an array with enough room to hold all arguments
+        arguments_array = universe.new_array(number_of_arguments)
+
+        # Remove all arguments and put them in the freshly allocated array
+        i = number_of_arguments - 1
+        
+        while i >= 0:
+            arguments_array.set_indexable_field(i, frame.pop())
+            i -= 1
+            
+        args = (selector, arguments_array)
+        self.send("doesNotUnderstand:arguments:", args, universe, interpreter)
+
+    def send_unknown_global(self, global_name, universe, interpreter):
+        arguments = (global_name, )
+        self.send("unknownGlobal:", arguments, universe, interpreter)
+
+    def send_escaped_block(self, block, universe, interpreter):
+        arguments = (block, )
+        self.send("escapedBlock:", arguments, universe, interpreter)
+
+    def __str__(self):
+        return "a " + self.get_class().get_name().get_string()

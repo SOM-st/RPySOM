@@ -41,6 +41,14 @@ class Universe(object):
         return self._nilObject
         
     
+    def _create_bootstrap_method(self):
+        # Create a fake bootstrap method to simplify later frame traversal
+        bootstrap_method = self.new_method(self.symbol_for("bootstrap"), 1, 0)
+        bootstrap_method.set_bytecode(0, Bytecodes.halt)
+        bootstrap_method.set_number_of_locals(self.new_integer(0))
+        bootstrap_method.set_maximum_number_of_stack_elements(self.new_integer(2))
+        bootstrap_method.set_holder(self._systemClass)
+    
     def interpret(self, arguments):
         # Check for command line switches
         arguments = self.handleArguments(arguments)
@@ -59,7 +67,7 @@ class Universe(object):
             if arguments[i] == "-cp":
                 if i + 1 >= len(arguments):
                     self._print_usage_and_exit()
-                self._setup_classpath(arguments[i + 1])
+                self.setup_classpath(arguments[i + 1])
                 i += 1    # skip class path
                 got_classpath = True
             elif arguments[i] == "-d":
@@ -85,7 +93,7 @@ class Universe(object):
         
         return remaining_args
     
-    def _setup_classpath(self, cp):
+    def setup_classpath(self, cp):
         self._classpath = cp.split(os.pathsep)
     
     # take argument of the form "../foo/Test.som" and return
@@ -95,7 +103,7 @@ class Universe(object):
         (file_name, ext)  = os.path.splitext(file_name)
         return (path, file_name, ext[1:])
 
-    def initialize(self, arguments):
+    def _initialize_object_system(self):
         # Allocate the nil object
         self._nilObject = Object(None)
 
@@ -167,6 +175,41 @@ class Universe(object):
         self.setGlobal(self.symbol_for("system"), self._systemObject)
         self.setGlobal(self.symbol_for("System"), self._systemClass)
         self.setGlobal(self.symbol_for("Block"),  self._blockClass)
+        return system_object
+    
+    
+    def new_array_with_length(self, length):
+        # Allocate a new array and set its class to be the array class
+        result = Array(self._nilObject)
+        result.set_class(self._arrayClass)
+
+        # Set the number of indexable fields to the given value (length)
+        result.set_number_of_indexable_fields_and_clear(length, self._nilObject)
+
+        # Return the freshly allocated array
+        return result
+  
+    def new_array_from_list(self, values):
+        # Allocate a new array with the same length as the list
+        result = self.new_array_with_length(len(values))
+
+        # Copy all elements from the list into the array
+        for i in range(len(values)):
+            result.set_indexable_field(i, values[i])
+    
+        # Return the allocated and initialized array
+        return result
+  
+    def new_array_with_strings(self, strings):
+        # Allocate a new array with the same length as the string array
+        result = self.new_array_with_length(len(strings))
+
+        # Copy all elements from the string array into the array
+        for i in range(len(strings)):
+            result.set_indexable_field(i, self.new_string(strings[i]))
+    
+        # Return the allocated and initialized array
+        return result
     
     def new_metaclass_class(self):
         # Allocate the metaclass classes
@@ -178,3 +221,56 @@ class Universe(object):
 
         # Return the freshly allocated metaclass class
         return result
+    
+    def new_system_class(self):
+        # Allocate the new system class
+        system_class = Class(self)
+
+        # Setup the metaclass hierarchy
+        system_class.set_class(Class(self))
+        system_class.get_class().set_class(self._metaclassClass)
+
+        # Return the freshly allocated system class
+        return system_class
+    
+    def _initialize_system_class(self, system_class, super_class, name):
+        # Initialize the superclass hierarchy
+        if super_class:
+            system_class.setSuperClass(super_class)
+            system_class.get_class().set_super_class(super_class.get_class())
+        else:
+            system_class.get_class().set_super_class(self._classClass)
+    
+
+        # Initialize the array of instance fields
+        system_class.set_instance_fields(self.new_array_with_length(0))
+        system_class.get_class().set_instance_fields(self.new_array_with_length(0))
+
+        # Initialize the array of instance invokables
+        system_class.set_instance_invokables(self.new_array_with_length(0))
+        system_class.get_class().set_instance_invokables(self.new_array_with_length(0))
+
+        # Initialize the name of the system class
+        system_class.set_name(self.symbol_for(name))
+        system_class.get_class().setName(self.symbol_for(name + " class"));
+
+        # Insert the system class into the dictionary of globals
+        self.set_global(system_class.get_name(), system_class)
+    
+    
+    def get_global(self, name):
+        # Return the global with the given name if it's in the dictionary of globals
+        if self.has_global(name):
+            return self._globals[name]
+
+        # Global not found
+        return None
+
+    def set_global(self, name, value):
+        # Insert the given value into the dictionary of globals
+        self._globals[name] = value
+  
+
+    def has_global(self, name):
+        # Returns if the universe has a value for the global of the given name
+        return name in self._globals
