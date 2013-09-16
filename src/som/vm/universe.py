@@ -1,7 +1,9 @@
 from som.interpreter.interpreter import Interpreter
 from som.vm.symbol_table         import SymbolTable
 from som.vmobjects.object        import Object
-from som.vmobjects.clazz         import Class 
+from som.vmobjects.clazz         import Class
+from som.vmobjects.array         import Array
+from som.vmobjects.symbol        import Symbol
 
 import os
 
@@ -169,14 +171,23 @@ class Universe(object):
         system_object = self._new_instance(self._systemClass)
 
         # Put special objects and classes into the dictionary of globals
-        self.setGlobal(self.symbol_for("nil"),    self._nilObject)
-        self.setGlobal(self.symbol_for("true"),   self._trueObject)
-        self.setGlobal(self.symbol_for("false"),  self._falseObject)
-        self.setGlobal(self.symbol_for("system"), self._systemObject)
-        self.setGlobal(self.symbol_for("System"), self._systemClass)
-        self.setGlobal(self.symbol_for("Block"),  self._blockClass)
+        self.set_global(self.symbol_for("nil"),    self._nilObject)
+        self.set_global(self.symbol_for("true"),   self._trueObject)
+        self.set_global(self.symbol_for("false"),  self._falseObject)
+        self.set_global(self.symbol_for("system"), self._systemObject)
+        self.set_global(self.symbol_for("System"), self._systemClass)
+        self.set_global(self.symbol_for("Block"),  self._blockClass)
         return system_object
     
+    def symbol_for(self, string):
+        # Lookup the symbol in the symbol table
+        result = self._symbol_table.lookup(string)
+        if result:
+            return result
+        
+        # Create a new symbol and return it
+        result = self.new_symbol(string)
+        return result
     
     def new_array_with_length(self, length):
         # Allocate a new array and set its class to be the array class
@@ -222,6 +233,20 @@ class Universe(object):
         # Return the freshly allocated metaclass class
         return result
     
+    def new_symbol(self, string):
+        # Allocate a new symbol and set its class to be the symbol class
+        result = Symbol(self._nilObject)
+        result.set_class(self._symbolClass)
+
+        # Put the string into the symbol
+        result.set_string(string)
+
+        # Insert the new symbol into the symbol table
+        self._symbol_table.insert(result)
+
+        # Return the freshly allocated symbol
+        return result
+      
     def new_system_class(self):
         # Allocate the new system class
         system_class = Class(self)
@@ -236,7 +261,7 @@ class Universe(object):
     def _initialize_system_class(self, system_class, super_class, name):
         # Initialize the superclass hierarchy
         if super_class:
-            system_class.setSuperClass(super_class)
+            system_class.set_super_class(super_class)
             system_class.get_class().set_super_class(super_class.get_class())
         else:
             system_class.get_class().set_super_class(self._classClass)
@@ -252,7 +277,7 @@ class Universe(object):
 
         # Initialize the name of the system class
         system_class.set_name(self.symbol_for(name))
-        system_class.get_class().setName(self.symbol_for(name + " class"));
+        system_class.get_class().set_name(self.symbol_for(name + " class"))
 
         # Insert the system class into the dictionary of globals
         self.set_global(system_class.get_name(), system_class)
@@ -274,3 +299,69 @@ class Universe(object):
     def has_global(self, name):
         # Returns if the universe has a value for the global of the given name
         return name in self._globals
+    
+    def get_block_class(self, number_of_arguments = None):
+        if not number_of_arguments:
+            # Get the generic block class
+            return self._blockClass
+        
+        # Compute the name of the block class with the given number of
+        # arguments
+        name = self.symbol_for("Block" + str(number_of_arguments))
+
+        # Lookup the specific block class in the dictionary of globals and
+        # return it
+        if self.has_global(name):
+            return self.get_global(name)
+
+        # Get the block class for blocks with the given number of arguments
+        result = self._loadClass(name, None)
+
+        # Add the appropriate value primitive to the block class
+        result.add_instance_primitive(Block.get_evaluation_primitive(number_of_arguments, self))
+
+        # Insert the block class into the dictionary of globals
+        self.set_global(name, result)
+
+        # Return the loaded block class
+        return result
+
+    def load_class(self, name):
+        # Check if the requested class is already in the dictionary of globals
+        if self.has_global(name):
+            return self.get_global(name)
+
+        # Load the class
+        result = self._load_class(name, None)
+
+        # Load primitives (if necessary) and return the resulting class
+        if result and result.has_primitives():
+            result.load_primitives()
+    
+        return result
+
+    def _load_system_class(self, system_class):
+        # Load the system class
+        result = self._load_class(system_class.get_name(), system_class)
+
+        # Load primitives if necessary
+        if result.has_primitives():
+            result.load_primitives()
+
+    def _load_class(self, name, system_class):
+        # Try loading the class from all different paths
+        for cpEntry in self._classpath:
+            try:
+                # Load the class from a file and return the loaded class
+                result = SourcecodeCompiler.compile_class(cpEntry, name.getString(), system_class, self)
+                if self._dump_bytecodes:
+                   Disassembler.dump(result.get_class())
+                   Disassembler.dump(result)
+
+                return result
+            except IOError:
+                # Continue trying different paths
+                pass
+
+        # The class could not be found.
+        return None
