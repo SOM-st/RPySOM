@@ -5,6 +5,8 @@ from som.vmobjects.clazz         import Class
 from som.vmobjects.array         import Array
 from som.vmobjects.symbol        import Symbol
 
+import som.compiler.sourcecode_compiler as sourcecode_compiler
+
 import os
 
 class Universe(object):
@@ -353,10 +355,10 @@ class Universe(object):
         for cpEntry in self._classpath:
             try:
                 # Load the class from a file and return the loaded class
-                result = SourcecodeCompiler.compile_class(cpEntry, name.getString(), system_class, self)
+                result = sourcecode_compiler.compile_class_from_file(cpEntry, name.get_string(), system_class, self)
                 if self._dump_bytecodes:
-                   Disassembler.dump(result.get_class())
-                   Disassembler.dump(result)
+                    Disassembler.dump(result.get_class())
+                    Disassembler.dump(result)
 
                 return result
             except IOError:
