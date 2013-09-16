@@ -56,8 +56,8 @@ class Class(Object):
         self.set_field(self.INSTANCE_INVOKABLES_INDEX, value)
  
         # Make sure this class is the holder of all invokables in the array
-        for invokable in self.get_instance_invokables():
-            invokable.set_holder(self)
+        for i in range(0, self.get_number_of_instance_invokables()):
+            self.get_instance_invokable(i).set_holder(self)
     
     def get_number_of_instance_invokables(self):
         # Return the number of instance invokables in this class
@@ -85,9 +85,9 @@ class Class(Object):
             return invokable
  
         # Lookup invokable with given signature in array of instance invokables
-        for invokable in self.get_instance_invokables():
+        for i in range(0, self.get_number_of_instance_invokables()):
             # Return the invokable if the signature matches
-            if invokable.get_signature() == signature:
+            if self.get_instance_invokable(i).get_signature() == signature:
                 self._invokables_table[signature] = invokable
                 return invokable
       
