@@ -24,7 +24,7 @@ class MethodGenerationContext(object):
     def is_primitive(self):
         return self._primitive
   
-    def assemblePrimitive(self, universe):
+    def assemble_primitive(self, universe):
         return Primitive.get_empty_primitive(self._signature.get_string(), universe)
 
     def assemble(self, universe):

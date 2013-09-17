@@ -236,7 +236,7 @@ class Parser(object):
   
         self._block_body(mgenc, False)
 
-    def locals(self, mgenc):
+    def _locals(self, mgenc):
         while (self._sym == Symbol.Identifier):
             mgenc.add_local_if_absent(self._variable())
 
@@ -286,7 +286,7 @@ class Parser(object):
             self._evaluation(mgenc)
 
  
-    def assignation(self, mgenc):
+    def _assignation(self, mgenc):
         l = []
  
         self._assignments(mgenc, l)
@@ -397,7 +397,7 @@ class Parser(object):
         msg = self._binary_selector()
         mgenc.add_literal_if_absent(msg)
  
-        self._binary_operand(mgenc, False)
+        self._binary_operand(mgenc, [False])
  
         if is_super_send[0]:
             self._bc_gen.emitSUPERSEND(mgenc, msg)
@@ -435,7 +435,7 @@ class Parser(object):
         if self._sym == Symbol.OperatorSequence or self._sym_in(self._binary_op_syms):
             self._binary_message(mgenc, is_super_send)
       
-        while self._sym == Symbol.OperatorSequence or self.sym_in(self._binary_op_syms):
+        while self._sym == Symbol.OperatorSequence or self._sym_in(self._binary_op_syms):
             self._binary_message(mgenc, [False])
      
     def _nested_term(self, mgenc):
