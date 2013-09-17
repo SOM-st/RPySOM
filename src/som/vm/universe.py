@@ -1,13 +1,15 @@
 from __future__ import print_function
 
 from som.interpreter.interpreter import Interpreter
+from som.interpreter.bytecodes   import Bytecodes 
 from som.vm.symbol_table         import SymbolTable
 from som.vmobjects.object        import Object
 from som.vmobjects.clazz         import Class
 from som.vmobjects.array         import Array
 from som.vmobjects.symbol        import Symbol
 from som.vmobjects.method        import Method
-from som.vmobjects.integer       import Integer   
+from som.vmobjects.integer       import Integer
+from som.vmobjects.string        import String    
 
 import som.compiler.sourcecode_compiler as sourcecode_compiler
 
@@ -48,6 +50,10 @@ class Universe(object):
     @property
     def nilObject(self):
         return self._nilObject
+    
+    @property
+    def primitiveClass(self):
+        return self._primitiveClass
         
     
     def _create_bootstrap_method(self):

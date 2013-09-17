@@ -1,4 +1,8 @@
-from som.vmobjects.object import Object
+from som.vmobjects.object      import Object
+from som.primitives.primitives import Primitives
+
+from importlib import import_module
+import inspect
 
 class Class(Object):
     
@@ -112,6 +116,40 @@ class Class(Object):
 
         # Field not found
         return -1
+
+
+    def add_instance_invokable(self, value):
+        # Add the given invokable to the array of instance invokables
+        for i in range(0, self.get_number_of_instance_invokables()):
+            # Get the next invokable in the instance invokable array
+            invokable = self.get_instance_invokable(i)
+  
+            # Replace the invokable with the given one if the signature matches
+            if invokable.get_signature() == value.get_signature():
+                self.set_instance_invokable(i, value)
+                return False
+  
+        # Append the given method to the array of instance methods
+        self.set_instance_invokables(self.get_instance_invokables().copy_and_extend_with(value, self._universe))
+        return True
+  
+    def add_instance_primitive(self, value):
+        if self.add_instance_invokable(value):
+            self._universe.std_print("Warning: Primitive " + value.get_signature().get_string())
+            self._universe.std_println(" is not in class definition for class " + self.get_name().get_string())
+  
+    def get_instance_field_name(self, index):
+        # Get the name of the instance field with the given index
+        if index >= self._get_number_of_super_instance_fields():
+            # Adjust the index to account for fields defined in the super class
+            index -= self._get_number_of_super_instance_fields()
+  
+            # Return the symbol representing the instance fields name
+            return self.get_instance_fields().get_indexable_field(index)
+        else:
+            # Ask the super class to return the name of the instance field
+            return self.get_super_class().get_instance_field_name(index)
+ 
     def get_number_of_instance_fields(self):
         # Get the total number of instance fields in this class
         return (self.get_instance_fields().get_number_of_indexable_fields() +
@@ -126,11 +164,31 @@ class Class(Object):
   
     def has_primitives(self):
         # Lookup invokable with given signature in array of instance invokables
-        for invokable in self.get_instance_invokables():
-            if invokable.is_primitive():
+        for i in range(0, self.get_number_of_instance_invokables()):
+            # Get the next invokable in the instance invokable array
+            if self.get_instance_invokable(i).is_primitive():
                 return True
         
         return False
+  
+    def load_primitives(self):
+        # determine module name for the primitives of the class
+        module_name = "som.primitives." + self.get_name().get_string().lower() + "_primitives"
+        
+        # Try loading the primitives
+        module = import_module(module_name)
+        for name, element in inspect.getmembers(module):
+            if (inspect.isclass(element) and 
+                  issubclass(element, Primitives) and
+                  element is not Primitives):
+                element(self._universe).install_primitives_in(self)
+  
+    def replace_bytecodes(self):
+        cnt = self.get_number_of_instance_invokables()
+        for i in range(0, cnt):
+            inv = self.get_instance_invokable(i)
+            if not inv.is_primitive():
+                inv.replace_bytecodes()  
 
     def __str__(self):
         return "Class(" + self.get_name().get_string() + ")"
