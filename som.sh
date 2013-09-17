@@ -1,3 +1,2 @@
 #!/bin/sh
-echo NOT YET IMPLEMENTED
-exit 255
+PYTHONPATH=src python src/som/vm/universe.py "$@"
