@@ -7,7 +7,7 @@ class Integer(Object):
         self._embedded_integer = 0
     
     def get_embedded_integer(self):
-        return self
+        return self._embedded_integer
     
     def set_embedded_integer(self, value):
         self._embedded_integer = value

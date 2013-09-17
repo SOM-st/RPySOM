@@ -322,7 +322,7 @@ class Universe(object):
         result.set_class(self._bigintegerClass)
  
         # Set the embedded integer of the newly allocated integer
-        result.set_embedded_biginteger(value)
+        result.set_embedded_big_integer(value)
  
         # Return the freshly allocated integer
         return result
