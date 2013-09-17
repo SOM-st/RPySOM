@@ -80,7 +80,7 @@ class Method(Array, Invokable):
         # Get the number of arguments of this method
         return self.get_signature().get_number_of_signature_arguments()
   
-    def get_default_number_of_fields(self):
+    def _get_default_number_of_fields(self):
         # Return the default number of fields in a method
         return self.NUMBER_OF_METHOD_FIELDS
   
