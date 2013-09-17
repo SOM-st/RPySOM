@@ -65,11 +65,11 @@ class Bytecodes(object):
         if cls.stack_effect_depends_on_send(bytecode):
             return -number_of_arguments_of_message_send + 1 # +1 in order to account for the return value
         else:
-            return cls._stack_effect_depends_on_message[bytecode]
+            return cls._bytecode_stack_effect[bytecode]
     
     @classmethod
     def stack_effect_depends_on_send(cls, bytecode):
-        return cls._stack_effect_depends_on_message[bytecode] is cls._stack_effect_depends_on_message
+        return cls._bytecode_stack_effect[bytecode] is cls._stack_effect_depends_on_message
 
     @classmethod
     def as_str(cls, bytecode):
