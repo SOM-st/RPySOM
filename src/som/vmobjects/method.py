@@ -90,8 +90,7 @@ class Method(Array, Invokable):
 
     def set_number_of_bytecodes(self, value):
         # Set the number of bytecodes in this method
-        self._bytecodes              = array('b')
-        self._bytecodes.insert(value - 1, 0)
+        self._bytecodes              = array('b', [0] * value)
         self._inline_cache_class     = [None] * value
         self._inline_cache_invokable = [None] * value
 
@@ -120,8 +119,7 @@ class Method(Array, Invokable):
         new_frame.copy_arguments_from(frame)
 
     def replace_bytecodes(self):
-        newbc = array('b')
-        newbc.insert(len(self._bytecodes))
+        newbc = array('b', [0] * len(self._bytecodes))
         idx = 0
 
         i = 0
@@ -150,8 +148,7 @@ class Method(Array, Invokable):
 
         # we copy the new array because it may be shorter, and we don't
         # want to upset whatever dependence there is on the length
-        self._bytecodes = array('b')
-        self._bytecodes.insert(idx - 1, 0)
+        self._bytecodes = array('b', [0] * idx)
         for i in range(0, idx):
             self._bytecodes[i] = newbc[i]
 
