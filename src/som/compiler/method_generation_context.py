@@ -42,7 +42,7 @@ class MethodGenerationContext(object):
         # copy literals into the method
         i = 0
         for l in self._literals:
-            meth.set_indexableField(i, l)
+            meth.set_indexable_field(i, l)
             i += 1
         
         # copy bytecodes into method
