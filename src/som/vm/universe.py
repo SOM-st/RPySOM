@@ -504,11 +504,11 @@ class Universe(object):
         print(msg, file=sys.stderr)
 
     @classmethod
-    def print(cls, msg):
+    def std_print(cls, msg):
         print(msg, end="")
 
     @classmethod
-    def println(cls, msg=""):
+    def std_println(cls, msg=""):
         print(msg)
 
 def main(args):
