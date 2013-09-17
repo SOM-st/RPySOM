@@ -1,4 +1,5 @@
 from som.interpreter.bytecodes import Bytecodes as BC
+from som.vmobjects.primitive   import Primitive
 
 class MethodGenerationContext(object):
     
@@ -59,7 +60,9 @@ class MethodGenerationContext(object):
         max_depth = 0
         i         = 0
 
-        for bc in self._bytecode:
+        while i < len(self._bytecode):
+            bc = self._bytecode[i]
+            
             if BC.stack_effect_depends_on_send(bc):
                 signature = self._literals[self._bytecode[i + 1]]
                 depth += BC.get_stack_effect(bc, signature.get_number_of_signature_arguments())
