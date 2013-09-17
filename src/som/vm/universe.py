@@ -1,9 +1,12 @@
+from __future__ import print_function
+
 from som.interpreter.interpreter import Interpreter
 from som.vm.symbol_table         import SymbolTable
 from som.vmobjects.object        import Object
 from som.vmobjects.clazz         import Class
 from som.vmobjects.array         import Array
 from som.vmobjects.symbol        import Symbol
+from som.vmobjects.method        import Method 
 
 import som.compiler.sourcecode_compiler as sourcecode_compiler
 
@@ -228,6 +231,107 @@ class Universe(object):
         # Return the allocated and initialized array
         return result
     
+    def new_block(self, method, context_frame, arguments):
+        # Allocate a new block and set its class to be the block class
+        result = Block(self._nilObject)
+        result.set_class(self._get_block_class(arguments))
+
+        # Set the method and context of block
+        result.set_method(method)
+        result.set_context(context_frame)
+
+        # Return the freshly allocated block
+        return result
+
+    def new_class(self, class_class):
+        # Allocate a new class and set its class to be the given class class
+        result = Class(class_class.get_number_of_instance_fields(), self)
+        result.set_class(class_class)
+
+        # Return the freshly allocated class
+        return result
+
+    def new_frame(self, previous_frame, method):
+        # Allocate a new frame and set its class to be the frame class
+        result = Frame(self._nilObject)
+        result.set_class(self._frameClass)
+
+        # Compute the maximum number of stack locations (including arguments,
+        # locals and extra buffer to support doesNotUnderstand) and set the
+        # number of indexable fields accordingly
+        length = (method.get_number_of_arguments() +
+                  method.get_number_of_locals().get_embedded_integer() +
+                  method.get_maximum_number_of_stack_elements().get_embedded_integer() + 2)
+        result.set_number_of_indexable_fields_and_clear(length, self._nilObject)
+
+        # Set the method of the frame and the previous frame
+        result.set_method(method)
+        if previous_frame:
+            result.set_previous_frame(previous_frame)
+
+        # Reset the stack pointer and the bytecode index
+        result.reset_stack_pointer()
+        result.set_bytecode_index(0)
+
+        # Return the freshly allocated frame
+        return result
+
+    def new_method(self, signature, num_bytecodes, num_literals):
+        # Allocate a new method and set its class to be the method class
+        result = Method(self._nilObject)
+        result.set_class(self._methodClass)
+
+        # Set the signature and the number of bytecodes
+        result.set_signature(signature)
+        result.set_number_of_bytecodes(num_bytecodes)
+        result.set_number_of_indexable_fields_and_clear(num_literals, self._nilObject)
+
+        # Return the freshly allocated method
+        return result
+
+    def new_instance(self, instance_class):
+        # Allocate a new instance and set its class to be the given class
+        result = Object(instance_class.get_number_of_instance_fields(), self._nilObject)
+        result.set_class(instance_class)
+ 
+        # Return the freshly allocated instance
+        return result
+
+ 
+    def new_integer(self, value):
+        # Allocate a new integer and set its class to be the integer class
+        result = Integer(self._nilObject)
+        result.set_class(self._integerClass)
+     
+        # Set the embedded integer of the newly allocated integer
+        result.set_embedded_integer(value)
+     
+        # Return the freshly allocated integer
+        return result
+ 
+    def new_big_integer(self, value):
+        # Allocate a new integer and set its class to be the integer class
+        result = BigInteger(self._nilObject)
+        result.set_class(self._bigintegerClass)
+ 
+        # Set the embedded integer of the newly allocated integer
+        result.set_embedded_biginteger(value)
+ 
+        # Return the freshly allocated integer
+        return result
+ 
+ 
+    def new_double(self, value):
+        # Allocate a new integer and set its class to be the double class
+        result = Double(self._nilObject)
+        result.set_class(self._doubleClass)
+ 
+        # Set the embedded double of the newly allocated double
+        result.set_embedded_double(value)
+ 
+        # Return the freshly allocated double
+        return result
+    
     def new_metaclass_class(self):
         # Allocate the metaclass classes
         result = Class(self)
@@ -237,6 +341,17 @@ class Universe(object):
         result.get_class().set_class(result)
 
         # Return the freshly allocated metaclass class
+        return result
+
+    def new_string(self, embedded_string):
+        # Allocate a new string and set its class to be the string class
+        result = String(self._nilObject)
+        result.set_class(self._stringClass)
+ 
+        # Put the embedded string into the new string
+        result.set_embedded_string(embedded_string)
+ 
+        # Return the freshly allocated string
         return result
     
     def new_symbol(self, string):
@@ -306,7 +421,7 @@ class Universe(object):
         # Returns if the universe has a value for the global of the given name
         return name in self._globals
     
-    def get_block_class(self, number_of_arguments = None):
+    def _get_block_class(self, number_of_arguments = None):
         if not number_of_arguments:
             # Get the generic block class
             return self._blockClass
@@ -371,7 +486,29 @@ class Universe(object):
 
         # The class could not be found.
         return None
+    
+    def load_shell_class(self, stmt):
+        # Load the class from a stream and return the loaded class
+        result = sourcecode_compiler.compile_class_from_string(stmt, None, self)
+        if self._dumpBytecodes:
+            Disassembler.dump(result)
+        return result
 
+    @classmethod
+    def error_print(cls, msg):
+        print(msg, file=sys.stderr, end="")
+
+    @classmethod
+    def error_println(cls, msg = ""):
+        print(msg, file=sys.stderr)
+
+    @classmethod
+    def print(cls, msg):
+        print(msg, end="")
+
+    @classmethod
+    def println(cls, msg=""):
+        print(msg)
 
 def main(args):
     u = Universe()
