@@ -6,7 +6,8 @@ from som.vmobjects.object        import Object
 from som.vmobjects.clazz         import Class
 from som.vmobjects.array         import Array
 from som.vmobjects.symbol        import Symbol
-from som.vmobjects.method        import Method 
+from som.vmobjects.method        import Method
+from som.vmobjects.integer       import Integer   
 
 import som.compiler.sourcecode_compiler as sourcecode_compiler
 
