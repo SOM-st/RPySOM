@@ -130,19 +130,20 @@ class MethodGenerationContext(object):
 
     def find_var(self, var, triplet):
         # triplet: index, context, isArgument
-        triplet[0] = self._locals.index(var)
-    
-        if triplet[0] == -1:
+        if var in self._locals:
+            triplet[0] = self._locals.index(var)
+            return True
+        
+        if var in self._arguments:
             triplet[0] = self._arguments.index(var)
-            if triplet[0] == -1:
-                if not self._outer_genc:
-                    return False
-                else:
-                    triplet[1] = triplet[1] + 1
-                    return self._outer_genc.find_var(var, triplet)
-            else:
-                triplet[2] = True
-        return True
+            triplet[2] = True
+            return True
+        
+        if self._outer_genc:
+            triplet[1] = triplet[1] + 1
+            return self._outer_genc.find_var(var, triplet)
+        else:
+            return False
 
     def has_field(self, field):
         return self._holder_genc.has_field(field)
