@@ -8,6 +8,7 @@ from som.vmobjects.symbol        import Symbol
 import som.compiler.sourcecode_compiler as sourcecode_compiler
 
 import os
+import sys
 
 class Universe(object):
     
@@ -55,14 +56,14 @@ class Universe(object):
     
     def interpret(self, arguments):
         # Check for command line switches
-        arguments = self.handleArguments(arguments)
+        arguments = self.handle_arguments(arguments)
 
         # Initialize the known universe
         self.initialize(arguments)
         
         self.start()
     
-    def handleArguments(self, arguments):
+    def handle_arguments(self, arguments):
         got_classpath  = False
         remaining_args = []
 
@@ -82,7 +83,7 @@ class Universe(object):
     
         if not got_classpath:
             # Get the default class path of the appropriate size
-            self._classpath = self._setup_default_classpath(0)
+            self._classpath = self._setup_default_classpath()
 
         # check remaining args for class paths, and strip file extension
         i = 0
@@ -99,6 +100,9 @@ class Universe(object):
     
     def setup_classpath(self, cp):
         self._classpath = cp.split(os.pathsep)
+    
+    def _setup_default_classpath(self):
+        return ['.']
     
     # take argument of the form "../foo/Test.som" and return
     # "../foo", "Test", "som"
@@ -367,3 +371,12 @@ class Universe(object):
 
         # The class could not be found.
         return None
+
+
+def main(args):
+    u = Universe()
+    u.interpret(args[1:])
+    u.exit(0)
+
+if __name__ == '__main__':
+    main(sys.argv)
