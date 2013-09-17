@@ -1,6 +1,8 @@
 import os
 from StringIO import StringIO
 
+from som.compiler.class_generation_context import ClassGenerationContext
+
 def compile_class_from_file(path, filename, system_class, universe):
     return _SourcecodeCompiler().compile(path, filename, system_class, universe)
 
