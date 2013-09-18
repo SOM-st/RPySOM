@@ -15,6 +15,8 @@ from som.vmobjects.frame         import Frame
 from som.vmobjects.biginteger    import BigInteger
 from som.vmobjects.double        import Double
 
+from som.vm.shell import Shell
+
 import som.compiler.sourcecode_compiler as sourcecode_compiler
 
 import os
