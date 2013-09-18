@@ -28,7 +28,7 @@ class SomTest(unittest.TestCase):
         ("Vector"        ,)])
     def test_som_test(self, test_name):
         args = ["-cp", "Smalltalk", "TestSuite/TestHarness.som", test_name]
-        u = Universe()
+        u = Universe(True)
         u.interpret(args)
         
-        self.assertEquals(0, u.last_exit_code)
+        self.assertEquals(0, u.last_exit_code())

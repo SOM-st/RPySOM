@@ -22,7 +22,7 @@ import sys
 
 class Universe(object):
     
-    def __init__(self):
+    def __init__(self, avoid_exit = False):
         self._interpreter    = Interpreter(self)
         self._symbol_table   = SymbolTable()
         
@@ -49,6 +49,7 @@ class Universe(object):
         self._doubleClass    = None
         
         self._last_exit_code = 0
+        self._avoid_exit     = avoid_exit
         self._classpath      = None
         self._dump_bytecodes = False        
     
@@ -123,6 +124,15 @@ class Universe(object):
     @property
     def metaclassClass(self):
         return self._metaclassClass
+    
+    def exit(self, error_code):
+        if self._avoid_exit:
+            self._last_exit_code = error_code
+        else:
+            sys.exit(error_code)
+    
+    def last_exit_code(self):
+        return self._last_exit_code
     
     def get_interpreter(self):
         return self._interpreter
