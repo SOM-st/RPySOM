@@ -45,12 +45,12 @@ class Object(object):
         # Set the field with the given index to the given value
         self._fields[index] = value
     
-    def send(self, selectorString, arguments, universe, interpreter):
+    def send(self, selector_string, arguments, universe, interpreter):
         # Turn the selector string into a selector
-        selector = self._universe.symbol_for(selectorString)
+        selector = universe.symbol_for(selector_string)
 
         # Push the receiver onto the stack
-        self._interpreter.get_frame().push(self)
+        interpreter.get_frame().push(self)
 
         # Push the arguments onto the stack
         for arg in arguments:
@@ -60,7 +60,7 @@ class Object(object):
         invokable = self.get_class().lookup_invokable(selector)
 
         # Invoke the invokable
-        invokable.invoke(self._interpreter.get_frame(), self_.interpreter);
+        invokable.invoke(interpreter.get_frame(), interpreter)
   
 
     def send_does_not_understand(self, selector, universe, interpreter):
