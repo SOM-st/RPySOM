@@ -70,7 +70,7 @@ class Object(object):
         frame = interpreter.get_frame()
 
         # Allocate an array with enough room to hold all arguments
-        arguments_array = universe.new_array(number_of_arguments)
+        arguments_array = universe.new_array_with_length(number_of_arguments)
 
         # Remove all arguments and put them in the freshly allocated array
         i = number_of_arguments - 1
