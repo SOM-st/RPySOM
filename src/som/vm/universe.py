@@ -70,7 +70,19 @@ class Universe(object):
     @property
     def metaclassClass(self):
         return self._metaclassClass
+    
+    def execute_method(self, class_name, selector):
+        self._initialize_object_system()
+
+        clazz = self.load_class(self.symbol_for(class_name))
+
+        # Lookup the invokable on class
+        invokable = clazz.get_class().lookup_invokable(self.symbol_for(selector))
+
+        bootstrap_method = self._create_bootstrap_method()
+        bootstrap_frame  = self._create_bootstrap_frame(bootstrap_method, clazz)
         
+        return self.start(bootstrap_frame, invokable)
     
     def _create_bootstrap_method(self):
         # Create a fake bootstrap method to simplify later frame traversal
@@ -80,14 +92,44 @@ class Universe(object):
         bootstrap_method.set_maximum_number_of_stack_elements(self.new_integer(2))
         bootstrap_method.set_holder(self._systemClass)
     
+    def _create_bootstrap_frame(self, bootstrap_method, receiver, arguments = None):
+        # Create a fake bootstrap frame with the system object on the stack
+        bootstrap_frame = self._interpreter.push_new_frame(bootstrap_method)
+        bootstrap_frame.push(receiver)
+        
+        if arguments:
+            # Convert the arguments into an array
+            arguments_array = self.new_array_from_list(arguments)
+            bootstrap_frame.push(arguments_array)
+        
+    
     def interpret(self, arguments):
         # Check for command line switches
         arguments = self.handle_arguments(arguments)
 
         # Initialize the known universe
-        self.initialize(arguments)
+        system_object = self._initialize_object_system()
+        bootstrap_method = self._create_bootstrap_method()
         
-        self.start()
+        # Start the shell if no filename is given
+        if len(arguments) == 0:
+            shell = Shell(self, self._interpreter)
+            shell.set_bootstrap_method(bootstrap_method)
+            shell.start()
+            return
+        else:
+            bootstrap_frame = self._create_bootstrap_frame(bootstrap_method, system_object, arguments)
+            # Lookup the initialize invokable on the system class
+            initialize = self._systemClass.lookup_invokable(self.symbol_for("initialize:"))
+
+            self.start(bootstrap_frame, initialize)
+    
+    def start(self, bootstrap_frame, invokable):
+        # Invoke the initialize invokable
+        invokable.invoke(bootstrap_frame, self._interpreter)
+
+        # Start the interpreter
+        return self._interpreter.start()
     
     def handle_arguments(self, arguments):
         got_classpath  = False
