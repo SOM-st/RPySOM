@@ -54,7 +54,7 @@ class Primitive(Object, Invokable):
         # Return an empty primitive with the given signature
         def invoke(self, frame, interpreter):
             # Write a warning to the screen
-            universe.println("Warning: undefined primitive " +
+            universe.std_println("Warning: undefined primitive " +
                              self.get_signature().get_string() + " called")
       
         # The empty primitives are empty

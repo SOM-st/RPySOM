@@ -503,7 +503,7 @@ class Universe(object):
             return self.get_global(name)
 
         # Get the block class for blocks with the given number of arguments
-        result = self._loadClass(name, None)
+        result = self._load_class(name, None)
 
         # Add the appropriate value primitive to the block class
         result.add_instance_primitive(Block.get_evaluation_primitive(number_of_arguments, self))
