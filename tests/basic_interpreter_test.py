@@ -37,11 +37,11 @@ class BasicInterpreterTest(unittest.TestCase):
     
     def _assertEqualsSOMValue(self, expected_result, actual_result, result_type):
         if result_type is Integer:
-            self.assertEquals(expected_result, actual_result.embedded_integer)
+            self.assertEquals(expected_result, actual_result.get_embedded_integer())
             return
         
         if result_type is Class:
-            self.assertEquals(expected_result, actual_result.name.string)
+            self.assertEquals(expected_result, actual_result.get_name().get_string())
             return
 
         self.fail("SOM Value handler missing")
