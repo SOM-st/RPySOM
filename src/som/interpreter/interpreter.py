@@ -196,7 +196,7 @@ class Interpreter(object):
                 self._dispatch_table[bytecode](bytecode_index)
         
         except self.InterpreterHalt:
-            return self.get_frame().top()
+            return self.get_frame().get_stack_element(0)
             
     def push_new_frame(self, method):
         # Allocate a new frame and make it the current one
