@@ -195,12 +195,12 @@ class Universe(object):
         self._blockClass = self.load_class(self.symbol_for("Block"))
 
         # Setup the true and false objects
-        self._trueObject  = self._new_instance(self.load_class(self.symbol_for("True")))
-        self._falseObject = self._new_instance(self.load_class(self.symbol_for("False")))
+        self._trueObject  = self.new_instance(self.load_class(self.symbol_for("True")))
+        self._falseObject = self.new_instance(self.load_class(self.symbol_for("False")))
 
         # Load the system class and create an instance of it
         self._systemClass = self.load_class(self.symbol_for("System"))
-        system_object = self._new_instance(self._systemClass)
+        system_object = self.new_instance(self._systemClass)
 
         # Put special objects and classes into the dictionary of globals
         self.set_global(self.symbol_for("nil"),    self._nilObject)
@@ -268,7 +268,7 @@ class Universe(object):
 
     def new_class(self, class_class):
         # Allocate a new class and set its class to be the given class class
-        result = Class(class_class.get_number_of_instance_fields(), self)
+        result = Class(self, class_class.get_number_of_instance_fields())
         result.set_class(class_class)
 
         # Return the freshly allocated class
