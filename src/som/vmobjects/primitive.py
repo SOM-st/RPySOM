@@ -52,11 +52,11 @@ class Primitive(Object, Invokable):
     @classmethod
     def get_empty_primitive(cls, signature_string, universe):
         # Return an empty primitive with the given signature
-        def invoke(self, frame, interpreter):
+        def _invoke(self, frame, interpreter):
             # Write a warning to the screen
             universe.std_println("Warning: undefined primitive " +
                              self.get_signature().get_string() + " called")
       
         # The empty primitives are empty
-        def is_empty(self): return True
-        return Primitive(signature_string, universe, invoke, is_empty)
+        def _is_empty(self): return True
+        return Primitive(signature_string, universe, _invoke, _is_empty)
