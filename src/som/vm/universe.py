@@ -71,6 +71,9 @@ class Universe(object):
     def metaclassClass(self):
         return self._metaclassClass
     
+    def get_interpreter(self):
+        return self._interpreter
+    
     def execute_method(self, class_name, selector):
         self._initialize_object_system()
 
@@ -180,6 +183,18 @@ class Universe(object):
         (path, file_name) = os.path.split(path)
         (file_name, ext)  = os.path.splitext(file_name)
         return (path, file_name, ext[1:])
+    
+    def _print_usage_and_exit(self):
+        # Print the usage
+        self.std_println("Usage: som [-options] [args...]                          ")
+        self.std_println("                                                         ")
+        self.std_println("where options include:                                   ")
+        self.std_println("    -cp <directories separated by " + os.pathsep     + ">")
+        self.std_println("                  set search path for application classes")
+        self.std_println("    -d            enable disassembling")
+
+        # Exit
+        self.exit(0)
 
     def _initialize_object_system(self):
         # Allocate the nil object
