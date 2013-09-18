@@ -45,6 +45,7 @@ class Universe(object):
         self._primitiveClass = None
         self._systemClass    = None
         self._blockClass     = None
+        self._stringClass    = None
         self._doubleClass    = None
         
         self._last_exit_code = 0
@@ -62,6 +63,58 @@ class Universe(object):
     @property
     def falseObject(self):
         return self._falseObject
+    
+    @property
+    def objectClass(self):
+        return self._objectClass
+    
+    @property
+    def classClass(self):
+        return self._classClass
+    
+    @property
+    def nilClass(self):
+        return self._nilClass
+    
+    @property
+    def integerClass(self):
+        return self._integerClass
+    
+    @property
+    def bigintegerClass(self):
+        return self._bigintegerClass
+
+    @property
+    def arrayClass(self):
+        return self._arrayClass
+    
+    @property
+    def methodClass(self):
+        return self._methodClass
+    
+    @property
+    def symbolClass(self):
+        return self._symbolClass
+    
+    @property
+    def frameClass(self):
+        return self._frameClass
+    
+    @property
+    def systemClass(self):
+        return self._systemClass
+    
+    @property
+    def blockClass(self):
+        return self._blockClass
+    
+    @property
+    def stringClass(self):
+        return self._stringClass
+    
+    @property
+    def doubleClass(self):
+        return self._doubleClass
     
     @property
     def primitiveClass(self):
