@@ -14,6 +14,10 @@ class Integer(Object):
     def set_embedded_integer(self, value):
         self._embedded_integer = value
     
+    def get_embedded_value(self):
+        """This Method is polymorphic with BigInteger"""
+        return self._embedded_integer
+    
     def __str__(self):
         return str(self._embedded_integer)
     
