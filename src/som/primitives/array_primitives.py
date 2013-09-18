@@ -26,4 +26,4 @@ class ArrayPrimitives(Primitives):
             length = frame.pop()
             frame.pop() # not required
             frame.push(self._universe.new_array_with_length(length.get_embedded_integer()))
-        self._install_instance_primitive(Primitive("new:", self._universe, _new))
+        self._install_class_primitive(Primitive("new:", self._universe, _new))
