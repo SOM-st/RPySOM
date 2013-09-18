@@ -146,12 +146,12 @@ class Frame(Array):
 
     def get_local(self, index, context_level):
         # Get the local with the given index in the given context
-        return self._get_context(context_level).get_local(index)
+        return self._get_context(context_level)._get_local(index)
 
     def set_local(self, index, context_level, value):
         # Set the local with the given index in the given context to the given
         # value
-        self._get_context(context_level).set_local(index, value)
+        self._get_context(context_level)._set_local(index, value)
 
     def get_argument(self, index, context_level):
         # Get the context
