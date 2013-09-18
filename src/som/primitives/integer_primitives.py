@@ -141,15 +141,7 @@ class IntegerPrimitives(Primitives):
                 self._resend_as_double("%", left, right_obj)
             else:
                 # Do operation:
-                right = right_obj
-                l = left.get_embedded_integer()
-                r = right.get_embedded_integer()
-                result = l % r
-                
-                if l > 0 and r < 0:
-                    result += r
-                
-                self._push_long_result(frame, result)
+                self._push_long_result(frame, left.get_embedded_integer() % right_obj.get_embedded_integer())
         self._install_instance_primitive(Primitive("%", self._universe, _mod))
 
         def _and(ivkbl, frame, interpreter):
