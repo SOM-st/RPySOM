@@ -91,6 +91,7 @@ class Universe(object):
         bootstrap_method.set_number_of_locals(self.new_integer(0))
         bootstrap_method.set_maximum_number_of_stack_elements(self.new_integer(2))
         bootstrap_method.set_holder(self._systemClass)
+        return bootstrap_method
     
     def _create_bootstrap_frame(self, bootstrap_method, receiver, arguments = None):
         # Create a fake bootstrap frame with the system object on the stack
@@ -101,6 +102,7 @@ class Universe(object):
             # Convert the arguments into an array
             arguments_array = self.new_array_from_list(arguments)
             bootstrap_frame.push(arguments_array)
+        return bootstrap_frame
         
     
     def interpret(self, arguments):
