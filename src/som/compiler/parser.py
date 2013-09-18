@@ -458,7 +458,7 @@ class Parser(object):
             val = self._literal_decimal()
       
         if isinstance(val, long):
-            lit = self._universe.new_big_integer(val)
+            lit = self._universe.new_biginteger(val)
         else:
             lit = self._universe.new_integer(val)
       

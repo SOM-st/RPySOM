@@ -12,7 +12,7 @@ from som.vmobjects.integer       import Integer
 from som.vmobjects.string        import String
 from som.vmobjects.block         import Block
 from som.vmobjects.frame         import Frame
-from som.vmobjects.big_integer   import BigInteger
+from som.vmobjects.biginteger    import BigInteger
 from som.vmobjects.double        import Double
 
 import som.compiler.sourcecode_compiler as sourcecode_compiler
@@ -376,13 +376,13 @@ class Universe(object):
         # Return the freshly allocated integer
         return result
  
-    def new_big_integer(self, value):
+    def new_biginteger(self, value):
         # Allocate a new integer and set its class to be the integer class
         result = BigInteger(self._nilObject)
         result.set_class(self._bigintegerClass)
  
         # Set the embedded integer of the newly allocated integer
-        result.set_embedded_big_integer(value)
+        result.set_embedded_biginteger(value)
  
         # Return the freshly allocated integer
         return result
