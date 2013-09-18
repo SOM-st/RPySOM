@@ -102,9 +102,7 @@ class Universe(object):
         bootstrap_frame.push(receiver)
         
         if arguments:
-            # Convert the arguments into an array
-            arguments_array = self.new_array_from_list(arguments)
-            bootstrap_frame.push(arguments_array)
+            bootstrap_frame.push(arguments)
         return bootstrap_frame
         
     
@@ -123,7 +121,9 @@ class Universe(object):
             shell.start()
             return
         else:
-            bootstrap_frame = self._create_bootstrap_frame(bootstrap_method, system_object, arguments)
+            # Convert the arguments into an array
+            arguments_array = self.new_array_with_strings(arguments)
+            bootstrap_frame = self._create_bootstrap_frame(bootstrap_method, system_object, arguments_array)
             # Lookup the initialize invokable on the system class
             initialize = self._systemClass.lookup_invokable(self.symbol_for("initialize:"))
 
