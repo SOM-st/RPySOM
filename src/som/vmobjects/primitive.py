@@ -1,6 +1,8 @@
 from som.vmobjects.object    import Object
 from som.vmobjects.invokable import Invokable
 
+import types
+
 class Primitive(Object, Invokable):
     
     # Static field indices and number of primitive fields
@@ -17,7 +19,7 @@ class Primitive(Object, Invokable):
         # Set the signature of this primitive
         self._set_signature(universe.symbol_for(signature_string))
         
-        self.invoke = invoke
+        self.invoke = types.MethodType(invoke, self)
         if is_empty:
             self.is_empty = is_empty
 
@@ -52,10 +54,10 @@ class Primitive(Object, Invokable):
     @classmethod
     def get_empty_primitive(cls, signature_string, universe):
         # Return an empty primitive with the given signature
-        def _invoke(self, frame, interpreter):
+        def _invoke(ivkbl, frame, interpreter):
             # Write a warning to the screen
             universe.std_println("Warning: undefined primitive " +
-                             self.get_signature().get_string() + " called")
+                             ivkbl.get_signature().get_string() + " called")
       
         # The empty primitives are empty
         def _is_empty(self): return True
