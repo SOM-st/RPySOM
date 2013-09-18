@@ -3,6 +3,8 @@ from som.compiler.lexer                     import Lexer
 from som.compiler.bytecode_generator        import BytecodeGenerator
 from som.compiler.method_generation_context import MethodGenerationContext
 
+from som.vmobjects.integer import Integer
+
 class Parser(object):
     
     _single_op_syms        = (Symbol.Not,  Symbol.And,  Symbol.Or,    Symbol.Star,
@@ -457,10 +459,11 @@ class Parser(object):
         else:
             val = self._literal_decimal()
       
-        if isinstance(val, long):
-            lit = self._universe.new_biginteger(val)
-        else:
+        
+        if Integer.value_fits(val):
             lit = self._universe.new_integer(val)
+        else:
+            lit = self._universe.new_biginteger(val)
       
         mgenc.add_literal_if_absent(lit)
         self._bc_gen.emitPUSHCONSTANT(mgenc, lit)

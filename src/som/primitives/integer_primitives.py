@@ -12,10 +12,10 @@ class IntegerPrimitives(Primitives):
     
     def _push_long_result(self, frame, result):
         # Check with integer bounds and push:
-        if isinstance(result, long):
-            frame.push(self._universe.new_biginteger(result))
-        else:
+        if Integer.value_fits(result):
             frame.push(self._universe.new_integer(result))
+        else:
+            frame.push(self._universe.new_biginteger(result))
 
     def _resend_as_biginteger(self, operator, left, right):
         left_biginteger = self._universe.new_biginteger(left.get_embedded_integer())
