@@ -33,23 +33,22 @@ class Block(Object):
         return self.NUMBER_OF_BLOCK_FIELDS
   
     class Evaluation(Primitive):
-        def __init__(self, num_args, universe):
-            super(Evaluation, self).__init__(self._compute_signature_string(num_args), universe, self.invoke)
+        def __init__(self, num_args, universe):            
+            def _invoke(ivkbl, frame, interpreter):
+                # Get the block (the receiver) from the stack
+                rcvr = frame.get_stack_element(ivkbl._number_of_arguments - 1)
+    
+                # Get the context of the block...
+                context = rcvr.get_context()
+    
+                # Push a new frame and set its context to be the one specified in
+                # the block
+                new_frame = interpreter.push_new_frame(rcvr.get_method())
+                new_frame.copy_arguments_from(frame)
+                new_frame.set_context(context)
+            
+            super(Block.Evaluation, self).__init__(self._compute_signature_string(num_args), universe, _invoke)
             self._number_of_arguments = num_args
-
-        def invoke(self, frame, interpreter):
-            # Get the block (the receiver) from the stack
-            rcvr = frame.get_stack_element(self._number_of_arguments - 1)
-
-            # Get the context of the block...
-            context = rcvr.get_context()
-
-            # Push a new frame and set its context to be the one specified in
-            # the block
-            new_frame = interpreter.push_new_frame(rcvr.get_method())
-            new_frame.copy_arguments_from(frame);
-            new_frame.set_context(context)
-
 
         def _compute_signature_string(self, num_args):
             # Compute the signature string

@@ -6,7 +6,7 @@ from som.vmobjects.array     import Array
 class ObjectPrimitives(Primitives):
     
     def install_primitives(self):
-        def _equals(self, frame, interpreter):
+        def _equals(ivkbl, frame, interpreter):
             op1 = frame.pop()
             op2 = frame.pop()
             if op1 is op2:
@@ -15,13 +15,13 @@ class ObjectPrimitives(Primitives):
                 frame.push(self._universe.falseObject)
         self._install_instance_primitive(Primitive("==", self._universe, _equals))
         
-        def _hashcode(self, frame, interpreter):
+        def _hashcode(ivkbl, frame, interpreter):
             rcvr = frame.pop()
             frame.push(self._universe.new_integer(hash(rcvr)))
         self._install_instance_primitive(Primitive("hashcode", self._universe, _hashcode))
 
 
-        def _objectSize(self, frame, interpreter):
+        def _objectSize(ivkbl, frame, interpreter):
             rcvr = frame.pop()
             size = rcvr.get_number_of_fields()
             if isinstance(rcvr, Array):
@@ -30,7 +30,7 @@ class ObjectPrimitives(Primitives):
             frame.push(self._universe.new_integer(size))
         self._install_instance_primitive(Primitive("objectSize", self._universe, _objectSize))
 
-        def _perform(self, frame, interpreter):
+        def _perform(ivkbl, frame, interpreter):
             selector = frame.pop()
             rcvr     = frame.get_stack_element(0)
 
@@ -38,7 +38,7 @@ class ObjectPrimitives(Primitives):
             invokable.invoke(frame, interpreter)
         self._install_instance_primitive(Primitive("perform:", self._universe, _perform))
 
-        def _performInSuperclass(self, frame, interpreter):
+        def _performInSuperclass(ivkbl, frame, interpreter):
             clazz    = frame.pop()
             selector = frame.pop()
             rcvr     = frame.get_stack_element(0)
@@ -47,7 +47,7 @@ class ObjectPrimitives(Primitives):
             invokable.invoke(frame, interpreter)
         self._install_instance_primitive(Primitive("perform:inSuperclass:", self._universe, _performInSuperclass))
 
-        def _performWithArguments(self, frame, interpreter):
+        def _performWithArguments(ivkbl, frame, interpreter):
             args     = frame.pop()
             selector = frame.pop()
             rcvr     = frame.get_stack_element(0)
@@ -59,14 +59,14 @@ class ObjectPrimitives(Primitives):
             invokable.invoke(frame, interpreter)
         self._install_instance_primitive(Primitive("perform:withArguments:", self._universe, _performWithArguments))
 
-        def _instVarAt(self, frame, interpreter):
+        def _instVarAt(ivkbl, frame, interpreter):
             idx  = frame.pop()
             rcvr = frame.pop()
 
             frame.push(rcvr.get_field(idx.get_embedded_integer() - 1))
         self._install_instance_primitive(Primitive("instVarAt:", self._universe, _instVarAt))
 
-        def _instVarAtPut(self, frame, interpreter):
+        def _instVarAtPut(ivkbl, frame, interpreter):
             val  = frame.pop()
             idx  = frame.pop()
             rcvr = frame.get_stack_element(0)
