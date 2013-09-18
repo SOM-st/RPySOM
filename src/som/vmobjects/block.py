@@ -26,15 +26,11 @@ class Block(Object):
 
     def set_context(self, value):
         # Set the context of this block by writing to the field with context index
-        return self.setField(self.CONTEXT_INDEX, value)
+        return self.set_field(self.CONTEXT_INDEX, value)
 
     def _get_default_number_of_fields(self):
         # Return the default number of fields for a block
-        return self._NUMBER_OF_BLOCK_FIELDS
-
-    @classmethod
-    def get_evaluation_primitive(cls, num_args, universe):
-        return Evaluation(num_args, universe)
+        return self.NUMBER_OF_BLOCK_FIELDS
   
     class Evaluation(Primitive):
         def __init__(self, num_args, universe):
@@ -67,3 +63,7 @@ class Block(Object):
           
             # Return the signature string
             return signature_string
+
+    @classmethod
+    def get_evaluation_primitive(cls, num_args, universe):
+        return cls.Evaluation(num_args, universe)
