@@ -84,14 +84,15 @@ class Class(Object):
   
     def lookup_invokable(self, signature):
         # Lookup invokable and return if found
-        invokable = self._invokables_table[signature]
+        invokable = self._invokables_table.get(signature, None)
         if invokable:
             return invokable
  
         # Lookup invokable with given signature in array of instance invokables
         for i in range(0, self.get_number_of_instance_invokables()):
+            invokable = self.get_instance_invokable(i)
             # Return the invokable if the signature matches
-            if self.get_instance_invokable(i).get_signature() == signature:
+            if invokable.get_signature() == signature:
                 self._invokables_table[signature] = invokable
                 return invokable
       
