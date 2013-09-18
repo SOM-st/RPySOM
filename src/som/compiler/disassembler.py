@@ -57,7 +57,7 @@ class Disassembler(object):
                                        ", context " + str(m.get_bytecode(b + 2)))
             elif bytecode == Bytecodes.push_field:
                 Universe.error_println("(index: " + str(m.get_bytecode(b + 1)) +
-                                       ") field: " + str(m.get_constant(b)))
+                                       ") field: " + str(m.get_holder().get_instance_field_name(m.get_bytecode(b + 1))))
             elif bytecode == Bytecodes.push_block:
                 Universe.error_print("block: (index: " + str(m.get_bytecode(b + 1)) + ") ")
                 cls.dump_method(m.get_constant(b), indent + "\t")
@@ -78,7 +78,7 @@ class Disassembler(object):
                                        ", context: " + str(m.get_bytecode(b + 2)))
             elif bytecode == Bytecodes.pop_field:
                 Universe.error_println("(index: "  + str(m.get_bytecode(b + 1)) +
-                                       ") field: " + str(m.get_constant(b)))
+                                       ") field: " + str(m.get_holder().get_instance_field_name(m.get_bytecode(b + 1))))
             elif bytecode == Bytecodes.send:
                 Universe.error_println("(index: "      + str(m.get_bytecode(b + 1)) +
                                        ") signature: " + str(m.get_constant(b)))
