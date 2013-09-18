@@ -9,7 +9,11 @@ from som.vmobjects.array         import Array
 from som.vmobjects.symbol        import Symbol
 from som.vmobjects.method        import Method
 from som.vmobjects.integer       import Integer
-from som.vmobjects.string        import String    
+from som.vmobjects.string        import String
+from som.vmobjects.block         import Block
+from som.vmobjects.frame         import Frame
+from som.vmobjects.big_integer   import BigInteger
+from som.vmobjects.double        import Double
 
 import som.compiler.sourcecode_compiler as sourcecode_compiler
 
@@ -52,8 +56,20 @@ class Universe(object):
         return self._nilObject
     
     @property
+    def trueObject(self):
+        return self._trueObject
+    
+    @property
+    def falseObject(self):
+        return self._falseObject
+    
+    @property
     def primitiveClass(self):
         return self._primitiveClass
+    
+    @property
+    def metaclassClass(self):
+        return self._metaclassClass
         
     
     def _create_bootstrap_method(self):
