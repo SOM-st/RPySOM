@@ -112,7 +112,7 @@ class Interpreter(object):
 
         if invokable:
             # Invoke the invokable in the current frame
-            invokable.invoke(self.get_frame(), self)
+            invokable.invoke(invokable, self.get_frame(), self)
         else:
             # Compute the number of arguments
             num_args = signature.get_number_of_signature_arguments()
@@ -240,7 +240,7 @@ class Interpreter(object):
         
         if invokable:
             # Invoke the invokable in the current frame
-            invokable.invoke(self.get_frame(), self)
+            invokable.invoke(invokable, self.get_frame(), self)
         else:
             num_args = selector.get_number_of_signature_arguments()
 
