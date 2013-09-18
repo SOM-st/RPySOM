@@ -76,7 +76,7 @@ class Bytecodes(object):
         if not isinstance(bytecode, int):
             raise ValueError('bytecode is expected to be an integer.')
         
-        for key, val in cls.__dict__:
+        for key, val in cls.__dict__.iteritems():
             if val == bytecode:
                 return key.upper()
             

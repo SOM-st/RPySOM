@@ -621,6 +621,7 @@ class Universe(object):
                 # Load the class from a file and return the loaded class
                 result = sourcecode_compiler.compile_class_from_file(cpEntry, name.get_string(), system_class, self)
                 if self._dump_bytecodes:
+                    from som.compiler.disassembler import Disassembler
                     Disassembler.dump(result.get_class())
                     Disassembler.dump(result)
 
@@ -635,7 +636,8 @@ class Universe(object):
     def load_shell_class(self, stmt):
         # Load the class from a stream and return the loaded class
         result = sourcecode_compiler.compile_class_from_string(stmt, None, self)
-        if self._dumpBytecodes:
+        if self._dump_bytecodes:
+            from som.compiler.disassembler import Disassembler
             Disassembler.dump(result)
         return result
 
