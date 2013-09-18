@@ -29,7 +29,7 @@ class BasicInterpreterTest(unittest.TestCase):
         ("Return", "blockReturnsImplicitlyLastValue", 4, Integer )])
     def test_basic_interpreter_behavior(self, test_class, test_selector, expected_result, result_type):
         u = Universe()
-        u.setup_classpath("Smalltalk:BasicInterpreterTests")
+        u.setup_classpath("Smalltalk:TestSuite/BasicInterpreterTests")
         
         actual_result = u.execute_method(test_class, test_selector)
         
