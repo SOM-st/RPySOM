@@ -176,14 +176,14 @@ class Universe(object):
         self._load_system_class(self._doubleClass)
 
         # Load the generic block class
-        self._blockClass = self._load_class(self._symbol_for("Block"))
+        self._blockClass = self.load_class(self.symbol_for("Block"))
 
         # Setup the true and false objects
-        self._trueObject  = self._new_instance(self._load_class(self.symbol_for("True")))
-        self._falseObject = self._new_instance(self._load_class(self.symbol_for("False")))
+        self._trueObject  = self._new_instance(self.load_class(self.symbol_for("True")))
+        self._falseObject = self._new_instance(self.load_class(self.symbol_for("False")))
 
         # Load the system class and create an instance of it
-        self._systemClass = self._load_class(self.symbol_for("System"))
+        self._systemClass = self.load_class(self.symbol_for("System"))
         system_object = self._new_instance(self._systemClass)
 
         # Put special objects and classes into the dictionary of globals

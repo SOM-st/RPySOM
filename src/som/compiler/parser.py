@@ -252,7 +252,7 @@ class Parser(object):
                 mgenc.remove_last_bytecode()
             
             self._bc_gen.emitRETURNLOCAL(mgenc)
-            mgenc.setfinished()
+            mgenc.set_finished()
         elif self._sym == Symbol.EndTerm:
             # it does not matter whether a period has been seen, as the end of
             # the method has been found (EndTerm) - so it is safe to emit a
