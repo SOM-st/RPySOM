@@ -206,7 +206,7 @@ class Universe(object):
         self.set_global(self.symbol_for("nil"),    self._nilObject)
         self.set_global(self.symbol_for("true"),   self._trueObject)
         self.set_global(self.symbol_for("false"),  self._falseObject)
-        self.set_global(self.symbol_for("system"), self._systemObject)
+        self.set_global(self.symbol_for("system"), system_object)
         self.set_global(self.symbol_for("System"), self._systemClass)
         self.set_global(self.symbol_for("Block"),  self._blockClass)
         return system_object
@@ -314,7 +314,7 @@ class Universe(object):
 
     def new_instance(self, instance_class):
         # Allocate a new instance and set its class to be the given class
-        result = Object(instance_class.get_number_of_instance_fields(), self._nilObject)
+        result = Object(self._nilObject, instance_class.get_number_of_instance_fields())
         result.set_class(instance_class)
  
         # Return the freshly allocated instance
