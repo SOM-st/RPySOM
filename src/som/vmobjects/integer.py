@@ -1,7 +1,5 @@
 from som.vmobjects.object import Object
 
-import sys
-
 class Integer(Object):
     
     def __init__(self, nilObject):
@@ -23,4 +21,4 @@ class Integer(Object):
     
     @classmethod
     def value_fits(cls, value):
-        return value < sys.maxint and value > (-sys.maxint - 1)
+        return value <= 2147483647 and value > -2147483646
