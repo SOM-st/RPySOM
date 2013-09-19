@@ -1,6 +1,6 @@
 from som.primitives.primitives import Primitives
 from som.vmobjects.primitive   import Primitive
-from som.vmobjects.integer     import Integer
+from som.vmobjects.integer     import integer_value_fits
  
 import math
 
@@ -24,7 +24,7 @@ class BigIntegerPrimitives(Primitives):
         
             # Do operation and perform conversion to Integer if required
             result = left.get_embedded_biginteger() + right_obj.get_embedded_value()
-            if Integer.value_fits(result):
+            if integer_value_fits(result):
                 frame.push(self._universe.new_integer(result))
             else:
                 frame.push(self._universe.new_biginteger(result))
@@ -36,7 +36,7 @@ class BigIntegerPrimitives(Primitives):
         
             # Do operation and perform conversion to Integer if required
             result = left.get_embedded_biginteger() - right_obj.get_embedded_value()
-            if Integer.value_fits(result):
+            if integer_value_fits(result):
                 frame.push(self._universe.new_integer(result))
             else:
                 frame.push(self._universe.new_biginteger(result))
@@ -48,7 +48,7 @@ class BigIntegerPrimitives(Primitives):
 
             # Do operation and perform conversion to Integer if required
             result = left.get_embedded_biginteger() * right_obj.get_embedded_value()
-            if Integer.value_fits(result):
+            if integer_value_fits(result):
                 frame.push(self._universe.new_integer(result))
             else:
                 frame.push(self._universe.new_biginteger(result))
@@ -60,7 +60,7 @@ class BigIntegerPrimitives(Primitives):
 
             # Do operation and perform conversion to Integer if required
             result = left.get_embedded_biginteger() / right_obj.get_embedded_value()
-            if Integer.value_fits(result):
+            if integer_value_fits(result):
                 frame.push(self._universe.new_integer(result))
             else:
                 frame.push(self._universe.new_biginteger(result))

@@ -1,6 +1,8 @@
 from som.primitives.primitives import Primitives
 from som.vmobjects.primitive   import Primitive
 
+from som.vm.universe import std_print, std_println
+
 import time
 
 class SystemPrimitives(Primitives):
@@ -37,11 +39,11 @@ class SystemPrimitives(Primitives):
 
         def _print_string(ivkbl, frame, interpreter):
             argument = frame.pop()
-            self._universe.std_print(argument.get_embedded_string())
+            std_print(argument.get_embedded_string())
         self._install_instance_primitive(Primitive("printString:", self._universe, _print_string))
 
         def _print_newline(ivkbl, frame, interpreter):
-            self._universe.std_println()
+            std_println()
         self._install_instance_primitive(Primitive("printNewline", self._universe, _print_newline))
 
         def _time(ivkbl, frame, interpreter):

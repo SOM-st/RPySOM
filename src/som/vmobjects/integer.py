@@ -19,6 +19,5 @@ class Integer(Object):
     def __str__(self):
         return str(self._embedded_integer)
     
-    @classmethod
-    def value_fits(cls, value):
-        return value <= 2147483647 and value > -2147483646
+def integer_value_fits(value):
+    return value <= 2147483647 and value > -2147483646

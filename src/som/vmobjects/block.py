@@ -63,6 +63,5 @@ class Block(Object):
             # Return the signature string
             return signature_string
 
-    @classmethod
-    def get_evaluation_primitive(cls, num_args, universe):
-        return cls.Evaluation(num_args, universe)
+def block_evaluation_primitive(num_args, universe):
+    return Block.Evaluation(num_args, universe)

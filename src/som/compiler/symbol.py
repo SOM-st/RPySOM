@@ -33,9 +33,9 @@ class Symbol(object):
     KeywordSequence  = 29
     OperatorSequence = 30
 
-    @classmethod
-    def as_str(cls, symbol):
-        for key, val in cls.__dict__:
-            if val == symbol:
-                return key
-        raise ValueError('No Symbol defined for the value %d.' % symbol)
+
+def symbol_as_str(symbol):
+    for key, val in Symbol.__dict__:
+        if val == symbol:
+            return key
+    raise ValueError('No Symbol defined for the value %d.' % symbol)

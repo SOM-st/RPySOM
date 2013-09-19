@@ -1,4 +1,4 @@
-from som.interpreter.bytecodes import Bytecodes
+from som.interpreter.bytecodes import bytecode_length
 
 class Interpreter(object):
     
@@ -184,10 +184,10 @@ class Interpreter(object):
                 bytecode = self.get_method().get_bytecode(bytecode_index)
     
                 # Get the length of the current bytecode
-                bytecode_length = Bytecodes.get_bytecode_length(bytecode)
+                bc_length = bytecode_length(bytecode)
     
                 # Compute the next bytecode index
-                next_bytecode_index = bytecode_index + bytecode_length
+                next_bytecode_index = bytecode_index + bc_length
     
                 # Update the bytecode index of the frame
                 self.get_frame().set_bytecode_index(next_bytecode_index)

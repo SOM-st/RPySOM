@@ -1,5 +1,5 @@
-from som.interpreter.bytecodes import Bytecodes as BC
-from som.vmobjects.primitive   import Primitive
+from som.interpreter.bytecodes import bytecode_length, bytecode_stack_effect, bytecode_stack_effect_depends_on_send, Bytecodes as BC
+from som.vmobjects.primitive   import Primitive, empty_primitive
 
 class MethodGenerationContext(object):
     
@@ -26,7 +26,7 @@ class MethodGenerationContext(object):
         return self._primitive
   
     def assemble_primitive(self, universe):
-        return Primitive.get_empty_primitive(self._signature.get_string(), universe)
+        return empty_primitive(self._signature.get_string(), universe)
 
     def assemble(self, universe):
         # create a method instance with the given number of bytecodes and literals
@@ -63,13 +63,13 @@ class MethodGenerationContext(object):
         while i < len(self._bytecode):
             bc = self._bytecode[i]
             
-            if BC.stack_effect_depends_on_send(bc):
+            if bytecode_stack_effect_depends_on_send(bc):
                 signature = self._literals[self._bytecode[i + 1]]
-                depth += BC.get_stack_effect(bc, signature.get_number_of_signature_arguments())
+                depth += bytecode_stack_effect(bc, signature.get_number_of_signature_arguments())
             else:
-                depth += BC.get_stack_effect(bc)
+                depth += bytecode_stack_effect(bc)
             
-            i += BC.get_bytecode_length(bc)
+            i += bytecode_length(bc)
             
             if depth > max_depth:
                 max_depth = depth

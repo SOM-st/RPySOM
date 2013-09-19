@@ -10,7 +10,7 @@ from som.vmobjects.symbol        import Symbol
 from som.vmobjects.method        import Method
 from som.vmobjects.integer       import Integer
 from som.vmobjects.string        import String
-from som.vmobjects.block         import Block
+from som.vmobjects.block         import Block, block_evaluation_primitive
 from som.vmobjects.frame         import Frame
 from som.vmobjects.biginteger    import BigInteger
 from som.vmobjects.double        import Double
@@ -251,12 +251,12 @@ class Universe(object):
     
     def _print_usage_and_exit(self):
         # Print the usage
-        self.std_println("Usage: som [-options] [args...]                          ")
-        self.std_println("                                                         ")
-        self.std_println("where options include:                                   ")
-        self.std_println("    -cp <directories separated by " + os.pathsep     + ">")
-        self.std_println("                  set search path for application classes")
-        self.std_println("    -d            enable disassembling")
+        std_println("Usage: som [-options] [args...]                          ")
+        std_println("                                                         ")
+        std_println("where options include:                                   ")
+        std_println("    -cp <directories separated by " + os.pathsep     + ">")
+        std_println("                  set search path for application classes")
+        std_println("    -d            enable disassembling")
 
         # Exit
         self.exit(0)
@@ -586,7 +586,7 @@ class Universe(object):
         result = self._load_class(name, None)
 
         # Add the appropriate value primitive to the block class
-        result.add_instance_primitive(Block.get_evaluation_primitive(number_of_arguments, self))
+        result.add_instance_primitive(block_evaluation_primitive(number_of_arguments, self))
 
         # Insert the block class into the dictionary of globals
         self.set_global(name, result)
@@ -623,9 +623,9 @@ class Universe(object):
                 # Load the class from a file and return the loaded class
                 result = sourcecode_compiler.compile_class_from_file(cpEntry, name.get_string(), system_class, self)
                 if self._dump_bytecodes:
-                    from som.compiler.disassembler import Disassembler
-                    Disassembler.dump(result.get_class())
-                    Disassembler.dump(result)
+                    from som.compiler.disassembler import dump
+                    dump(result.get_class())
+                    dump(result)
 
                 return result
             except IOError:
@@ -639,25 +639,21 @@ class Universe(object):
         # Load the class from a stream and return the loaded class
         result = sourcecode_compiler.compile_class_from_string(stmt, None, self)
         if self._dump_bytecodes:
-            from som.compiler.disassembler import Disassembler
-            Disassembler.dump(result)
+            from som.compiler.disassembler import dump
+            dump(result)
         return result
 
-    @classmethod
-    def error_print(cls, msg):
-        print(msg, file=sys.stderr, end="")
+def error_print(msg):
+    print(msg, file=sys.stderr, end="")
 
-    @classmethod
-    def error_println(cls, msg = ""):
-        print(msg, file=sys.stderr)
+def error_println(msg = ""):
+    print(msg, file=sys.stderr)
 
-    @classmethod
-    def std_print(cls, msg):
-        print(msg, end="")
+def std_print(msg):
+    print(msg, end="")
 
-    @classmethod
-    def std_println(cls, msg=""):
-        print(msg)
+def std_println(msg=""):
+    print(msg)
 
 def main(args):
     u = Universe()

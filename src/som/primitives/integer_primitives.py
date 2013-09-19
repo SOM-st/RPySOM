@@ -1,7 +1,7 @@
 from som.primitives.primitives import Primitives
 from som.vmobjects.primitive   import Primitive
 from som.vmobjects.biginteger  import BigInteger
-from som.vmobjects.integer     import Integer
+from som.vmobjects.integer     import integer_value_fits, Integer
 from som.vmobjects.double      import Double
 
 import math
@@ -9,10 +9,9 @@ import random
 
 class IntegerPrimitives(Primitives):
 
-    
     def _push_long_result(self, frame, result):
         # Check with integer bounds and push:
-        if Integer.value_fits(result):
+        if integer_value_fits(result):
             frame.push(self._universe.new_integer(result))
         else:
             frame.push(self._universe.new_biginteger(result))

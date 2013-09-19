@@ -56,28 +56,28 @@ class Bytecodes(object):
                               return_local     : 0,
                               return_non_local : 0 }
     
-    @classmethod
-    def get_bytecode_length(cls, bytecode):
-        return cls._bytecode_length[bytecode]
     
-    @classmethod
-    def get_stack_effect(cls, bytecode, number_of_arguments_of_message_send = 0):
-        if cls.stack_effect_depends_on_send(bytecode):
-            return -number_of_arguments_of_message_send + 1 # +1 in order to account for the return value
-        else:
-            return cls._bytecode_stack_effect[bytecode]
-    
-    @classmethod
-    def stack_effect_depends_on_send(cls, bytecode):
-        return cls._bytecode_stack_effect[bytecode] is cls._stack_effect_depends_on_message
+def bytecode_length(bytecode):
+    return Bytecodes._bytecode_length[bytecode]
 
-    @classmethod
-    def as_str(cls, bytecode):
-        if not isinstance(bytecode, int):
-            raise ValueError('bytecode is expected to be an integer.')
+
+def bytecode_stack_effect(bytecode, number_of_arguments_of_message_send = 0):
+    if bytecode_stack_effect_depends_on_send(bytecode):
+        return -number_of_arguments_of_message_send + 1 # +1 in order to account for the return value
+    else:
+        return Bytecodes._bytecode_stack_effect[bytecode]
+
+
+def bytecode_stack_effect_depends_on_send(bytecode):
+    return Bytecodes._bytecode_stack_effect[bytecode] is Bytecodes._stack_effect_depends_on_message
+
+
+def bytecode_as_str(bytecode):
+    if not isinstance(bytecode, int):
+        raise ValueError('bytecode is expected to be an integer.')
+    
+    for key, val in Bytecodes.__dict__.iteritems():
+        if val == bytecode:
+            return key.upper()
         
-        for key, val in cls.__dict__.iteritems():
-            if val == bytecode:
-                return key.upper()
-            
-        raise ValueError('No defined defined for the value %d.' % bytecode)
+    raise ValueError('No defined defined for the value %d.' % bytecode)

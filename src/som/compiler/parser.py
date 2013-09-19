@@ -1,9 +1,9 @@
-from som.compiler.symbol                    import Symbol
+from som.compiler.symbol                    import Symbol, symbol_as_str
 from som.compiler.lexer                     import Lexer
 from som.compiler.bytecode_generator        import BytecodeGenerator
 from som.compiler.method_generation_context import MethodGenerationContext
 
-from som.vmobjects.integer import Integer
+from som.vmobjects.integer import integer_value_fits
 
 class Parser(object):
     
@@ -111,7 +111,7 @@ class Parser(object):
             return True
         
         err = ("Error: unexpected symbol in line %d. Expected %s, but found %s" %
-                (self._lexer.get_current_line_number(), Symbol.as_str(s), Symbol.as_str(self._sym))) 
+                (self._lexer.get_current_line_number(), symbol_as_str(s), symbol_as_str(self._sym))) 
         if self._printable_symbol():
             err += " (" + self._text + ")"
         err += ": " + self._lexer.get_raw_buffer()
@@ -121,10 +121,10 @@ class Parser(object):
         if self._accept_one_of(symbol_list):
             return True
         
-        expected = ", ".join([Symbol.as_str(x) for x in symbol_list])
+        expected = ", ".join([symbol_as_str(x) for x in symbol_list])
         
         err = ("Error: unexpected symbol in line %d. Expected one of %s, but found %s" %
-                (self._lexer.get_current_line_number(), expected, Symbol.as_str(self._sym))) 
+                (self._lexer.get_current_line_number(), expected, symbol_as_str(self._sym))) 
         if self._printable_symbol():
             err += " (" + self._text + ")"
         err += ": " + self._lexer.get_raw_buffer()
@@ -460,7 +460,7 @@ class Parser(object):
             val = self._literal_decimal()
       
         
-        if Integer.value_fits(val):
+        if integer_value_fits(val):
             lit = self._universe.new_integer(val)
         else:
             lit = self._universe.new_biginteger(val)
