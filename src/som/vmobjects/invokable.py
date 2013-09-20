@@ -1,7 +1,10 @@
-# An 'interface', or common super class for methods and primitives. 
 class Invokable(object):
-
-    _mixin_ = True
+    """An 'interface', or common super class for methods and primitives.
+       WARNING: This interface is not used in the RPython version, because
+                RPython does not support multiple inheritance.
+                It is kept merely for informative purposes to show the common
+                parts of Method and Primitive.
+    """
 
     # Tells whether this is a primitive
     def is_primitive(self):

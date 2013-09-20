@@ -1,9 +1,6 @@
 from som.vmobjects.object    import Object
-from som.vmobjects.invokable import Invokable
 
-import types
-
-class Primitive(Object, Invokable):
+class Primitive(Object):
     
     # Static field indices and number of primitive fields
     SIGNATURE_INDEX            = 1 + Object.CLASS_INDEX
@@ -29,6 +26,12 @@ class Primitive(Object, Invokable):
         inv(self, frame, interpreter)
 
     def is_primitive(self):
+        return True
+    
+    def is_invokable(self):
+        """In the RPython version, we use this method to identify methods 
+           and primitives
+        """
         return True
 
     def get_signature(self):

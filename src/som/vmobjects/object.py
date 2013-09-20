@@ -89,6 +89,9 @@ class Object(object):
     def send_escaped_block(self, block, universe, interpreter):
         arguments = (block, )
         self.send("escapedBlock:", arguments, universe, interpreter)
+    
+    def is_invokable(self):
+        return False
 
     def __str__(self):
         return "a " + self.get_class().get_name().get_string()

@@ -1,13 +1,12 @@
 from __future__ import absolute_import
 
-from som.vmobjects.array     import Array
-from som.vmobjects.invokable import Invokable
+from som.vmobjects.array import Array
 
-from som.interpreter.bytecodes import Bytecodes
+from som.interpreter.bytecodes import bytecode_length
 
 from array import array
 
-class Method(Array, Invokable):
+class Method(Array):
     
     # Static field indices and number of method fields
     NUMBER_OF_LOCALS_INDEX                 = 1 + Array.CLASS_INDEX
@@ -32,6 +31,12 @@ class Method(Array, Invokable):
     
     def is_primitive(self):
         return False
+    
+    def is_invokable(self):
+        """In the RPython version, we use this method to identify methods 
+           and primitives
+        """
+        return True
   
     def get_number_of_locals(self):
         # Get the number of locals (converted to a Java integer)
@@ -69,7 +74,7 @@ class Method(Array, Invokable):
 
         # Make sure all nested invokables have the same holder
         for i in range(0, self.get_number_of_indexable_fields()):
-            if isinstance(self.get_indexable_field(i), Invokable):
+            if self.get_indexable_field(i).is_invokable():
                 self.get_indexable_field(i).set_holder(value)
 
     def get_constant(self, bytecode_index):
@@ -125,7 +130,7 @@ class Method(Array, Invokable):
         i = 0
         while i < len(self._bytecodes):
             bc1 = self._bytecodes[i]
-            len1 = Bytecodes.get_bytecode_length(bc1)
+            len1 = bytecode_length(bc1)
 
             if i + len1 >= len(self._bytecodes):
                 # we're over target, so just copy bc1
