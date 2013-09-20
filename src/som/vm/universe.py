@@ -58,7 +58,7 @@ class Universe(object):
         self._last_exit_code = 0
         self._avoid_exit     = avoid_exit
         self._dump_bytecodes = False
-        self.classpath      = None
+        self.classpath       = None
 
     def exit(self, error_code):
         if self._avoid_exit:
