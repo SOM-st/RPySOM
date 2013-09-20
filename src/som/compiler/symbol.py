@@ -40,7 +40,7 @@ def symbol_as_str(symbol):
     for (key, val) in symbols:
         if val == symbol:
             return key
-            raise ValueError('No Symbol defined for the value %d.' % symbol)
+    raise ValueError('No Symbol defined for the value %d.' % symbol)
 
 def int_constants_of(cls):
     out = {}
