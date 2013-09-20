@@ -19,9 +19,14 @@ class Primitive(Object, Invokable):
         # Set the signature of this primitive
         self._set_signature(universe.symbol_for(signature_string))
         
-        self.invoke = types.MethodType(invoke, self)
-        if is_empty:
-            self.is_empty = is_empty
+        self._invoke = invoke
+        #self.invoke = types.MethodType(invoke, self)
+
+        self._is_empty = is_empty
+
+    def invoke(self, frame, interpreter):
+        inv = self._invoke
+        inv(self, frame, interpreter)
 
     def is_primitive(self):
         return True
@@ -49,16 +54,12 @@ class Primitive(Object, Invokable):
 
     def is_empty(self):
         # By default a primitive is not empty
-        return False
-
+        return self._is_empty
 
 def empty_primitive(signature_string, universe):
     # Return an empty primitive with the given signature
-    def _invoke(ivkbl, frame, interpreter):
-        # Write a warning to the screen
-        universe.std_println("Warning: undefined primitive " +
-                         ivkbl.get_signature().get_string() + " called")
-  
-    # The empty primitives are empty
-    def _is_empty(self): return True
-    return Primitive(signature_string, universe, _invoke, _is_empty)
+    return Primitive(signature_string, universe, _invoke, True)
+
+def _invoke(ivkbl, frame, interpreter):
+    # Write a warning to the screen
+    print "Warning: undefined primitive", ivkbl.get_signature().get_string(), " called"
