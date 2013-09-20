@@ -10,7 +10,7 @@ class Interpreter(object):
     def __init__(self, universe):
         self._universe = universe
         self._frame    = None
-        self._dispatch_table = [self._do_halt,
+        self._dispatch_table = (self._do_halt,
                                 self._do_dup,
                                 self._do_push_local,
                                 self._do_push_argument,
@@ -25,7 +25,7 @@ class Interpreter(object):
                                 self._do_send,
                                 self._do_super_send,
                                 self._do_return_local,
-                                self._do_return_non_local]
+                                self._do_return_non_local)
     
     def _do_halt(self, bytecode_index):
         raise InterpreterHalt()
