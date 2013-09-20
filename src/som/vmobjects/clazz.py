@@ -61,7 +61,9 @@ class Class(Object):
  
         # Make sure this class is the holder of all invokables in the array
         for i in range(0, self.get_number_of_instance_invokables()):
-            self.get_instance_invokable(i).set_holder(self)
+            invokable = self.get_instance_invokable(i)
+            assert invokable is not None
+            invokable.set_holder(self)
     
     def get_number_of_instance_invokables(self):
         # Return the number of instance invokables in this class
