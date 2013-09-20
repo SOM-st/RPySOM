@@ -45,3 +45,8 @@ class BasicInterpreterTest(unittest.TestCase):
             return
 
         self.fail("SOM Value handler missing")
+
+import sys
+if sys.modules.has_key('pytest'):
+    # hack to make pytest not to collect the unexpanded test method
+    delattr(BasicInterpreterTest, "test_basic_interpreter_behavior")
