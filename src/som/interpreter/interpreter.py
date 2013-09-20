@@ -1,36 +1,12 @@
-from som.interpreter.bytecodes import bytecode_length
-
-class InterpreterHalt(Exception):
-    """This exception is used to exit from the interpreter loop using the
-       HALT bytecode."""
-    pass
+from som.interpreter.bytecodes import bytecode_length, Bytecodes
 
 class Interpreter(object):
     
     def __init__(self, universe):
         self._universe = universe
         self._frame    = None
-        self._dispatch_table = (self._do_halt,
-                                self._do_dup,
-                                self._do_push_local,
-                                self._do_push_argument,
-                                self._do_push_field,
-                                self._do_push_block,
-                                self._do_push_constant,
-                                self._do_push_global,
-                                self._do_pop,
-                                self._do_pop_local,
-                                self._do_pop_argument,
-                                self._do_pop_field,
-                                self._do_send,
-                                self._do_super_send,
-                                self._do_return_local,
-                                self._do_return_non_local)
     
-    def _do_halt(self, bytecode_index):
-        raise InterpreterHalt()
-    
-    def _do_dup(self, bytecode_index):
+    def _do_dup(self):
         # Handle the dup bytecode
         self.get_frame().push(self.get_frame().get_stack_element(0))
 
@@ -81,7 +57,7 @@ class Interpreter(object):
             # Send 'unknownGlobal:' to self
             self.get_self().send_unknown_global(global_name, self._universe, self)
 
-    def _do_pop(self, bytecode_index):
+    def _do_pop(self):
         # Handle the pop bytecode
         self.get_frame().pop()
 
@@ -124,14 +100,14 @@ class Interpreter(object):
 
             receiver.send_does_not_understand(signature, self._universe, self)
 
-    def _do_return_local(self, bytecode_index):
+    def _do_return_local(self):
         # Handle the return local bytecode
         result = self.get_frame().pop()
 
         # Pop the top frame and push the result
         self._pop_frame_and_push_result(result)
 
-    def _do_return_non_local(self, bytecode_index):
+    def _do_return_non_local(self):
         # Handle the return non local bytecode
         result = self.get_frame().pop()
 
@@ -176,30 +152,57 @@ class Interpreter(object):
 
 
     def start(self):
-        try:
-            # Iterate through the bytecodes
-            while True:
-                # Get the current bytecode index
-                bytecode_index = self.get_frame().get_bytecode_index()
-                
-                # Get the current bytecode
-                bytecode = self.get_method().get_bytecode(bytecode_index)
-    
-                # Get the length of the current bytecode
-                bc_length = bytecode_length(bytecode)
-    
-                # Compute the next bytecode index
-                next_bytecode_index = bytecode_index + bc_length
-    
-                # Update the bytecode index of the frame
-                self.get_frame().set_bytecode_index(next_bytecode_index)
-    
-                # Handle the current bytecode
-                self._dispatch_table[bytecode](bytecode_index)
-        
-        except InterpreterHalt:
-            return self.get_frame().get_stack_element(0)
+        # Iterate through the bytecodes
+        while True:
+            # Get the current bytecode index
+            bytecode_index = self.get_frame().get_bytecode_index()
             
+            # Get the current bytecode
+            bytecode = self.get_method().get_bytecode(bytecode_index)
+
+            # Get the length of the current bytecode
+            bc_length = bytecode_length(bytecode)
+
+            # Compute the next bytecode index
+            next_bytecode_index = bytecode_index + bc_length
+
+            # Update the bytecode index of the frame
+            self.get_frame().set_bytecode_index(next_bytecode_index)
+
+            # Handle the current bytecode
+            if   bytecode == Bytecodes.halt:
+                return self.get_frame().get_stack_element(0)
+            elif bytecode == Bytecodes.dup:
+                self._do_dup()
+            elif bytecode == Bytecodes.push_local:
+                self._do_push_local(bytecode_index)
+            elif bytecode == Bytecodes.push_argument:
+                self._do_push_argument(bytecode_index)
+            elif bytecode == Bytecodes.push_field:
+                self._do_push_field(bytecode_index)
+            elif bytecode == Bytecodes.push_block:
+                self._do_push_block(bytecode_index)
+            elif bytecode == Bytecodes.push_constant:
+                self._do_push_constant(bytecode_index)
+            elif bytecode == Bytecodes.push_global:
+                self._do_push_global(bytecode_index)
+            elif bytecode == Bytecodes.pop:
+                self._do_pop()
+            elif bytecode == Bytecodes.pop_local:
+                self._do_pop_local(bytecode_index)
+            elif bytecode == Bytecodes.pop_argument:
+                self._do_pop_argument(bytecode_index)
+            elif bytecode == Bytecodes.pop_field:
+                self._do_pop_field(bytecode_index)
+            elif bytecode == Bytecodes.send:
+                self._do_send(bytecode_index)
+            elif bytecode == Bytecodes.super_send:
+                self._do_super_send(bytecode_index)
+            elif bytecode == Bytecodes.return_local:
+                self._do_return_local()
+            elif bytecode == Bytecodes.return_non_local:
+                self._do_return_non_local()
+
     def push_new_frame(self, method):
         # Allocate a new frame and make it the current one
         self._frame = self._universe.new_frame(self._frame, method)
