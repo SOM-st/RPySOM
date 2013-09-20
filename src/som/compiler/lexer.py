@@ -81,7 +81,7 @@ class Lexer(object):
         elif self._current_char() == '.':
             self._match(Symbol.Period)
         elif self._current_char() == '-':
-            if self._buf.startswith(self._SEPARATOR, self._bufp):
+            if self._buf[self._bufp:].startswith(self._SEPARATOR):
                 self._text = ""
                 while self._current_char() == '-':
                     self._text += self._bufchar(self._bufp)
@@ -128,7 +128,7 @@ class Lexer(object):
             elif self._current_char() == '%':
                 self._match(Symbol.Per)
 
-        elif self._buf.startswith(self._PRIMITIVE, self._bufp):
+        elif self._buf[self._bufp:].startswith(self._PRIMITIVE):
             self._bufp += len(self._PRIMITIVE)
             self._sym  = Symbol.Primitive
             self._symc = '\0'
