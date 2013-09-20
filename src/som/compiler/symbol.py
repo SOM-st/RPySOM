@@ -32,41 +32,18 @@ class Symbol(object):
     Keyword          = 28
     KeywordSequence  = 29
     OperatorSequence = 30
-    
-    _names = ["Integer",
-              "Not",
-              "And",
-              "Or",
-              "Star",
-              "Div",
-              "Mod",
-              "Plus",
-              "Minus",
-              "Equal",
-              "More",
-              "Less",
-              "Comma",
-              "At",
-              "Per",
-              "NewBlock",
-              "EndBlock",
-              "Colon",
-              "Period",
-              "Exit",
-              "Assign",
-              "NewTerm",
-              "EndTerm",
-              "Pound",
-              "Primitive",
-              "Separator",
-              "STString",
-              "Identifier",
-              "Keyword",
-              "KeywordSequence",
-              "OperatorSequence"]
+
+def _sorted_symbols(cls):
+    "NOT_RPYTHON"
+    return [key for value, key in \
+            sorted([(value, key) for key, value in cls.__dict__.items()]) \
+            if isinstance(value, int)
+    ]
+_symbols = _sorted_symbols(Symbol)
 
 def symbol_as_str(symbol):
-    if symbol == -1:
-        return "NONE"
+    index = symbol + 1
+    if index > len(_symbols):
+        raise ValueError('No Symbol defined for the value %d.' % symbol)
     else:
-        return Symbol._names[symbol]
+        return _symbols[index]

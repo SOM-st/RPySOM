@@ -1,3 +1,5 @@
+from rpython.rlib.unroll import unrolling_iterable
+
 class Bytecodes(object):
     
     # Bytecodes used by the Simple Object Machine (SOM)
@@ -56,23 +58,7 @@ class Bytecodes(object):
                               0,                                # return_local    
                               0 ]                               # return_non_local
 
-    _bytecode_names = ["HALT",
-                       "DUP",
-                       "PUSH_LOCAL",
-                       "PUSH_ARGUMENT",
-                       "PUSH_FIELD",
-                       "PUSH_BLOCK",
-                       "PUSH_CONSTANT",
-                       "PUSH_GLOBAL",
-                       "POP",
-                       "POP_LOCAL",
-                       "POP_ARGUMENT",
-                       "POP_FIELD",
-                       "SEND",
-                       "SUPER_SEND",
-                       "RETURN_LOCAL",
-                       "RETURN_NON_LOCAL"]
-
+    
 def bytecode_length(bytecode):
     return Bytecodes._bytecode_length[bytecode]
 
@@ -92,5 +78,16 @@ def bytecode_stack_effect_depends_on_send(bytecode):
 def bytecode_as_str(bytecode):
     if not isinstance(bytecode, int):
         raise ValueError('bytecode is expected to be an integer.')
-    assert bytecode >= 0 and bytecode <= Bytecodes._num_bytecodes
-    return Bytecodes._bytecode_names[bytecode]
+
+    if bytecode > len(_bytecode_names):
+        raise ValueError('No Bytecode defined for the value %d.' % bytecode)
+    else:
+        return _bytecode_names[bytecode]
+
+def _sorted_bytecode_names(cls):
+    "NOT_RPYTHON"
+    return [key.upper() for value, key in \
+            sorted([(value, key) for key, value in cls.__dict__.items()]) \
+            if isinstance(value, int) and key[0] != "_"
+    ]
+_bytecode_names = _sorted_bytecode_names(Bytecodes)
