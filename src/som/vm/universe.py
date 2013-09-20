@@ -171,9 +171,18 @@ class Universe(object):
     # take argument of the form "../foo/Test.som" and return
     # "../foo", "Test", "som"
     def _get_path_class_ext(self, path):
-        (path, file_name) = os.path.split(path)
-        (file_name, ext)  = os.path.splitext(file_name)
-        return (path, file_name, ext[1:])
+        path_and_file = path.rsplit(os.pathsep, 1)
+        if len(path_and_file) <= 1:
+            path = ""
+        else:
+            path = path_and_file[0]
+        file_and_ext  = path_and_file[-1].rsplit(".", 1)
+        if len(file_and_ext) <= 1:
+            ext = ""
+        else:
+            ext = file_and_ext[-1]
+        file_name = file_and_ext[0]
+        return (path, file_name, ext)
     
     def _print_usage_and_exit(self):
         # Print the usage
