@@ -22,42 +22,42 @@ class Bytecodes(object):
     
     _num_bytecodes   = 16
     
-    _bytecode_length = {halt             : 1,
-                        dup              : 1,
-                        push_local       : 3,
-                        push_argument    : 3,
-                        push_field       : 2,
-                        push_block       : 2,
-                        push_constant    : 2,
-                        push_global      : 2,
-                        pop              : 1,
-                        pop_local        : 3,
-                        pop_argument     : 3,
-                        pop_field        : 2,
-                        send             : 2,
-                        super_send       : 2,
-                        return_local     : 1,
-                        return_non_local : 1 }
+    _bytecode_length = ( 1, # halt
+                         1,  # dup             
+                         3,  # push_local      
+                         3,  # push_argument   
+                         2,  # push_field      
+                         2,  # push_block      
+                         2,  # push_constant   
+                         2,  # push_global     
+                         1,  # pop             
+                         3,  # pop_local       
+                         3,  # pop_argument    
+                         2,  # pop_field       
+                         2,  # send            
+                         2,  # super_send      
+                         1,  # return_local    
+                         1 ) # return_non_local
     
-    _stack_effect_depends_on_message = object()
+    _stack_effect_depends_on_message = -1000 # chose a unresonable number to be recognizable
     
-    _bytecode_stack_effect = {halt             :  0,
-                              dup              :  1,
-                              push_local       :  1,
-                              push_argument    :  1,
-                              push_field       :  1,
-                              push_block       :  1,
-                              push_constant    :  1,
-                              push_global      :  1,
-                              pop              : -1,
-                              pop_local        : -1,
-                              pop_argument     : -1,
-                              pop_field        : -1,
-                              send             : _stack_effect_depends_on_message,
-                              super_send       : _stack_effect_depends_on_message,
-                              return_local     : 0,
-                              return_non_local : 0 }
-    
+    _bytecode_stack_effect = ( 0,                               # halt            
+                               1,                               # dup             
+                               1,                               # push_local      
+                               1,                               # push_argument   
+                               1,                               # push_field      
+                               1,                               # push_block      
+                               1,                               # push_constant   
+                               1,                               # push_global     
+                              -1,                               # pop             
+                              -1,                               # pop_local       
+                              -1,                               # pop_argument    
+                              -1,                               # pop_field       
+                              _stack_effect_depends_on_message, # send            
+                              _stack_effect_depends_on_message, # super_send      
+                              0,                                # return_local    
+                              0 )                               # return_non_local
+
     
 def bytecode_length(bytecode):
     return Bytecodes._bytecode_length[bytecode]
