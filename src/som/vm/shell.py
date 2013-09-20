@@ -1,3 +1,5 @@
+from rpython.rlib.objectmodel import we_are_translated
+
 class Shell(object):
 
     def __init__(self, universe, interpreter):
@@ -9,10 +11,10 @@ class Shell(object):
         self._bootstrap_method = method
 
     def start(self):
+        from som.vm.universe import std_println, error_println, raw_input
         counter = 0
         it = self._universe.nilObject
 
-        from som.vm.universe import std_println
         std_println("SOM Shell. Type \"quit\" to exit.\n");
 
         # Create a fake bootstrap frame
@@ -25,7 +27,7 @@ class Shell(object):
             try:
                 # Read a statement from the keyboard
                 stmt = raw_input("---> ")
-                if stmt == "quit":
+                if stmt == "quit" or stmt == "":
                     return
 
                 # Generate a temporary class with a run method
@@ -65,8 +67,9 @@ class Shell(object):
                     # Save the result of the run method
                     it = current_frame.pop()
             except Exception, e:
-                import traceback
-                traceback.print_exc()
-                self._universe.error_println("Caught exception: " + str(e))
-                self._universe.error_println(str(
+                if not we_are_translated(): # this cannot be done in rpython
+                    import traceback
+                    traceback.print_exc()
+                error_println("Caught exception: %s" % e)
+                error_println(str(
                             self._interpreter.get_frame().get_previous_frame()))

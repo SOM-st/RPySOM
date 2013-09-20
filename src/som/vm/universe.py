@@ -588,6 +588,22 @@ def std_print(msg):
 def std_println(msg=""):
     print msg
 
+def _read_raw(answer):
+    buf = os.read(1, 32)
+    if len(buf) == 0:
+        return (answer, False)
+    elif buf[-1] == "\n":
+        return (answer + buf[:-1], False)
+    else:
+        return (answer + buf, True)
+
+def raw_input(msg=""):
+    os.write(1, msg)
+    answer, cont = _read_raw("")
+    while cont:
+        answer, cont = _read_raw(answer)
+    return answer
+
 
 def main(args):
     u = Universe()
