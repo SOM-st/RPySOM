@@ -1,5 +1,3 @@
-from rpython.rlib.unroll import unrolling_iterable
-
 class Bytecodes(object):
     
     # Bytecodes used by the Simple Object Machine (SOM)
@@ -58,7 +56,23 @@ class Bytecodes(object):
                               0,                                # return_local    
                               0 )                               # return_non_local
 
-    
+    _bytecode_names = ("HALT",
+                       "DUP",
+                       "PUSH_LOCAL",
+                       "PUSH_ARGUMENT",
+                       "PUSH_FIELD",
+                       "PUSH_BLOCK",
+                       "PUSH_CONSTANT",
+                       "PUSH_GLOBAL",
+                       "POP",
+                       "POP_LOCAL",
+                       "POP_ARGUMENT",
+                       "POP_FIELD",
+                       "SEND",
+                       "SUPER_SEND",
+                       "RETURN_LOCAL",
+                       "RETURN_NON_LOCAL")
+
 def bytecode_length(bytecode):
     return Bytecodes._bytecode_length[bytecode]
 
@@ -77,17 +91,5 @@ def bytecode_stack_effect_depends_on_send(bytecode):
 def bytecode_as_str(bytecode):
     if not isinstance(bytecode, int):
         raise ValueError('bytecode is expected to be an integer.')
-    
-    bytecodes = unrolling_iterable(int_constants_of(Bytecodes))
-    for key, val in bytecodes:
-        if val == bytecode:
-            return key.upper()
-        
-    raise ValueError('No defined defined for the value %d.' % bytecode)
-
-def int_constants_of(cls):
-    out = {}
-    for key, value in cls.__dict__.items():
-        if isinstance(value, int):
-            out[key] = value
-    return out
+    assert bytecode >= 0 and bytecode <= Bytecodes._num_bytecodes
+    return Bytecodes._bytecode_names[bytecode]
