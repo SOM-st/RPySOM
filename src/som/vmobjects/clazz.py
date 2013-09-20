@@ -138,8 +138,9 @@ class Class(Object):
   
     def add_instance_primitive(self, value):
         if self.add_instance_invokable(value):
-            self._universe.std_print("Warning: Primitive " + value.get_signature().get_string())
-            self._universe.std_println(" is not in class definition for class " + self.get_name().get_string())
+            from som.vm.universe import std_print, std_println
+            std_print("Warning: Primitive " + value.get_signature().get_string())
+            std_println(" is not in class definition for class " + self.get_name().get_string())
   
     def get_instance_field_name(self, index):
         # Get the name of the instance field with the given index

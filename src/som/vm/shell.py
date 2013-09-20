@@ -12,7 +12,8 @@ class Shell(object):
         counter = 0
         it = self._universe.nilObject
 
-        self._universe.std_println("SOM Shell. Type \"quit\" to exit.\n");
+        from som.vm.universe import std_println
+        std_println("SOM Shell. Type \"quit\" to exit.\n");
 
         # Create a fake bootstrap frame
         current_frame = self._interpreter.push_new_frame(self._bootstrap_method)
