@@ -3,7 +3,7 @@ from som.vmobjects.object import Object
 class BigInteger(Object):
     def __init__(self, nilObject):
         Object.__init__(self, nilObject)
-        self._embedded_biginteger = None
+        self._embedded_biginteger = 0L
     
     def get_embedded_biginteger(self):
         return self._embedded_biginteger
