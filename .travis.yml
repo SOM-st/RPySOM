@@ -5,6 +5,7 @@ python:
 
 install:
   - wget https://bitbucket.org/pypy/pypy/get/default.tar.bz2 || wget https://bitbucket.org/pypy/pypy/get/default.tar.bz2
-  - tar -xf pypy.tar.bz2
+  - tar -xjf default.tar.bz2
+  - mv pypy-pypy-* pypy
 # command to run tests
 script: PYTHONPATH=$PYTHONPATH:pypy nosetests
