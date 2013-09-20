@@ -33,7 +33,7 @@ class Symbol(object):
     KeywordSequence  = 29
     OperatorSequence = 30
     
-    _names = ("Integer",
+    _names = ["Integer",
               "Not",
               "And",
               "Or",
@@ -63,7 +63,7 @@ class Symbol(object):
               "Identifier",
               "Keyword",
               "KeywordSequence",
-              "OperatorSequence")
+              "OperatorSequence"]
 
 def symbol_as_str(symbol):
     if symbol == -1:

@@ -20,7 +20,7 @@ class Bytecodes(object):
     
     _num_bytecodes   = 16
     
-    _bytecode_length = ( 1, # halt
+    _bytecode_length = [ 1, # halt
                          1,  # dup             
                          3,  # push_local      
                          3,  # push_argument   
@@ -35,11 +35,11 @@ class Bytecodes(object):
                          2,  # send            
                          2,  # super_send      
                          1,  # return_local    
-                         1 ) # return_non_local
+                         1 ] # return_non_local
     
     _stack_effect_depends_on_message = -1000 # chose a unresonable number to be recognizable
     
-    _bytecode_stack_effect = ( 0,                               # halt            
+    _bytecode_stack_effect = [ 0,                               # halt            
                                1,                               # dup             
                                1,                               # push_local      
                                1,                               # push_argument   
@@ -54,9 +54,9 @@ class Bytecodes(object):
                               _stack_effect_depends_on_message, # send            
                               _stack_effect_depends_on_message, # super_send      
                               0,                                # return_local    
-                              0 )                               # return_non_local
+                              0 ]                               # return_non_local
 
-    _bytecode_names = ("HALT",
+    _bytecode_names = ["HALT",
                        "DUP",
                        "PUSH_LOCAL",
                        "PUSH_ARGUMENT",
@@ -71,7 +71,7 @@ class Bytecodes(object):
                        "SEND",
                        "SUPER_SEND",
                        "RETURN_LOCAL",
-                       "RETURN_NON_LOCAL")
+                       "RETURN_NON_LOCAL"]
 
 def bytecode_length(bytecode):
     return Bytecodes._bytecode_length[bytecode]
@@ -85,7 +85,8 @@ def bytecode_stack_effect(bytecode, number_of_arguments_of_message_send = 0):
 
 
 def bytecode_stack_effect_depends_on_send(bytecode):
-    return Bytecodes._bytecode_stack_effect[bytecode] is Bytecodes._stack_effect_depends_on_message
+    assert bytecode >= 0 and bytecode <= Bytecodes._num_bytecodes
+    return Bytecodes._bytecode_stack_effect[bytecode] == Bytecodes._stack_effect_depends_on_message
 
 
 def bytecode_as_str(bytecode):
