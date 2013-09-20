@@ -1,5 +1,3 @@
-from __future__ import print_function
-
 from som.interpreter.interpreter import Interpreter
 from som.interpreter.bytecodes   import Bytecodes 
 from som.vm.symbol_table         import SymbolTable
@@ -572,16 +570,17 @@ class Universe(object):
         return result
 
 def error_print(msg):
-    print(msg, file=sys.stderr, end="")
+    os.write(2, msg)
 
 def error_println(msg = ""):
-    print(msg, file=sys.stderr)
+    os.write(2, msg + "\n")
 
 def std_print(msg):
-    print(msg, end="")
+    print msg,
 
 def std_println(msg=""):
-    print(msg)
+    print msg
+
 
 def main(args):
     u = Universe()
