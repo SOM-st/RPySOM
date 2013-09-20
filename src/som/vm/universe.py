@@ -18,7 +18,10 @@ from som.vm.shell import Shell
 import som.compiler.sourcecode_compiler as sourcecode_compiler
 
 import os
-import sys
+
+class Exit(BaseException):
+    def __init__(self, code):
+        self.code = code
 
 class Universe(object):
     
@@ -57,7 +60,7 @@ class Universe(object):
         if self._avoid_exit:
             self._last_exit_code = error_code
         else:
-            sys.exit(error_code)
+            raise Exit(error_code)
     
     def last_exit_code(self):
         return self._last_exit_code
@@ -597,7 +600,8 @@ def main(args):
     u.exit(0)
 
 if __name__ == '__main__':
-    main(sys.argv)
-
-def target(*args):
-    return main, None
+    import sys
+    try:
+        main(sys.argv)
+    except Exit as e:
+        sys.exit(e.code)
