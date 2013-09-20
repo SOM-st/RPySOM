@@ -79,15 +79,15 @@ class Object(object):
             arguments_array.set_indexable_field(i, frame.pop())
             i -= 1
             
-        args = (selector, arguments_array)
+        args = [selector, arguments_array]
         self.send("doesNotUnderstand:arguments:", args, universe, interpreter)
 
     def send_unknown_global(self, global_name, universe, interpreter):
-        arguments = (global_name, )
+        arguments = [global_name]
         self.send("unknownGlobal:", arguments, universe, interpreter)
 
     def send_escaped_block(self, block, universe, interpreter):
-        arguments = (block, )
+        arguments = [block]
         self.send("escapedBlock:", arguments, universe, interpreter)
     
     def is_invokable(self):
