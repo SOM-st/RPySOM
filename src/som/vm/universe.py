@@ -143,7 +143,7 @@ class Universe(object):
                 self._dump_bytecodes = True
             else:
                 remaining_args.append(arguments[i])
-            i += 1 
+            i += 1
     
         if not got_classpath:
             # Get the default class path of the appropriate size
