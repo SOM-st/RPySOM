@@ -9,7 +9,7 @@ import math
 def _push_long_result(frame, result, universe):
     # Check with integer bounds and push:
     if integer_value_fits(result):
-        frame.push(universe.new_integer(result))
+        frame.push(universe.new_integer(int(result)))
     else:
         frame.push(universe.new_biginteger(result))
 

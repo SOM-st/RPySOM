@@ -1,3 +1,5 @@
+from rpython.rlib.objectmodel import compute_identity_hash
+
 from som.primitives.primitives import Primitives
 
 from som.vmobjects.primitive import Primitive
@@ -13,7 +15,8 @@ def _equals(ivkbl, frame, interpreter):
 
 def _hashcode(ivkbl, frame, interpreter):
     rcvr = frame.pop()
-    frame.push(interpreter.get_universe().new_integer(hash(rcvr)))
+    frame.push(interpreter.get_universe().new_integer(
+        compute_identity_hash(rcvr)))
 
 def _objectSize(ivkbl, frame, interpreter):
     rcvr = frame.pop()
