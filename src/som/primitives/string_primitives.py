@@ -13,7 +13,7 @@ def _asSymbol(ivkbl, frame, interpreter):
 
 def _length(ivkbl, frame, interpreter):
     rcvr = frame.pop()
-    frame.push(interpreter.get_universe().new_integer(rcvr.get_embedded_string().length()))
+    frame.push(interpreter.get_universe().new_integer(len(rcvr.get_embedded_string())))
 
 def _equals(ivkbl, frame, interpreter):
     op1 = frame.pop()
