@@ -178,7 +178,7 @@ class Universe(object):
     # take argument of the form "../foo/Test.som" and return
     # "../foo", "Test", "som"
     def _get_path_class_ext(self, path):
-        path_and_file = path.rsplit(os.pathsep, 1)
+        path_and_file = path.rsplit(os.sep, 1)
         if len(path_and_file) <= 1:
             path = ""
         else:
