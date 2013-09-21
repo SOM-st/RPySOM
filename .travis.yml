@@ -8,4 +8,10 @@ install:
   - tar -xjf default.tar.bz2
   - mv pypy-pypy-* pypy
 # command to run tests
-script: PYTHONPATH=$PYTHONPATH:pypy nosetests
+script:
+  - PYTHONPATH=$PYTHONPATH:pypy nosetests
+  - PYTHONPATH=$PYTHONPATH:pypy ./som.sh -cp Smalltalk TestSuite/TestHarness.som
+  - PYTHONPATH=$PYTHONPATH:pypy pypy/rpython/bin/rpython src/targetsomstandalone.py
+  - ./som -cp Smalltalk TestSuite/TestHarness.som
+  #- PYTHONPATH=$PYTHONPATH:pypy pypy/rpython/bin/rpython -Ojit src/targetsomstandalone.py
+  #- ./som -cp Smalltalk TestSuite/TestHarness.som
