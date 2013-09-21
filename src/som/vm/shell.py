@@ -1,5 +1,7 @@
 from rpython.rlib.objectmodel import we_are_translated
 
+from rlib.osext import raw_input
+
 class Shell(object):
 
     def __init__(self, universe, interpreter):
@@ -11,7 +13,7 @@ class Shell(object):
         self._bootstrap_method = method
 
     def start(self):
-        from som.vm.universe import std_println, error_println, raw_input
+        from som.vm.universe import std_println, error_println
         counter = 0
         it = self._universe.nilObject
 
