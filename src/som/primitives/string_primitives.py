@@ -29,11 +29,14 @@ def _substring(ivkbl, frame, interpreter):
     start = frame.pop()
     rcvr  = frame.pop()
 
-    try:
-        frame.push(interpreter.get_universe().new_string(rcvr.get_embedded_string()[
-                                start.get_embedded_integer():end.get_embedded_integer() + 1]))
-    except IndexError, e:
-        frame.push(interpreter.get_universe().new_string("Error - index out of bounds: %s" % e))
+    s      = start.get_embedded_integer()
+    e      = end.get_embedded_integer() + 1
+    string = rcvr.get_embedded_string()
+    
+    if s < 0 or s >= len(string) or e >= len(string) or e < s: 
+        frame.push(interpreter.get_universe().new_string("Error - index out of bounds"))
+    else:
+        frame.push(interpreter.get_universe().new_string(string[s:e]))
 
 def _hashcode(ivkbl, frame, interpreter):
     rcvr = frame.pop()
