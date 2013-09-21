@@ -143,6 +143,8 @@ class Universe(object):
                 got_classpath = True
             elif arguments[i] == "-d":
                 self._dump_bytecodes = True
+            elif arguments[i] in ["-h", "--help", "-?"]:
+                self._print_usage_and_exit()
             else:
                 remaining_args.append(arguments[i])
             i += 1
@@ -181,8 +183,9 @@ class Universe(object):
         std_println("                                                         ")
         std_println("where options include:                                   ")
         std_println("    -cp <directories separated by " + os.pathsep     + ">")
-        std_println("                  set search path for application classes")
-        std_println("    -d            enable disassembling")
+        std_println("        set search path for application classes")
+        std_println("    -d  enable disassembling")
+        std_println("    -h  print this help")
 
         # Exit
         self.exit(0)
