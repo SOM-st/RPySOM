@@ -29,11 +29,11 @@ def _substring(ivkbl, frame, interpreter):
     start = frame.pop()
     rcvr  = frame.pop()
 
-    s      = start.get_embedded_integer()
-    e      = end.get_embedded_integer() + 1
+    s      = start.get_embedded_integer() - 1
+    e      = end.get_embedded_integer()
     string = rcvr.get_embedded_string()
     
-    if s < 0 or s >= len(string) or e >= len(string) or e < s: 
+    if s < 0 or s >= len(string) or e > len(string) or e < s: 
         frame.push(interpreter.get_universe().new_string("Error - index out of bounds"))
     else:
         frame.push(interpreter.get_universe().new_string(string[s:e]))
