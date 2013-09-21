@@ -19,13 +19,8 @@ import som.compiler.sourcecode_compiler as sourcecode_compiler
 
 import os
 
-class Exit(BaseException):
-    """
-    Use an exit exception to end program execution.
-    We don't use sys.exit because it is a little problematic with RPython.
-    """
-    def __init__(self, code):
-        self.code = code
+from rlib.exit  import Exit
+from rlib.osext import path_split
 
 class Universe(object):
     
@@ -178,18 +173,7 @@ class Universe(object):
     # take argument of the form "../foo/Test.som" and return
     # "../foo", "Test", "som"
     def _get_path_class_ext(self, path):
-        path_and_file = path.rsplit(os.sep, 1)
-        if len(path_and_file) <= 1:
-            path = ""
-        else:
-            path = path_and_file[0]
-        file_and_ext  = path_and_file[-1].rsplit(".", 1)
-        if len(file_and_ext) <= 1:
-            ext = ""
-        else:
-            ext = file_and_ext[-1]
-        file_name = file_and_ext[0]
-        return (path, file_name, ext)
+        return path_split(path)
     
     def _print_usage_and_exit(self):
         # Print the usage
