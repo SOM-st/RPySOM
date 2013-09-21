@@ -29,7 +29,11 @@ def _asString(ivkbl, frame, interpreter):
 
 def _sqrt(ivkbl, frame, interpreter):
     rcvr = frame.pop()
-    frame.push(interpreter.get_universe().new_double(math.sqrt(rcvr.get_embedded_integer())))
+    res = math.sqrt(rcvr.get_embedded_integer())
+    if res == float(int(res)):
+        frame.push(interpreter.get_universe().new_integer(int(res)))
+    else:
+        frame.push(interpreter.get_universe().new_double(res))
 
 def _atRandom(ivkbl, frame, interpreter):
     rcvr = frame.pop()
