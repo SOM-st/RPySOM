@@ -1,9 +1,6 @@
 from som.vmobjects.object      import Object
 from som.primitives.primitives import Primitives
 
-from importlib import import_module
-import inspect
-
 class Class(Object):
     
     # Static field indices and number of class fields
@@ -30,7 +27,6 @@ class Class(Object):
     def has_super_class(self):
         # Check whether or not this class has a super class
         return self.get_field(self.SUPER_CLASS_INDEX) != self._universe.nilObject
-
 
     def get_name(self):
         # Get the name of this class by reading the field with name index
@@ -172,47 +168,18 @@ class Class(Object):
             # Get the next invokable in the instance invokable array
             if self.get_instance_invokable(i).is_primitive():
                 return True
-        
         return False
   
     def load_primitives(self):
-        ## We currently do not support dynamic loading of primitives.
-        ## Dynamic loading might come later, based on the SPy solution of Lars.
-        # TODO: add support for dynamic loading!
-        
-        # The hack for now hard codes the primitives for the classes of the
-        # standard library.
-        if self.get_name().get_string() == "Array":
-            from som.primitives.array_primitives import ArrayPrimitives
-            ArrayPrimitives(self._universe).install_primitives_in(self)
-        elif self.get_name().get_string() == "BigInteger":
-            from som.primitives.biginteger_primitives import BigIntegerPrimitives
-            BigIntegerPrimitives(self._universe).install_primitives_in(self)
-        elif self.get_name().get_string() == "Block":
-            from som.primitives.block_primitives import BlockPrimitives
-            BlockPrimitives(self._universe).install_primitives_in(self)
-        elif self.get_name().get_string() == "Class":
-            from som.primitives.class_primitives import ClassPrimitives
-            ClassPrimitives(self._universe).install_primitives_in(self)
-        elif self.get_name().get_string() == "Double":
-            from som.primitives.double_primitives import DoublePrimitives
-            DoublePrimitives(self._universe).install_primitives_in(self)
-        elif self.get_name().get_string() == "Integer":
-            from som.primitives.integer_primitives import IntegerPrimitives
-            IntegerPrimitives(self._universe).install_primitives_in(self)
-        elif self.get_name().get_string() == "Object":
-            from som.primitives.object_primitives import ObjectPrimitives
-            ObjectPrimitives(self._universe).install_primitives_in(self)
-        elif self.get_name().get_string() == "String":
-            from som.primitives.string_primitives import StringPrimitives
-            StringPrimitives(self._universe).install_primitives_in(self)
-        elif self.get_name().get_string() == "Symbol":
-            from som.primitives.symbol_primitives import SymbolPrimitives
-            SymbolPrimitives(self._universe).install_primitives_in(self)
-        elif self.get_name().get_string() == "System":
-            from som.primitives.system_primitives import SystemPrimitives
-            SystemPrimitives(self._universe).install_primitives_in(self)
-  
+        from som.primitives.known import (primitives_for_class,
+                                          PrimitivesNotFound)
+        try:
+            prims = primitives_for_class(self)
+        except PrimitivesNotFound:
+            prims = None
+        assert prims is not None, "We yet only support prims for known classes"
+        prims(self._universe).install_primitives_in(self)
+
     def replace_bytecodes(self):
         cnt = self.get_number_of_instance_invokables()
         for i in range(0, cnt):
