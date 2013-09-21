@@ -86,6 +86,9 @@ def bytecode_as_str(bytecode):
 
 def _sorted_bytecode_names(cls):
     "NOT_RPYTHON"
+    """This function is only called a single time, at load time of this module.
+       For RPypthon, this means, during translation of the module.
+    """
     return [key.upper() for value, key in \
             sorted([(value, key) for key, value in cls.__dict__.items()]) \
             if isinstance(value, int) and key[0] != "_"

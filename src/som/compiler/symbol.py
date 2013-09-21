@@ -35,6 +35,9 @@ class Symbol(object):
 
 def _sorted_symbols(cls):
     "NOT_RPYTHON"
+    """This function is only called a single time, at load time of this module.
+       For RPypthon, this means, during translation of the module.
+    """
     return [key for value, key in \
             sorted([(value, key) for key, value in cls.__dict__.items()]) \
             if isinstance(value, int)
