@@ -33,8 +33,8 @@ def _sqrt(ivkbl, frame, interpreter):
 
 def _atRandom(ivkbl, frame, interpreter):
     rcvr = frame.pop()
-    frame.push(interpreter.universe().new_integer(int(
-        rcvr.get_embedded_integer() * interpreter.universe().random.random())))
+    frame.push(interpreter.get_universe().new_integer(int(
+        rcvr.get_embedded_integer() * interpreter.get_universe().random.random())))
 
 def _plus(ivkbl, frame, interpreter):
     right_obj = frame.pop()

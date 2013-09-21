@@ -42,7 +42,7 @@ def _substring(ivkbl, frame, interpreter):
 
 def _hashcode(ivkbl, frame, interpreter):
     rcvr = frame.pop()
-    frame.push(interpreter.universe().new_integer(
+    frame.push(interpreter.get_universe().new_integer(
         compute_identity_hash(rcvr.get_embedded_string())))
 
 class StringPrimitives(Primitives):

@@ -9,7 +9,7 @@ def _coerce_to_double(obj, universe):
     if isinstance(obj, Double):
         return obj
     if isinstance(obj, Integer):
-        return universe.new_double(obj.get_embedded_integer())
+        return universe.new_double(float(obj.get_embedded_integer()))
     raise ValueError("Cannot coerce %s to Double!" % obj)
 
 def _asString(ivkbl, frame, interpreter):
@@ -46,8 +46,11 @@ def _doubleDiv(ivkbl, frame, interpreter):
 def _mod(ivkbl, frame, interpreter):
     op1 = _coerce_to_double(frame.pop(), interpreter.get_universe())
     op2 = frame.pop()
-    frame.push(interpreter.get_universe().new_double(op2.get_embedded_double()
-                                         % op1.get_embedded_double()))
+    
+    o1 = float(op1.get_embedded_double())
+    o2 = float(op2.get_embedded_double())
+    r = math.fmod(o1, o2)
+    frame.push(interpreter.get_universe().new_double(r))
 
 def _equals(ivkbl, frame, interpreter):
     op1 = _coerce_to_double(frame.pop(), interpreter.get_universe())

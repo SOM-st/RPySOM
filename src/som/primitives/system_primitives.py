@@ -35,13 +35,13 @@ def _print_newline(ivkbl, frame, interpreter):
 
 def _time(ivkbl, frame, interpreter):
     frame.pop() # ignore
-    _time = time.time() - interpreter.universe().start_time
-    frame.push(interpreter.universe().new_integer(int(_time * 1000)))
+    since_start = time.time() - interpreter.get_universe().start_time
+    frame.push(interpreter.get_universe().new_integer(int(since_start * 1000)))
 
 def _ticks(ivkbl, frame, interpreter):
     frame.pop() # ignore
-    _time = time.time() - interpreter.universe().start_time
-    frame.push(interpreter.universe().new_integer(int(_time * 1000000)))
+    since_start = time.time() - interpreter.get_universe().start_time
+    frame.push(interpreter.get_universe().new_integer(int(since_start * 1000000)))
 
 def _fullGC(ivkbl, frame, interpreter):
     # naught - GC is entirely left to Python
