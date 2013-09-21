@@ -31,6 +31,8 @@ class Shell(object):
                 stmt = raw_input("---> ")
                 if stmt == "quit" or stmt == "":
                     return
+                elif stmt == "\n":
+                    continue
 
                 # Generate a temporary class with a run method
                 stmt = ("Shell_Class_" + str(counter) + 
