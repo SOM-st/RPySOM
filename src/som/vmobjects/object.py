@@ -39,10 +39,13 @@ class Object(object):
     
     def get_field(self, index):
         # Get the field with the given index
+        assert isinstance(index, int)
         return self._fields[index]
   
     def set_field(self, index, value):
         # Set the field with the given index to the given value
+        assert isinstance(index, int)
+        assert isinstance(value, Object)
         self._fields[index] = value
     
     def send(self, selector_string, arguments, universe, interpreter):

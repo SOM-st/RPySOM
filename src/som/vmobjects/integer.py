@@ -10,6 +10,7 @@ class Integer(Object):
         return self._embedded_integer
     
     def set_embedded_integer(self, value):
+        assert isinstance(value, int)
         self._embedded_integer = value
     
     def get_embedded_value(self):

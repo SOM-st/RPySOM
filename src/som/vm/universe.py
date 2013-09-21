@@ -382,6 +382,7 @@ class Universe(object):
 
  
     def new_integer(self, value):
+        assert isinstance(value, int)
         # Allocate a new integer and set its class to be the integer class
         result = Integer(self.nilObject)
         result.set_class(self.integerClass)
