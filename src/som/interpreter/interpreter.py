@@ -6,6 +6,9 @@ class Interpreter(object):
         self._universe = universe
         self._frame    = None
     
+    def get_universe(self):
+        return self._universe
+    
     def _do_dup(self):
         # Handle the dup bytecode
         self.get_frame().push(self.get_frame().get_stack_element(0))
