@@ -5,7 +5,6 @@ from som.vmobjects.integer     import integer_value_fits, Integer
 from som.vmobjects.double      import Double
 
 import math
-import random
 
 def _push_long_result(frame, result, universe):
     # Check with integer bounds and push:
@@ -34,7 +33,8 @@ def _sqrt(ivkbl, frame, interpreter):
 
 def _atRandom(ivkbl, frame, interpreter):
     rcvr = frame.pop()
-    frame.push(interpreter.get_universe().new_integer(rcvr.get_embedded_integer() * random.random()))
+    frame.push(interpreter.universe().new_integer(int(
+        rcvr.get_embedded_integer() * interpreter.universe().random.random())))
 
 def _plus(ivkbl, frame, interpreter):
     right_obj = frame.pop()

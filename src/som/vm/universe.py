@@ -1,3 +1,5 @@
+from rpython.rlib.rrandom import Random
+
 from som.interpreter.interpreter import Interpreter
 from som.interpreter.bytecodes   import Bytecodes 
 from som.vm.symbol_table         import SymbolTable
@@ -18,6 +20,8 @@ from som.vm.shell import Shell
 import som.compiler.sourcecode_compiler as sourcecode_compiler
 
 import os
+import time
+
 
 from rlib.exit  import Exit
 from rlib.osext import path_split
@@ -54,6 +58,9 @@ class Universe(object):
         self._avoid_exit     = avoid_exit
         self._dump_bytecodes = False
         self.classpath       = None
+        self.start_time      = time.time() # a float of the time in seconds
+        self.random          = Random(abs(int(time.clock() * time.time())))
+
 
     def exit(self, error_code):
         if self._avoid_exit:

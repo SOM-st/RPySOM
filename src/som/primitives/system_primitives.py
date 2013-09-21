@@ -5,8 +5,6 @@ from som.vm.universe import std_print, std_println
 
 import time
 
-_start_time = time.time() # a float of the time in seconds
-
 def _load(ivkbl, frame, interpreter):
     argument = frame.pop()
     frame.pop() # not required
@@ -37,20 +35,20 @@ def _print_newline(ivkbl, frame, interpreter):
 
 def _time(ivkbl, frame, interpreter):
     frame.pop() # ignore
-    _time = time.time() - _start_time
-    frame.push(interpreter.get_universe().new_integer(_time * 1000))
+    _time = time.time() - interpreter.universe().start_time
+    frame.push(interpreter.universe().new_integer(int(_time * 1000)))
 
 def _ticks(ivkbl, frame, interpreter):
     frame.pop() # ignore
-    _time = time.time() - _start_time
-    frame.push(interpreter.get_universe().new_integer(_time * 1000000))
+    _time = time.time() - interpreter.universe().start_time
+    frame.push(interpreter.universe().new_integer(int(_time * 1000000)))
 
 def _fullGC(ivkbl, frame, interpreter):
     # naught - GC is entirely left to Python
     pass
 
 class SystemPrimitives(Primitives):
-    
+
     def install_primitives(self):
         self._install_instance_primitive(Primitive("load:", self._universe, _load))
         self._install_instance_primitive(Primitive("exit:", self._universe, _exit))
