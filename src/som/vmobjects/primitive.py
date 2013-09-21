@@ -16,9 +16,7 @@ class Primitive(Object):
         # Set the signature of this primitive
         self._set_signature(universe.symbol_for(signature_string))
         
-        self._invoke = invoke
-        #self.invoke = types.MethodType(invoke, self)
-
+        self._invoke   = invoke
         self._is_empty = is_empty
 
     def invoke(self, frame, interpreter):
