@@ -1,3 +1,5 @@
+from rpython.rlib.rfloat import (formatd, DTSF_ADD_DOT_0, DTSF_STR_PRECISION,
+    NAN, INFINITY, isfinite, round_away)
 from som.primitives.primitives import Primitives
 from som.vmobjects.primitive   import Primitive
 from som.vmobjects.double      import Double
@@ -14,7 +16,9 @@ def _coerce_to_double(obj, universe):
 
 def _asString(ivkbl, frame, interpreter):
     rcvr = frame.pop()
-    frame.push(interpreter.get_universe().new_string(str(rcvr.get_embedded_double())))
+    d = rcvr.get_embedded_double()
+    s = formatd(d, "g", DTSF_STR_PRECISION, DTSF_ADD_DOT_0)
+    frame.push(interpreter.get_universe().new_string(s))
 
 def _sqrt(ivkbl, frame, interpreter):
     rcvr = frame.pop()
