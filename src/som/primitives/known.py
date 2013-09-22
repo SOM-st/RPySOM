@@ -1,3 +1,4 @@
+from rpython.rlib.unroll import unrolling_iterable
 #
 # Captures the known primitives
 #
@@ -31,13 +32,13 @@ def _setup_primitives():
     prim_pairs = map(lambda (name, cls):
                 (name[:name.find("Primitives")], cls),
                 all_prims)
-    return dict(prim_pairs)
+    return prim_pairs
 
-_primitives = _setup_primitives()
+_primitives = unrolling_iterable(_setup_primitives())
 
 def primitives_for_class(cls):
-    key = cls.get_name().get_string()
-    res = _primitives.get(key, None)
-    if res is None:
-        raise PrimitivesNotFound
-    return res
+    name = cls.get_name().get_string()
+    for key, primitives in _primitives:
+        if key == name:
+            return primitives
+    raise PrimitivesNotFound
