@@ -3,7 +3,7 @@ from som.vmobjects.primitive   import Primitive
 
 from som.vm.universe import std_print, std_println
 
-from rpython.rlib import rgc
+from rpython.rlib import rgc, jit
 import time
 
 def _load(ivkbl, frame, interpreter):
@@ -44,6 +44,7 @@ def _ticks(ivkbl, frame, interpreter):
     since_start = time.time() - interpreter.get_universe().start_time
     frame.push(interpreter.get_universe().new_integer(int(since_start * 1000000)))
 
+@jit.dont_look_inside
 def _fullGC(ivkbl, frame, interpreter):
     frame.pop()
     rgc.collect()
