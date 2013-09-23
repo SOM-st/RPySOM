@@ -25,8 +25,8 @@ class Method(Array):
         self._inline_cache_class     = None
         self._inline_cache_invokable = None
         
-        self._number_of_locals       = -1
-        self._maximum_number_of_stack_elements = -1
+        self._number_of_locals       = nilObject
+        self._maximum_number_of_stack_elements = nilObject
     
     def is_primitive(self):
         return False
