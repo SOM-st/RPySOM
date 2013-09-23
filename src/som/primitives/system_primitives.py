@@ -3,7 +3,7 @@ from som.vmobjects.primitive   import Primitive
 
 from som.vm.universe import std_print, std_println
 
-import gc
+from rpython.rlib import rgc
 import time
 
 def _load(ivkbl, frame, interpreter):
@@ -46,7 +46,7 @@ def _ticks(ivkbl, frame, interpreter):
 
 def _fullGC(ivkbl, frame, interpreter):
     frame.pop()
-    gc.collect()
+    rgc.collect()
     frame.push(interpreter.get_universe().trueObject)
 
 class SystemPrimitives(Primitives):
