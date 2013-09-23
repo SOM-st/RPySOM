@@ -152,7 +152,7 @@ class Method(Array):
 
         # we copy the new array because it may be shorter, and we don't
         # want to upset whatever dependence there is on the length
-        self._bytecodes = array('b', [0] * idx)
+        self._bytecodes = ["\x00"] * len(idx)
         for i in range(0, idx):
             self._bytecodes[i] = newbc[i]
 
