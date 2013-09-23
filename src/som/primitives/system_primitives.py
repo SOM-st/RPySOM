@@ -3,6 +3,7 @@ from som.vmobjects.primitive   import Primitive
 
 from som.vm.universe import std_print, std_println
 
+import gc
 import time
 
 def _load(ivkbl, frame, interpreter):
@@ -44,8 +45,9 @@ def _ticks(ivkbl, frame, interpreter):
     frame.push(interpreter.get_universe().new_integer(int(since_start * 1000000)))
 
 def _fullGC(ivkbl, frame, interpreter):
-    # naught - GC is entirely left to Python
-    pass
+    frame.pop()
+    gc.collect()
+    frame.push(interpreter.get_universe().trueObject)
 
 class SystemPrimitives(Primitives):
 

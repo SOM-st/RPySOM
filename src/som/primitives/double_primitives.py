@@ -1,5 +1,6 @@
 from rpython.rlib.rfloat import (formatd, DTSF_ADD_DOT_0, DTSF_STR_PRECISION,
-    NAN, INFINITY, isfinite, round_away)
+    NAN, INFINITY, isfinite, round_double)
+
 from som.primitives.primitives import Primitives
 from som.vmobjects.primitive   import Primitive
 from som.vmobjects.double      import Double
@@ -72,10 +73,16 @@ def _lessThan(ivkbl, frame, interpreter):
     else:
         frame.push(interpreter.get_universe().falseObject)
 
+def _round(ivkbl, frame, interpreter):
+    rcvr = frame.pop()
+    int_value = int(round_double(rcvr.get_embedded_double(), 0))
+    frame.push(interpreter.get_universe().new_integer(int_value))
+
 class DoublePrimitives(Primitives):
 
     def install_primitives(self):        
         self._install_instance_primitive(Primitive("asString", self._universe, _asString))
+        self._install_instance_primitive(Primitive("round",    self._universe, _round))
         self._install_instance_primitive(Primitive("sqrt", self._universe, _sqrt))
         self._install_instance_primitive(Primitive("+",  self._universe, _plus))
         self._install_instance_primitive(Primitive("-",  self._universe, _minus))

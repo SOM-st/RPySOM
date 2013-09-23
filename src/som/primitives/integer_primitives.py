@@ -3,6 +3,7 @@ from som.vmobjects.primitive   import Primitive
 from som.vmobjects.biginteger  import BigInteger
 from som.vmobjects.integer     import integer_value_fits, Integer
 from som.vmobjects.double      import Double
+from som.vmobjects.string      import String
 
 import math
 
@@ -188,6 +189,17 @@ def _lessThan(ivkbl, frame, interpreter):
         else:
             frame.push(interpreter.get_universe().falseObject)
 
+def _fromString(ivkbl, frame, interpreter):
+    param = frame.pop()
+    frame.pop()
+    
+    if not isinstance(param, String):
+        frame.push(interpreter.get_universe().nilObject)
+        return
+    
+    int_value = int(param.get_embedded_string())
+    frame.push(interpreter.get_universe().new_integer(int_value))
+
 class IntegerPrimitives(Primitives):
 
     def install_primitives(self):
@@ -206,3 +218,4 @@ class IntegerPrimitives(Primitives):
         self._install_instance_primitive(Primitive("=",  self._universe, _equals))
         self._install_instance_primitive(Primitive("<",  self._universe, _lessThan))
         
+        self._install_class_primitive(Primitive("fromString:", self._universe, _fromString))
