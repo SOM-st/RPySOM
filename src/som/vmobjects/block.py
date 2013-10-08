@@ -7,16 +7,17 @@ class Block(Object):
     CONTEXT_INDEX          = 1 + METHOD_INDEX
     NUMBER_OF_BLOCK_FIELDS = 1 + CONTEXT_INDEX
     
-    def __init__(self, nilObject):
+    def __init__(self, nilObject, method, context):
         Object.__init__(self, nilObject)
         self._number_of_arguments = 0
+        self._set_method(method)
+        self._set_context(context)
         
     def get_method(self):
         # Get the method of this block by reading the field with method index
         return self.get_field(self.METHOD_INDEX)
   
-
-    def set_method(self, value):
+    def _set_method(self, value):
         # Set the method of this block by writing to the field with method index
         self.set_field(self.METHOD_INDEX, value)
   
@@ -24,7 +25,7 @@ class Block(Object):
         # Get the context of this block by reading the field with context index
         return self.get_field(self.CONTEXT_INDEX)
 
-    def set_context(self, value):
+    def _set_context(self, value):
         # Set the context of this block by writing to the field with context index
         return self.set_field(self.CONTEXT_INDEX, value)
 
@@ -43,9 +44,8 @@ class Block(Object):
     
                 # Push a new frame and set its context to be the one specified in
                 # the block
-                new_frame = interpreter.push_new_frame(rcvr.get_method())
+                new_frame = interpreter.push_new_frame(rcvr.get_method(), context)
                 new_frame.copy_arguments_from(frame)
-                new_frame.set_context(context)
             
             Primitive.__init__(self, self._compute_signature_string(num_args), universe, _invoke)
             self._number_of_arguments = num_args

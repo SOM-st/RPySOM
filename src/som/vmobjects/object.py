@@ -6,8 +6,7 @@ class Object(object):
 
     def __init__(self, nilObject, number_of_fields = -1):
         num_fields = number_of_fields if number_of_fields != -1 else self._get_default_number_of_fields()
-        self._fields = None
-        self.set_number_of_fields_and_clear(num_fields, nilObject)
+        self._fields = [nilObject] * num_fields
     
     def get_class(self):
         # Get the class of this object by reading the field with class index
@@ -27,11 +26,7 @@ class Object(object):
 
     def get_number_of_fields(self):
         # Get the number of fields in this object
-        return len(self._fields)
-
-    def set_number_of_fields_and_clear(self, value, nilObject):
-        # Allocate a new array of fields
-        self._fields = [nilObject] * value
+        return len(self._fields)        
 
     def _get_default_number_of_fields(self):
         # Return the default number of fields in an object

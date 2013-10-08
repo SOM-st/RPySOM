@@ -19,17 +19,20 @@ class Frame(Array):
     METHOD_INDEX           = 1 + CONTEXT_INDEX
     NUMBER_OF_FRAME_FIELDS = 1 + METHOD_INDEX
 
-    def __init__(self, nilObject):
-        Array.__init__(self, nilObject)
+    def __init__(self, nilObject, num_elements, method, context, previous_frame):
+        Array.__init__(self, nilObject, num_elements)
         self._stack_pointer  = 0
         self._bytecode_index = 0
         self._local_offset   = 0
+        self._set_method(method)
+        self._set_context(context)
+        self._set_previous_frame(previous_frame if previous_frame else nilObject)
     
     def get_previous_frame(self):
         # Get the previous frame by reading the field with previous frame index
         return self.get_field(self.PREVIOUS_FRAME_INDEX)
 
-    def set_previous_frame(self, value):
+    def _set_previous_frame(self, value):
         # Set the previous frame by writing to the field with previous frame index
         self.set_field(self.PREVIOUS_FRAME_INDEX, value)
 
@@ -47,7 +50,7 @@ class Frame(Array):
         # Get the context by reading the field with context index
         return self.get_field(self.CONTEXT_INDEX)
 
-    def set_context(self, value):
+    def _set_context(self, value):
         # Set the context by writing to the field with context index
         self.set_field(self.CONTEXT_INDEX, value)
 
@@ -84,7 +87,7 @@ class Frame(Array):
         # Get the method by reading the field with method index
         return self.get_field(self.METHOD_INDEX)
 
-    def set_method(self, value):
+    def _set_method(self, value):
         # Set the method by writing to the field with method index
         self.set_field(self.METHOD_INDEX, value)
 

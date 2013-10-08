@@ -89,16 +89,16 @@ class Universe(object):
     
     def _create_bootstrap_method(self):
         # Create a fake bootstrap method to simplify later frame traversal
-        bootstrap_method = self.new_method(self.symbol_for("bootstrap"), 1, 0)
+        bootstrap_method = self.new_method(self.symbol_for("bootstrap"), 1, 0,
+                                           self.new_integer(0),
+                                           self.new_integer(2))
         bootstrap_method.set_bytecode(0, Bytecodes.halt)
-        bootstrap_method.set_number_of_locals(self.new_integer(0))
-        bootstrap_method.set_maximum_number_of_stack_elements(self.new_integer(2))
         bootstrap_method.set_holder(self.systemClass)
         return bootstrap_method
     
     def _create_bootstrap_frame(self, bootstrap_method, receiver, arguments = None):
         # Create a fake bootstrap frame with the system object on the stack
-        bootstrap_frame = self._interpreter.push_new_frame(bootstrap_method)
+        bootstrap_frame = self._interpreter.push_new_frame(bootstrap_method, self.nilObject)
         bootstrap_frame.push(receiver)
         
         if arguments:
@@ -294,11 +294,8 @@ class Universe(object):
     
     def new_array_with_length(self, length):
         # Allocate a new array and set its class to be the array class
-        result = Array(self.nilObject)
+        result = Array(self.nilObject, length)
         result.set_class(self.arrayClass)
-
-        # Set the number of indexable fields to the given value (length)
-        result.set_number_of_indexable_fields_and_clear(length, self.nilObject)
 
         # Return the freshly allocated array
         return result
@@ -327,12 +324,8 @@ class Universe(object):
     
     def new_block(self, method, context_frame, arguments):
         # Allocate a new block and set its class to be the block class
-        result = Block(self.nilObject)
+        result = Block(self.nilObject, method, context_frame)
         result.set_class(self._get_block_class(arguments))
-
-        # Set the method and context of block
-        result.set_method(method)
-        result.set_context(context_frame)
 
         # Return the freshly allocated block
         return result
@@ -345,23 +338,17 @@ class Universe(object):
         # Return the freshly allocated class
         return result
 
-    def new_frame(self, previous_frame, method):
-        # Allocate a new frame and set its class to be the frame class
-        result = Frame(self.nilObject)
-        result.set_class(self.frameClass)
-
+    def new_frame(self, previous_frame, method, context):
         # Compute the maximum number of stack locations (including arguments,
         # locals and extra buffer to support doesNotUnderstand) and set the
         # number of indexable fields accordingly
         length = (method.get_number_of_arguments() +
                   method.get_number_of_locals().get_embedded_integer() +
                   method.get_maximum_number_of_stack_elements().get_embedded_integer() + 2)
-        result.set_number_of_indexable_fields_and_clear(length, self.nilObject)
 
-        # Set the method of the frame and the previous frame
-        result.set_method(method)
-        if previous_frame:
-            result.set_previous_frame(previous_frame)
+        # Allocate a new frame and set its class to be the frame class
+        result = Frame(self.nilObject, length, method, context, previous_frame)
+        result.set_class(self.frameClass)
 
         # Reset the stack pointer and the bytecode index
         result.reset_stack_pointer()
@@ -370,15 +357,16 @@ class Universe(object):
         # Return the freshly allocated frame
         return result
 
-    def new_method(self, signature, num_bytecodes, num_literals):
+    def new_method(self, signature, num_bytecodes, num_literals,
+                   num_locals, maximum_number_of_stack_elements):
         # Allocate a new method and set its class to be the method class
-        result = Method(self.nilObject)
+        result = Method(self.nilObject,
+                        num_literals,
+                        num_locals,
+                        maximum_number_of_stack_elements,
+                        num_bytecodes,
+                        signature)
         result.set_class(self.methodClass)
-
-        # Set the signature and the number of bytecodes
-        result.set_signature(signature)
-        result.set_number_of_bytecodes(num_bytecodes)
-        result.set_number_of_indexable_fields_and_clear(num_literals, self.nilObject)
 
         # Return the freshly allocated method
         return result
@@ -395,22 +383,16 @@ class Universe(object):
     def new_integer(self, value):
         assert isinstance(value, int)
         # Allocate a new integer and set its class to be the integer class
-        result = Integer(self.nilObject)
+        result = Integer(self.nilObject, value)
         result.set_class(self.integerClass)
-     
-        # Set the embedded integer of the newly allocated integer
-        result.set_embedded_integer(value)
      
         # Return the freshly allocated integer
         return result
  
     def new_biginteger(self, value):
         # Allocate a new integer and set its class to be the integer class
-        result = BigInteger(self.nilObject)
+        result = BigInteger(self.nilObject, value)
         result.set_class(self.bigintegerClass)
- 
-        # Set the embedded integer of the newly allocated integer
-        result.set_embedded_biginteger(value)
  
         # Return the freshly allocated integer
         return result
@@ -418,11 +400,8 @@ class Universe(object):
  
     def new_double(self, value):
         # Allocate a new integer and set its class to be the double class
-        result = Double(self.nilObject)
+        result = Double(self.nilObject, value)
         result.set_class(self.doubleClass)
- 
-        # Set the embedded double of the newly allocated double
-        result.set_embedded_double(value)
  
         # Return the freshly allocated double
         return result
@@ -440,22 +419,16 @@ class Universe(object):
 
     def new_string(self, embedded_string):
         # Allocate a new string and set its class to be the string class
-        result = String(self.nilObject)
+        result = String(self.nilObject, embedded_string)
         result.set_class(self.stringClass)
- 
-        # Put the embedded string into the new string
-        result.set_embedded_string(embedded_string)
- 
+  
         # Return the freshly allocated string
         return result
     
     def new_symbol(self, string):
         # Allocate a new symbol and set its class to be the symbol class
-        result = Symbol(self.nilObject)
+        result = Symbol(self.nilObject, string)
         result.set_class(self.symbolClass)
-
-        # Put the string into the symbol
-        result.set_string(string)
 
         # Insert the new symbol into the symbol table
         self._symbol_table.insert(result)

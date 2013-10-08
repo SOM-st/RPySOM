@@ -206,9 +206,9 @@ class Interpreter(object):
             elif bytecode == Bytecodes.return_non_local:
                 self._do_return_non_local()
 
-    def push_new_frame(self, method):
+    def push_new_frame(self, method, context):
         # Allocate a new frame and make it the current one
-        self._frame = self._universe.new_frame(self._frame, method)
+        self._frame = self._universe.new_frame(self._frame, method, context)
 
         # Return the freshly allocated and pushed frame
         return self._frame

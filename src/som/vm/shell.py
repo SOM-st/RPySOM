@@ -20,7 +20,7 @@ class Shell(object):
         std_println("SOM Shell. Type \"quit\" to exit.\n");
 
         # Create a fake bootstrap frame
-        current_frame = self._interpreter.push_new_frame(self._bootstrap_method)
+        current_frame = self._interpreter.push_new_frame(self._bootstrap_method, self._universe.nilObject)
 
         # Remember the first bytecode index, e.g. index of the halt instruction
         bytecode_index = current_frame.get_bytecode_index()

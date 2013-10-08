@@ -12,8 +12,9 @@ class Method(Array):
     NUMBER_OF_METHOD_FIELDS         = 1 + HOLDER_INDEX
 
     
-    def __init__(self, nilObject):
-        Array.__init__(self, nilObject)
+    def __init__(self, nilObject, num_literals, num_locals, max_stack_elements,
+                 num_bytecodes, signature):
+        Array.__init__(self, nilObject, num_literals)
         
         self._receiver_class_table   = []
         self._invoked_methods        = []
@@ -21,12 +22,16 @@ class Method(Array):
 
         self._invocation_count       = 0
 
-        self._bytecodes              = None
-        self._inline_cache_class     = None
-        self._inline_cache_invokable = None
+
+        # Set the number of bytecodes in this method
+        self._bytecodes              = ["\x00"] * num_bytecodes
+        self._inline_cache_class     = [None]   * num_bytecodes
+        self._inline_cache_invokable = [None]   * num_bytecodes
         
-        self._number_of_locals       = nilObject
-        self._maximum_number_of_stack_elements = nilObject
+        self._number_of_locals       = num_locals
+        self._maximum_number_of_stack_elements = max_stack_elements
+        self._set_signature(signature)
+        
     
     def is_primitive(self):
         return False
@@ -41,24 +46,16 @@ class Method(Array):
         # Get the number of locals (converted to a Java integer)
         return self._number_of_locals
 
-    def set_number_of_locals(self, value):
-        # Set the number of locals
-        self._number_of_locals = value
-
     def get_maximum_number_of_stack_elements(self):
         # Get the maximum number of stack elements
         return self._maximum_number_of_stack_elements
-  
-    def set_maximum_number_of_stack_elements(self, value):
-        # Set the maximum number of stack elements
-        self._maximum_number_of_stack_elements = value
 
     def get_signature(self):
         # Get the signature of this method by reading the field with signature
         # index
         return self.get_field(self.SIGNATURE_INDEX)
 
-    def set_signature(self, value):
+    def _set_signature(self, value):
         # Set the signature of this method by writing to the field with
         # signature index
         self.set_field(self.SIGNATURE_INDEX, value)
@@ -92,12 +89,6 @@ class Method(Array):
         # Get the number of bytecodes in this method
         return len(self._bytecodes)
 
-    def set_number_of_bytecodes(self, value):
-        # Set the number of bytecodes in this method
-        self._bytecodes              = ["\x00"] * value
-        self._inline_cache_class     = [None] * value
-        self._inline_cache_invokable = [None] * value
-
     def get_bytecode(self, index):
         # Get the bytecode at the given index
         return ord(self._bytecodes[index])
@@ -120,7 +111,8 @@ class Method(Array):
         self._invocation_count += 1
     
         # Allocate and push a new frame on the interpreter stack
-        new_frame = interpreter.push_new_frame(self)
+        new_frame = interpreter.push_new_frame(self,
+                                    interpreter.get_universe().nilObject)
         new_frame.copy_arguments_from(frame)
 
     def replace_bytecodes(self):
