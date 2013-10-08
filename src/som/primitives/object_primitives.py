@@ -65,6 +65,12 @@ def _instVarAtPut(ivkbl, frame, interpreter):
 
     rcvr.set_field(idx.get_embedded_integer() - 1, val)
 
+def _halt(ivkbl, frame, interpreter):
+    # noop
+    print "BREAKPOINT"
+    
+
+
 class ObjectPrimitives(Primitives):
     
     def install_primitives(self):
@@ -76,3 +82,6 @@ class ObjectPrimitives(Primitives):
         self._install_instance_primitive(Primitive("perform:withArguments:", self._universe, _performWithArguments))
         self._install_instance_primitive(Primitive("instVarAt:", self._universe, _instVarAt))
         self._install_instance_primitive(Primitive("instVarAt:put:", self._universe, _instVarAtPut))
+        
+        self._install_instance_primitive(Primitive("halt", self._universe, _halt))
+
