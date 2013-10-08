@@ -3,7 +3,7 @@ from som.vmobjects.primitive import Primitive
 
 class Block(Object):
     
-    METHOD_INDEX           = 1 + Object.CLASS_INDEX
+    METHOD_INDEX           = Object.NUMBER_OF_OBJECT_FIELDS
     CONTEXT_INDEX          = 1 + METHOD_INDEX
     NUMBER_OF_BLOCK_FIELDS = 1 + CONTEXT_INDEX
     

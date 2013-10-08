@@ -7,7 +7,7 @@ from som.interpreter.bytecodes import bytecode_length
 class Method(Array):
     
     # Static field indices and number of method fields
-    SIGNATURE_INDEX                 = 1 + Array.CLASS_INDEX
+    SIGNATURE_INDEX                 = Array.NUMBER_OF_OBJECT_FIELDS
     HOLDER_INDEX                    = 1 + SIGNATURE_INDEX
     NUMBER_OF_METHOD_FIELDS         = 1 + HOLDER_INDEX
 

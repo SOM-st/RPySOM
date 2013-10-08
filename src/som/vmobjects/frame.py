@@ -14,7 +14,7 @@ from som.vmobjects.array import Array
 class Frame(Array):
     
     # Static field indices and number of frame fields
-    PREVIOUS_FRAME_INDEX   = 1 + Array.CLASS_INDEX
+    PREVIOUS_FRAME_INDEX   = Array.NUMBER_OF_OBJECT_FIELDS
     CONTEXT_INDEX          = 1 + PREVIOUS_FRAME_INDEX
     METHOD_INDEX           = 1 + CONTEXT_INDEX
     NUMBER_OF_FRAME_FIELDS = 1 + METHOD_INDEX

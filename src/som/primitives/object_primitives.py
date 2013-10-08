@@ -68,6 +68,10 @@ def _instVarAtPut(ivkbl, frame, interpreter):
 def _halt(ivkbl, frame, interpreter):
     # noop
     print "BREAKPOINT"
+
+def _class(ivkbl, frame, interpreter):
+    rcvr = frame.pop()
+    frame.push(rcvr.get_class())
     
 
 
@@ -84,4 +88,5 @@ class ObjectPrimitives(Primitives):
         self._install_instance_primitive(Primitive("instVarAt:put:", self._universe, _instVarAtPut))
         
         self._install_instance_primitive(Primitive("halt", self._universe, _halt))
+        self._install_instance_primitive(Primitive("class", self._universe, _class))
 

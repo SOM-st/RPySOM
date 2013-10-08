@@ -4,7 +4,7 @@ from som.primitives.primitives import Primitives
 class Class(Object):
     
     # Static field indices and number of class fields
-    SUPER_CLASS_INDEX         = 1 + Object.CLASS_INDEX
+    SUPER_CLASS_INDEX         = Object.NUMBER_OF_OBJECT_FIELDS
     NAME_INDEX                = 1 + SUPER_CLASS_INDEX
     INSTANCE_FIELDS_INDEX     = 1 + NAME_INDEX
     INSTANCE_INVOKABLES_INDEX = 1 + INSTANCE_FIELDS_INDEX
