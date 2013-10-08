@@ -4,6 +4,7 @@ from som.vm.universe import Universe
 
 class SomTest(unittest.TestCase):
     @parameterized.expand([
+        ("ClassStructure",),
         ("Array"         ,),
         ("BigInteger"    ,),
         ("Block"         ,),
