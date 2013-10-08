@@ -1,7 +1,7 @@
 from rpython.rlib.unroll import unrolling_iterable
-#
-# Captures the known primitives
-#
+"""Captures the known primitives at load time of this module, i.e., at compile
+   time with RPython.
+"""
 
 class PrimitivesNotFound(Exception): pass
 
@@ -19,7 +19,6 @@ def _setup_primitives():
     from importlib import import_module
     import inspect
     import py
-    from pprint import pformat
     directory = py.path.local(__file__).dirpath()
     files = filter(lambda ent: ent.basename.endswith("_primitives.py"),
                    directory.listdir())
