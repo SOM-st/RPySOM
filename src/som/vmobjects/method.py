@@ -2,8 +2,6 @@ from __future__ import absolute_import
 
 from som.vmobjects.array import Array
 
-from som.interpreter.bytecodes import bytecode_length
-
 class Method(Array):
     
     # Static field indices and number of method fields
@@ -114,40 +112,6 @@ class Method(Array):
         new_frame = interpreter.push_new_frame(self,
                                     interpreter.get_universe().nilObject)
         new_frame.copy_arguments_from(frame)
-
-    def replace_bytecodes(self):
-        newbc =  ["\x00"] * len(self._bytecodes)
-        idx = 0
-
-        i = 0
-        while i < len(self._bytecodes):
-            bc1 = self._bytecodes[i]
-            len1 = bytecode_length(bc1)
-
-            if i + len1 >= len(self._bytecodes):
-                # we're over target, so just copy bc1
-                for j in range(i, i + len1):
-                    newbc[idx] = self._bytecodes[j]
-                    idx += 1
-                break
-    
-
-            newbc[idx] = bc1
-            idx += 1
-
-            # copy args to bc1
-            for j in range(i + 1, i + len1):
-                newbc[idx] = self._bytecodes[j]
-                idx += 1
-
-            i += len1 # update i to point on bc2
-    
-
-        # we copy the new array because it may be shorter, and we don't
-        # want to upset whatever dependence there is on the length
-        self._bytecodes = ["\x00"] * len(idx)
-        for i in range(0, idx):
-            self._bytecodes[i] = newbc[i]
 
     # TODO: remove these things
     def get_receiver_class(self, index):
