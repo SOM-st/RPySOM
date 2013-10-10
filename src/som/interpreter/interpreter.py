@@ -5,6 +5,8 @@ class Interpreter(object):
     def __init__(self, universe):
         self._universe = universe
         self._frame    = None
+        
+        self._bytecode_index = 0
     
     def get_universe(self):
         return self._universe
@@ -156,21 +158,16 @@ class Interpreter(object):
 
     def start(self):
         # Iterate through the bytecodes
-        while True:
-            # Get the current bytecode index
-            bytecode_index = self.get_frame().get_bytecode_index()
-            
+        while True:            
             # Get the current bytecode
-            bytecode = self.get_method().get_bytecode(bytecode_index)
+            bytecode = self.get_method().get_bytecode(self._bytecode_index)
+            current_bc_idx = self._bytecode_index
 
             # Get the length of the current bytecode
             bc_length = bytecode_length(bytecode)
 
             # Compute the next bytecode index
-            next_bytecode_index = bytecode_index + bc_length
-
-            # Update the bytecode index of the frame
-            self.get_frame().set_bytecode_index(next_bytecode_index)
+            self._bytecode_index = current_bc_idx + bc_length
 
             # Handle the current bytecode
             if   bytecode == Bytecodes.halt:
@@ -178,29 +175,29 @@ class Interpreter(object):
             elif bytecode == Bytecodes.dup:
                 self._do_dup()
             elif bytecode == Bytecodes.push_local:
-                self._do_push_local(bytecode_index)
+                self._do_push_local(current_bc_idx)
             elif bytecode == Bytecodes.push_argument:
-                self._do_push_argument(bytecode_index)
+                self._do_push_argument(current_bc_idx)
             elif bytecode == Bytecodes.push_field:
-                self._do_push_field(bytecode_index)
+                self._do_push_field(current_bc_idx)
             elif bytecode == Bytecodes.push_block:
-                self._do_push_block(bytecode_index)
+                self._do_push_block(current_bc_idx)
             elif bytecode == Bytecodes.push_constant:
-                self._do_push_constant(bytecode_index)
+                self._do_push_constant(current_bc_idx)
             elif bytecode == Bytecodes.push_global:
-                self._do_push_global(bytecode_index)
+                self._do_push_global(current_bc_idx)
             elif bytecode == Bytecodes.pop:
                 self._do_pop()
             elif bytecode == Bytecodes.pop_local:
-                self._do_pop_local(bytecode_index)
+                self._do_pop_local(current_bc_idx)
             elif bytecode == Bytecodes.pop_argument:
-                self._do_pop_argument(bytecode_index)
+                self._do_pop_argument(current_bc_idx)
             elif bytecode == Bytecodes.pop_field:
-                self._do_pop_field(bytecode_index)
+                self._do_pop_field(current_bc_idx)
             elif bytecode == Bytecodes.send:
-                self._do_send(bytecode_index)
+                self._do_send(current_bc_idx)
             elif bytecode == Bytecodes.super_send:
-                self._do_super_send(bytecode_index)
+                self._do_super_send(current_bc_idx)
             elif bytecode == Bytecodes.return_local:
                 self._do_return_local()
             elif bytecode == Bytecodes.return_non_local:
@@ -208,7 +205,7 @@ class Interpreter(object):
 
     def push_new_frame(self, method, context):
         # Allocate a new frame and make it the current one
-        self._frame = self._universe.new_frame(self._frame, method, context)
+        self.set_frame(self._universe.new_frame(self._frame, method, context))
 
         # Return the freshly allocated and pushed frame
         return self._frame
@@ -217,6 +214,12 @@ class Interpreter(object):
     def get_frame(self):
         # Get the frame from the interpreter
         return self._frame
+    
+    def set_frame(self, frame):
+        if self._frame:
+            self._frame.set_bytecode_index(self._bytecode_index)
+        self._frame = frame
+        self._bytecode_index = frame.get_bytecode_index()
 
     def get_method(self):
         # Get the method from the interpreter
@@ -246,6 +249,7 @@ class Interpreter(object):
                     if not cached_class:
                         m.set_inline_cache(bytecode_index + 1, receiver_class, invokable)
         
+        self._frame.set_bytecode_index(self._bytecode_index)
         if invokable:
             # Invoke the invokable in the current frame
             invokable.invoke(self.get_frame(), self)
@@ -255,13 +259,14 @@ class Interpreter(object):
             # Compute the receiver
             receiver = self._frame.get_stack_element(num_args - 1)
             receiver.send_does_not_understand(selector, self._universe, self)
+        self._bytecode_index = self._frame.get_bytecode_index()
 
     def _pop_frame(self):
         # Save a reference to the top frame
         result = self._frame
 
         # Pop the top frame from the frame stack
-        self._frame = self._frame.get_previous_frame()
+        self.set_frame(self._frame.get_previous_frame())
 
         # Destroy the previous pointer on the old top frame
         result.clear_previous_frame(self._universe.nilObject)
