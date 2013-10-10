@@ -1,3 +1,4 @@
+from rpython.rlib import jit
 from som.vmobjects.array import Array
 
 # Frame layout:
@@ -48,17 +49,15 @@ class Frame(Array):
     def has_context(self, nilObject):
         return self._context != nilObject
 
+    @jit.unroll_safe
     def _get_context(self, level):
         # Get the context frame at the given level
         frame = self
 
         # Iterate through the context chain until the given level is reached
-        while level > 0:
+        for _ in range(level, 0, -1):
             # Get the context of the current frame
             frame = frame.get_context()
-
-            # Go to the next level
-            level = level - 1
 
         # Return the found context
         return frame
@@ -157,6 +156,7 @@ class Frame(Array):
         # Set the argument with the given index to the given value
         context.set_indexable_field(index, value)
 
+    @jit.unroll_safe
     def copy_arguments_from(self, frame):
         # copy arguments from frame:
         # - arguments are at the top of the stack of frame.
