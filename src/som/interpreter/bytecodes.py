@@ -1,4 +1,5 @@
 from rpython.rlib.unroll import unrolling_iterable
+from rpython.rlib import jit
 
 class Bytecodes(object):
     
@@ -58,12 +59,15 @@ class Bytecodes(object):
                               0,                                # return_local    
                               0 ]                               # return_non_local
 
-    
+@jit.elidable
 def bytecode_length(bytecode):
+    assert bytecode >= 0 and bytecode <= len(Bytecodes._bytecode_length)
     return Bytecodes._bytecode_length[bytecode]
 
 
+@jit.elidable
 def bytecode_stack_effect(bytecode, number_of_arguments_of_message_send = 0):
+    assert bytecode >= 0 and bytecode < len(Bytecodes._bytecode_stack_effect)
     if bytecode_stack_effect_depends_on_send(bytecode):
         return -number_of_arguments_of_message_send + 1 # +1 in order to account for the return value
     else:
@@ -71,18 +75,14 @@ def bytecode_stack_effect(bytecode, number_of_arguments_of_message_send = 0):
 
 
 def bytecode_stack_effect_depends_on_send(bytecode):
-    assert bytecode >= 0 and bytecode <= Bytecodes._num_bytecodes
+    assert bytecode >= 0 and bytecode < len(Bytecodes._bytecode_stack_effect)
     return Bytecodes._bytecode_stack_effect[bytecode] == Bytecodes._stack_effect_depends_on_message
 
 
+@jit.elidable
 def bytecode_as_str(bytecode):
-    if not isinstance(bytecode, int):
-        raise ValueError('bytecode is expected to be an integer.')
-
-    if bytecode > len(_bytecode_names):
-        raise ValueError('No Bytecode defined for the value %d.' % bytecode)
-    else:
-        return _bytecode_names[bytecode]
+    assert bytecode >= 0 and bytecode < len(_bytecode_names)
+    return _bytecode_names[bytecode]
 
 def _sorted_bytecode_names(cls):
     "NOT_RPYTHON"

@@ -1,5 +1,7 @@
 from __future__ import absolute_import
 
+from rpython.rlib import jit
+
 from som.vmobjects.array import Array
 
 class Method(Array):
@@ -40,7 +42,7 @@ class Method(Array):
         return True
   
     def get_number_of_locals(self):
-        # Get the number of locals (converted to a Java integer)
+        # Get the number of locals
         return self._number_of_locals
 
     def get_maximum_number_of_stack_elements(self):
@@ -86,8 +88,10 @@ class Method(Array):
         # Get the number of bytecodes in this method
         return len(self._bytecodes)
 
+    @jit.elidable
     def get_bytecode(self, index):
         # Get the bytecode at the given index
+        assert 0 <= index and index < len(self._bytecodes)
         return ord(self._bytecodes[index])
 
     def set_bytecode(self, index, value):
@@ -104,10 +108,14 @@ class Method(Array):
     def __str__(self):
         return "Method(" + self.get_holder().get_name().get_string() + ">>" + str(self.get_signature()) + ")"
 
+    @jit.elidable
     def get_inline_cache_class(self, bytecode_index):
+        assert 0 <= bytecode_index and bytecode_index < len(self._inline_cache_class)
         return self._inline_cache_class[bytecode_index]
 
+    @jit.elidable
     def get_inline_cache_invokable(self, bytecode_index):
+        assert 0 <= bytecode_index and bytecode_index < len(self._inline_cache_invokable)
         return self._inline_cache_invokable[bytecode_index]
 
     def set_inline_cache(self, bytecode_index, receiver_class, invokable):
