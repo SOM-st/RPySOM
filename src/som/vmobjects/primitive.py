@@ -1,6 +1,7 @@
 from som.vmobjects.object    import Object
 
 class Primitive(Object):
+    _immutable_fields_ = ["_invoke", "_is_empty"]
     
     # Static field indices and number of primitive fields
     SIGNATURE_INDEX            = Object.NUMBER_OF_OBJECT_FIELDS

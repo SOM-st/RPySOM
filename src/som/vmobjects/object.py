@@ -1,4 +1,6 @@
 class Object(object):
+
+    _immutable_fields_ = ["_class", "_fields"]
     
     # Static field indices and number of object fields
     NUMBER_OF_OBJECT_FIELDS = 0
@@ -24,7 +26,7 @@ class Object(object):
 
     def get_number_of_fields(self):
         # Get the number of fields in this object
-        return len(self._fields)        
+        return len(self._fields)
 
     def _get_default_number_of_fields(self):
         # Return the default number of fields in an object

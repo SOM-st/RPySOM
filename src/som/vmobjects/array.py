@@ -1,6 +1,8 @@
 from som.vmobjects.object import Object
 
 class Array(Object):
+
+    _immutable_fields_ = ["_indexable_fields"]
     
     def __init__(self, nilObject, number_of_indexable_fields):
         Object.__init__(self, nilObject)

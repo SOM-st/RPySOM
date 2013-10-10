@@ -9,6 +9,12 @@ class Method(Array):
     HOLDER_INDEX                    = 1 + SIGNATURE_INDEX
     NUMBER_OF_METHOD_FIELDS         = 1 + HOLDER_INDEX
 
+    _immutable_fields_ = ["_bytecodes[*]",
+                          "_inline_cache_class",
+                          "_receiver_class_table",
+                          "_number_of_locals",
+                          "_maximum_number_of_stack_elements"]
+
     
     def __init__(self, nilObject, num_literals, num_locals, max_stack_elements,
                  num_bytecodes, signature):

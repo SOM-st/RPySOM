@@ -4,6 +4,8 @@ from rpython.rlib import jit
 
 class Interpreter(object):
     
+    _immutable_fields_ = ["_universe"]
+    
     def __init__(self, universe):
         self._universe = universe
         self._frame    = None
@@ -306,7 +308,7 @@ def get_printable_location(bytecode_index, interp, method):
                               method.merge_point_string())
 
 jitdriver = jit.JitDriver(
-    greens=['bytecode_index', 'interp', 'method'], #  
+    greens=['bytecode_index', 'interp', 'method'],
     reds=['frame'],
     # virtualizables=['frame'],
     get_printable_location=get_printable_location)

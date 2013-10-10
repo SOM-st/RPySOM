@@ -1,6 +1,9 @@
 from som.vmobjects.object import Object
 
 class BigInteger(Object):
+
+    _immutable_fields_ = ["_embedded_biginteger"]
+
     def __init__(self, nilObject, value):
         Object.__init__(self, nilObject)
         self._embedded_biginteger = value

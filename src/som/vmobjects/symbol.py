@@ -1,6 +1,7 @@
 from som.vmobjects.object import Object
 
 class Symbol(Object):
+    _immutable_fields_ = ["_string", "_number_of_signature_arguments"]
     
     def __init__(self, nilObject, value):
         Object.__init__(self, nilObject)

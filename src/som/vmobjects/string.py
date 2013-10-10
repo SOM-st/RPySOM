@@ -1,6 +1,7 @@
 from som.vmobjects.object import Object
 
 class String(Object):
+    _immutable_fields_ = ["_string"]
     
     def __init__(self, nilObject, value):
         Object.__init__(self, nilObject)

@@ -2,6 +2,8 @@ from som.vmobjects.object import Object
 
 class Integer(Object):
     
+    _immutable_fields_ = ["_embedded_integer"]
+    
     def __init__(self, nilObject, value):
         Object.__init__(self, nilObject)
         self._embedded_integer = value
