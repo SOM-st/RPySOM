@@ -19,13 +19,6 @@ class Method(Array):
     def __init__(self, nilObject, num_literals, num_locals, max_stack_elements,
                  num_bytecodes, signature):
         Array.__init__(self, nilObject, num_literals)
-        
-        self._receiver_class_table   = []
-        self._invoked_methods        = []
-        self._receiver_class_index   = 0
-
-        self._invocation_count       = 0
-
 
         # Set the number of bytecodes in this method
         self._bytecodes              = ["\x00"] * num_bytecodes
@@ -102,43 +95,11 @@ class Method(Array):
         assert 0 <= value and value <= 255
         self._bytecodes[index] = chr(value)
 
-    # TODO: remove these things
-    def increase_invocation_counter(self):
-        self._invocation_count += 1
-
-    # TODO: remove these things
-    def get_invocation_count(self):
-        return self._invocation_count
-
     def invoke(self, frame, interpreter):
-        # Increase the invocation counter
-        self._invocation_count += 1
-    
         # Allocate and push a new frame on the interpreter stack
         new_frame = interpreter.push_new_frame(self,
                                     interpreter.get_universe().nilObject)
         new_frame.copy_arguments_from(frame)
-
-    # TODO: remove these things
-    def get_receiver_class(self, index):
-        return self._receiver_class_table[index]
-
-    # TODO: remove these things
-    def get_invoked_method(self, index):
-        # return the last invoked method for a particular send
-        return self._invoked_methods[index]
-
-    # TODO: remove these things
-    def add_receiver_class_and_method(self, rcvr_class, invokable):
-        self._receiver_class_table.append(self._receiver_class_index, rcvr_class)
-        self._invoked_methods.append(self._receiver_class_index, invokable)
-        self._receiver_class_index += 1
-
-        return self._receiver_class_index - 1
-
-    # TODO: remove these things
-    def is_receiver_class_table_full(self):
-        return self._receiver_class_index == 255
 
     def __str__(self):
         return "Method(" + self.get_holder().get_name().get_string() + ">>" + str(self.get_signature()) + ")"
