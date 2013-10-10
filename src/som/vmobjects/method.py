@@ -146,3 +146,8 @@ class Method(Array):
     def set_inline_cache(self, bytecode_index, receiver_class, invokable):
         self._inline_cache_class[bytecode_index]    = receiver_class
         self._inline_cache_invokable[bytecode_index] = invokable
+
+    def merge_point_string(self):
+        """ debug info for the jit """
+        return "%s>>%s" % (self.get_holder().get_name().get_string(),
+                           self.get_signature().get_string())

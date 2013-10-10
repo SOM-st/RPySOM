@@ -1,5 +1,7 @@
 from som.interpreter.bytecodes import bytecode_length, Bytecodes
 
+from rpython.rlib import jit
+
 class Interpreter(object):
     
     def __init__(self, universe):
@@ -160,14 +162,22 @@ class Interpreter(object):
         # Iterate through the bytecodes
         while True:            
             # Get the current bytecode
-            bytecode = self.get_method().get_bytecode(self._bytecode_index)
             current_bc_idx = self._bytecode_index
-
+            method         = self.get_method()
+            
+            jitdriver.jit_merge_point(bytecode_index=current_bc_idx,
+                          interp=self,
+                          method=method,
+                          frame=self._frame)
+            
+            bytecode = method.get_bytecode(current_bc_idx)
+            
             # Get the length of the current bytecode
             bc_length = bytecode_length(bytecode)
 
             # Compute the next bytecode index
             self._bytecode_index = current_bc_idx + bc_length
+
 
             # Handle the current bytecode
             if   bytecode == Bytecodes.halt:
@@ -285,3 +295,23 @@ class Interpreter(object):
 
         # Push the result
         self.get_frame().push(result)
+
+def get_printable_location(bytecode_index, interp, method):
+    from som.vmobjects.method import Method
+    from som.interpreter.bytecodes import bytecode_as_str
+    assert isinstance(method, Method)
+    bc = method.get_bytecode(bytecode_index)
+    return "%s @ %d in %s" % (bytecode_as_str(bc),
+                              bytecode_index,
+                              method.merge_point_string())
+
+jitdriver = jit.JitDriver(
+    greens=['bytecode_index', 'interp', 'method'], #  
+    reds=['frame'],
+    # virtualizables=['frame'],
+    get_printable_location=get_printable_location)
+        #reds=['tape'])
+
+def jitpolicy(driver):
+    from rpython.jit.codewriter.policy import JitPolicy
+    return JitPolicy()
