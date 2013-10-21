@@ -478,11 +478,7 @@ class Universe(object):
     
     def get_global(self, name):
         # Return the global with the given name if it's in the dictionary of globals
-        if self.has_global(name):
-            return self._globals[name]
-
-        # Global not found
-        return None
+        return self._globals.get(name, None)
 
     def set_global(self, name, value):
         # Insert the given value into the dictionary of globals
@@ -515,8 +511,9 @@ class Universe(object):
 
     def load_class(self, name):
         # Check if the requested class is already in the dictionary of globals
-        if self.has_global(name):
-            return self.get_global(name)
+        result = self.get_global(name)
+        if result is not None:
+            return result
 
         # Load the class
         result = self._load_class(name, None)
