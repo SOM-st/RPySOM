@@ -1,3 +1,5 @@
+from rpython.rlib import jit
+
 from som.vmobjects.object    import Object
 from som.vmobjects.primitive import Primitive
 
@@ -15,7 +17,7 @@ class Block(Object):
         
     def get_method(self):
         # Get the method of this block by reading the field with method index
-        return self._method
+        return jit.promote(self._method)
     
     def get_context(self):
         # Get the context of this block by reading the field with context index
