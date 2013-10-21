@@ -33,6 +33,13 @@ class GlobalVersion(object):
 
 class Universe(object):
     _immutable_fields_ = [
+            "nilObject",
+            "trueObject",
+            "falseObject",
+            "objectClass",
+            "integerClass",
+            "doubleClass",
+            "primitiveClass",
             "_global_version?",
             ]
 
