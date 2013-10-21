@@ -49,6 +49,8 @@ class Method(Array):
         # Get the maximum number of stack elements
         return self._maximum_number_of_stack_elements
 
+    # XXX this means that the JIT doesn't see changes to the method object
+    @jit.elidable_promote('all')
     def get_signature(self):
         # Get the signature of this method by reading the field with signature
         # index
@@ -72,6 +74,8 @@ class Method(Array):
             if self.get_indexable_field(i).is_invokable():
                 self.get_indexable_field(i).set_holder(value)
 
+    # XXX this means that the JIT doesn't see changes to the constants
+    @jit.elidable_promote('all')
     def get_constant(self, bytecode_index):
         # Get the constant associated to a given bytecode index
         return self.get_indexable_field(self.get_bytecode(bytecode_index + 1))
@@ -88,7 +92,7 @@ class Method(Array):
         # Get the number of bytecodes in this method
         return len(self._bytecodes)
 
-    @jit.elidable
+    @jit.elidable_promote('all')
     def get_bytecode(self, index):
         # Get the bytecode at the given index
         assert 0 <= index and index < len(self._bytecodes)
