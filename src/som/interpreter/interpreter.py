@@ -237,7 +237,7 @@ class Interpreter(object):
 
     def get_method(self):
         # Get the method from the interpreter
-        return self.get_frame().get_method()
+        return jit.promote(self.get_frame().get_method())
 
     def get_self(self):
         # Get the self object from the interpreter
