@@ -62,6 +62,7 @@ class Frame(Array):
         # Return the found context
         return frame
 
+    @jit.unroll_safe
     def get_outer_context(self, nilObject):
         # Compute the outer context of this frame
         frame = self

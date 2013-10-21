@@ -116,6 +116,7 @@ class Interpreter(object):
         # Pop the top frame and push the result
         self._pop_frame_and_push_result(result)
 
+    @jit.unroll_safe
     def _do_return_non_local(self):
         # Handle the return non local bytecode
         result = self.get_frame().pop()
@@ -286,6 +287,7 @@ class Interpreter(object):
         # Return the popped frame
         return result
 
+    @jit.unroll_safe
     def _pop_frame_and_push_result(self, result):
         # Pop the top frame from the interpreter frame stack and compute the
         # number of arguments
