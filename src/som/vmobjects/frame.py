@@ -96,7 +96,7 @@ class Frame(Array):
 
     def get_stack_pointer(self):
         # Get the current stack pointer for this frame
-        return self._stack_pointer
+        return jit.promote(self._stack_pointer)
 
     def set_stack_pointer(self, value):
         # Set the current stack pointer for this frame
