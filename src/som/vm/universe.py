@@ -1,4 +1,5 @@
 from rpython.rlib.rrandom import Random
+from rpython.rlib import jit
 
 from som.interpreter.interpreter import Interpreter
 from som.interpreter.bytecodes   import Bytecodes 
@@ -26,14 +27,22 @@ import time
 from rlib.exit  import Exit
 from rlib.osext import path_split
 
+
+class GlobalVersion(object):
+    pass
+
 class Universe(object):
-    
+    _immutable_fields_ = [
+            "_global_version?",
+            ]
+
     def __init__(self, avoid_exit = False):
         self._interpreter    = Interpreter(self)
         self._symbol_table   = SymbolTable()
         
         self._globals        = {}
-        
+        self._global_version = GlobalVersion()
+
         self.nilObject      = None
         self.trueObject     = None
         self.falseObject    = None
@@ -478,12 +487,18 @@ class Universe(object):
     
     def get_global(self, name):
         # Return the global with the given name if it's in the dictionary of globals
+        # if not, return None
+        jit.promote(self)
+        return self._get_global(name, self._global_version)
+
+    @jit.elidable
+    def _get_global(self, name, version):
         return self._globals.get(name, None)
 
     def set_global(self, name, value):
         # Insert the given value into the dictionary of globals
         self._globals[name] = value
-  
+        self._global_version = GlobalVersion()
 
     def has_global(self, name):
         # Returns if the universe has a value for the global of the given name
