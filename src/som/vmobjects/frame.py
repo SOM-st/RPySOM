@@ -17,7 +17,7 @@ class Frame(Array):
     # Static field indices and number of frame fields
     NUMBER_OF_FRAME_FIELDS = Array.NUMBER_OF_OBJECT_FIELDS
     
-    _immutable_fields_ = ["_method", "_context", "_previous_frame"]
+    _immutable_fields_ = ["_method", "_context"]
 
     def __init__(self, nilObject, num_elements, method, context, previous_frame):
         Array.__init__(self, nilObject, num_elements)
