@@ -17,13 +17,12 @@ class Frame(Array):
     # Static field indices and number of frame fields
     NUMBER_OF_FRAME_FIELDS = Array.NUMBER_OF_OBJECT_FIELDS
     
-    _immutable_fields_ = ["_method", "_context", "_previous_frame"]
+    _immutable_fields_ = ["_method", "_context"]
 
     def __init__(self, nilObject, num_elements, method, context, previous_frame):
         Array.__init__(self, nilObject, num_elements)
         self._stack_pointer  = 0
         self._bytecode_index = 0
-        self._local_offset   = 0
         self._method         = method
         self._context        = context
         self._previous_frame = previous_frame if previous_frame else nilObject
@@ -62,6 +61,7 @@ class Frame(Array):
         # Return the found context
         return frame
 
+    @jit.unroll_safe
     def get_outer_context(self, nilObject):
         # Compute the outer context of this frame
         frame = self
@@ -76,6 +76,9 @@ class Frame(Array):
     def get_method(self):
         # Get the method by reading the field with method index
         return self._method
+
+    def get_number_of_arguments(self):
+        return self.get_method().get_number_of_arguments()
 
     def _get_default_number_of_fields(self):
         # Return the default number of fields in a frame
@@ -95,7 +98,7 @@ class Frame(Array):
 
     def get_stack_pointer(self):
         # Get the current stack pointer for this frame
-        return self._stack_pointer
+        return jit.promote(self._stack_pointer)
 
     def set_stack_pointer(self, value):
         # Set the current stack pointer for this frame
@@ -103,10 +106,9 @@ class Frame(Array):
 
     def reset_stack_pointer(self):
         # arguments are stored in front of local variables
-        self._local_offset = self.get_method().get_number_of_arguments()
 
         # Set the stack pointer to its initial value thereby clearing the stack
-        self.set_stack_pointer(self._local_offset +
+        self.set_stack_pointer(self.get_number_of_arguments() +
                 self.get_method().get_number_of_locals().get_embedded_integer() - 1)
 
     def get_bytecode_index(self):
@@ -128,10 +130,10 @@ class Frame(Array):
         self.set_indexable_field(self.get_stack_pointer() - index, value)
 
     def _get_local(self, index):
-        return self.get_indexable_field(self._local_offset + index)
+        return self.get_indexable_field(self.get_number_of_arguments() + index)
 
     def _set_local(self, index, value):
-        self.set_indexable_field(self._local_offset + index, value)
+        self.set_indexable_field(self.get_number_of_arguments() + index, value)
 
     def get_local(self, index, context_level):
         # Get the local with the given index in the given context

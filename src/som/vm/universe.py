@@ -1,4 +1,5 @@
 from rpython.rlib.rrandom import Random
+from rpython.rlib import jit
 
 from som.interpreter.interpreter import Interpreter
 from som.interpreter.bytecodes   import Bytecodes 
@@ -26,14 +27,29 @@ import time
 from rlib.exit  import Exit
 from rlib.osext import path_split
 
+
+class GlobalVersion(object):
+    pass
+
 class Universe(object):
-    
+    _immutable_fields_ = [
+            "nilObject",
+            "trueObject",
+            "falseObject",
+            "objectClass",
+            "integerClass",
+            "doubleClass",
+            "primitiveClass",
+            "_global_version?",
+            ]
+
     def __init__(self, avoid_exit = False):
         self._interpreter    = Interpreter(self)
         self._symbol_table   = SymbolTable()
         
         self._globals        = {}
-        
+        self._global_version = GlobalVersion()
+
         self.nilObject      = None
         self.trueObject     = None
         self.falseObject    = None
@@ -51,6 +67,7 @@ class Universe(object):
         self.primitiveClass = None
         self.systemClass    = None
         self.blockClass     = None
+        self.blockClasses   = None
         self.stringClass    = None
         self.doubleClass    = None
         
@@ -279,7 +296,10 @@ class Universe(object):
         
         self.set_global( trueClassName,  trueClass)
         self.set_global(falseClassName, falseClass)
-        
+
+        self.blockClasses = [self.blockClass] + \
+                [self._make_block_class(i) for i in [1, 2, 3]]
+
         return system_object
     
     def symbol_for(self, string):
@@ -474,34 +494,30 @@ class Universe(object):
     
     def get_global(self, name):
         # Return the global with the given name if it's in the dictionary of globals
-        if self.has_global(name):
-            return self._globals[name]
+        # if not, return None
+        jit.promote(self)
+        return self._get_global(name, self._global_version)
 
-        # Global not found
-        return None
+    @jit.elidable
+    def _get_global(self, name, version):
+        return self._globals.get(name, None)
 
     def set_global(self, name, value):
         # Insert the given value into the dictionary of globals
         self._globals[name] = value
-  
+        self._global_version = GlobalVersion()
 
     def has_global(self, name):
         # Returns if the universe has a value for the global of the given name
         return name in self._globals
-    
-    def _get_block_class(self, number_of_arguments = None):
-        if not number_of_arguments:
-            # Get the generic block class
-            return self.blockClass
-        
+
+    def _get_block_class(self, number_of_arguments):
+        return self.blockClasses[number_of_arguments]
+
+    def _make_block_class(self, number_of_arguments):
         # Compute the name of the block class with the given number of
         # arguments
         name = self.symbol_for("Block" + str(number_of_arguments))
-
-        # Lookup the specific block class in the dictionary of globals and
-        # return it
-        if self.has_global(name):
-            return self.get_global(name)
 
         # Get the block class for blocks with the given number of arguments
         result = self._load_class(name, None)
@@ -517,8 +533,9 @@ class Universe(object):
 
     def load_class(self, name):
         # Check if the requested class is already in the dictionary of globals
-        if self.has_global(name):
-            return self.get_global(name)
+        result = self.get_global(name)
+        if result is not None:
+            return result
 
         # Load the class
         result = self._load_class(name, None)

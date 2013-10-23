@@ -1,3 +1,5 @@
+from rpython.rlib import jit
+
 from som.vmobjects.object    import Object
 from som.vmobjects.primitive import Primitive
 
@@ -15,7 +17,7 @@ class Block(Object):
         
     def get_method(self):
         # Get the method of this block by reading the field with method index
-        return self._method
+        return jit.promote(self._method)
     
     def get_context(self):
         # Get the context of this block by reading the field with context index
@@ -26,6 +28,7 @@ class Block(Object):
         return self.NUMBER_OF_BLOCK_FIELDS
   
     class Evaluation(Primitive):
+        _immutable_fields_ = ['_number_of_arguments']
         def __init__(self, num_args, universe, invoke):
             Primitive.__init__(self, self._compute_signature_string(num_args),
                                universe, invoke)
