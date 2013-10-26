@@ -1,5 +1,5 @@
-PySOM - The Simple Object Machine Smalltalk implemented in Python
-=================================================================
+RPySOM - The Simple Object Machine Smalltalk implemented in RPython
+===================================================================
 
 Introduction
 ------------
@@ -22,11 +22,11 @@ Hello = (
 )
 ```
 
-This repository contains the Python-based implementation of SOM, including
+This repository contains the RPython-based implementation of SOM, including
 SOM's standard library and a number of examples. Please see the [main project
-page][SOM] for links to other VM implementations.
+page][SOMst] for links to other VM implementations.
 
-PySOM's tests can be executed with:
+RPySOM's tests can be executed with:
 
     $ ./som.sh -cp Smalltalk TestSuite/TestHarness.som
    
@@ -42,6 +42,8 @@ Build Status
 ------------
 
 Thanks to Travis CI, all commits of this repository are tested.
-The current build status is: [![Build Status](https://travis-ci.org/smarr/PySOM.png)](https://travis-ci.org/smarr/PySOM)
+The current build status is: [![Build Status](https://travis-ci.org/SOM-st/RPySOM.png?branch=master)](https://travis-ci.org/SOM-st/RPySOM)
 
  [SOM]: http://www.hpi.uni-potsdam.de/hirschfeld/projects/som/
+ [SOMst]: https://travis-ci.org/SOM-st/
+ [RS]:  http://dx.doi.org/10.1016/j.cl.2005.02.003
