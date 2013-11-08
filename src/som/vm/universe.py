@@ -589,16 +589,16 @@ class Universe(object):
         return result
 
 def error_print(msg):
-    os.write(2, msg)
+    os.write(2, msg or "")
 
 def error_println(msg = ""):
     os.write(2, msg + "\n")
 
 def std_print(msg):
-    print msg,
+    os.write(1, msg or "")
 
-def std_println(msg=""):
-    print msg
+def std_println(msg = ""):
+    os.write(1, msg + "\n")
 
 def main(args):
     u = Universe()
