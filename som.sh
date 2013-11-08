@@ -3,5 +3,8 @@ DIR="`dirname \"$0\"`"
 if [ -z "$PYTHON" ]; then
   PYTHON=pypy
 fi
-export PYTHONPATH=$DIR/src:$DIR/pypy:$PYTHONPATH
+if [ -z "$PYPY_DIR" ]; then
+  PYPY_DIR=pypy
+fi
+export PYTHONPATH=$DIR/src:$DIR/$PYPY_DIR:$PYTHONPATH
 exec $PYTHON $DIR/src/som/vm/universe.py "$@"
