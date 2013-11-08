@@ -22,7 +22,10 @@ def entry_point(argv):
 
 
 def target(driver, args):
-    driver.exe_name = 'som'
+    if driver.config.translation.jit:
+        driver.exe_name = 'RPySOM-jit'
+    else:
+        driver.exe_name = 'RPySOM-no-jit'
     return entry_point, None
 
 
