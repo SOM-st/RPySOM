@@ -1,4 +1,4 @@
-from som.vm.universe import error_print, error_println, Universe
+from som.vm.universe import error_print, error_println
 from som.interpreter.bytecodes import bytecode_as_str, bytecode_length, Bytecodes
 
 def dump(clazz):
