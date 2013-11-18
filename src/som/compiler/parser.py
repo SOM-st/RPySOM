@@ -35,22 +35,7 @@ class Parser(object):
         self._expect(Symbol.Identifier)
         self._expect(Symbol.Equal)
  
-        if self._sym == Symbol.Identifier:
-            super_name = self._universe.symbol_for(self._text)
-            self._accept(Symbol.Identifier)
-        else:
-            super_name = self._universe.symbol_for("Object")
-        
-        cgenc.set_super_name(super_name)
- 
-        # Load the super class
-        if super_name.get_string() == "nil":                 # Break the dependency cycle by hard coding the values for Object
-            cgenc.set_number_of_instance_fields_of_super(0)  # Object's super class is nil, has no fields
-            cgenc.set_number_of_class_fields_of_super(4)     # Object's class has the fields of Class
-        else:
-            super_class = self._universe.load_class(super_name)
-            cgenc.set_number_of_instance_fields_of_super(super_class.get_number_of_instance_fields())
-            cgenc.set_number_of_class_fields_of_super(super_class.get_class().get_number_of_instance_fields())
+        self._superclass(cgenc)
   
         self._expect(Symbol.NewTerm)
         self._instance_fields(cgenc)
@@ -90,6 +75,32 @@ class Parser(object):
         
         self._expect(Symbol.EndTerm)
 
+
+    def _superclass(self, cgenc):
+        if self._sym == Symbol.Identifier:
+            super_name = self._universe.symbol_for(self._text)
+            self._accept(Symbol.Identifier)
+        else:
+            super_name = self._universe.symbol_for("Object")
+        
+        cgenc.set_super_name(super_name)
+ 
+        # Load the super class, if it is not nil (break the dependency cycle)
+        if super_name.get_string() != "nil":
+            super_class = self._universe.load_class(super_name)
+            cgenc.set_instance_fields_of_super(super_class.get_instance_fields())
+            cgenc.set_class_fields_of_super(super_class.get_class().get_instance_fields())
+        else:
+            # WARNING:
+            # We hardcode here the field names for Class
+            # since Object class superclass = Class
+            # We avoid here any kind of dynamic solution to avoid further
+            # complexity. However, that makes it static, it is going to make it
+            #  harder to change the definition of Class and Object
+            field_names_of_class = ["class", "superClass", "name",
+                                    "instanceFields", "instanceInvokables"]
+            field_names = self._universe.new_array_with_strings(field_names_of_class)
+            cgenc.set_class_fields_of_super(field_names)
 
     def _sym_in(self, symbol_list):
         return self._sym in symbol_list

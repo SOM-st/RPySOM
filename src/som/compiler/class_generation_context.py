@@ -6,8 +6,6 @@ class ClassGenerationContext(object):
         self._name       = None
         self._super_name = None
         self._class_side = False # to be overridden
-        self._number_of_instance_fields_of_super = -1
-        self._number_of_class_fields_of_super = -1
         self._instance_fields  = []
         self._instance_methods = []
         self._class_fields     = []
@@ -18,17 +16,17 @@ class ClassGenerationContext(object):
 
     def set_super_name(self, symbol):
         self._super_name = symbol
+    
+    def set_instance_fields_of_super(self, field_names):
+        for i in range(0, field_names.get_number_of_indexable_fields()):
+            self._instance_fields.append(field_names.get_indexable_field(i))
+    
+    def set_class_fields_of_super(self, field_names):
+        for i in range(0, field_names.get_number_of_indexable_fields()):
+            self._class_fields.append(field_names.get_indexable_field(i))
   
-
-    def set_number_of_instance_fields_of_super(self, num):
-        self._number_of_instance_fields_of_super = num
-
-    def set_number_of_class_fields_of_super(self, num):
-        self._number_of_class_fields_of_super = num
-
     def add_instance_method(self, meth):
         self._instance_methods.append(meth)
-
 
     def set_class_side(self, boolean):
         self._class_side = boolean
@@ -46,9 +44,10 @@ class ClassGenerationContext(object):
         return field in (self._class_fields if self.is_class_side() else self._instance_fields)
 
     def get_field_index(self, field):
-        local_index = (self._class_fields if self.is_class_side() else self._instance_fields).index(field)
-        return (local_index +
-                 (self._number_of_class_fields_of_super if self.is_class_side() else self._number_of_instance_fields_of_super))
+        if (self.is_class_side()):
+            return self._class_fields.index(field)
+        else:
+            return self._instance_fields.index(field)
 
     def is_class_side(self):
         return self._class_side
