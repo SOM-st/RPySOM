@@ -2,6 +2,7 @@ from rpython.rlib.objectmodel import compute_identity_hash
 
 from som.primitives.primitives import Primitives
 
+from som.vmobjects.object    import Object  
 from som.vmobjects.primitive import Primitive
 from som.vmobjects.array     import Array 
 
@@ -20,9 +21,12 @@ def _hashcode(ivkbl, frame, interpreter):
 
 def _objectSize(ivkbl, frame, interpreter):
     rcvr = frame.pop()
-    size = rcvr.get_number_of_fields()
-    if isinstance(rcvr, Array):
-        size += rcvr.get_number_of_indexable_fields()
+    size = 0
+    
+    if isinstance(rcvr, Object):
+        size = rcvr.get_number_of_fields()
+    elif isinstance(rcvr, Array):
+        size = rcvr.get_number_of_indexable_fields()
 
     frame.push(interpreter.get_universe().new_integer(size))
 
@@ -30,7 +34,7 @@ def _perform(ivkbl, frame, interpreter):
     selector = frame.pop()
     rcvr     = frame.get_stack_element(0)
 
-    invokable = rcvr.get_class().lookup_invokable(selector)
+    invokable = rcvr.get_class(interpreter.get_universe()).lookup_invokable(selector)
     invokable.invoke(frame, interpreter)
 
 def _performInSuperclass(ivkbl, frame, interpreter):
@@ -49,7 +53,7 @@ def _performWithArguments(ivkbl, frame, interpreter):
     for i in range(0, args.get_number_of_indexable_fields()):
         frame.push(args.get_indexable_field(i))
 
-    invokable = rcvr.get_class().lookup_invokable(selector)
+    invokable = rcvr.get_class(interpreter.get_universe()).lookup_invokable(selector)
     invokable.invoke(frame, interpreter)
 
 def _instVarAt(ivkbl, frame, interpreter):
@@ -71,7 +75,7 @@ def _halt(ivkbl, frame, interpreter):
 
 def _class(ivkbl, frame, interpreter):
     rcvr = frame.pop()
-    frame.push(rcvr.get_class())
+    frame.push(rcvr.get_class(interpreter.get_universe()))
     
 
 

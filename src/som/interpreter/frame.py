@@ -1,5 +1,4 @@
 from rpython.rlib import jit
-from som.vmobjects.array import Array
 
 # Frame layout:
 # 
@@ -12,128 +11,105 @@ from som.vmobjects.array import Array
 # | ...             |
 # +-----------------+
 #
-class Frame(Array):
-    
-    # Static field indices and number of frame fields
-    NUMBER_OF_FRAME_FIELDS = Array.NUMBER_OF_OBJECT_FIELDS
-    
-    _immutable_fields_ = ["_method", "_context"]
+class Frame(object):
+        
+    _immutable_fields_ = ["_method", "_context", "_stack"]
 
     def __init__(self, nilObject, num_elements, method, context, previous_frame):
-        Array.__init__(self, nilObject, num_elements)
-        self._stack_pointer  = 0
-        self._bytecode_index = 0
         self._method         = method
         self._context        = context
-        self._previous_frame = previous_frame if previous_frame else nilObject
+        self._stack          = [nilObject] * num_elements
+        self._stack_pointer  = 0
+        self._bytecode_index = 0
+        self._previous_frame = previous_frame
     
     def get_previous_frame(self):
-        # Get the previous frame by reading the field with previous frame index
         return self._previous_frame
 
-    def clear_previous_frame(self, nilObject):
-        # Set the previous frame to nil
-        self._previous_frame = nilObject
+    def clear_previous_frame(self):
+        self._previous_frame = None
 
-    def has_previous_frame(self, nilObject):
-        return self._previous_frame != nilObject
+    def has_previous_frame(self):
+        return self._previous_frame is not None
 
-    def is_bootstrap_frame(self, nilObject):
-        return not self.has_previous_frame(nilObject)
+    def is_bootstrap_frame(self):
+        return not self.has_previous_frame()
 
     def get_context(self):
-        # Get the context by reading the field with context index
         return self._context
 
-    def has_context(self, nilObject):
-        return self._context != nilObject
+    def has_context(self):
+        return self._context is not None
 
     @jit.unroll_safe
     def _get_context(self, level):
-        # Get the context frame at the given level
+        """ Get the context frame at the given level """
         frame = self
 
         # Iterate through the context chain until the given level is reached
         for _ in range(level, 0, -1):
-            # Get the context of the current frame
             frame = frame.get_context()
 
         # Return the found context
         return frame
 
     @jit.unroll_safe
-    def get_outer_context(self, nilObject):
-        # Compute the outer context of this frame
+    def get_outer_context(self):
+        """ Compute the outer context of this frame """
         frame = self
 
-        # Iterate through the context chain until null is reached
-        while frame.has_context(nilObject):
+        while frame.has_context():
             frame = frame.get_context()
 
         # Return the outer context
         return frame
 
     def get_method(self):
-        # Get the method by reading the field with method index
         return self._method
 
     def get_number_of_arguments(self):
-        return self.get_method().get_number_of_arguments()
-
-    def _get_default_number_of_fields(self):
-        # Return the default number of fields in a frame
-        return self.NUMBER_OF_FRAME_FIELDS
+        return self._method.get_number_of_arguments()
 
     def pop(self):
-        # Pop an object from the expression stack and return it
-        stack_pointer = self.get_stack_pointer()
-        self.set_stack_pointer(stack_pointer - 1)
-        return self.get_indexable_field(stack_pointer)
+        """ Pop an object from the expression stack and return it """
+        stack_pointer = self._stack_pointer
+        self._stack_pointer = stack_pointer - 1
+        return self._stack[stack_pointer]
 
     def push(self, value):
-        # Push an object onto the expression stack
-        stack_pointer = self.get_stack_pointer() + 1
-        self.set_indexable_field(stack_pointer, value)
-        self.set_stack_pointer(stack_pointer)
-
-    def get_stack_pointer(self):
-        # Get the current stack pointer for this frame
-        return jit.promote(self._stack_pointer)
-
-    def set_stack_pointer(self, value):
-        # Set the current stack pointer for this frame
-        self._stack_pointer = value
+        """ Push an object onto the expression stack """
+        stack_pointer = self._stack_pointer + 1
+        self._stack[stack_pointer] = value
+        self._stack_pointer = stack_pointer
 
     def reset_stack_pointer(self):
+        """ Set the stack pointer to its initial value thereby clearing
+            the stack """
         # arguments are stored in front of local variables
-
-        # Set the stack pointer to its initial value thereby clearing the stack
-        self.set_stack_pointer(self.get_number_of_arguments() +
+        self._stack_pointer = (self.get_number_of_arguments() +
                 self.get_method().get_number_of_locals().get_embedded_integer() - 1)
 
     def get_bytecode_index(self):
-        # Get the current bytecode index for this frame
         return self._bytecode_index
 
     def set_bytecode_index(self, value):
-        # Set the current bytecode index for this frame
         self._bytecode_index = value
 
     def get_stack_element(self, index):
         # Get the stack element with the given index
         # (an index of zero yields the top element)
-        return self.get_indexable_field(self.get_stack_pointer() - index)
+        return self._stack[self._stack_pointer - index]
 
     def set_stack_element(self, index, value):
         # Set the stack element with the given index to the given value
         # (an index of zero yields the top element)
-        self.set_indexable_field(self.get_stack_pointer() - index, value)
+        self._stack[self._stack_pointer - index] = value
 
     def _get_local(self, index):
-        return self.get_indexable_field(self.get_number_of_arguments() + index)
+        return self._stack[self.get_number_of_arguments() + index]
 
     def _set_local(self, index, value):
-        self.set_indexable_field(self.get_number_of_arguments() + index, value)
+        self._stack[self.get_number_of_arguments() + index] = value
 
     def get_local(self, index, context_level):
         # Get the local with the given index in the given context
@@ -149,14 +125,14 @@ class Frame(Array):
         context = self._get_context(context_level)
 
         # Get the argument with the given index
-        return context.get_indexable_field(index)
+        return context._stack[index]
 
     def set_argument(self, index, context_level, value):
         # Get the context
         context = self._get_context(context_level)
 
         # Set the argument with the given index to the given value
-        context.set_indexable_field(index, value)
+        context._stack[index] = value
 
     @jit.unroll_safe
     def copy_arguments_from(self, frame):
@@ -165,7 +141,7 @@ class Frame(Array):
         # - copy them into the argument area of the current frame
         num_args = self.get_method().get_number_of_arguments()
         for i in range(0, num_args):
-            self.set_indexable_field(i, frame.get_stack_element(num_args - 1 - i))
+            self._stack[i] = frame.get_stack_element(num_args - 1 - i)
 
     def print_stack_trace(self, nilObject):
         # Print a stack trace starting in this frame
@@ -174,5 +150,5 @@ class Frame(Array):
         std_println(" %d @ %s" % (self.get_bytecode_index(),
                              self.get_method().get_signature().get_string()))
         
-        if self.has_previous_frame(nilObject):
-            self.get_previous_frame().print_stack_trace(nilObject)
+        if self.has_previous_frame():
+            self.get_previous_frame().print_stack_trace()

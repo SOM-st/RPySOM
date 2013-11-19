@@ -1,59 +1,47 @@
 from som.vmobjects.object      import Object
-from som.primitives.primitives import Primitives
 
 class Class(Object):
     
-    # Static field indices and number of class fields
-    SUPER_CLASS_INDEX         = Object.NUMBER_OF_OBJECT_FIELDS
-    NAME_INDEX                = 1 + SUPER_CLASS_INDEX
-    INSTANCE_FIELDS_INDEX     = 1 + NAME_INDEX
-    INSTANCE_INVOKABLES_INDEX = 1 + INSTANCE_FIELDS_INDEX
-    NUMBER_OF_CLASS_FIELDS    = 1 + INSTANCE_INVOKABLES_INDEX
-
+    _immutable_fields_ = ["_super_class"
+                          "_name",
+                          "_instance_fields"
+                          "_instance_invokables"]
     
     def __init__(self, universe, number_of_fields=-1):
         Object.__init__(self, universe.nilObject, number_of_fields)
+        self._super_class = universe.nilObject
+        self._name        = None
+        self._instance_fields = None
+        self._instance_invokables = None
         self._invokables_table = {}
         self._universe = universe
         
     def get_super_class(self):
-        # Get the super class by reading the field with super class index
-        return self.get_field(self.SUPER_CLASS_INDEX)
+        return self._super_class
 
     def set_super_class(self, value):
-        # Set the super class by writing to the field with super class index
-        self.set_field(self.SUPER_CLASS_INDEX, value)
+        self._super_class = value
     
     def has_super_class(self):
-        # Check whether or not this class has a super class
-        return self.get_field(self.SUPER_CLASS_INDEX) != self._universe.nilObject
+        return self._super_class is not self._universe.nilObject
 
     def get_name(self):
-        # Get the name of this class by reading the field with name index
-        return self.get_field(self.NAME_INDEX)
+        return self._name
   
     def set_name(self, value):
-        # Set the name of this class by writing to the field with name index
-        self.set_field(self.NAME_INDEX, value)
+        self._name = value
 
     def get_instance_fields(self):
-        # Get the instance fields by reading the field with the instance fields index
-        return self.get_field(self.INSTANCE_FIELDS_INDEX)
+        return self._instance_fields
 
     def set_instance_fields(self, value):
-        # Set the instance fields by writing to the field with the instance fields index
-        self.set_field(self.INSTANCE_FIELDS_INDEX, value)
+        self._instance_fields = value
   
     def get_instance_invokables(self):
-        # Get the instance invokables by reading the field with the instance
-        # invokables index
-        return self.get_field(self.INSTANCE_INVOKABLES_INDEX)
-
+        return self._instance_invokables
  
     def set_instance_invokables(self, value):
-        # Set the instance invokables by writing to the field with the instance
-        # invokables index
-        self.set_field(self.INSTANCE_INVOKABLES_INDEX, value)
+        self._instance_invokables = value
  
         # Make sure this class is the holder of all invokables in the array
         for i in range(0, self.get_number_of_instance_invokables()):
@@ -62,23 +50,17 @@ class Class(Object):
             invokable.set_holder(self)
     
     def get_number_of_instance_invokables(self):
-        # Return the number of instance invokables in this class
+        """ Return the number of instance invokables in this class """
         return self.get_instance_invokables().get_number_of_indexable_fields()
   
     def get_instance_invokable(self, index):
-        # Get the instance invokable with the given index
+        """ Get the instance invokable with the given index """
         return self.get_instance_invokables().get_indexable_field(index)
  
     def set_instance_invokable(self, index, value):
         # Set this class as the holder of the given invokable
         value.set_holder(self)
- 
-        # Set the instance method with the given index to the given value
         self.get_instance_invokables().set_indexable_field(index, value)
-  
-    def _get_default_number_of_fields(self):
-        # Return the default number of fields in a class
-        return self.NUMBER_OF_CLASS_FIELDS
   
     def lookup_invokable(self, signature):
         # Lookup invokable and return if found
@@ -104,12 +86,12 @@ class Class(Object):
         # Invokable not found
         return None
  
-    def lookup_field_index(self, fieldName):
+    def lookup_field_index(self, field_name):
         # Lookup field with given name in array of instance fields
         i = self.get_number_of_instance_fields() - 1
         while i >= 0:
             # Return the current index if the name matches
-            if fieldName == self.get_instance_field_name(i):
+            if field_name == self.get_instance_field_name(i):
                 return i
             i -= 1
 
@@ -177,7 +159,7 @@ class Class(Object):
             prims = primitives_for_class(self)
         except PrimitivesNotFound:
             prims = None
-        assert prims is not None, "We yet only support prims for known classes"
+        assert prims is not None, "Loading of prims failed for %s. We yet only support prims for known classes" % self.get_name()
         prims(self._universe).install_primitives_in(self)
 
     def __str__(self):

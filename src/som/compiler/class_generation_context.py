@@ -67,7 +67,7 @@ class ClassGenerationContext(object):
         result_class.set_instance_invokables(self._universe.new_array_from_list(self._class_methods))
         result_class.set_name(self._universe.symbol_for(ccname))
 
-        super_mclass = super_class.get_class()
+        super_mclass = super_class.get_class(self._universe)
         result_class.set_super_class(super_mclass)
 
         # Allocate the resulting class
@@ -86,6 +86,6 @@ class ClassGenerationContext(object):
         system_class.set_instance_fields(self._universe.new_array_from_list(self._instance_fields))
     
         # class-bound == class-instance-bound
-        super_mclass = system_class.get_class()
+        super_mclass = system_class.get_class(self._universe.nilObject)
         super_mclass.set_instance_invokables(self._universe.new_array_from_list(self._class_methods))
         super_mclass.set_instance_fields(self._universe.new_array_from_list(self._class_fields))

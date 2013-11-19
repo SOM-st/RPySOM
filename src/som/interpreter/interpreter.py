@@ -1,4 +1,5 @@
 from som.interpreter.bytecodes import bytecode_length, Bytecodes
+from som.vmobjects.clazz import Class
 
 from rpython.rlib import jit
 
@@ -122,16 +123,16 @@ class Interpreter(object):
         result = frame.pop()
 
         # Compute the context for the non-local return
-        context = frame.get_outer_context(self._universe.nilObject)
+        context = frame.get_outer_context()
 
         # Make sure the block context is still on the stack
-        if not context.has_previous_frame(self._universe.nilObject):
+        if not context.has_previous_frame():
             # Try to recover by sending 'escapedBlock:' to the sending object
             # this can get a bit nasty when using nested blocks. In this case
             # the "sender" will be the surrounding block and not the object
             # that actually sent the 'value' message.
             block  = frame.get_argument(0, 0)
-            sender = frame.get_previous_frame().get_outer_context(self._universe.nilObject).get_argument(0, 0)
+            sender = frame.get_previous_frame().get_outer_context().get_argument(0, 0)
 
             # pop the frame of the currently executing block...
             self._pop_frame()
@@ -141,7 +142,7 @@ class Interpreter(object):
             return
 
         # Unwind the frames
-        while self.get_frame() != context:
+        while self.get_frame() is not context:
             self._pop_frame()
 
         # Pop the top frame and push the result
@@ -158,7 +159,7 @@ class Interpreter(object):
         receiver = frame.get_stack_element(num_args - 1)
 
         # Send the message
-        self._send(signature, receiver.get_class(), bytecode_index)
+        self._send(signature, receiver.get_class(self._universe), bytecode_index)
 
 
     def start(self):
@@ -241,7 +242,7 @@ class Interpreter(object):
 
     def get_self(self):
         # Get the self object from the interpreter
-        return self.get_frame().get_outer_context(self._universe.nilObject).get_argument(0, 0)
+        return self.get_frame().get_outer_context().get_argument(0, 0)
 
     def _send(self, selector, receiver_class, bytecode_index):
         # First try the inline cache
@@ -283,7 +284,7 @@ class Interpreter(object):
         self.set_frame(self._frame.get_previous_frame())
 
         # Destroy the previous pointer on the old top frame
-        result.clear_previous_frame(self._universe.nilObject)
+        result.clear_previous_frame()
 
         # Return the popped frame
         return result

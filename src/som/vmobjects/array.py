@@ -1,11 +1,11 @@
-from som.vmobjects.object import Object
+from som.vmobjects.abstract_object import AbstractObject
 
-class Array(Object):
+class Array(AbstractObject):
 
     _immutable_fields_ = ["_indexable_fields"]
     
     def __init__(self, nilObject, number_of_indexable_fields):
-        Object.__init__(self, nilObject)
+        AbstractObject.__init__(self)
         
         # Private array of indexable fields
         self._indexable_fields = [nilObject] * number_of_indexable_fields
@@ -41,3 +41,6 @@ class Array(Object):
         # Copy all indexable fields from this array to the destination array
         for i in range(self.get_number_of_indexable_fields()):
             destination.set_indexable_field(i, self.get_indexable_field(i))
+
+    def get_class(self, universe):
+        return universe.arrayClass

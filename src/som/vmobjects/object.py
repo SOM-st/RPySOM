@@ -1,4 +1,6 @@
-class Object(object):
+from som.vmobjects.abstract_object import AbstractObject
+
+class Object(AbstractObject):
 
     _immutable_fields_ = ["_class", "_fields"]
     
@@ -10,7 +12,7 @@ class Object(object):
         self._fields = [nilObject] * num_fields
         self._class = nilObject
 
-    def get_class(self):
+    def get_class(self, universe):
         return self._class
 
     def set_class(self, value):
@@ -18,11 +20,11 @@ class Object(object):
 
     def get_field_name(self, index):
         # Get the name of the field with the given index
-        return self.get_class().get_instance_field_name(index)
+        return self._class.get_instance_field_name(index)
 
     def get_field_index(self, name):
         # Get the index for the field with the given name
-        return self.get_class().lookup_field_fndex(name)
+        return self._class.lookup_field_fndex(name)
 
     def get_number_of_fields(self):
         # Get the number of fields in this object
@@ -40,56 +42,5 @@ class Object(object):
     def set_field(self, index, value):
         # Set the field with the given index to the given value
         assert isinstance(index, int)
-        assert isinstance(value, Object)
+        assert isinstance(value, AbstractObject)
         self._fields[index] = value
-    
-    def send(self, selector_string, arguments, universe, interpreter):
-        # Turn the selector string into a selector
-        selector = universe.symbol_for(selector_string)
-
-        # Push the receiver onto the stack
-        interpreter.get_frame().push(self)
-
-        # Push the arguments onto the stack
-        for arg in arguments:
-            interpreter.get_frame().push(arg)
-
-        # Lookup the invokable
-        invokable = self.get_class().lookup_invokable(selector)
-
-        # Invoke the invokable
-        invokable.invoke(interpreter.get_frame(), interpreter)
-  
-
-    def send_does_not_understand(self, selector, universe, interpreter):
-        # Compute the number of arguments
-        number_of_arguments = selector.get_number_of_signature_arguments()
-
-        frame = interpreter.get_frame()
-
-        # Allocate an array with enough room to hold all arguments
-        arguments_array = universe.new_array_with_length(number_of_arguments)
-
-        # Remove all arguments and put them in the freshly allocated array
-        i = number_of_arguments - 1
-        
-        while i >= 0:
-            arguments_array.set_indexable_field(i, frame.pop())
-            i -= 1
-            
-        args = [selector, arguments_array]
-        self.send("doesNotUnderstand:arguments:", args, universe, interpreter)
-
-    def send_unknown_global(self, global_name, universe, interpreter):
-        arguments = [global_name]
-        self.send("unknownGlobal:", arguments, universe, interpreter)
-
-    def send_escaped_block(self, block, universe, interpreter):
-        arguments = [block]
-        self.send("escapedBlock:", arguments, universe, interpreter)
-    
-    def is_invokable(self):
-        return False
-
-    def __str__(self):
-        return "a " + self.get_class().get_name().get_string()

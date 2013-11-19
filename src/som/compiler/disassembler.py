@@ -1,4 +1,4 @@
-from som.vm.universe import error_print, error_println
+from som.vm.universe import error_print, error_println, get_current
 from som.interpreter.bytecodes import bytecode_as_str, bytecode_length, Bytecodes
 
 def dump(clazz):
@@ -61,7 +61,7 @@ def dump_method(m, indent):
             constant = m.get_constant(b)
             error_println("(index: " + str(m.get_bytecode(b + 1)) +
                                    ") value: (" + 
-                                   str(constant.get_class().get_name()) +
+                                   str(constant.get_class(get_current()).get_name()) +
                                    ") " + str(constant))
         elif bytecode == Bytecodes.push_global:
             error_println("(index: " + str(m.get_bytecode(b + 1)) +

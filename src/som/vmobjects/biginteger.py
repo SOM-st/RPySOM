@@ -1,11 +1,11 @@
-from som.vmobjects.object import Object
+from som.vmobjects.abstract_object import AbstractObject
 
-class BigInteger(Object):
+class BigInteger(AbstractObject):
 
     _immutable_fields_ = ["_embedded_biginteger"]
 
-    def __init__(self, nilObject, value):
-        Object.__init__(self, nilObject)
+    def __init__(self, value):
+        AbstractObject.__init__(self)
         self._embedded_biginteger = value
     
     def get_embedded_biginteger(self):
@@ -14,3 +14,6 @@ class BigInteger(Object):
     def get_embedded_value(self):
         """This Method is polymorphic with Integer"""
         return self._embedded_biginteger
+    
+    def get_class(self, universe):
+        return universe.bigintegerClass

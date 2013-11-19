@@ -3,7 +3,9 @@ from rpython.rlib import jit
 
 from som.interpreter.interpreter import Interpreter
 from som.interpreter.bytecodes   import Bytecodes 
+from som.interpreter.frame       import Frame 
 from som.vm.symbol_table         import SymbolTable
+from som.vmobjects.abstract_object import AbstractObject
 from som.vmobjects.object        import Object
 from som.vmobjects.clazz         import Class
 from som.vmobjects.array         import Array
@@ -12,7 +14,6 @@ from som.vmobjects.method        import Method
 from som.vmobjects.integer       import Integer
 from som.vmobjects.string        import String
 from som.vmobjects.block         import Block, block_evaluation_primitive
-from som.vmobjects.frame         import Frame
 from som.vmobjects.biginteger    import BigInteger
 from som.vmobjects.double        import Double
 
@@ -63,7 +64,6 @@ class Universe(object):
         self.arrayClass     = None
         self.methodClass    = None
         self.symbolClass    = None
-        self.frameClass     = None
         self.primitiveClass = None
         self.systemClass    = None
         self.blockClass     = None
@@ -97,7 +97,7 @@ class Universe(object):
         clazz = self.load_class(self.symbol_for(class_name))
 
         # Lookup the invokable on class
-        invokable = clazz.get_class().lookup_invokable(self.symbol_for(selector))
+        invokable = clazz.get_class(self).lookup_invokable(self.symbol_for(selector))
 
         bootstrap_method = self._create_bootstrap_method()
         bootstrap_frame  = self._create_bootstrap_frame(bootstrap_method, clazz)
@@ -106,7 +106,7 @@ class Universe(object):
     
     def _create_bootstrap_method(self):
         # Create a fake bootstrap method to simplify later frame traversal
-        bootstrap_method = self.new_method(self.symbol_for("bootstrap"), 1, 0,
+        bootstrap_method = self.new_method(self.symbol_for("bootstrap"), 1, [],
                                            self.new_integer(0),
                                            self.new_integer(2))
         bootstrap_method.set_bytecode(0, Bytecodes.halt)
@@ -115,7 +115,7 @@ class Universe(object):
     
     def _create_bootstrap_frame(self, bootstrap_method, receiver, arguments = None):
         # Create a fake bootstrap frame with the system object on the stack
-        bootstrap_frame = self._interpreter.push_new_frame(bootstrap_method, self.nilObject)
+        bootstrap_frame = self._interpreter.push_new_frame(bootstrap_method, None)
         bootstrap_frame.push(receiver)
         
         if arguments:
@@ -230,7 +230,6 @@ class Universe(object):
         self.methodClass     = self.new_system_class()
         self.integerClass    = self.new_system_class()
         self.bigintegerClass = self.new_system_class()
-        self.frameClass      = self.new_system_class()
         self.primitiveClass  = self.new_system_class()
         self.stringClass     = self.new_system_class()
         self.doubleClass     = self.new_system_class()
@@ -248,7 +247,6 @@ class Universe(object):
         self._initialize_system_class(self.symbolClass,     self.objectClass, "Symbol")
         self._initialize_system_class(self.integerClass,    self.objectClass, "Integer")
         self._initialize_system_class(self.bigintegerClass, self.objectClass, "BigInteger")
-        self._initialize_system_class(self.frameClass,       self.arrayClass, "Frame")
         self._initialize_system_class(self.primitiveClass,  self.objectClass, "Primitive")
         self._initialize_system_class(self.stringClass,     self.objectClass, "String")
         self._initialize_system_class(self.doubleClass,     self.objectClass, "Double")
@@ -263,7 +261,6 @@ class Universe(object):
         self._load_system_class(self.symbolClass)
         self._load_system_class(self.integerClass)
         self._load_system_class(self.bigintegerClass)
-        self._load_system_class(self.frameClass)
         self._load_system_class(self.primitiveClass)
         self._load_system_class(self.stringClass)
         self._load_system_class(self.doubleClass)
@@ -313,12 +310,7 @@ class Universe(object):
         return result
     
     def new_array_with_length(self, length):
-        # Allocate a new array and set its class to be the array class
-        result = Array(self.nilObject, length)
-        result.set_class(self.arrayClass)
-
-        # Return the freshly allocated array
-        return result
+        return Array(self.nilObject, length)
   
     def new_array_from_list(self, values):
         # Allocate a new array with the same length as the list
@@ -327,8 +319,7 @@ class Universe(object):
         # Copy all elements from the list into the array
         for i in range(len(values)):
             result.set_indexable_field(i, values[i])
-    
-        # Return the allocated and initialized array
+
         return result
   
     def new_array_with_strings(self, strings):
@@ -339,23 +330,15 @@ class Universe(object):
         for i in range(len(strings)):
             result.set_indexable_field(i, self.new_string(strings[i]))
     
-        # Return the allocated and initialized array
         return result
     
     def new_block(self, method, context_frame, arguments):
-        # Allocate a new block and set its class to be the block class
-        result = Block(self.nilObject, method, context_frame)
-        result.set_class(self._get_block_class(arguments))
-
-        # Return the freshly allocated block
-        return result
+        return Block(method, context_frame)
 
     def new_class(self, class_class):
         # Allocate a new class and set its class to be the given class class
         result = Class(self, class_class.get_number_of_instance_fields())
         result.set_class(class_class)
-
-        # Return the freshly allocated class
         return result
 
     def new_frame(self, previous_frame, method, context):
@@ -366,65 +349,31 @@ class Universe(object):
                   method.get_number_of_locals().get_embedded_integer() +
                   method.get_maximum_number_of_stack_elements().get_embedded_integer() + 2)
 
-        # Allocate a new frame and set its class to be the frame class
         result = Frame(self.nilObject, length, method, context, previous_frame)
-        result.set_class(self.frameClass)
-
-        # Reset the stack pointer and the bytecode index
         result.reset_stack_pointer()
         result.set_bytecode_index(0)
-
-        # Return the freshly allocated frame
         return result
 
-    def new_method(self, signature, num_bytecodes, num_literals,
+    def new_method(self, signature, num_bytecodes, literals,
                    num_locals, maximum_number_of_stack_elements):
-        # Allocate a new method and set its class to be the method class
-        result = Method(self.nilObject,
-                        num_literals,
-                        num_locals,
-                        maximum_number_of_stack_elements,
-                        num_bytecodes,
-                        signature)
-        result.set_class(self.methodClass)
-
-        # Return the freshly allocated method
-        return result
+        return Method(literals, num_locals, maximum_number_of_stack_elements,
+                      num_bytecodes, signature)
 
     def new_instance(self, instance_class):
-        # Allocate a new instance and set its class to be the given class
         result = Object(self.nilObject, instance_class.get_number_of_instance_fields())
         result.set_class(instance_class)
- 
-        # Return the freshly allocated instance
         return result
 
  
     def new_integer(self, value):
         assert isinstance(value, int)
-        # Allocate a new integer and set its class to be the integer class
-        result = Integer(self.nilObject, value)
-        result.set_class(self.integerClass)
-     
-        # Return the freshly allocated integer
-        return result
+        return Integer(value)
  
     def new_biginteger(self, value):
-        # Allocate a new integer and set its class to be the integer class
-        result = BigInteger(self.nilObject, value)
-        result.set_class(self.bigintegerClass)
- 
-        # Return the freshly allocated integer
-        return result
- 
+        return BigInteger(value)
  
     def new_double(self, value):
-        # Allocate a new integer and set its class to be the double class
-        result = Double(self.nilObject, value)
-        result.set_class(self.doubleClass)
- 
-        # Return the freshly allocated double
-        return result
+        return Double(value)
     
     def new_metaclass_class(self):
         # Allocate the metaclass classes
@@ -432,28 +381,19 @@ class Universe(object):
         result.set_class(Class(self))
 
         # Setup the metaclass hierarchy
-        result.get_class().set_class(result)
+        result.get_class(self).set_class(result)
 
         # Return the freshly allocated metaclass class
         return result
 
     def new_string(self, embedded_string):
-        # Allocate a new string and set its class to be the string class
-        result = String(self.nilObject, embedded_string)
-        result.set_class(self.stringClass)
-  
-        # Return the freshly allocated string
-        return result
+        return String(embedded_string)
     
     def new_symbol(self, string):
-        # Allocate a new symbol and set its class to be the symbol class
-        result = Symbol(self.nilObject, string)
-        result.set_class(self.symbolClass)
+        result = Symbol(string)
 
         # Insert the new symbol into the symbol table
         self._symbol_table.insert(result)
-
-        # Return the freshly allocated symbol
         return result
       
     def new_system_class(self):
@@ -462,7 +402,7 @@ class Universe(object):
 
         # Setup the metaclass hierarchy
         system_class.set_class(Class(self))
-        system_class.get_class().set_class(self.metaclassClass)
+        system_class.get_class(self).set_class(self.metaclassClass)
 
         # Return the freshly allocated system class
         return system_class
@@ -471,22 +411,22 @@ class Universe(object):
         # Initialize the superclass hierarchy
         if super_class:
             system_class.set_super_class(super_class)
-            system_class.get_class().set_super_class(super_class.get_class())
+            system_class.get_class(self).set_super_class(super_class.get_class(self))
         else:
-            system_class.get_class().set_super_class(self.classClass)
+            system_class.get_class(self).set_super_class(self.classClass)
     
 
         # Initialize the array of instance fields
         system_class.set_instance_fields(self.new_array_with_length(0))
-        system_class.get_class().set_instance_fields(self.new_array_with_length(0))
+        system_class.get_class(self).set_instance_fields(self.new_array_with_length(0))
 
         # Initialize the array of instance invokables
         system_class.set_instance_invokables(self.new_array_with_length(0))
-        system_class.get_class().set_instance_invokables(self.new_array_with_length(0))
+        system_class.get_class(self).set_instance_invokables(self.new_array_with_length(0))
 
         # Initialize the name of the system class
         system_class.set_name(self.symbol_for(name))
-        system_class.get_class().set_name(self.symbol_for(name + " class"))
+        system_class.get_class(self).set_name(self.symbol_for(name + " class"))
 
         # Insert the system class into the dictionary of globals
         self.set_global(system_class.get_name(), system_class)
@@ -569,7 +509,7 @@ class Universe(object):
                 result = sourcecode_compiler.compile_class_from_file(cpEntry, name.get_string(), system_class, self)
                 if self._dump_bytecodes:
                     from som.compiler.disassembler import dump
-                    dump(result.get_class())
+                    dump(result.get_class(self))
                     dump(result)
 
                 return result
@@ -600,10 +540,17 @@ def std_print(msg):
 def std_println(msg = ""):
     os.write(1, msg + "\n")
 
+# Global Universe instance
+u = None
+
 def main(args):
+    global u
     u = Universe()
     u.interpret(args[1:])
     u.exit(0)
+
+def get_current():
+    return u
 
 if __name__ == '__main__':
     import sys

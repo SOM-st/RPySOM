@@ -89,7 +89,7 @@ class Parser(object):
         if super_name.get_string() != "nil":
             super_class = self._universe.load_class(super_name)
             cgenc.set_instance_fields_of_super(super_class.get_instance_fields())
-            cgenc.set_class_fields_of_super(super_class.get_class().get_instance_fields())
+            cgenc.set_class_fields_of_super(super_class.get_class(self._universe).get_instance_fields())
         else:
             # WARNING:
             # We hardcode here the field names for Class

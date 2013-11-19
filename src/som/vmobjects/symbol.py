@@ -1,10 +1,10 @@
-from som.vmobjects.object import Object
+from som.vmobjects.abstract_object import AbstractObject
 
-class Symbol(Object):
+class Symbol(AbstractObject):
     _immutable_fields_ = ["_string", "_number_of_signature_arguments"]
     
-    def __init__(self, nilObject, value):
-        Object.__init__(self, nilObject)
+    def __init__(self, value):
+        AbstractObject.__init__(self)
         self._string = value
         self._number_of_signature_arguments = self._determine_number_of_signature_arguments() # updated later
     
@@ -42,3 +42,6 @@ class Symbol(Object):
 
     def __str__(self):
         return "#" + self._string
+    
+    def get_class(self, universe):
+        return universe.symbolClass

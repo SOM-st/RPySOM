@@ -20,11 +20,12 @@ def _length(ivkbl, frame, interpreter):
 def _equals(ivkbl, frame, interpreter):
     op1 = frame.pop()
     op2 = frame.pop() # rcvr
-    if op1.get_class() == interpreter.get_universe().stringClass:
+    universe = interpreter.get_universe()
+    if op1.get_class(universe) == universe.stringClass:
         if op1.get_embedded_string() == op2.get_embedded_string():
-            frame.push(interpreter.get_universe().trueObject)
+            frame.push(universe.trueObject)
             return
-    frame.push(interpreter.get_universe().falseObject)
+    frame.push(universe.falseObject)
 
 def _substring(ivkbl, frame, interpreter):
     end   = frame.pop()

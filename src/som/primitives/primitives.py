@@ -21,4 +21,4 @@ class Primitives(object):
     def _install_class_primitive(self, primitive):
         # Install the given primitive as an instance primitive in the class of
         # the holder class
-        self._holder.get_class().add_instance_primitive(primitive)
+        self._holder.get_class(self._universe).add_instance_primitive(primitive)

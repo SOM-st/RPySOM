@@ -2,34 +2,35 @@ from __future__ import absolute_import
 
 from rpython.rlib import jit
 
-from som.vmobjects.array import Array
+from som.vmobjects.abstract_object import AbstractObject
 
-class Method(Array):
+class Method(AbstractObject):
     
-    # Static field indices and number of method fields
-    SIGNATURE_INDEX                 = Array.NUMBER_OF_OBJECT_FIELDS
-    HOLDER_INDEX                    = 1 + SIGNATURE_INDEX
-    NUMBER_OF_METHOD_FIELDS         = 1 + HOLDER_INDEX
-
     _immutable_fields_ = ["_bytecodes[*]",
+                          "_literals[*]",
                           "_inline_cache_class",
                           "_receiver_class_table",
                           "_number_of_locals",
-                          "_maximum_number_of_stack_elements"]
+                          "_maximum_number_of_stack_elements",
+                          "_signature"]
 
     
-    def __init__(self, nilObject, num_literals, num_locals, max_stack_elements,
+    def __init__(self, literals, num_locals, max_stack_elements,
                  num_bytecodes, signature):
-        Array.__init__(self, nilObject, num_literals)
+        AbstractObject.__init__(self)
 
         # Set the number of bytecodes in this method
         self._bytecodes              = ["\x00"] * num_bytecodes
         self._inline_cache_class     = [None]   * num_bytecodes
         self._inline_cache_invokable = [None]   * num_bytecodes
         
+        self._literals               = literals
+        
         self._number_of_locals       = num_locals
         self._maximum_number_of_stack_elements = max_stack_elements
-        self._set_signature(signature)
+        self._signature = signature
+        
+        self._holder = None
         
     
     def is_primitive(self):
@@ -52,42 +53,29 @@ class Method(Array):
     # XXX this means that the JIT doesn't see changes to the method object
     @jit.elidable_promote('all')
     def get_signature(self):
-        # Get the signature of this method by reading the field with signature
-        # index
-        return self.get_field(self.SIGNATURE_INDEX)
-
-    def _set_signature(self, value):
-        # Set the signature of this method by writing to the field with
-        # signature index
-        self.set_field(self.SIGNATURE_INDEX, value)
+        return self._signature
 
     def get_holder(self):
-        # Get the holder of this method by reading the field with holder index
-        return self.get_field(self.HOLDER_INDEX)
+        return self._holder
 
     def set_holder(self, value):
-        # Set the holder of this method by writing to the field with holder index
-        self.set_field(self.HOLDER_INDEX, value)
+        self._holder = value
 
         # Make sure all nested invokables have the same holder
-        for i in range(0, self.get_number_of_indexable_fields()):
-            if self.get_indexable_field(i).is_invokable():
-                self.get_indexable_field(i).set_holder(value)
+        for i in range(0, len(self._literals)):
+            if self._literals[i].is_invokable():
+                self._literals[i].set_holder(value)
 
     # XXX this means that the JIT doesn't see changes to the constants
     @jit.elidable_promote('all')
     def get_constant(self, bytecode_index):
         # Get the constant associated to a given bytecode index
-        return self.get_indexable_field(self.get_bytecode(bytecode_index + 1))
+        return self._literals[self.get_bytecode(bytecode_index + 1)]
 
     def get_number_of_arguments(self):
         # Get the number of arguments of this method
         return self.get_signature().get_number_of_signature_arguments()
-  
-    def _get_default_number_of_fields(self):
-        # Return the default number of fields in a method
-        return self.NUMBER_OF_METHOD_FIELDS
-  
+    
     def get_number_of_bytecodes(self):
         # Get the number of bytecodes in this method
         return len(self._bytecodes)
@@ -105,12 +93,14 @@ class Method(Array):
 
     def invoke(self, frame, interpreter):
         # Allocate and push a new frame on the interpreter stack
-        new_frame = interpreter.push_new_frame(self,
-                                    interpreter.get_universe().nilObject)
+        new_frame = interpreter.push_new_frame(self, None)
         new_frame.copy_arguments_from(frame)
 
     def __str__(self):
         return "Method(" + self.get_holder().get_name().get_string() + ">>" + str(self.get_signature()) + ")"
+    
+    def get_class(self, universe):
+        return universe.methodClass
 
     @jit.elidable
     def get_inline_cache_class(self, bytecode_index):

@@ -1,11 +1,11 @@
-from som.vmobjects.object import Object
+from som.vmobjects.abstract_object import AbstractObject
 
-class Integer(Object):
+class Integer(AbstractObject):
     
     _immutable_fields_ = ["_embedded_integer"]
     
-    def __init__(self, nilObject, value):
-        Object.__init__(self, nilObject)
+    def __init__(self, value):
+        AbstractObject.__init__(self)
         self._embedded_integer = value
     
     def get_embedded_integer(self):
@@ -17,6 +17,9 @@ class Integer(Object):
     
     def __str__(self):
         return str(self._embedded_integer)
+    
+    def get_class(self, universe):
+        return universe.integerClass
     
 def integer_value_fits(value):
     return value <= 2147483647 and value > -2147483646
