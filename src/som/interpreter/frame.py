@@ -143,7 +143,7 @@ class Frame(object):
         for i in range(0, num_args):
             self._stack[i] = frame.get_stack_element(num_args - 1 - i)
 
-    def print_stack_trace(self, nilObject):
+    def print_stack_trace(self):
         # Print a stack trace starting in this frame
         from som.vm.universe import std_print, std_println
         std_print(self.get_method().get_holder().get_name().get_string())

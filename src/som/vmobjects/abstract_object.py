@@ -1,4 +1,7 @@
 class AbstractObject(object):
+    
+    def __init__(self):
+        pass
         
     def send(self, selector_string, arguments, universe, interpreter):
         # Turn the selector string into a selector

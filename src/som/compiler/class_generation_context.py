@@ -86,6 +86,6 @@ class ClassGenerationContext(object):
         system_class.set_instance_fields(self._universe.new_array_from_list(self._instance_fields))
     
         # class-bound == class-instance-bound
-        super_mclass = system_class.get_class(self._universe.nilObject)
+        super_mclass = system_class.get_class(self._universe)
         super_mclass.set_instance_invokables(self._universe.new_array_from_list(self._class_methods))
         super_mclass.set_instance_fields(self._universe.new_array_from_list(self._class_fields))
