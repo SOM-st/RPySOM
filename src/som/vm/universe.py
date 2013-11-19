@@ -5,7 +5,6 @@ from som.interpreter.interpreter import Interpreter
 from som.interpreter.bytecodes   import Bytecodes 
 from som.interpreter.frame       import Frame 
 from som.vm.symbol_table         import SymbolTable
-from som.vmobjects.abstract_object import AbstractObject
 from som.vmobjects.object        import Object
 from som.vmobjects.clazz         import Class
 from som.vmobjects.array         import Array
@@ -33,6 +32,9 @@ class GlobalVersion(object):
     pass
 
 class Universe(object):
+    
+    CURRENT = None
+    
     _immutable_fields_ = [
             "nilObject",
             "trueObject",
@@ -78,6 +80,7 @@ class Universe(object):
         self.start_time      = time.time() # a float of the time in seconds
         self.random          = Random(abs(int(time.clock() * time.time())))
 
+        CURRENT = self
 
     def exit(self, error_code):
         if self._avoid_exit:
@@ -540,17 +543,13 @@ def std_print(msg):
 def std_println(msg = ""):
     os.write(1, msg + "\n")
 
-# Global Universe instance
-u = None
-
 def main(args):
-    global u
     u = Universe()
     u.interpret(args[1:])
     u.exit(0)
 
 def get_current():
-    return u
+    return Universe.CURRENT
 
 if __name__ == '__main__':
     import sys
