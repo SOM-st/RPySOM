@@ -33,7 +33,7 @@ class MethodGenerationContext(object):
         
         meth = universe.new_method(self._signature,
                                    len(self._bytecode),
-                                   self._literals,
+                                   list(self._literals),
                                    universe.new_integer(num_locals),
                                    universe.new_integer(self._compute_stack_depth()))
         
