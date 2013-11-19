@@ -25,7 +25,6 @@ class AbstractObject(object):
         number_of_arguments = selector.get_number_of_signature_arguments()
 
         frame = interpreter.get_frame()
-        frame.print_stack_trace(universe.nilObject)
 
         # Allocate an array with enough room to hold all arguments
         arguments_array = universe.new_array_with_length(number_of_arguments)
