@@ -135,6 +135,11 @@ class Frame(object):
         num_args = self.get_method().get_number_of_arguments()
         for i in range(0, num_args):
             self._stack[i] = frame.get_stack_element(num_args - 1 - i)
+    
+    def pop_old_arguments_and_push_result(self, method, result):
+        num_args = method.get_number_of_arguments()
+        self._stack_pointer = self._stack_pointer - num_args
+        self.push(result)
 
     def print_stack_trace(self, bytecode_index):
         # Print a stack trace starting in this frame
