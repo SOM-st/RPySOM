@@ -1,5 +1,5 @@
 from som.interpreter.bytecodes import bytecode_length, Bytecodes
-from som.vmobjects.clazz import Class
+from som.interpreter.control_flow import ReturnException
 
 from rpython.rlib import jit
 
@@ -9,9 +9,6 @@ class Interpreter(object):
     
     def __init__(self, universe):
         self._universe = universe
-        self._frame    = None
-        
-        self._bytecode_index = 0
     
     def get_universe(self):
         return self._universe
@@ -37,7 +34,7 @@ class Interpreter(object):
         field_index = method.get_bytecode(bytecode_index + 1)
 
         # Push the field with the computed index onto the stack
-        frame.push(self.get_self().get_field(field_index))
+        frame.push(self.get_self(frame).get_field(field_index))
 
     def _do_push_block(self, bytecode_index, frame, method):
         # Handle the push block bytecode
@@ -45,9 +42,7 @@ class Interpreter(object):
 
         # Push a new block with the current frame as context onto the
         # stack
-        frame.push(
-            self._universe.new_block(block_method, frame,
-            block_method.get_number_of_arguments()))
+        frame.push(self._universe.new_block(block_method, frame))
 
     def _do_push_constant(self, bytecode_index, frame, method):
         # Handle the push constant bytecode
@@ -65,9 +60,9 @@ class Interpreter(object):
             frame.push(glob)
         else:
             # Send 'unknownGlobal:' to self
-            self.get_self().send_unknown_global(global_name, self._universe, self)
+            self.get_self(frame).send_unknown_global(frame, global_name, self._universe, self)
 
-    def _do_pop(self, frame, method):
+    def _do_pop(self, frame):
         # Handle the pop bytecode
         frame.pop()
 
@@ -88,7 +83,7 @@ class Interpreter(object):
         field_index = method.get_bytecode(bytecode_index + 1)
 
         # Set the field with the computed index to the value popped from the stack
-        self.get_self().set_field(field_index, frame.pop())
+        self.get_self(frame).set_field(field_index, frame.pop())
 
     def _do_super_send(self, bytecode_index, frame, method):
         # Handle the super send bytecode
@@ -108,18 +103,14 @@ class Interpreter(object):
             # Compute the receiver
             receiver = frame.get_stack_element(num_args - 1)
 
-            receiver.send_does_not_understand(signature, self._universe, self)
+            receiver.send_does_not_understand(frame, signature, self._universe, self)
 
-    def _do_return_local(self, frame, method):
-        # Handle the return local bytecode
-        result = frame.pop()
-
-        # Pop the top frame and push the result
-        self._pop_frame_and_push_result(result)
+    def _do_return_local(self, frame):
+        return frame.pop()
 
     @jit.unroll_safe
-    def _do_return_non_local(self, frame, method):
-        # Handle the return non local bytecode
+    def _do_return_non_local(self, frame):
+        # get result from stack
         result = frame.pop()
 
         # Compute the context for the non-local return
@@ -134,19 +125,11 @@ class Interpreter(object):
             block  = frame.get_argument(0, 0)
             sender = frame.get_previous_frame().get_outer_context().get_argument(0, 0)
 
-            # pop the frame of the currently executing block...
-            self._pop_frame()
-
             # ... and execute the escapedBlock message instead
-            sender.send_escaped_block(block, self._universe, self)
-            return
+            sender.send_escaped_block(frame, block, self._universe, self)
+            return frame.pop()
 
-        # Unwind the frames
-        while self.get_frame() is not context:
-            self._pop_frame()
-
-        # Pop the top frame and push the result
-        self._pop_frame_and_push_result(result)
+        raise ReturnException(result, context)
 
     def _do_send(self, bytecode_index, frame, method):
         # Handle the send bytecode
@@ -159,16 +142,15 @@ class Interpreter(object):
         receiver = frame.get_stack_element(num_args - 1)
 
         # Send the message
-        self._send(signature, receiver.get_class(self._universe), bytecode_index)
+        self._send(method, frame, signature, receiver.get_class(self._universe), bytecode_index)
 
 
-    def start(self):
+    def interpret(self, method, frame):
+        bc_idx = 0
+        
         # Iterate through the bytecodes
-        while True:            
-            # Get the current bytecode
-            current_bc_idx = self._bytecode_index
-            method         = self.get_method()
-            frame          = self.get_frame()
+        while True:
+            current_bc_idx = bc_idx
             
             jitdriver.jit_merge_point(bytecode_index=current_bc_idx,
                           interp=self,
@@ -181,72 +163,51 @@ class Interpreter(object):
             bc_length = bytecode_length(bytecode)
 
             # Compute the next bytecode index
-            self._bytecode_index = current_bc_idx + bc_length
-
+            bc_idx = current_bc_idx + bc_length
 
             # Handle the current bytecode
-            if   bytecode == Bytecodes.halt:
+            if   bytecode == Bytecodes.halt:                            # BC: 0
                 return frame.get_stack_element(0)
-            elif bytecode == Bytecodes.dup:
+            elif bytecode == Bytecodes.dup:                             # BC: 1
                 self._do_dup(frame, method)
-            elif bytecode == Bytecodes.push_local:
+            elif bytecode == Bytecodes.push_local:                      # BC: 2
                 self._do_push_local(current_bc_idx, frame, method)
-            elif bytecode == Bytecodes.push_argument:
+            elif bytecode == Bytecodes.push_argument:                   # BC: 3
                 self._do_push_argument(current_bc_idx, frame, method)
-            elif bytecode == Bytecodes.push_field:
+            elif bytecode == Bytecodes.push_field:                      # BC: 4
                 self._do_push_field(current_bc_idx, frame, method)
-            elif bytecode == Bytecodes.push_block:
+            elif bytecode == Bytecodes.push_block:                      # BC: 5
                 self._do_push_block(current_bc_idx, frame, method)
-            elif bytecode == Bytecodes.push_constant:
+            elif bytecode == Bytecodes.push_constant:                   # BC: 6
                 self._do_push_constant(current_bc_idx, frame, method)
-            elif bytecode == Bytecodes.push_global:
+            elif bytecode == Bytecodes.push_global:                     # BC: 7
                 self._do_push_global(current_bc_idx, frame, method)
-            elif bytecode == Bytecodes.pop:
-                self._do_pop(frame, method)
-            elif bytecode == Bytecodes.pop_local:
+            elif bytecode == Bytecodes.pop:                             # BC: 8
+                self._do_pop(frame)
+            elif bytecode == Bytecodes.pop_local:                       # BC: 9
                 self._do_pop_local(current_bc_idx, frame, method)
-            elif bytecode == Bytecodes.pop_argument:
+            elif bytecode == Bytecodes.pop_argument:                    # BC:10
                 self._do_pop_argument(current_bc_idx, frame, method)
-            elif bytecode == Bytecodes.pop_field:
+            elif bytecode == Bytecodes.pop_field:                       # BC:11
                 self._do_pop_field(current_bc_idx, frame, method)
-            elif bytecode == Bytecodes.send:
+            elif bytecode == Bytecodes.send:                            # BC:12
                 self._do_send(current_bc_idx, frame, method)
-            elif bytecode == Bytecodes.super_send:
+            elif bytecode == Bytecodes.super_send:                      # BC:13
                 self._do_super_send(current_bc_idx, frame, method)
-            elif bytecode == Bytecodes.return_local:
-                self._do_return_local(frame, method)
-            elif bytecode == Bytecodes.return_non_local:
-                self._do_return_non_local(frame, method)
+            elif bytecode == Bytecodes.return_local:                    # BC:14
+                return self._do_return_local(frame)
+            elif bytecode == Bytecodes.return_non_local:                # BC:15
+                return self._do_return_non_local(frame)
 
-    def push_new_frame(self, method, context):
-        # Allocate a new frame and make it the current one
-        self.set_frame(self._universe.new_frame(self._frame, method, context))
+    def new_frame(self, prev_frame, method, context):
+        return self._universe.new_frame(prev_frame, method, context)
 
-        # Return the freshly allocated and pushed frame
-        return self._frame
-
-
-    def get_frame(self):
-        # Get the frame from the interpreter
-        return self._frame
-    
-    def set_frame(self, frame):
-        if self._frame:
-            self._frame.set_bytecode_index(self._bytecode_index)
-        self._frame = frame
-        self._bytecode_index = frame.get_bytecode_index()
-
-    def get_method(self):
-        # Get the method from the interpreter
-        return jit.promote(self.get_frame().get_method())
-
-    def get_self(self):
+    def get_self(self, frame):
         # Get the self object from the interpreter
-        return self.get_frame().get_outer_context().get_argument(0, 0)
+        return frame.get_outer_context().get_argument(0, 0)
 
-    def _send(self, selector, receiver_class, bytecode_index):
+    def _send(self, m, frame, selector, receiver_class, bytecode_index):
         # First try the inline cache
-        m = self.get_method()
         cached_class = m.get_inline_cache_class(bytecode_index)
         if cached_class == receiver_class:
             invokable = m.get_inline_cache_invokable(bytecode_index)
@@ -263,45 +224,16 @@ class Interpreter(object):
                     invokable = receiver_class.lookup_invokable(selector)
                     if not cached_class:
                         m.set_inline_cache(bytecode_index + 1, receiver_class, invokable)
-        
-        self._frame.set_bytecode_index(self._bytecode_index)
+
         if invokable:
-            # Invoke the invokable in the current frame
-            invokable.invoke(self.get_frame(), self)
+            invokable.invoke(frame, self)
         else:
             num_args = selector.get_number_of_signature_arguments()
 
             # Compute the receiver
-            receiver = self._frame.get_stack_element(num_args - 1)
-            receiver.send_does_not_understand(selector, self._universe, self)
-        self._bytecode_index = self._frame.get_bytecode_index()
-
-    def _pop_frame(self):
-        # Save a reference to the top frame
-        result = self._frame
-
-        # Pop the top frame from the frame stack
-        self.set_frame(self._frame.get_previous_frame())
-
-        # Destroy the previous pointer on the old top frame
-        result.clear_previous_frame()
-
-        # Return the popped frame
-        return result
-
-    @jit.unroll_safe
-    def _pop_frame_and_push_result(self, result):
-        # Pop the top frame from the interpreter frame stack and compute the
-        # number of arguments
-        num_args = self._pop_frame().get_method().get_number_of_arguments()
-
-        # Pop the arguments
-        for _ in range(0, num_args):
-            self.get_frame().pop()
-
-        # Push the result
-        self.get_frame().push(result)
-
+            receiver = frame.get_stack_element(num_args - 1)
+            receiver.send_does_not_understand(frame, selector, self._universe, self)
+         
 def get_printable_location(bytecode_index, interp, method):
     from som.vmobjects.method import Method
     from som.interpreter.bytecodes import bytecode_as_str
