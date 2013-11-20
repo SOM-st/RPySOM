@@ -1,9 +1,9 @@
+from som.interpreter.control_flow import RestartLoopException
 from som.primitives.primitives import Primitives
 from som.vmobjects.primitive   import Primitive
 
 def _restart(ivkbl, frame, interpreter):
-    frame.set_bytecode_index(0)
-    frame.reset_stack_pointer()
+    raise RestartLoopException()
 
 class BlockPrimitives(Primitives):
     
