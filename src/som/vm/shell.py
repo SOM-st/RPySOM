@@ -17,13 +17,10 @@ class Shell(object):
         counter = 0
         it = self._universe.nilObject
 
-        std_println("SOM Shell. Type \"quit\" to exit.\n");
+        std_println("SOM Shell. Type \"quit\" to exit.\n")
 
         # Create a fake bootstrap frame
-        current_frame = self._interpreter.push_new_frame(self._bootstrap_method, None)
-
-        # Remember the first bytecode index, e.g. index of the halt instruction
-        bytecode_index = current_frame.get_bytecode_index()
+        current_frame = self._interpreter.new_frame(None, self._bootstrap_method, None)
 
         while True:
             try:
@@ -45,12 +42,8 @@ class Shell(object):
 
                 # If success
                 if my_class:
-                    current_frame = self._interpreter.get_frame()
-
-                    # Go back, so we will evaluate the bootstrap frames halt
-                    # instruction again
-                    current_frame.set_bytecode_index(bytecode_index)
-
+                    current_frame.reset_stack_pointer()
+                    
                     # Create and push a new instance of our class on the stack
                     my_object = self._universe.new_instance(my_class)
                     current_frame.push(my_object)
@@ -65,15 +58,10 @@ class Shell(object):
                     # Invoke the run method
                     initialize.invoke(current_frame, self._interpreter)
 
-                    # Start the interpreter
-                    self._interpreter.start()
-
                     # Save the result of the run method
                     it = current_frame.pop()
-            except Exception, e:
+            except Exception as e:
                 if not we_are_translated(): # this cannot be done in rpython
                     import traceback
                     traceback.print_exc()
                 error_println("Caught exception: %s" % e)
-                error_println(str(
-                            self._interpreter.get_frame().get_previous_frame()))
