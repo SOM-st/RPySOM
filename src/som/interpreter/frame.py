@@ -20,7 +20,6 @@ class Frame(object):
         self._context        = context
         self._stack          = [nilObject] * num_elements
         self._stack_pointer  = 0
-        self._bytecode_index = 0
         self._previous_frame = previous_frame
     
     def get_previous_frame(self):
@@ -89,12 +88,6 @@ class Frame(object):
         self._stack_pointer = (self.get_number_of_arguments() +
                 self.get_method().get_number_of_locals().get_embedded_integer() - 1)
 
-    def get_bytecode_index(self):
-        return self._bytecode_index
-
-    def set_bytecode_index(self, value):
-        self._bytecode_index = value
-
     def get_stack_element(self, index):
         # Get the stack element with the given index
         # (an index of zero yields the top element)
@@ -143,11 +136,11 @@ class Frame(object):
         for i in range(0, num_args):
             self._stack[i] = frame.get_stack_element(num_args - 1 - i)
 
-    def print_stack_trace(self):
+    def print_stack_trace(self, bytecode_index):
         # Print a stack trace starting in this frame
         from som.vm.universe import std_print, std_println
         std_print(self.get_method().get_holder().get_name().get_string())
-        std_println(" %d @ %s" % (self.get_bytecode_index(),
+        std_println(" %d @ %s" % (bytecode_index,
                              self.get_method().get_signature().get_string()))
         
         if self.has_previous_frame():
