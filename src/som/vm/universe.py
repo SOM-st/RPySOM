@@ -3,7 +3,8 @@ from rpython.rlib import jit
 
 from som.interpreter.interpreter import Interpreter
 from som.interpreter.bytecodes   import Bytecodes 
-from som.interpreter.frame       import Frame 
+from som.interpreter.frame       import Frame
+ 
 from som.vm.symbol_table         import SymbolTable
 from som.vmobjects.object        import Object
 from som.vmobjects.clazz         import Class
@@ -99,13 +100,14 @@ class Universe(object):
 
         clazz = self.load_class(self.symbol_for(class_name))
 
-        # Lookup the invokable on class
-        invokable = clazz.get_class(self).lookup_invokable(self.symbol_for(selector))
-
         bootstrap_method = self._create_bootstrap_method()
         bootstrap_frame  = self._create_bootstrap_frame(bootstrap_method, clazz)
         
-        return self.start(bootstrap_frame, invokable)
+        # Lookup the invokable on class
+        invokable = clazz.get_class(self).lookup_invokable(self.symbol_for(selector))
+        
+        invokable.invoke(bootstrap_frame, self._interpreter)
+        return bootstrap_frame.pop()
     
     def _create_bootstrap_method(self):
         # Create a fake bootstrap method to simplify later frame traversal
@@ -118,7 +120,7 @@ class Universe(object):
     
     def _create_bootstrap_frame(self, bootstrap_method, receiver, arguments = None):
         # Create a fake bootstrap frame with the system object on the stack
-        bootstrap_frame = self._interpreter.push_new_frame(bootstrap_method, None)
+        bootstrap_frame = self._interpreter.new_frame(None, bootstrap_method, None)
         bootstrap_frame.push(receiver)
         
         if arguments:
@@ -146,15 +148,7 @@ class Universe(object):
             bootstrap_frame = self._create_bootstrap_frame(bootstrap_method, system_object, arguments_array)
             # Lookup the initialize invokable on the system class
             initialize = self.systemClass.lookup_invokable(self.symbol_for("initialize:"))
-
-            self.start(bootstrap_frame, initialize)
-    
-    def start(self, bootstrap_frame, invokable):
-        # Invoke the initialize invokable
-        invokable.invoke(bootstrap_frame, self._interpreter)
-
-        # Start the interpreter
-        return self._interpreter.start()
+            return initialize.invoke(bootstrap_frame, self._interpreter)
     
     def handle_arguments(self, arguments):
         got_classpath  = False
@@ -335,7 +329,7 @@ class Universe(object):
     
         return result
     
-    def new_block(self, method, context_frame, arguments):
+    def new_block(self, method, context_frame):
         return Block(method, context_frame)
 
     def new_class(self, class_class):
@@ -354,7 +348,6 @@ class Universe(object):
 
         result = Frame(self.nilObject, length, method, context, previous_frame)
         result.reset_stack_pointer()
-        result.set_bytecode_index(0)
         return result
 
     def new_method(self, signature, num_bytecodes, literals,
@@ -367,7 +360,6 @@ class Universe(object):
         result.set_class(instance_class)
         return result
 
- 
     def new_integer(self, value):
         assert isinstance(value, int)
         return Integer(value)
@@ -417,7 +409,6 @@ class Universe(object):
             system_class.get_class(self).set_super_class(super_class.get_class(self))
         else:
             system_class.get_class(self).set_super_class(self.classClass)
-    
 
         # Initialize the array of instance fields
         system_class.set_instance_fields(self.new_array_with_length(0))
