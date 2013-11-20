@@ -3,28 +3,26 @@ class AbstractObject(object):
     def __init__(self):
         pass
         
-    def send(self, selector_string, arguments, universe, interpreter):
+    def send(self, frame, selector_string, arguments, universe, interpreter):
         # Turn the selector string into a selector
         selector = universe.symbol_for(selector_string)
 
         # Push the receiver onto the stack
-        interpreter.get_frame().push(self)
+        frame.push(self)
 
         # Push the arguments onto the stack
         for arg in arguments:
-            interpreter.get_frame().push(arg)
+            frame.push(arg)
 
         # Lookup the invokable
         invokable = self.get_class(universe).lookup_invokable(selector)
 
         # Invoke the invokable
-        invokable.invoke(interpreter.get_frame(), interpreter)
+        invokable.invoke(frame, interpreter)
 
-    def send_does_not_understand(self, selector, universe, interpreter):
+    def send_does_not_understand(self, frame, selector, universe, interpreter):
         # Compute the number of arguments
         number_of_arguments = selector.get_number_of_signature_arguments()
-
-        frame = interpreter.get_frame()
 
         # Allocate an array with enough room to hold all arguments
         arguments_array = universe.new_array_with_length(number_of_arguments)
@@ -37,15 +35,15 @@ class AbstractObject(object):
             i -= 1
             
         args = [selector, arguments_array]
-        self.send("doesNotUnderstand:arguments:", args, universe, interpreter)
+        self.send(frame, "doesNotUnderstand:arguments:", args, universe, interpreter)
 
-    def send_unknown_global(self, global_name, universe, interpreter):
+    def send_unknown_global(self, frame, global_name, universe, interpreter):
         arguments = [global_name]
-        self.send("unknownGlobal:", arguments, universe, interpreter)
+        self.send(frame, "unknownGlobal:", arguments, universe, interpreter)
 
-    def send_escaped_block(self, block, universe, interpreter):
+    def send_escaped_block(self, frame, block, universe, interpreter):
         arguments = [block]
-        self.send("escapedBlock:", arguments, universe, interpreter)
+        self.send(frame, "escapedBlock:", arguments, universe, interpreter)
 
     def get_class(self, universe):
         raise NotImplementedError("Subclasses need to implement get_class(universe).")

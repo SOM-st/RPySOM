@@ -14,15 +14,15 @@ def _push_long_result(frame, result, universe):
     else:
         frame.push(universe.new_biginteger(result))
 
-def _resend_as_biginteger(operator, left, right, universe):
+def _resend_as_biginteger(frame, operator, left, right, universe):
     left_biginteger = universe.new_biginteger(left.get_embedded_integer())
     operands = [right]
-    left_biginteger.send(operator, operands, universe, universe.get_interpreter())
+    left_biginteger.send(frame, operator, operands, universe, universe.get_interpreter())
 
-def _resend_as_double(operator, left, right, universe):
+def _resend_as_double(frame, operator, left, right, universe):
     left_double = universe.new_double(left.get_embedded_integer())
     operands    = [right]
-    left_double.send(operator, operands, universe, universe.get_interpreter())
+    left_double.send(frame, operator, operands, universe, universe.get_interpreter())
 
 def _asString(ivkbl, frame, interpreter):
     rcvr = frame.pop()
@@ -48,9 +48,9 @@ def _plus(ivkbl, frame, interpreter):
     # Check second parameter type:
     if isinstance(right_obj, BigInteger):
         # Second operand was BigInteger
-        _resend_as_biginteger("+", left, right_obj, interpreter.get_universe())
+        _resend_as_biginteger(frame, "+", left, right_obj, interpreter.get_universe())
     elif isinstance(right_obj, Double):
-        _resend_as_double("+", left, right_obj, interpreter.get_universe())
+        _resend_as_double(frame, "+", left, right_obj, interpreter.get_universe())
     else:
         # Do operation:
         right = right_obj
@@ -64,9 +64,9 @@ def _minus(ivkbl, frame, interpreter):
     # Check second parameter type:
     if isinstance(right_obj, BigInteger):
         # Second operand was BigInteger
-        _resend_as_biginteger("-", left, right_obj, interpreter.get_universe())
+        _resend_as_biginteger(frame, "-", left, right_obj, interpreter.get_universe())
     elif isinstance(right_obj, Double):
-        _resend_as_double("-", left, right_obj, interpreter.get_universe())
+        _resend_as_double(frame, "-", left, right_obj, interpreter.get_universe())
     else:
         # Do operation:
         right = right_obj
@@ -80,9 +80,9 @@ def _mult(ivkbl, frame, interpreter):
     # Check second parameter type:
     if isinstance(right_obj, BigInteger):
         # Second operand was BigInteger
-        _resend_as_biginteger("*", left, right_obj, interpreter.get_universe())
+        _resend_as_biginteger(frame, "*", left, right_obj, interpreter.get_universe())
     elif isinstance(right_obj, Double):
-        _resend_as_double("*", left, right_obj, interpreter.get_universe())
+        _resend_as_double(frame, "*", left, right_obj, interpreter.get_universe())
     else:
         # Do operation:
         right = right_obj
@@ -96,9 +96,9 @@ def _doubleDiv(ivkbl, frame, interpreter):
     # Check second parameter type:
     if isinstance(right_obj, BigInteger):
         # Second operand was BigInteger
-        _resend_as_biginteger("/", left, right_obj, interpreter.get_universe())
+        _resend_as_biginteger(frame, "/", left, right_obj, interpreter.get_universe())
     elif isinstance(right_obj, Double):
-        _resend_as_double("/", left, right_obj, interpreter.get_universe())
+        _resend_as_double(frame, "/", left, right_obj, interpreter.get_universe())
     else:
         # Do operation:
         right = right_obj
@@ -112,9 +112,9 @@ def _intDiv(ivkbl, frame, interpreter):
     # Check second parameter type:
     if isinstance(right_obj, BigInteger):
         # Second operand was BigInteger
-        _resend_as_biginteger("/", left, right_obj, interpreter.get_universe())
+        _resend_as_biginteger(frame, "/", left, right_obj, interpreter.get_universe())
     elif isinstance(right_obj, Double):
-        _resend_as_double("/", left, right_obj, interpreter.get_universe())
+        _resend_as_double(frame, "/", left, right_obj, interpreter.get_universe())
     else:
         # Do operation:
         right = right_obj
@@ -128,9 +128,9 @@ def _mod(ivkbl, frame, interpreter):
     # Check second parameter type:
     if isinstance(right_obj, BigInteger):
         # Second operand was BigInteger
-        _resend_as_biginteger("%", left, right_obj, interpreter.get_universe())
+        _resend_as_biginteger(frame, "%", left, right_obj, interpreter.get_universe())
     elif isinstance(right_obj, Double):
-        _resend_as_double("%", left, right_obj, interpreter.get_universe())
+        _resend_as_double(frame, "%", left, right_obj, interpreter.get_universe())
     else:
         # Do operation:
         _push_long_result(frame, left.get_embedded_integer() % right_obj.get_embedded_integer(), interpreter.get_universe())
@@ -142,9 +142,9 @@ def _and(ivkbl, frame, interpreter):
     # Check second parameter type:
     if isinstance(right_obj, BigInteger):
         # Second operand was BigInteger
-        _resend_as_biginteger("&", left, right_obj, interpreter.get_universe())
+        _resend_as_biginteger(frame, "&", left, right_obj, interpreter.get_universe())
     elif isinstance(right_obj, Double):
-        _resend_as_double("&", left, right_obj, interpreter.get_universe())
+        _resend_as_double(frame, "&", left, right_obj, interpreter.get_universe())
     else:
         # Do operation:
         right = right_obj
@@ -159,7 +159,7 @@ def _equals(ivkbl, frame, interpreter):
     # Check second parameter type:
     if isinstance(right_obj, BigInteger):
         # Second operand was BigInteger
-        _resend_as_biginteger("=", left, right_obj, interpreter.get_universe())
+        _resend_as_biginteger(frame, "=", left, right_obj, interpreter.get_universe())
     elif isinstance(right_obj, Integer):
         if left.get_embedded_integer() == right_obj.get_embedded_integer():
             frame.push(interpreter.get_universe().trueObject)
@@ -180,9 +180,9 @@ def _lessThan(ivkbl, frame, interpreter):
     # Check second parameter type:
     if isinstance(right_obj, BigInteger):
         # Second operand was BigInteger
-        _resend_as_biginteger("<", left, right_obj, interpreter.get_universe())
+        _resend_as_biginteger(frame, "<", left, right_obj, interpreter.get_universe())
     elif isinstance(right_obj, Double):
-        _resend_as_double("<", left, right_obj, interpreter.get_universe())
+        _resend_as_double(frame, "<", left, right_obj, interpreter.get_universe())
     else:
         if left.get_embedded_integer() < right_obj.get_embedded_integer():
             frame.push(interpreter.get_universe().trueObject)
