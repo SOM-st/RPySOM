@@ -2,7 +2,7 @@ from __future__ import absolute_import
 
 from rpython.rlib import jit
 
-from som.interpreter.control_flow import ReturnException, RestartLoopException
+from som.interpreter.control_flow import ReturnException
 
 from som.vmobjects.abstract_object import AbstractObject
 
@@ -98,21 +98,18 @@ class Method(AbstractObject):
         new_frame = interpreter.new_frame(frame, self, None)
         new_frame.copy_arguments_from(frame)
         
-        while True:
-            try:
-                result = interpreter.interpret(self, new_frame)
-                frame.pop_old_arguments_and_push_result(self, result)
-                new_frame.clear_previous_frame()
+        try:
+            result = interpreter.interpret(self, new_frame)
+            frame.pop_old_arguments_and_push_result(self, result)
+            new_frame.clear_previous_frame()
+            return
+        except ReturnException as e:
+            if e.has_reached_target(new_frame):
+                frame.pop_old_arguments_and_push_result(self, e.get_result())
                 return
-            except ReturnException as e:
-                if e.has_reached_target(new_frame):
-                    frame.pop_old_arguments_and_push_result(self, e.get_result())
-                    return
-                else:
-                    new_frame.clear_previous_frame()
-                    raise e
-            except RestartLoopException:
-                new_frame.reset_stack_pointer()
+            else:
+                new_frame.clear_previous_frame()
+                raise e
 
     def __str__(self):
         return "Method(" + self.get_holder().get_name().get_string() + ">>" + str(self.get_signature()) + ")"

@@ -1,6 +1,3 @@
-class RestartLoopException(BaseException):
-    pass
-
 class ReturnException(BaseException):
     
     _immutable_fields_ = ["_result", "_target"]

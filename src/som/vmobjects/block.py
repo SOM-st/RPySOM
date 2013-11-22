@@ -1,6 +1,5 @@
 from rpython.rlib import jit
 
-from som.interpreter.control_flow import RestartLoopException
 from som.vmobjects.abstract_object import AbstractObject
 from som.vmobjects.primitive import Primitive
 
@@ -44,14 +43,18 @@ class Block(AbstractObject):
 def block_evaluation_primitive(num_args, universe):
     return Block.Evaluation(num_args, universe, _invoke)
 
+def block_evaluate(block, interpreter, frame):
+    context = block.get_context()
+    method  = block.get_method()
+    new_frame = interpreter.new_frame(frame, method, context)
+    new_frame.copy_arguments_from(frame)
+
+    result = interpreter.interpret(method, new_frame)
+    frame.pop_old_arguments_and_push_result(method, result)
+    new_frame.clear_previous_frame()
+    
+
 def _invoke(ivkbl, frame, interpreter):
     assert isinstance(ivkbl, Block.Evaluation)
     rcvr = frame.get_stack_element(ivkbl._number_of_arguments - 1)
-
-    context = rcvr.get_context()
-    new_frame = interpreter.new_frame(frame, rcvr.get_method(), context)
-    new_frame.copy_arguments_from(frame)
-
-    result = interpreter.interpret(rcvr.get_method(), new_frame)
-    frame.pop_old_arguments_and_push_result(rcvr.get_method(), result)
-    new_frame.clear_previous_frame()
+    block_evaluate(rcvr, interpreter, frame)
