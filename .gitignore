@@ -1,3 +1,4 @@
+.settings
 *.pyc
 *.DS_Store
 RPySOM-no-jit
