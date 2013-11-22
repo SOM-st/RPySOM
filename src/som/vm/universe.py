@@ -550,10 +550,3 @@ def main(args):
 
 def get_current():
     return Universe.CURRENT
-
-if __name__ == '__main__':
-    import sys
-    try:
-        main(sys.argv)
-    except Exit as e:
-        sys.exit(e.code)

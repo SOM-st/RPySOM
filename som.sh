@@ -7,4 +7,4 @@ if [ -z "$PYPY_DIR" ]; then
   PYPY_DIR=$DIR/pypy
 fi
 export PYTHONPATH=$DIR/src:$PYPY_DIR:$PYTHONPATH
-exec $PYTHON $DIR/src/som/vm/universe.py "$@"
+exec $PYTHON $DIR/src/som/vm "$@"
