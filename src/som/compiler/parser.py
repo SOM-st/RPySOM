@@ -197,7 +197,7 @@ class Parser(object):
  
     def _method_block(self, mgenc):
         self._expect(Symbol.NewTerm)
-        self._block_contents(mgenc)
+        self._block_contents(mgenc, False)
         
         # if no return has been generated so far, we can be sure there was no .
         # terminating the last expression, so the last expression's value must
@@ -242,30 +242,30 @@ class Parser(object):
         return self._variable()
 
  
-    def _block_contents(self, mgenc):
+    def _block_contents(self, mgenc, is_inlined):
         if self._accept(Symbol.Or):
             self._locals(mgenc)
             self._expect(Symbol.Or)
   
-        self._block_body(mgenc, False)
+        self._block_body(mgenc, False, is_inlined)
 
     def _locals(self, mgenc):
         while (self._sym == Symbol.Identifier):
             mgenc.add_local_if_absent(self._variable())
 
  
-    def _block_body(self, mgenc, seenPeriod):
+    def _block_body(self, mgenc, seen_period, is_inlined):
         if self._accept(Symbol.Exit):
             self._result(mgenc)
         elif self._sym == Symbol.EndBlock:
-            if seenPeriod:
+            if seen_period:
                 # a POP has been generated which must be elided (blocks always
                 # return the value of the last expression, regardless of
                 # whether it was terminated with a . or not)
                 mgenc.remove_last_bytecode()
-            
-            self._bc_gen.emitRETURNLOCAL(mgenc)
-            mgenc.set_finished()
+            if not is_inlined:
+                self._bc_gen.emitRETURNLOCAL(mgenc)
+                mgenc.set_finished()
         elif self._sym == Symbol.EndTerm:
             # it does not matter whether a period has been seen, as the end of
             # the method has been found (EndTerm) - so it is safe to emit a
@@ -277,7 +277,7 @@ class Parser(object):
             self._expression(mgenc)
             if self._accept(Symbol.Period):
                 self._bc_gen.emitPOP(mgenc)
-                self._block_body(mgenc, True)
+                self._block_body(mgenc, True, is_inlined)
  
     def _result(self, mgenc):
         self._expression(mgenc)
@@ -425,6 +425,13 @@ class Parser(object):
 
     def _keyword_message(self, mgenc, is_super_send):
         kw = self._keyword()
+        
+        if not is_super_send[0] and kw == "ifTrue:":
+            self._if_true_message(mgenc)
+            return
+        elif not is_super_send[0] and kw == "ifFalse:":
+            self._if_false_message(mgenc)
+            return
         self._formula(mgenc)
       
         while self._sym == Symbol.Keyword:
@@ -439,6 +446,71 @@ class Parser(object):
             self._bc_gen.emitSUPERSEND(mgenc, msg)
         else:
             self._bc_gen.emitSEND(mgenc, msg)
+    
+    def _if_true_message(self, mgenc):
+        false_block_pos = self._bc_gen.emitJUMP_IF_FALSE(mgenc)
+        if self._sym == Symbol.NewBlock:
+            self._inlined_block(mgenc)
+        else:
+            self._formula(mgenc)
+            msg = self._universe.symbol_for("value")
+            mgenc.add_literal_if_absent(msg)
+            self._bc_gen.emitSEND(mgenc, msg)
+        
+        after_pos = self._bc_gen.emitJUMP(mgenc)
+        mgenc.patch_jump_target(false_block_pos)
+        
+        if self._sym == Symbol.Keyword:
+            if_false = self._keyword()
+            assert if_false == "ifFalse:"
+            
+            if self._sym == Symbol.NewBlock:
+                self._inlined_block(mgenc)
+            else:
+                self._formula(mgenc)
+                msg = self._universe.symbol_for("value")
+                mgenc.add_literal_if_absent(msg)
+                self._bc_gen.emitSEND(mgenc, msg)
+
+        else:
+            nil = self._universe.symbol_for("nil")
+            mgenc.add_literal_if_absent(nil)
+            self._bc_gen.emitPUSHGLOBAL(mgenc, nil)
+    
+        mgenc.patch_jump_target(after_pos)
+        assert self._sym is not Symbol.Keyword
+    
+    def _if_false_message(self, mgenc):
+        false_block_pos = self._bc_gen.emitJUMP_IF_TRUE(mgenc)
+        if self._sym is Symbol.NewBlock:
+            self._inlined_block(mgenc)
+        else:
+            self._formula(mgenc)
+            msg = self._universe.symbol_for("value")
+            mgenc.add_literal_if_absent(msg)
+            self._bc_gen.emitSEND(mgenc, msg)
+    
+        after_pos = self._bc_gen.emitJUMP(mgenc)
+        mgenc.patch_jump_target(false_block_pos)
+    
+        if self._sym is Symbol.Keyword:
+            if_false = self._keyword()
+            assert if_false == "ifTrue:"
+        
+            if self._sym is Symbol.NewBlock:
+                self._inlined_block(mgenc)
+            else:
+                self._formula(mgenc)
+                msg = self._universe.symbol_for("value")
+                mgenc.add_literal_if_absent(msg)
+                self._bc_gen.emitSEND(mgenc, msg)
+        else:
+            nil = self._universe.symbol_for("nil")
+            mgenc.add_literal_if_absent(nil)
+            self._bc_gen.emitPUSHGLOBAL(mgenc, nil)
+        
+        mgenc.patch_jump_target(after_pos)
+        assert self._sym is not Symbol.Keyword
      
     def _formula(self, mgenc):
         is_super_send = [False]
@@ -491,7 +563,6 @@ class Parser(object):
         self._expect(Symbol.Integer)
         return i
 
- 
     def _literal_symbol(self, mgenc):
         self._expect(Symbol.Pound)
         if self._sym == Symbol.STString:
@@ -544,7 +615,7 @@ class Parser(object):
  
         mgenc.set_signature(self._universe.symbol_for(block_sig))
  
-        self._block_contents(mgenc)
+        self._block_contents(mgenc, False)
  
         # if no return has been generated, we can be sure that the last
         # expression in the block was not terminated by ., and can generate 
@@ -553,6 +624,14 @@ class Parser(object):
             self._bc_gen.emitRETURNLOCAL(mgenc)
             mgenc.set_finished(True)
  
+        self._expect(Symbol.EndBlock)
+ 
+    def _inlined_block(self, mgenc):
+        self._expect(Symbol.NewBlock)
+        self._block_contents(mgenc, True)
+        # NON_LOCAL_RETURNS can set it to finished,
+        # but since the block is inlined, we don't want that
+        mgenc.set_finished(False)
         self._expect(Symbol.EndBlock)
  
     def _block_pattern(self, mgenc):

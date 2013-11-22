@@ -161,7 +161,26 @@ class Interpreter(object):
         # Send the message
         self._send(signature, receiver.get_class(self._universe), bytecode_index)
 
+    def _do_jump_if_false(self, bytecode_index, frame, method):
+        value = frame.pop()
+        if value is self._universe.falseObject:
+            self._do_jump(bytecode_index, method)
+    
+    def _do_jump_if_true(self, bytecode_index, frame, method):
+        value = frame.pop()
+        if value is self._universe.trueObject:
+            self._do_jump(bytecode_index, method)
 
+    def _do_jump(self, bytecode_index, method):
+        target = 0
+        target |= method.get_bytecode(bytecode_index + 1)
+        target |= method.get_bytecode(bytecode_index + 2) << 8
+        target |= method.get_bytecode(bytecode_index + 3) << 16
+        target |= method.get_bytecode(bytecode_index + 4) << 24
+        
+        # do the jump
+        self._bytecode_index = target
+        
     def start(self):
         # Iterate through the bytecodes
         while True:            
@@ -217,6 +236,12 @@ class Interpreter(object):
                 self._do_return_local(frame, method)
             elif bytecode == Bytecodes.return_non_local:
                 self._do_return_non_local(frame, method)
+            elif bytecode == Bytecodes.jump_if_false:
+                self._do_jump_if_false(current_bc_idx, frame, method)
+            elif bytecode == Bytecodes.jump_if_true:
+                self._do_jump_if_true(current_bc_idx, frame, method)
+            elif bytecode == Bytecodes.jump:
+                self._do_jump(current_bc_idx, method)
 
     def push_new_frame(self, method, context):
         # Allocate a new frame and make it the current one
@@ -224,7 +249,6 @@ class Interpreter(object):
 
         # Return the freshly allocated and pushed frame
         return self._frame
-
 
     def get_frame(self):
         # Get the frame from the interpreter

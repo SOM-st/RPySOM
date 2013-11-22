@@ -150,6 +150,7 @@ class MethodGenerationContext(object):
 
     def add_bytecode(self, bc):
         self._bytecode.append(bc)
+        return len(self._bytecode)
 
     def find_literal_index(self, lit):
         return self._literals.index(lit)
@@ -159,3 +160,10 @@ class MethodGenerationContext(object):
 
     def get_signature(self):
         return self._signature
+
+    def patch_jump_target(self, jump_pos):
+        jump_target = len(self._bytecode)
+        self._bytecode[jump_pos    ] = (jump_target)       % 256
+        self._bytecode[jump_pos + 1] = (jump_target >> 8)  % 256
+        self._bytecode[jump_pos + 2] = (jump_target >> 16) % 256
+        self._bytecode[jump_pos + 3] = (jump_target >> 24) % 256

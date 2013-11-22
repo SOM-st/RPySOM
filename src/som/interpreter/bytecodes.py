@@ -20,10 +20,13 @@ class Bytecodes(object):
     super_send       = 13
     return_local     = 14
     return_non_local = 15
+    jump_if_false    = 16
+    jump_if_true     = 17
+    jump             = 18
     
-    _num_bytecodes   = 16
+    _num_bytecodes   = jump + 1
     
-    _bytecode_length = [ 1, # halt
+    _bytecode_length = [ 1,  # halt
                          1,  # dup             
                          3,  # push_local      
                          3,  # push_argument   
@@ -38,7 +41,11 @@ class Bytecodes(object):
                          2,  # send            
                          2,  # super_send      
                          1,  # return_local    
-                         1 ] # return_non_local
+                         1,  # return_non_local
+                         5,  # jump_if_false
+                         5,  # jump_if_true
+                         5 ] # jump
+
     
     _stack_effect_depends_on_message = -1000 # chose a unresonable number to be recognizable
     
@@ -56,8 +63,11 @@ class Bytecodes(object):
                               -1,                               # pop_field       
                               _stack_effect_depends_on_message, # send            
                               _stack_effect_depends_on_message, # super_send      
-                              0,                                # return_local    
-                              0 ]                               # return_non_local
+                               0,                               # return_local    
+                               0,                               # return_non_local
+                              -1,                               # jump_if_false
+                              -1,                               # jump_if_true
+                               0 ]                              # jump
 
 @jit.elidable
 def bytecode_length(bytecode):

@@ -81,6 +81,15 @@ def dump_method(m, indent):
         elif bytecode == Bytecodes.super_send:
             error_println("(index: "      + str(m.get_bytecode(b + 1)) +
                                    ") signature: " + str(m.get_constant(b)))
+        elif (bytecode == Bytecodes.jump or
+              bytecode == Bytecodes.jump_if_true or
+              bytecode == Bytecodes.jump_if_false):
+            target = 0
+            target |= m.get_bytecode(b + 1)
+            target |= m.get_bytecode(b + 2) << 8
+            target |= m.get_bytecode(b + 3) << 16
+            target |= m.get_bytecode(b + 4) << 24
+            error_println("(target: %d)" % target)
         else:
             error_println("<incorrect bytecode>")
   

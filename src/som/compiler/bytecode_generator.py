@@ -46,7 +46,24 @@ class BytecodeGenerator(object):
 
     def emitPUSHCONSTANT(self, mgenc, lit):
         self._emit2(mgenc, BC.push_constant, mgenc.find_literal_index(lit))
-
+    
+    def _emit_jump(self, mgenc, jump_bc):
+        pos = mgenc.add_bytecode(jump_bc)
+        self._emit1(mgenc, 0)
+        self._emit1(mgenc, 0)
+        self._emit1(mgenc, 0)
+        self._emit1(mgenc, 0)
+        return pos
+    
+    def emitJUMP_IF_FALSE(self, mgenc):
+        return self._emit_jump(mgenc, BC.jump_if_false)
+    
+    def emitJUMP_IF_TRUE(self, mgenc):
+        return self._emit_jump(mgenc, BC.jump_if_true)
+    
+    def emitJUMP(self, mgenc):
+        return self._emit_jump(mgenc, BC.jump)
+    
     def _emit1(self, mgenc, code):
         mgenc.add_bytecode(code)
 
