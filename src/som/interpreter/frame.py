@@ -77,7 +77,7 @@ class Frame(object):
 
     def push(self, value):
         """ Push an object onto the expression stack """
-        stack_pointer = self._stack_pointer + 1
+        stack_pointer = jit.promote(self._stack_pointer) + 1
         self._stack[stack_pointer] = value
         self._stack_pointer = stack_pointer
 
