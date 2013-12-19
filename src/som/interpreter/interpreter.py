@@ -145,6 +145,7 @@ class Interpreter(object):
         self._send(method, frame, signature, receiver.get_class(self._universe), bytecode_index)
 
 
+    @jit.unroll_safe
     def interpret(self, method, frame):
         bc_idx = 0
         
@@ -152,10 +153,10 @@ class Interpreter(object):
         while True:
             current_bc_idx = bc_idx
             
-            jitdriver.jit_merge_point(bytecode_index=current_bc_idx,
-                          interp=self,
-                          method=method,
-                          frame=frame)
+#             jitdriver.jit_merge_point(bytecode_index=current_bc_idx,
+#                           interp=self,
+#                           method=method,
+#                           frame=frame)
             
             bytecode = method.get_bytecode(current_bc_idx)
             
