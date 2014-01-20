@@ -4,9 +4,9 @@ python:
   - "2.7"
 
 install:
-  - wget https://bitbucket.org/pypy/pypy/downloads/pypy-2.2-src.tar.bz2 || wget https://bitbucket.org/pypy/pypy/downloads/pypy-2.2-src.tar.bz2
-  - tar -xjf pypy-2.2-src.tar.bz2
-  - mv pypy-2.2-src pypy
+  - wget https://bitbucket.org/pypy/pypy/downloads/pypy-2.2.1-src.tar.bz2 || wget https://bitbucket.org/pypy/pypy/downloads/pypy-2.2.1-src.tar.bz2
+  - tar -xjf pypy-2.2.1-src.tar.bz2
+  - mv pypy-2.2.1-src pypy
 # command to run tests
 script:
   - PYTHONPATH=$PYTHONPATH:pypy nosetests
