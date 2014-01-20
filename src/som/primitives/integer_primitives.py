@@ -4,6 +4,7 @@ from som.vmobjects.biginteger  import BigInteger
 from som.vmobjects.integer     import integer_value_fits, Integer
 from som.vmobjects.double      import Double
 from som.vmobjects.string      import String
+from som.vmobjects.block       import block_evaluate
 
 import math
 
@@ -200,6 +201,24 @@ def _fromString(ivkbl, frame, interpreter):
     int_value = int(param.get_embedded_string())
     frame.push(interpreter.get_universe().new_integer(int_value))
 
+def _toDo(ivkbl, frame, interpreter):
+    universe = interpreter.get_universe()
+    block = frame.pop()
+    limit = frame.pop()
+    self  = frame.pop() # we do leave it on there
+    
+    block_method = block.get_method()
+    context      = block.get_context()
+    
+    for i in range(self.get_embedded_integer(), limit.get_embedded_integer() + 1):
+        b = universe.new_block(block_method, context)
+        frame.push(b)
+        frame.push(universe.new_integer(i))
+        block_evaluate(b, interpreter, frame)
+        frame.pop()
+    
+    frame.push(self)
+
 class IntegerPrimitives(Primitives):
 
     def install_primitives(self):
@@ -217,5 +236,7 @@ class IntegerPrimitives(Primitives):
         self._install_instance_primitive(Primitive("&",  self._universe, _and))
         self._install_instance_primitive(Primitive("=",  self._universe, _equals))
         self._install_instance_primitive(Primitive("<",  self._universe, _lessThan))
+        
+        self._install_instance_primitive(Primitive("to:do:", self._universe, _toDo))
         
         self._install_class_primitive(Primitive("fromString:", self._universe, _fromString))
