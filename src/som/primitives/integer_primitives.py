@@ -221,20 +221,23 @@ def _toDo(ivkbl, frame, interpreter):
     block = frame.pop()
     limit = frame.pop()
     self  = frame.pop() # we do leave it on there
-    
+
     block_method = block.get_method()
     context      = block.get_context()
-    
-    for i in range(self.get_embedded_integer(), limit.get_embedded_integer() + 1):
+
+    i = self.get_embedded_integer()
+    top = limit.get_embedded_integer()
+    while i <= top:
         jitdriver.jit_merge_point(interpreter=interpreter,
                                   block_method=block_method)
-        
+
         b = universe.new_block(block_method, context)
         frame.push(b)
         frame.push(universe.new_integer(i))
         block_evaluate(b, interpreter, frame)
         frame.pop()
-    
+        i += 1
+
     frame.push(self)
 
 class IntegerPrimitives(Primitives):
