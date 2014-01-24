@@ -147,24 +147,25 @@ class Interpreter(object):
 
     @jit.unroll_safe
     def interpret(self, method, frame):
-        bc_idx = 0
-        
-        # Iterate through the bytecodes
+        current_bc_idx = 0
         while True:
-            current_bc_idx = bc_idx
-            
-#             jitdriver.jit_merge_point(bytecode_index=current_bc_idx,
-#                           interp=self,
-#                           method=method,
-#                           frame=frame)
-            
+            # since methods cannot contain loops (all loops are done via primitives)
+            # profiling only needs to be done on pc = 0
+            if current_bc_idx == 0:
+                jitdriver.can_enter_jit(bytecode_index=current_bc_idx, interp=self, method=method, frame=frame)
+            jitdriver.jit_merge_point(bytecode_index=current_bc_idx,
+                          interp=self,
+                          method=method,
+                          frame=frame)
+
+
             bytecode = method.get_bytecode(current_bc_idx)
-            
+
             # Get the length of the current bytecode
             bc_length = bytecode_length(bytecode)
 
             # Compute the next bytecode index
-            bc_idx = current_bc_idx + bc_length
+            next_bc_idx = current_bc_idx + bc_length
 
             # Handle the current bytecode
             if   bytecode == Bytecodes.halt:                            # BC: 0
@@ -199,6 +200,8 @@ class Interpreter(object):
                 return self._do_return_local(frame)
             elif bytecode == Bytecodes.return_non_local:                # BC:15
                 return self._do_return_non_local(frame)
+
+            current_bc_idx = next_bc_idx
 
     def new_frame(self, prev_frame, method, context):
         return self._universe.new_frame(prev_frame, method, context)
@@ -248,7 +251,16 @@ jitdriver = jit.JitDriver(
     greens=['bytecode_index', 'interp', 'method'],
     reds=['frame'],
     # virtualizables=['frame'],
-    get_printable_location=get_printable_location)
+    get_printable_location=get_printable_location,
+    # the next line is a workaround around a likely bug in RPython
+    # for some reason, the inlining heuristics default to "never inline" when
+    # two different jit drivers are involved (in our case, the primitive
+    # driver, and this one).
+
+    # the next line says that calls involving this jitdriver should always be
+    # inlined once (which means that things like Integer>>< will be inlined
+    # into a while loop again, when enabling this drivers).
+    should_unroll_one_iteration = lambda bytecode_index, inter, method: True)
         #reds=['tape'])
 
 def jitpolicy(driver):
