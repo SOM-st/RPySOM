@@ -204,14 +204,14 @@ def _fromString(ivkbl, frame, interpreter):
 
 from rpython.rlib import jit
 
-def get_printable_location(i, interpreter, block_method):
+def get_printable_location(interpreter, block_method):
     from som.vmobjects.method import Method
     assert isinstance(block_method, Method)
     return "TODO"
 
 
 jitdriver = jit.JitDriver(
-    greens=['i', 'interpreter', 'block_method'],
+    greens=['interpreter', 'block_method'],
     reds='auto',
     # virtualizables=['frame'],
     get_printable_location=get_printable_location)
@@ -226,7 +226,7 @@ def _toDo(ivkbl, frame, interpreter):
     context      = block.get_context()
     
     for i in range(self.get_embedded_integer(), limit.get_embedded_integer() + 1):
-        jitdriver.jit_merge_point(i=i, interpreter=interpreter,
+        jitdriver.jit_merge_point(interpreter=interpreter,
                                   block_method=block_method)
         
         b = universe.new_block(block_method, context)
