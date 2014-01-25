@@ -226,7 +226,10 @@ def _toDo(ivkbl, frame, interpreter):
     context      = block.get_context()
 
     i = self.get_embedded_integer()
-    top = limit.get_embedded_integer()
+    if isinstance(limit, Double):
+        top = limit.get_embedded_double()
+    else:
+        top = limit.get_embedded_value()
     while i <= top:
         jitdriver.jit_merge_point(interpreter=interpreter,
                                   block_method=block_method)
