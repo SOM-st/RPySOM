@@ -18,7 +18,7 @@ class Frame(object):
     def __init__(self, nilObject, num_elements, method, context, previous_frame):
         self._method         = method
         self._context        = context
-        self._stack          = [nilObject] * num_elements
+        self._stack          = [None] * num_elements
         self._stack_pointer  = 0
         self._previous_frame = previous_frame
     
@@ -73,7 +73,10 @@ class Frame(object):
         """ Pop an object from the expression stack and return it """
         stack_pointer = self._stack_pointer
         self._stack_pointer = stack_pointer - 1
-        return self._stack[stack_pointer]
+        result = self._stack[stack_pointer]
+        self._stack[stack_pointer] = None
+        assert result is not None
+        return result
 
     def push(self, value):
         """ Push an object onto the expression stack """
@@ -91,7 +94,9 @@ class Frame(object):
     def get_stack_element(self, index):
         # Get the stack element with the given index
         # (an index of zero yields the top element)
-        return self._stack[self._stack_pointer - index]
+        result = self._stack[self._stack_pointer - index]
+        assert result is not None
+        return result
 
     def set_stack_element(self, index, value):
         # Set the stack element with the given index to the given value
@@ -136,9 +141,12 @@ class Frame(object):
         for i in range(0, num_args):
             self._stack[i] = frame.get_stack_element(num_args - 1 - i)
     
+    @jit.unroll_safe
     def pop_old_arguments_and_push_result(self, method, result):
         num_args = method.get_number_of_arguments()
-        self._stack_pointer = self._stack_pointer - num_args
+        jit.promote(self._stack_pointer)
+        for i in range(self._stack_pointer - num_args, self._stack_pointer):
+            self.pop()
         self.push(result)
 
     def print_stack_trace(self, bytecode_index):
