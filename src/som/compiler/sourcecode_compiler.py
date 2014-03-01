@@ -7,11 +7,15 @@ from rlib.string_stream import StringStream
 from som.compiler.parser                   import Parser
 from som.compiler.class_generation_context import ClassGenerationContext
 
+
 def compile_class_from_file(path, filename, system_class, universe):
     return _SourcecodeCompiler().compile(path, filename, system_class, universe)
 
+
 def compile_class_from_string(stmt, system_class, universe):
-    return _SourcecodeCompiler().compile_class_string(stmt, system_class, universe)
+    return _SourcecodeCompiler().compile_class_string(stmt, system_class,
+                                                      universe)
+
 
 class _SourcecodeCompiler(object):
     

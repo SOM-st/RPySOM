@@ -146,7 +146,8 @@ class Lexer(object):
                 self._text += ':'
                 if self._current_char().isalpha():
                     self._sym = Symbol.KeywordSequence
-                    while self._current_char().isalpha() or self._current_char() == ':':
+                    while (self._current_char().isalpha() or
+                           self._current_char() == ':'):
                         self._text += self._bufchar(self._bufp)
                         self._bufp += 1
         elif self._current_char().isdigit():

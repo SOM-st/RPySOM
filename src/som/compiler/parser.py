@@ -29,7 +29,6 @@ class Parser(object):
         self._next_sym = Symbol.NONE
         self._get_symbol_from_lexer()
  
- 
     def classdef(self, cgenc):
         cgenc.set_name(self._universe.symbol_for(self._text))
         self._expect(Symbol.Identifier)
@@ -74,7 +73,6 @@ class Parser(object):
                     cgenc.add_class_method(mgenc.assemble(self._universe))
         
         self._expect(Symbol.EndTerm)
-
 
     def _superclass(self, cgenc):
         if self._sym == Symbol.Identifier:
@@ -140,8 +138,7 @@ class Parser(object):
             err += " (" + self._text + ")"
         err += ": " + self._lexer.get_raw_buffer()
         raise ValueError(err)
-   
-  
+
     def _instance_fields(self, cgenc):
         if self._accept(Symbol.Or):
             while self._sym == Symbol.Identifier:
@@ -241,7 +238,6 @@ class Parser(object):
     def _argument(self):
         return self._variable()
 
- 
     def _block_contents(self, mgenc):
         if self._accept(Symbol.Or):
             self._locals(mgenc)
