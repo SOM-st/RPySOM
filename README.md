@@ -42,7 +42,7 @@ Build Status
 ------------
 
 Thanks to Travis CI, all commits of this repository are tested.
-The current build status is: [![Build Status](https://travis-ci.org/SOM-st/RPySOM.png?branch=master)](https://travis-ci.org/SOM-st/RPySOM)
+The current build status is: [![Build Status](https://travis-ci.org/SOM-st/RTruffleSOM.png?branch=master)](https://travis-ci.org/SOM-st/RTruffleSOM)
 
  [SOM]: http://www.hpi.uni-potsdam.de/hirschfeld/projects/som/
  [SOMst]: https://travis-ci.org/SOM-st/
