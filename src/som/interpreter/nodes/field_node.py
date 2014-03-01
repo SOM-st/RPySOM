@@ -1,13 +1,13 @@
-from rtruffle.node import Node
+from .expression_node import ExpressionNode
 
 
-class FieldNode(Node):
+class FieldNode(ExpressionNode):
 
     _immutable_fields_ = ["_self_exp?", "_field_idx"]
     _child_nodes_      = ["_self_exp"]
 
-    def __init__(self, self_exp, field_idx):
-        Node.__init__(self)
+    def __init__(self, self_exp, field_idx, source_section = None):
+        ExpressionNode.__init__(self, source_section)
         self._self_exp  = self.adopt_child(self_exp)
         self._field_idx = field_idx
 
