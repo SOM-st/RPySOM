@@ -222,14 +222,14 @@ def _fromString(ivkbl, frame, rcvr, args):
 from rpython.rlib import jit
 
 
-def get_printable_location(interpreter, block_method):
-    from som.vmobjects.method import Method
-    assert isinstance(block_method, Method)
+def get_printable_location(block):
+    from som.vmobjects.block import Block
+    assert isinstance(block, Block)
     return "TODO"
 
 
 jitdriver = jit.JitDriver(
-    greens=['interpreter', 'block_method'],
+    greens=['block'],
     reds='auto',
     # virtualizables=['frame'],
     get_printable_location=get_printable_location)
@@ -240,16 +240,13 @@ def _toDo(ivkbl, frame, rcvr, args):
     block = args[1]
     limit = args[0]
 
-    block_method = block.get_method()
-    context      = block.get_context()
-
     i = rcvr.get_embedded_integer()
     if isinstance(limit, Double):
         top = limit.get_embedded_double()
     else:
         top = limit.get_embedded_value()
     while i <= top:
-        # jitdriver.jit_merge_point(block_method=block_method)
+        jitdriver.jit_merge_point(block = block)
         block_evaluate(block, [universe.new_integer(i)], frame)
 
         i += 1

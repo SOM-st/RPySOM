@@ -1,15 +1,14 @@
 from som.primitives.primitives import Primitives
 from som.vmobjects.primitive   import Primitive
-from som.vmobjects.block       import block_evaluate 
+from som.vmobjects.block       import block_evaluate, Block
 
 from rpython.rlib import jit
 
 
-def get_printable_location(interpreter, method_body, method_condition, while_type):
+def get_printable_location(loop_body, loop_condition, while_type):
     from som.vmobjects.method import Method
-    from som.interpreter.bytecodes import bytecode_as_str
-    assert isinstance(method_body, Method)
-    assert isinstance(method_condition, Method)
+    assert isinstance(loop_body, Block)
+    assert isinstance(loop_condition, Block)
     #bc = method.get_bytecode(bytecode_index)
 #     return "%s @ %d in %s" % (bytecode_as_str(bc),
 #                               bytecode_index,
@@ -18,7 +17,7 @@ def get_printable_location(interpreter, method_body, method_condition, while_typ
 
 
 jitdriver = jit.JitDriver(
-    greens=['interpreter', 'method_body', 'method_condition', 'while_type'],
+    greens=['loop_body', 'loop_condition', 'while_type'],
     reds='auto',
     # virtualizables=['frame'],
     get_printable_location=get_printable_location)
@@ -29,7 +28,9 @@ def _whileLoop(frame, rcvr, args, while_type, universe):
     loop_condition = rcvr
     
     while True:
-        #jitdriver.jit_merge_point(while_type=while_type)
+        jitdriver.jit_merge_point(loop_body     = loop_body,
+                                  loop_condition= loop_condition,
+                                  while_type    = while_type)
 
         condition_result = block_evaluate(loop_condition, None, frame)
         if condition_result is while_type:
