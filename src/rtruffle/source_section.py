@@ -19,7 +19,7 @@ class SourceSection(object):
     _immutable_fields_ = ['_source', '_identifier', '_coord', '_char_length']
 
     def __init__(self, source = None, identifier = None, coord = None,
-                 char_length = None, file = None, source_section = None):
+                 char_length = 0, file_name = None, source_section = None):
         if source_section:
             self._source      = source_section._source
             self._coord       = source_section._coord
@@ -29,7 +29,7 @@ class SourceSection(object):
             self._source      = source
             self._coord       = coord
             self._char_length = char_length
-            self._file        = file
+            self._file        = file_name
         self._identifier  = identifier
 
     def __str__(self):
