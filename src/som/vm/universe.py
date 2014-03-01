@@ -41,6 +41,9 @@ class Assoc(object):
     def set_value(self, value):
         self._value = value
 
+    def __str__(self):
+        return "(%s => %s)" % (self._global_name, self._value)
+
 
 class Universe(object):
     

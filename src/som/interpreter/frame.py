@@ -34,3 +34,7 @@ class Frame(object):
 
     def mark_as_no_longer_on_stack(self):
         self._caller_frame = None
+
+    def __str__(self):
+        return "Frame(%s, %s, %s)" % (self._receiver, self._arguments,
+                                      self._temps)

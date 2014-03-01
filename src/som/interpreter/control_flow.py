@@ -11,3 +11,6 @@ class ReturnException(BaseException):
     
     def has_reached_target(self, current):
         return current is self._target
+
+    def __str__(self):
+        return "ReturnEx(%s)" % self._result

@@ -20,3 +20,6 @@ class Node(object):
     def adopt_children(self, nodes):
         #TODO: print "NOT YET IMPLEMENTED: adopt_children"
         return nodes
+
+    def __str__(self):
+        return "%s(%s)" % (self.__class__.__name__, self._source_section)
