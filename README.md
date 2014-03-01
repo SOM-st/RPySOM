@@ -1,4 +1,4 @@
-RPySOM - The Simple Object Machine Smalltalk implemented in RPython
+RTruffleSOM - The Simple Object Machine Smalltalk combining Self-Optimizing Interpreters with Meta-Tracing
 ===================================================================
 
 Introduction
@@ -9,8 +9,8 @@ Plattner Institute][SOM]. It was originally built at the University of Århus
 (Denmark) where it was used for teaching and as the foundation for [Resilient
 Smalltalk][RS].
 
-In addition to PySOM, other implementations exist for Java (SOM, TruffleSOM),
-C (CSOM), C++ (SOM++), and Squeak/Pharo Smalltalk (AweSOM).
+In addition to RTruffleSOM, other implementations exist for Java (SOM, TruffleSOM),
+C (CSOM), C++ (SOM++), Python (PySOM), and Squeak/Pharo Smalltalk (AweSOM).
 
 A simple Hello World looks like:
 
@@ -22,11 +22,11 @@ Hello = (
 )
 ```
 
-This repository contains the RPython-based implementation of SOM, including
+This repository contains a RPython-based implementation of SOM, including
 SOM's standard library and a number of examples. Please see the [main project
 page][SOMst] for links to other VM implementations.
 
-RPySOM's tests can be executed with:
+RTruffleSOM's tests can be executed with:
 
     $ ./som.sh -cp Smalltalk TestSuite/TestHarness.som
    
