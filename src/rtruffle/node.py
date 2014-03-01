@@ -19,7 +19,11 @@ class Node(object):
 
     def adopt_children(self, nodes):
         #TODO: print "NOT YET IMPLEMENTED: adopt_children"
-        return nodes
+        return nodes[:]  # we return here a copy to make it clear to RPython
+                         # that the list is not resized, and,
+                         # the quasi-immutable support does not work on
+                         # element-level, so, we will need to copy the lists
+                         # when replacing child nodes
 
     def __str__(self):
         return "%s(%s)" % (self.__class__.__name__, self._source_section)
