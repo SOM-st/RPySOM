@@ -199,8 +199,9 @@ class MethodGenerationContext(object):
     def get_object_field_write(self, field_name, exp, universe):
         if not self.has_field(field_name):
             return None
-        return FieldWriteNode(self.get_field_index(field_name),
-                              universe, self._get_self_read(), exp)
+        return FieldWriteNode(self._get_self_read(),
+                              self.get_field_index(field_name),
+                              exp)
 
     def has_field(self, field):
         return self._holder_genc.has_field(field)
