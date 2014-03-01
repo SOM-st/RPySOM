@@ -28,7 +28,11 @@ class GenericMessageNode(ExpressionNode):
 
     def execute_evaluated(self, frame, rcvr, args):
         method = self._lookup_method(rcvr)
-        return method.invoke(frame, rcvr, args)
+        if method:
+            return method.invoke(frame, rcvr, args)
+        else:
+            return rcvr.send_does_not_understand(frame, self._selector, args,
+                                                 self._universe)
 
     def _lookup_method(self, rcvr):
         rcvr_class = self._class_of_receiver(rcvr)
