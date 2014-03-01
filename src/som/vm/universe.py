@@ -29,8 +29,20 @@ from rlib.exit  import Exit
 from rlib.osext import path_split
 
 
-class GlobalVersion(object):
-    pass
+class Assoc(object):
+
+    _immutable_fields_ = ["_global_name", "_value?"]
+
+    def __init__(self, global_name, value):
+        self._global_name = global_name
+        self._value       = value
+
+    def get_value(self):
+        return self._value
+
+    def set_value(self, value):
+        self._value = value
+
 
 class Universe(object):
     
@@ -430,20 +442,33 @@ class Universe(object):
         # Return the global with the given name if it's in the dictionary of globals
         # if not, return None
         jit.promote(self)
-        return self._get_global(name, self._global_version)
+        assoc = self._get_global(name)
+        if assoc:
+            return assoc.get_value()
+        else:
+            return None
 
     @jit.elidable
-    def _get_global(self, name, version):
+    def _get_global(self, name):
         return self._globals.get(name, None)
 
     def set_global(self, name, value):
-        # Insert the given value into the dictionary of globals
-        self._globals[name] = value
-        self._global_version = GlobalVersion()
+        assoc = self._globals.get(name, None)
+        if assoc is None:
+            assoc = Assoc(name, value)
+            self._globals[name] = assoc
+        else:
+            self._globals[name] = value
 
     def has_global(self, name):
-        # Returns if the universe has a value for the global of the given name
         return name in self._globals
+
+    def get_globals_association(self, name):
+        assoc = self._globals.get(name, None)
+        if assoc is None:
+            assoc = Assoc(name, self.nilObject)
+            self._globals[name] = assoc
+        return assoc
 
     def _get_block_class(self, number_of_arguments):
         return self.blockClasses[number_of_arguments]
