@@ -4,8 +4,6 @@
 import sys
 
 from som.vm.universe import main, Exit
-from rpython.rlib import jit
-#from rpython.rlib.debug import debug_start, debug_stop, debug_print
 
 
 # __________  Entry points  __________
@@ -23,9 +21,9 @@ def entry_point(argv):
 
 def target(driver, args):
     if driver.config.translation.jit:
-        driver.exe_name = 'RPySOM-jit'
+        driver.exe_name = 'RTruffleSOM-jit'
     else:
-        driver.exe_name = 'RPySOM-no-jit'
+        driver.exe_name = 'RTruffleSOM-no-jit'
     return entry_point, None
 
 

@@ -1,5 +1,5 @@
 *.pyc
 *.DS_Store
-RPySOM-no-jit
-RPySOM-jit
+RTruffleSOM-no-jit
+RTruffleSOM-jit
 pypy
