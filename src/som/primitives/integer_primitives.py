@@ -20,13 +20,13 @@ def _long_result(frame, result, universe):
 def _resend_as_biginteger(frame, operator, left, right, universe):
     left_biginteger = universe.new_biginteger(left.get_embedded_integer())
     operands = [right]
-    return left_biginteger.send(frame, operator, operands, universe, universe.get_interpreter())
+    return left_biginteger.send(frame, operator, operands, universe)
 
 
 def _resend_as_double(frame, operator, left, right, universe):
     left_double = universe.new_double(left.get_embedded_integer())
     operands    = [right]
-    return left_double.send(frame, operator, operands, universe, universe.get_interpreter())
+    return left_double.send(frame, operator, operands, universe)
 
 
 def _asString(ivkbl, frame, rcvr, args):
@@ -237,30 +237,24 @@ jitdriver = jit.JitDriver(
 
 def _toDo(ivkbl, frame, rcvr, args):
     universe = ivkbl.get_universe()
-    block = frame.pop()
-    limit = frame.pop()
-    self  = frame.pop() # we do leave it on there
+    block = args[1]
+    limit = args[0]
 
     block_method = block.get_method()
     context      = block.get_context()
 
-    i = self.get_embedded_integer()
+    i = rcvr.get_embedded_integer()
     if isinstance(limit, Double):
         top = limit.get_embedded_double()
     else:
         top = limit.get_embedded_value()
     while i <= top:
-        jitdriver.jit_merge_point(interpreter=interpreter,
-                                  block_method=block_method)
+        # jitdriver.jit_merge_point(block_method=block_method)
+        block_evaluate(block, [universe.new_integer(i)], frame)
 
-        b = universe.new_block(block_method, context)
-        frame.push(b)
-        frame.push(universe.new_integer(i))
-        block_evaluate(b, interpreter, frame)
-        frame.pop()
         i += 1
 
-    frame.push(self)
+    return rcvr
 
 
 class IntegerPrimitives(Primitives):

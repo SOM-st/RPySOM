@@ -9,9 +9,8 @@ def _asString(ivkbl, frame, rcvr, args):
 
 
 def _sqrt(ivkbl, frame, rcvr, args):
-    rcvr = frame.pop()
-    frame.push(ivkbl.get_universe().new_double(
-                       math.sqrt(rcvr.get_embedded_biginteger())))
+    return ivkbl.get_universe().new_double(
+        math.sqrt(rcvr.get_embedded_biginteger()))
 
 
 def _plus(ivkbl, frame, rcvr, args):

@@ -18,10 +18,9 @@ def _coerce_to_double(obj, universe):
 
 
 def _asString(ivkbl, frame, rcvr, args):
-    rcvr = frame.pop()
     d = rcvr.get_embedded_double()
     s = formatd(d, "g", DTSF_STR_PRECISION, DTSF_ADD_DOT_0)
-    frame.push(ivkbl.get_universe().new_string(s))
+    return ivkbl.get_universe().new_string(s)
 
 
 def _sqrt(ivkbl, frame, rcvr, args):
@@ -45,7 +44,7 @@ def _minus(ivkbl, frame, rcvr, args):
 
 def _mult(ivkbl, frame, rcvr, args):
     op1 = _coerce_to_double(args[0], ivkbl.get_universe())
-    op2 = frame.pop()
+    op2 = rcvr
     return ivkbl.get_universe().new_double(op2.get_embedded_double()
                                            * op1.get_embedded_double())
 
