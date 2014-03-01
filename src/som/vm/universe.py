@@ -98,9 +98,6 @@ class Universe(object):
     def last_exit_code(self):
         return self._last_exit_code
     
-    def get_interpreter(self):
-        return self._interpreter
-    
     def execute_method(self, class_name, selector):
         self._initialize_object_system()
 
