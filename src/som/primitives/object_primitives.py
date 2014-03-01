@@ -48,11 +48,11 @@ def _performInSuperclass(ivkbl, frame, rcvr, args):
 
 
 def _performWithArguments(ivkbl, frame, rcvr, arguments):
-    args     = arguments[1]
+    arg_arr  = arguments[1].get_indexable_fields()
     selector = arguments[0]
 
     invokable = rcvr.get_class(ivkbl.get_universe()).lookup_invokable(selector)
-    return invokable.invoke(frame, rcvr, args)
+    return invokable.invoke(frame, rcvr, arg_arr)
 
 
 def _instVarAt(ivkbl, frame, rcvr, args):

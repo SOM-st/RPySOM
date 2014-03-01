@@ -18,6 +18,9 @@ class Array(AbstractObject):
         # Set the indexable field with the given index to the given value
         self._indexable_fields[index] = value
 
+    def get_indexable_fields(self):
+        return self._indexable_fields
+
     def get_number_of_indexable_fields(self):
         # Get the number of indexable fields in this array
         return len(self._indexable_fields)
