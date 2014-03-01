@@ -11,9 +11,10 @@ class GenericGlobalReadNode(ExpressionNode):
         self._universe    = universe
 
     def execute(self, frame):
-        assoc = self._universe.get_globals_association(self._global_name)
-        if assoc:
+        if self._universe.has_global(self._global_name):
+            assoc = self._universe.get_globals_association(self._global_name)
             return assoc.get_value()
         else:
-            return frame.get_self().send_unknown_global(self._global_name,
-                                                        self._universe, frame)
+            return frame.get_self().send_unknown_global(frame,
+                                                        self._global_name,
+                                                        self._universe)
