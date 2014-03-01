@@ -96,8 +96,6 @@ class MethodGenerationContext(object):
 
     def _get_source_section_for_method(self, expr):
         src_body = expr.get_source_section()
-        if not isinstance(src_body, SourceSection):
-            pass
         assert isinstance(src_body, SourceSection)
         src_method = SourceSection(identifier = (
                                        self._holder_genc.get_name().get_string()
