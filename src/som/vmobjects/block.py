@@ -17,12 +17,17 @@ class Block(AbstractObject):
     
     def get_context(self):
         return self._context
+
+    def get_outer_self(self):
+        return self._context.get_self()
     
     def get_class(self, universe):
         return universe.blockClasses[self._method.get_number_of_arguments()]
   
     class Evaluation(Primitive):
+
         _immutable_fields_ = ['_number_of_arguments']
+
         def __init__(self, num_args, universe, invoke):
             Primitive.__init__(self, self._compute_signature_string(num_args),
                                universe, invoke)
@@ -40,21 +45,16 @@ class Block(AbstractObject):
             # Return the signature string
             return signature_string
 
+
 def block_evaluation_primitive(num_args, universe):
     return Block.Evaluation(num_args, universe, _invoke)
 
-def block_evaluate(block, interpreter, frame):
-    context = block.get_context()
-    method  = block.get_method()
-    new_frame = interpreter.new_frame(frame, method, context)
-    new_frame.copy_arguments_from(frame)
 
-    result = interpreter.interpret(method, new_frame)
-    frame.pop_old_arguments_and_push_result(method, result)
-    new_frame.clear_previous_frame()
-    
+def block_evaluate(block, args, frame):
+    method = block.get_method()
+    return method.invoke(frame, block, args)
 
-def _invoke(ivkbl, frame, interpreter):
+
+def _invoke(ivkbl, frame, rcvr, args):
     assert isinstance(ivkbl, Block.Evaluation)
-    rcvr = frame.get_stack_element(ivkbl._number_of_arguments - 1)
-    block_evaluate(rcvr, interpreter, frame)
+    return block_evaluate(rcvr, args, frame)

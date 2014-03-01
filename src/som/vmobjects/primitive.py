@@ -1,7 +1,8 @@
 from som.vmobjects.abstract_object    import AbstractObject
 
 class Primitive(AbstractObject):
-    _immutable_fields_ = ["_invoke", "_is_empty", "_signature"]
+    _immutable_fields_ = ["_invoke", "_is_empty", "_signature", "_holder",
+                          "_universe"]
         
     def __init__(self, signature_string, universe, invoke, is_empty=False):
         AbstractObject.__init__(self)
@@ -10,10 +11,14 @@ class Primitive(AbstractObject):
         self._invoke    = invoke
         self._is_empty  = is_empty
         self._holder    = None
+        self._universe  = universe
 
-    def invoke(self, frame, interpreter):
+    def get_universe(self):
+        return self._universe
+
+    def invoke(self, frame, rcvr, args):
         inv = self._invoke
-        inv(self, frame, interpreter)
+        return inv(self, frame, rcvr, args)
 
     def is_primitive(self):
         return True

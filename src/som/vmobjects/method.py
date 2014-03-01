@@ -6,130 +6,62 @@ from som.interpreter.control_flow import ReturnException
 
 from som.vmobjects.abstract_object import AbstractObject
 
+
 class Method(AbstractObject):
     
-    _immutable_fields_ = ["_bytecodes[*]",
-                          "_literals[*]",
-                          "_inline_cache_class",
-                          "_receiver_class_table",
-                          "_number_of_locals",
-                          "_maximum_number_of_stack_elements",
-                          "_signature"]
+    _immutable_fields_ = ["_signature", "_invokable", "_is_primitive",
+                          "_holder", "_universe"]
 
-    
-    def __init__(self, literals, num_locals, max_stack_elements,
-                 num_bytecodes, signature):
+    def __init__(self, signature, invokable, is_primitive, universe):
         AbstractObject.__init__(self)
 
-        # Set the number of bytecodes in this method
-        self._bytecodes              = ["\x00"] * num_bytecodes
-        self._inline_cache_class     = [None]   * num_bytecodes
-        self._inline_cache_invokable = [None]   * num_bytecodes
+        self._signature    = signature
+        self._invokable    = invokable
+        self._is_primitive = is_primitive
         
-        self._literals               = literals
-        
-        self._number_of_locals       = num_locals
-        self._maximum_number_of_stack_elements = max_stack_elements
-        self._signature = signature
-        
-        self._holder = None
-        
-    
+        self._holder   = None
+        self._universe = universe
+
+    @jit.elidable_promote('all')
+    def get_universe(self):
+        return self._universe
+
+    @jit.elidable_promote('all')
     def is_primitive(self):
-        return False
-    
+        return self._is_primitive
+
+    @jit.elidable_promote('all')
     def is_invokable(self):
-        """In the RPython version, we use this method to identify methods 
-           and primitives
-        """
+        """ We use this method to identify methods and primitives """
         return True
   
-    def get_number_of_locals(self):
-        # Get the number of locals
-        return self._number_of_locals
-
-    def get_maximum_number_of_stack_elements(self):
-        # Get the maximum number of stack elements
-        return self._maximum_number_of_stack_elements
-
-    # XXX this means that the JIT doesn't see changes to the method object
     @jit.elidable_promote('all')
     def get_signature(self):
         return self._signature
 
+    @jit.elidable_promote('all')
     def get_holder(self):
         return self._holder
 
     def set_holder(self, value):
         self._holder = value
 
-        # Make sure all nested invokables have the same holder
-        for i in range(0, len(self._literals)):
-            if self._literals[i].is_invokable():
-                self._literals[i].set_holder(value)
-
-    # XXX this means that the JIT doesn't see changes to the constants
     @jit.elidable_promote('all')
-    def get_constant(self, bytecode_index):
-        # Get the constant associated to a given bytecode index
-        return self._literals[self.get_bytecode(bytecode_index + 1)]
-
     def get_number_of_arguments(self):
-        # Get the number of arguments of this method
         return self.get_signature().get_number_of_signature_arguments()
-    
-    def get_number_of_bytecodes(self):
-        # Get the number of bytecodes in this method
-        return len(self._bytecodes)
 
-    @jit.elidable_promote('all')
-    def get_bytecode(self, index):
-        # Get the bytecode at the given index
-        assert 0 <= index and index < len(self._bytecodes)
-        return ord(self._bytecodes[index])
-
-    def set_bytecode(self, index, value):
-        # Set the bytecode at the given index to the given value
-        assert 0 <= value and value <= 255
-        self._bytecodes[index] = chr(value)
-
-    def invoke(self, frame, interpreter):
-        # Allocate and push a new frame on the interpreter stack
-        new_frame = interpreter.new_frame(frame, self, None)
-        new_frame.copy_arguments_from(frame)
-        
-        try:
-            result = interpreter.interpret(self, new_frame)
-            frame.pop_old_arguments_and_push_result(self, result)
-            new_frame.clear_previous_frame()
-            return
-        except ReturnException as e:
-            if e.has_reached_target(new_frame):
-                frame.pop_old_arguments_and_push_result(self, e.get_result())
-                return
-            else:
-                new_frame.clear_previous_frame()
-                raise e
+    def invoke(self, caller_frame, receiver, args):
+        return self._invokable.invoke(caller_frame, receiver, args)
 
     def __str__(self):
-        return "Method(" + self.get_holder().get_name().get_string() + ">>" + str(self.get_signature()) + ")"
+        return ("Method(" + self.get_holder().get_name().get_string() + ">>" +
+                str(self.get_signature()) + ")")
     
     def get_class(self, universe):
-        return universe.methodClass
-
-    @jit.elidable
-    def get_inline_cache_class(self, bytecode_index):
-        assert 0 <= bytecode_index and bytecode_index < len(self._inline_cache_class)
-        return self._inline_cache_class[bytecode_index]
-
-    @jit.elidable
-    def get_inline_cache_invokable(self, bytecode_index):
-        assert 0 <= bytecode_index and bytecode_index < len(self._inline_cache_invokable)
-        return self._inline_cache_invokable[bytecode_index]
-
-    def set_inline_cache(self, bytecode_index, receiver_class, invokable):
-        self._inline_cache_class[bytecode_index]    = receiver_class
-        self._inline_cache_invokable[bytecode_index] = invokable
+        if self._is_primitive:
+            return universe.primitiveClass
+        else:
+            return universe.methodClass
 
     def merge_point_string(self):
         """ debug info for the jit """

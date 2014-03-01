@@ -1,8 +1,6 @@
 from rpython.rlib.rrandom import Random
 from rpython.rlib import jit
 
-from som.interpreter.interpreter import Interpreter
-from som.interpreter.bytecodes   import Bytecodes 
 from som.interpreter.frame       import Frame
  
 from som.vm.symbol_table         import SymbolTable
@@ -55,16 +53,12 @@ class Universe(object):
             "objectClass",
             "integerClass",
             "doubleClass",
-            "primitiveClass",
-            "_global_version?",
-            ]
+            "primitiveClass"]
 
     def __init__(self, avoid_exit = False):
-        self._interpreter    = Interpreter(self)
         self._symbol_table   = SymbolTable()
         
         self._globals        = {}
-        self._global_version = GlobalVersion()
 
         self.nilObject      = None
         self.trueObject     = None
@@ -112,33 +106,12 @@ class Universe(object):
 
         clazz = self.load_class(self.symbol_for(class_name))
 
-        bootstrap_method = self._create_bootstrap_method()
-        bootstrap_frame  = self._create_bootstrap_frame(bootstrap_method, clazz)
-        
         # Lookup the invokable on class
-        invokable = clazz.get_class(self).lookup_invokable(self.symbol_for(selector))
-        
-        invokable.invoke(bootstrap_frame, self._interpreter)
-        return bootstrap_frame.pop()
-    
-    def _create_bootstrap_method(self):
-        # Create a fake bootstrap method to simplify later frame traversal
-        bootstrap_method = self.new_method(self.symbol_for("bootstrap"), 1, [],
-                                           self.new_integer(0),
-                                           self.new_integer(2))
-        bootstrap_method.set_bytecode(0, Bytecodes.halt)
-        bootstrap_method.set_holder(self.systemClass)
-        return bootstrap_method
-    
-    def _create_bootstrap_frame(self, bootstrap_method, receiver, arguments = None):
-        # Create a fake bootstrap frame with the system object on the stack
-        bootstrap_frame = self._interpreter.new_frame(None, bootstrap_method, None)
-        bootstrap_frame.push(receiver)
-        
-        if arguments:
-            bootstrap_frame.push(arguments)
-        return bootstrap_frame
-        
+        invokable = clazz.get_class(self).lookup_invokable(self.symbol_for(
+            selector))
+
+        bottom_frame = Frame(None, None, 0, None, None)
+        return invokable.invoke(bottom_frame, clazz, None)
     
     def interpret(self, arguments):
         # Check for command line switches
@@ -146,8 +119,7 @@ class Universe(object):
 
         # Initialize the known universe
         system_object = self._initialize_object_system()
-        bootstrap_method = self._create_bootstrap_method()
-        
+
         # Start the shell if no filename is given
         if len(arguments) == 0:
             shell = Shell(self, self._interpreter)
@@ -157,10 +129,12 @@ class Universe(object):
         else:
             # Convert the arguments into an array
             arguments_array = self.new_array_with_strings(arguments)
-            bootstrap_frame = self._create_bootstrap_frame(bootstrap_method, system_object, arguments_array)
+
             # Lookup the initialize invokable on the system class
-            initialize = self.systemClass.lookup_invokable(self.symbol_for("initialize:"))
-            return initialize.invoke(bootstrap_frame, self._interpreter)
+            initialize = self.systemClass.lookup_invokable(
+                self.symbol_for("initialize:"))
+            bottom_frame = Frame(None, None, 0, None, None)
+            return initialize.invoke(bottom_frame, system_object, [arguments_array])
     
     def handle_arguments(self, arguments):
         got_classpath  = False
@@ -362,10 +336,8 @@ class Universe(object):
         result.reset_stack_pointer()
         return result
 
-    def new_method(self, signature, num_bytecodes, literals,
-                   num_locals, maximum_number_of_stack_elements):
-        return Method(literals, num_locals, maximum_number_of_stack_elements,
-                      num_bytecodes, signature)
+    def new_method(self, signature, invokable, is_primitive):
+        return Method(signature, invokable, is_primitive, self)
 
     def new_instance(self, instance_class):
         result = Object(self.nilObject, instance_class.get_number_of_instance_fields())

@@ -1,160 +1,36 @@
 from rpython.rlib import jit
 
-# Frame layout:
-# 
-# +-----------------+
-# | Arguments       | 0
-# +-----------------+
-# | Local Variables | <-- localOffset
-# +-----------------+
-# | Stack           | <-- stackPointer
-# | ...             |
-# +-----------------+
-#
+
 class Frame(object):
         
-    _immutable_fields_ = ["_method", "_context", "_stack"]
+    _immutable_fields_ = ["_receiver", "_arguments[*]", "_temps"]
 
-    def __init__(self, nilObject, num_elements, method, context, previous_frame):
-        self._method         = method
-        self._context        = context
-        self._stack          = [None] * num_elements
-        self._stack_pointer  = 0
-        self._previous_frame = previous_frame
-    
-    def get_previous_frame(self):
-        return self._previous_frame
+    def __init__(self, receiver, arguments, number_of_temps, caller_frame,
+                 nilObject):
+        self._receiver       = receiver
+        self._arguments      = arguments
+        self._caller_frame   = caller_frame
+        self._temps          = [nilObject] * number_of_temps
 
-    def clear_previous_frame(self):
-        self._previous_frame = None
+    @jit.elidable_promote("all")
+    def get_argument(self, index):
+        return self._arguments[index]
 
-    def has_previous_frame(self):
-        return self._previous_frame is not None
+    def set_argument(self, index, value):
+        self._arguments[index] = value
 
-    def is_bootstrap_frame(self):
-        return not self.has_previous_frame()
+    def get_temp(self, index):
+        return self._temps[index]
 
-    def get_context(self):
-        return self._context
+    def set_temp(self, index, value):
+        self._temps[index] = value
 
-    def has_context(self):
-        return self._context is not None
+    @jit.elidable_promote("all")
+    def get_self(self):
+        return self._receiver
 
-    @jit.unroll_safe
-    def _get_context(self, level):
-        """ Get the context frame at the given level """
-        frame = self
+    def is_on_stack(self):
+        return self._caller_frame is not None
 
-        # Iterate through the context chain until the given level is reached
-        for _ in range(level, 0, -1):
-            frame = frame.get_context()
-
-        # Return the found context
-        return frame
-
-    @jit.unroll_safe
-    def get_outer_context(self):
-        """ Compute the outer context of this frame """
-        frame = self
-
-        while frame.has_context():
-            frame = frame.get_context()
-
-        # Return the outer context
-        return frame
-
-    def get_method(self):
-        return self._method
-
-    def get_number_of_arguments(self):
-        return self._method.get_number_of_arguments()
-
-    def pop(self):
-        """ Pop an object from the expression stack and return it """
-        stack_pointer = self._stack_pointer
-        self._stack_pointer = stack_pointer - 1
-        result = self._stack[stack_pointer]
-        self._stack[stack_pointer] = None
-        assert result is not None
-        return result
-
-    def push(self, value):
-        """ Push an object onto the expression stack """
-        stack_pointer = jit.promote(self._stack_pointer) + 1
-        self._stack[stack_pointer] = value
-        self._stack_pointer = stack_pointer
-
-    def reset_stack_pointer(self):
-        """ Set the stack pointer to its initial value thereby clearing
-            the stack """
-        # arguments are stored in front of local variables
-        self._stack_pointer = (self.get_number_of_arguments() +
-                self.get_method().get_number_of_locals().get_embedded_integer() - 1)
-
-    def get_stack_element(self, index):
-        # Get the stack element with the given index
-        # (an index of zero yields the top element)
-        result = self._stack[self._stack_pointer - index]
-        assert result is not None
-        return result
-
-    def set_stack_element(self, index, value):
-        # Set the stack element with the given index to the given value
-        # (an index of zero yields the top element)
-        self._stack[self._stack_pointer - index] = value
-
-    def _get_local(self, index):
-        return self._stack[self.get_number_of_arguments() + index]
-
-    def _set_local(self, index, value):
-        self._stack[self.get_number_of_arguments() + index] = value
-
-    def get_local(self, index, context_level):
-        # Get the local with the given index in the given context
-        return self._get_context(context_level)._get_local(index)
-
-    def set_local(self, index, context_level, value):
-        # Set the local with the given index in the given context to the given
-        # value
-        self._get_context(context_level)._set_local(index, value)
-
-    def get_argument(self, index, context_level):
-        # Get the context
-        context = self._get_context(context_level)
-
-        # Get the argument with the given index
-        return context._stack[index]
-
-    def set_argument(self, index, context_level, value):
-        # Get the context
-        context = self._get_context(context_level)
-
-        # Set the argument with the given index to the given value
-        context._stack[index] = value
-
-    @jit.unroll_safe
-    def copy_arguments_from(self, frame):
-        # copy arguments from frame:
-        # - arguments are at the top of the stack of frame.
-        # - copy them into the argument area of the current frame
-        num_args = self.get_method().get_number_of_arguments()
-        for i in range(0, num_args):
-            self._stack[i] = frame.get_stack_element(num_args - 1 - i)
-    
-    @jit.unroll_safe
-    def pop_old_arguments_and_push_result(self, method, result):
-        num_args = method.get_number_of_arguments()
-        jit.promote(self._stack_pointer)
-        for i in range(self._stack_pointer - num_args, self._stack_pointer):
-            self.pop()
-        self.push(result)
-
-    def print_stack_trace(self, bytecode_index):
-        # Print a stack trace starting in this frame
-        from som.vm.universe import std_print, std_println
-        std_print(self.get_method().get_holder().get_name().get_string())
-        std_println(" %d @ %s" % (bytecode_index,
-                             self.get_method().get_signature().get_string()))
-        
-        if self.has_previous_frame():
-            self.get_previous_frame().print_stack_trace()
+    def mark_as_no_longer_on_stack(self):
+        self._caller_frame = None
