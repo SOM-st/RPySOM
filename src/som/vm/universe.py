@@ -122,10 +122,8 @@ class Universe(object):
 
         # Start the shell if no filename is given
         if len(arguments) == 0:
-            shell = Shell(self, self._interpreter)
-            shell.set_bootstrap_method(bootstrap_method)
-            shell.start()
-            return
+            shell = Shell(self)
+            return shell.start()
         else:
             # Convert the arguments into an array
             arguments_array = self.new_array_with_strings(arguments)

@@ -1,16 +1,13 @@
 from rpython.rlib.objectmodel import we_are_translated
 
 from rlib.osext import raw_input
+from ..interpreter.frame import Frame
+
 
 class Shell(object):
 
-    def __init__(self, universe, interpreter):
-        self._universe    = universe
-        self._interpreter = interpreter
-        self._bootstrap_method = None
-  
-    def set_bootstrap_method(self, method):
-        self._bootstrap_method = method
+    def __init__(self, universe):
+        self._universe = universe
 
     def start(self):
         from som.vm.universe import std_println, error_println
@@ -19,8 +16,7 @@ class Shell(object):
 
         std_println("SOM Shell. Type \"quit\" to exit.\n")
 
-        # Create a fake bootstrap frame
-        current_frame = self._interpreter.new_frame(None, self._bootstrap_method, None)
+        current_frame = Frame(None, None, 0, None, None)
 
         while True:
             try:
@@ -42,26 +38,17 @@ class Shell(object):
 
                 # If success
                 if my_class:
-                    current_frame.reset_stack_pointer()
-                    
                     # Create and push a new instance of our class on the stack
                     my_object = self._universe.new_instance(my_class)
-                    current_frame.push(my_object)
-
-                    # Push the old value of "it" on the stack
-                    current_frame.push(it)
 
                     # Lookup the run: method
                     initialize = my_class.lookup_invokable(
-                                        self._universe.symbol_for("run:"))
+                        self._universe.symbol_for("run:"))
 
                     # Invoke the run method
-                    initialize.invoke(current_frame, self._interpreter)
-
-                    # Save the result of the run method
-                    it = current_frame.pop()
+                    it = initialize.invoke(current_frame, my_object, [it])
             except Exception as e:
-                if not we_are_translated(): # this cannot be done in rpython
+                if not we_are_translated():  # this cannot be done in rpython
                     import traceback
                     traceback.print_exc()
                 error_println("Caught exception: %s" % e)
