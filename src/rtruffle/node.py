@@ -19,6 +19,8 @@ class Node(object):
 
     def adopt_children(self, nodes):
         #TODO: print "NOT YET IMPLEMENTED: adopt_children"
+        if nodes is None:
+            return None
         return nodes[:]  # we return here a copy to make it clear to RPython
                          # that the list is not resized, and,
                          # the quasi-immutable support does not work on
