@@ -52,13 +52,16 @@ class NonLocalSuperReadNode(NonLocalSelfReadNode):
 
     @jit.elidable_promote('all')
     def _get_lexical_super_class(self):
-        clazz = self._universe.get_global(self.holder_class_name)
+        clazz = self._universe.get_global(self._super_class_name)
         if self._on_class_side:
             clazz = clazz.get_class(self._universe)
         return clazz.get_super_class()
 
     def is_super_node(self):
         return True
+
+    def get_super_class(self):
+        return self._get_lexical_super_class()
 
 
 class NonLocalVariableWriteNode(NonLocalVariableNode):
