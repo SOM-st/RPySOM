@@ -18,15 +18,15 @@ class AbstractObject(object):
             arguments_array.set_indexable_field(i, arguments[i])
             
         args = [selector, arguments_array]
-        self.send(frame, "doesNotUnderstand:arguments:", args, universe)
+        return self.send(frame, "doesNotUnderstand:arguments:", args, universe)
 
     def send_unknown_global(self, frame, global_name, universe):
         arguments = [global_name]
-        self.send(frame, "unknownGlobal:", arguments, universe)
+        return self.send(frame, "unknownGlobal:", arguments, universe)
 
     def send_escaped_block(self, frame, block, universe):
         arguments = [block]
-        self.send(frame, "escapedBlock:", arguments, universe)
+        return self.send(frame, "escapedBlock:", arguments, universe)
 
     def get_class(self, universe):
         raise NotImplementedError("Subclasses need to implement get_class(universe).")
