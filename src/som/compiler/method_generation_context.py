@@ -190,8 +190,8 @@ class MethodGenerationContext(object):
     def get_object_field_read(self, field_name):
         if not self.has_field(field_name):
             return None
-        return FieldReadNode(self.get_field_index(field_name),
-                             self._get_self_read())
+        return FieldReadNode(self._get_self_read(),
+                             self.get_field_index(field_name))
 
     def get_global_read(self, var_name, universe):
         return GenericGlobalReadNode(var_name, universe)
