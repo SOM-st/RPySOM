@@ -8,6 +8,7 @@ from som.vmobjects.integer     import Integer
 
 import math
 
+
 def _coerce_to_double(obj, universe):
     if isinstance(obj, Double):
         return obj
@@ -15,86 +16,97 @@ def _coerce_to_double(obj, universe):
         return universe.new_double(float(obj.get_embedded_integer()))
     raise ValueError("Cannot coerce %s to Double!" % obj)
 
-def _asString(ivkbl, frame, interpreter):
+
+def _asString(ivkbl, frame, rcvr, args):
     rcvr = frame.pop()
     d = rcvr.get_embedded_double()
     s = formatd(d, "g", DTSF_STR_PRECISION, DTSF_ADD_DOT_0)
-    frame.push(interpreter.get_universe().new_string(s))
+    frame.push(ivkbl.get_universe().new_string(s))
 
-def _sqrt(ivkbl, frame, interpreter):
-    rcvr = frame.pop()
-    frame.push(interpreter.get_universe().new_double(math.sqrt(rcvr.get_embedded_double())))
 
-def _plus(ivkbl, frame, interpreter):
-    op1 = _coerce_to_double(frame.pop(), interpreter.get_universe())
-    op2 = frame.pop()
-    frame.push(interpreter.get_universe().new_double(op1.get_embedded_double()
-                                         + op2.get_embedded_double()))
+def _sqrt(ivkbl, frame, rcvr, args):
+    return ivkbl.get_universe().new_double(
+        math.sqrt(rcvr.get_embedded_double()))
 
-def _minus(ivkbl, frame, interpreter):
-    op1 = _coerce_to_double(frame.pop(), interpreter.get_universe())
-    op2 = frame.pop()
-    frame.push(interpreter.get_universe().new_double(op2.get_embedded_double()
-                                         - op1.get_embedded_double()))
-def _mult(ivkbl, frame, interpreter):
-    op1 = _coerce_to_double(frame.pop(), interpreter.get_universe())
-    op2 = frame.pop()
-    frame.push(interpreter.get_universe().new_double(op2.get_embedded_double()
-                                         * op1.get_embedded_double()))
 
-def _doubleDiv(ivkbl, frame, interpreter):
-    op1 = _coerce_to_double(frame.pop(), interpreter.get_universe())
-    op2 = frame.pop()
-    frame.push(interpreter.get_universe().new_double(op2.get_embedded_double()
-                                           / op1.get_embedded_double()))
+def _plus(ivkbl, frame, rcvr, args):
+    op1 = _coerce_to_double(args[0], ivkbl.get_universe())
+    op2 = rcvr
+    return ivkbl.get_universe().new_double(op1.get_embedded_double()
+                                           + op2.get_embedded_double())
 
-def _mod(ivkbl, frame, interpreter):
-    op1 = _coerce_to_double(frame.pop(), interpreter.get_universe())
+
+def _minus(ivkbl, frame, rcvr, args):
+    op1 = _coerce_to_double(args[0], ivkbl.get_universe())
+    op2 = rcvr
+    return ivkbl.get_universe().new_double(op2.get_embedded_double()
+                                           - op1.get_embedded_double())
+
+
+def _mult(ivkbl, frame, rcvr, args):
+    op1 = _coerce_to_double(args[0], ivkbl.get_universe())
     op2 = frame.pop()
+    return ivkbl.get_universe().new_double(op2.get_embedded_double()
+                                           * op1.get_embedded_double())
+
+def _doubleDiv(ivkbl, frame, rcvr, args):
+    op1 = _coerce_to_double(args[0], ivkbl.get_universe())
+    op2 = rcvr
+    return ivkbl.get_universe().new_double(op2.get_embedded_double()
+                                           / op1.get_embedded_double())
+
+
+def _mod(ivkbl, frame, rcvr, args):
+    op1 = _coerce_to_double(args[0], ivkbl.get_universe())
+    op2 = rcvr
     
     o1 = float(op1.get_embedded_double())
     o2 = float(op2.get_embedded_double())
     r = math.fmod(o1, o2)
-    frame.push(interpreter.get_universe().new_double(r))
+    return ivkbl.get_universe().new_double(r)
 
-def _equals(ivkbl, frame, interpreter):
-    op1 = _coerce_to_double(frame.pop(), interpreter.get_universe())
-    op2 = frame.pop()
+
+def _equals(ivkbl, frame, rcvr, args):
+    op1 = _coerce_to_double(args[0], ivkbl.get_universe())
+    op2 = rcvr
     if op1.get_embedded_double() == op2.get_embedded_double():
-        frame.push(interpreter.get_universe().trueObject)
+        return ivkbl.get_universe().trueObject
     else:
-        frame.push(interpreter.get_universe().falseObject)
+        return ivkbl.get_universe().falseObject
 
-def _lessThan(ivkbl, frame, interpreter):
-    op1 = _coerce_to_double(frame.pop(), interpreter.get_universe())
-    op2 = frame.pop()
+
+def _lessThan(ivkbl, frame, rcvr, args):
+    op1 = _coerce_to_double(args[0], ivkbl.get_universe())
+    op2 = rcvr
     if op2.get_embedded_double() < op1.get_embedded_double():
-        frame.push(interpreter.get_universe().trueObject)
+        return ivkbl.get_universe().trueObject
     else:
-        frame.push(interpreter.get_universe().falseObject)
+        return ivkbl.get_universe().falseObject
 
-def _and(ivkbl, frame, interpreter):
-    op1 = _coerce_to_double(frame.pop(), interpreter.get_universe())
-    op2 = frame.pop()
+
+def _and(ivkbl, frame, rcvr, args):
+    op1 = _coerce_to_double(args[0], ivkbl.get_universe())
+    op2 = rcvr
     
     left  = int(op2.get_embedded_double())
     right = int(op1.get_embedded_double())
     result = float(left & right)
-    frame.push(interpreter.get_universe().new_double(result))
+    return ivkbl.get_universe().new_double(result)
 
-def _bitXor(ivkbl, frame, interpreter):
-    op1 = _coerce_to_double(frame.pop(), interpreter.get_universe())
-    op2 = frame.pop()
+
+def _bitXor(ivkbl, frame, rcvr, args):
+    op1 = _coerce_to_double(args[0], ivkbl.get_universe())
+    op2 = rcvr
     
     left  = int(op2.get_embedded_double())
     right = int(op1.get_embedded_double())
     result = float(left ^ right)
-    frame.push(interpreter.get_universe().new_double(result))
+    return ivkbl.get_universe().new_double(result)
 
-def _round(ivkbl, frame, interpreter):
-    rcvr = frame.pop()
+
+def _round(ivkbl, frame, rcvr, args):
     int_value = int(round_double(rcvr.get_embedded_double(), 0))
-    frame.push(interpreter.get_universe().new_integer(int_value))
+    return ivkbl.get_universe().new_integer(int_value)
 
 class DoublePrimitives(Primitives):
 

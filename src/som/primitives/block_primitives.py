@@ -4,6 +4,7 @@ from som.vmobjects.block       import block_evaluate
 
 from rpython.rlib import jit
 
+
 def get_printable_location(interpreter, method_body, method_condition, while_type):
     from som.vmobjects.method import Method
     from som.interpreter.bytecodes import bytecode_as_str
@@ -23,46 +24,36 @@ jitdriver = jit.JitDriver(
     get_printable_location=get_printable_location)
 
 
-
-
-def _execute_block(frame, block, block_method, interpreter, universe):
-    b = universe.new_block(block_method, block.get_context())
-    frame.push(b)
-    
-    block_evaluate(b, interpreter, frame)
-    return frame.pop()    
-
-def _whileLoop(frame, interpreter, while_type):
-    loop_body      = frame.pop()
-    loop_condition = frame.pop()
-    
-    universe = interpreter.get_universe()
-
-    method_body = loop_body.get_method()
-    method_condition = loop_condition.get_method()
+def _whileLoop(frame, rcvr, args, while_type, universe):
+    loop_body      = args[0]
+    loop_condition = rcvr
     
     while True:
-        jitdriver.jit_merge_point(interpreter=interpreter,
-                                  method_body=method_body,
-                                  method_condition=method_condition,
-                                  #universe=universe,
-                                  while_type=while_type)
-        condition_result = _execute_block(frame, loop_condition, method_condition, interpreter, universe)
+        #jitdriver.jit_merge_point(while_type=while_type)
+
+        condition_result = block_evaluate(loop_condition, None, frame)
         if condition_result is while_type:
-            _execute_block(frame, loop_body, method_body, interpreter, universe)
+            block_evaluate(loop_body, None, frame)
         else:
             break
     
-    frame.push(universe.nilObject)
+    return universe.nilObject
 
-def _whileFalse(ivkbl, frame, interpreter):
-    _whileLoop(frame, interpreter, interpreter.get_universe().falseObject)
 
-def _whileTrue(ivkbl, frame, interpreter):
-    _whileLoop(frame, interpreter, interpreter.get_universe().trueObject)
+def _whileFalse(ivkbl, frame, rcvr, args):
+    return _whileLoop(frame, rcvr, args, ivkbl.get_universe().falseObject,
+                      ivkbl.get_universe())
+
+
+def _whileTrue(ivkbl, frame, rcvr, args):
+    return _whileLoop(frame, rcvr, args, ivkbl.get_universe().trueObject,
+                      ivkbl.get_universe())
+
 
 class BlockPrimitives(Primitives):
     
     def install_primitives(self):        
-        self._install_instance_primitive(Primitive("whileTrue:",  self._universe, _whileTrue))
-        self._install_instance_primitive(Primitive("whileFalse:", self._universe, _whileFalse))
+        self._install_instance_primitive(Primitive("whileTrue:",
+                                                   self._universe, _whileTrue))
+        self._install_instance_primitive(Primitive("whileFalse:",
+                                                   self._universe, _whileFalse))

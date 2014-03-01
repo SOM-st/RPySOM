@@ -1,25 +1,30 @@
 from som.vmobjects.primitive   import Primitive
 from som.primitives.primitives import Primitives
 
-def _at(ivkbl, frame, interpreter):
-    i    = frame.pop()
-    rcvr = frame.pop()
-    frame.push(rcvr.get_indexable_field(i.get_embedded_integer() - 1)) 
-        
-def _atPut(ivkbl, frame, interpreter):
-    value = frame.pop()
-    index = frame.pop()
-    rcvr  = frame.get_stack_element(0)
+
+def _at(ivkbl, frame, rcvr, args):
+    i    = args[0]
+    return  rcvr.get_indexable_field(i.get_embedded_integer() - 1)
+
+
+def _atPut(ivkbl, frame, rcvr, args):
+    value = args[1]
+    index = args[0]
+
     rcvr.set_indexable_field(index.get_embedded_integer() - 1, value)
+    return value
 
-def _length(ivkbl, frame, interpreter):
-    rcvr = frame.pop()
-    frame.push(interpreter.get_universe().new_integer(rcvr.get_number_of_indexable_fields()))
 
-def _new(ivkbl, frame, interpreter):
-    length = frame.pop()
-    frame.pop() # not required
-    frame.push(interpreter.get_universe().new_array_with_length(length.get_embedded_integer()))
+def _length(ivkbl, frame, rcvr, args):
+    return ivkbl.get_universe().new_integer(
+        rcvr.get_number_of_indexable_fields())
+
+
+def _new(ivkbl, frame, rcvr, args):
+    length = args[0]
+
+    return ivkbl.get_universe().new_array_with_length(
+        length.get_embedded_integer())
 
 
 class ArrayPrimitives(Primitives):

@@ -6,49 +6,57 @@ from som.vm.universe import std_print, std_println
 from rpython.rlib import rgc, jit
 import time
 
-def _load(ivkbl, frame, interpreter):
-    argument = frame.pop()
-    frame.pop() # not required
-    result = interpreter.get_universe().load_class(argument)
-    frame.push(result if result else interpreter.get_universe().nilObject)
 
-def _exit(ivkbl, frame, interpreter):
-    error = frame.pop()
-    interpreter.get_universe().exit(error.get_embedded_integer())
+def _load(ivkbl, frame, rcvr, args):
+    argument = args[0]
+    result = ivkbl.get_universe().load_class(argument)
+    return result if result else ivkbl.get_universe().nilObject
 
-def _global(ivkbl, frame, interpreter):
-    argument = frame.pop()
-    frame.pop() # not required
-    result = interpreter.get_universe().get_global(argument)
-    frame.push(result if result else interpreter.get_universe().nilObject)
 
-def _global_put(ivkbl, frame, interpreter):
-    value    = frame.pop()
-    argument = frame.pop()
-    interpreter.get_universe().set_global(argument, value)
+def _exit(ivkbl, frame, rcvr, args):
+    error = args[0]
+    return ivkbl.get_universe().exit(error.get_embedded_integer())
 
-def _print_string(ivkbl, frame, interpreter):
-    argument = frame.pop()
+
+def _global(ivkbl, frame, rcvr, args):
+    argument = args[0]
+    result = ivkbl.get_universe().get_global(argument)
+    return result if result else ivkbl.get_universe().nilObject
+
+
+def _global_put(ivkbl, frame, rcvr, args):
+    value    = args[1]
+    argument = args[0]
+    ivkbl.get_universe().set_global(argument, value)
+    return value
+
+
+def _print_string(ivkbl, frame, rcvr, args):
+    argument = args[0]
     std_print(argument.get_embedded_string())
+    return rcvr
 
-def _print_newline(ivkbl, frame, interpreter):
+
+def _print_newline(ivkbl, frame, rcvr, args):
     std_println()
+    return rcvr
 
-def _time(ivkbl, frame, interpreter):
-    frame.pop() # ignore
-    since_start = time.time() - interpreter.get_universe().start_time
-    frame.push(interpreter.get_universe().new_integer(int(since_start * 1000)))
 
-def _ticks(ivkbl, frame, interpreter):
-    frame.pop() # ignore
-    since_start = time.time() - interpreter.get_universe().start_time
-    frame.push(interpreter.get_universe().new_integer(int(since_start * 1000000)))
+def _time(ivkbl, frame, rcvr, args):
+    since_start = time.time() - ivkbl.get_universe().start_time
+    return ivkbl.get_universe().new_integer(int(since_start * 1000))
+
+
+def _ticks(ivkbl, frame, rcvr, args):
+    since_start = time.time() - ivkbl.get_universe().start_time
+    return ivkbl.get_universe().new_integer(int(since_start * 1000000))
+
 
 @jit.dont_look_inside
-def _fullGC(ivkbl, frame, interpreter):
-    frame.pop()
+def _fullGC(ivkbl, frame, rcvr, args):
     rgc.collect()
-    frame.push(interpreter.get_universe().trueObject)
+    return ivkbl.get_universe().trueObject
+
 
 class SystemPrimitives(Primitives):
 

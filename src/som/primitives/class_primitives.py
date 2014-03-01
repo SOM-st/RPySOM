@@ -1,26 +1,27 @@
 from som.primitives.primitives import Primitives
 
-from som.vmobjects.primitive import Primitive
+from som.vmobjects.primitive   import Primitive
 
-def _new(ivkbl, frame, interpreter):
-    rcvr = frame.pop()
-    frame.push(interpreter.get_universe().new_instance(rcvr))
 
-def _name(ivkbl, frame, interpreter):
-    rcvr = frame.pop()
-    frame.push(rcvr.get_name())
+def _new(ivkbl, frame, rcvr, args):
+    return ivkbl.get_universe().new_instance(rcvr)
 
-def _super_class(ivkbl, frame, interpreter):
-    rcvr = frame.pop()
-    frame.push(rcvr.get_super_class())
 
-def _methods(ivkbl, frame, interpreter):
-    rcvr = frame.pop()
-    frame.push(rcvr.get_instance_invokables())
+def _name(ivkbl, frame, rcvr, args):
+    return rcvr.get_name()
+
+
+def _super_class(ivkbl, frame, rcvr, args):
+    return rcvr.get_super_class()
+
+
+def _methods(ivkbl, frame, rcvr, args):
+    return rcvr.get_instance_invokables()
     
-def _fields(ivkbl, frame, interpreter):
-    rcvr = frame.pop()
-    frame.push(rcvr.get_instance_fields())
+
+def _fields(ivkbl, frame, rcvr, args):
+    return rcvr.get_instance_fields()
+
 
 class ClassPrimitives(Primitives):
     def install_primitives(self):

@@ -4,92 +4,102 @@ from som.vmobjects.integer     import integer_value_fits
  
 import math
 
-def _asString(ivkbl, frame, interpreter):
-    rcvr = frame.pop()
-    frame.push(interpreter.get_universe().new_string(str(rcvr.get_embedded_biginteger())))
+def _asString(ivkbl, frame, rcvr, args):
+    return ivkbl.get_universe().new_string(str(rcvr.get_embedded_biginteger()))
 
-def _sqrt(ivkbl, frame, interpreter):
+
+def _sqrt(ivkbl, frame, rcvr, args):
     rcvr = frame.pop()
-    frame.push(interpreter.get_universe().new_double(
+    frame.push(ivkbl.get_universe().new_double(
                        math.sqrt(rcvr.get_embedded_biginteger())))
 
-def _plus(ivkbl, frame, interpreter):
-    right_obj = frame.pop()
-    left      = frame.pop()
+
+def _plus(ivkbl, frame, rcvr, args):
+    right_obj = args[0]
+    left      = rcvr
 
     # Do operation and perform conversion to Integer if required
     result = left.get_embedded_biginteger() + right_obj.get_embedded_value()
     if integer_value_fits(result):
-        frame.push(interpreter.get_universe().new_integer(result))
+        return ivkbl.get_universe().new_integer(result)
     else:
-        frame.push(interpreter.get_universe().new_biginteger(result))
+        return ivkbl.get_universe().new_biginteger(result)
 
-def _minus(ivkbl, frame, interpreter):
-    right_obj = frame.pop()
-    left      = frame.pop()
+
+def _minus(ivkbl, frame, rcvr, args):
+    right_obj = args[0]
+    left      = rcvr
 
     # Do operation and perform conversion to Integer if required
     result = left.get_embedded_biginteger() - right_obj.get_embedded_value()
     if integer_value_fits(result):
-        frame.push(interpreter.get_universe().new_integer(result))
+        return ivkbl.get_universe().new_integer(result)
     else:
-        frame.push(interpreter.get_universe().new_biginteger(result))
+        return ivkbl.get_universe().new_biginteger(result)
 
-def _mult(ivkbl, frame, interpreter):
-    right_obj = frame.pop()
-    left      = frame.pop()
+
+def _mult(ivkbl, frame, rcvr, args):
+    right_obj = args[0]
+    left      = rcvr
 
     # Do operation and perform conversion to Integer if required
     result = left.get_embedded_biginteger() * right_obj.get_embedded_value()
     if integer_value_fits(result):
-        frame.push(interpreter.get_universe().new_integer(result))
+        return ivkbl.get_universe().new_integer(result)
     else:
-        frame.push(interpreter.get_universe().new_biginteger(result))
+        return ivkbl.get_universe().new_biginteger(result)
 
-def _div(ivkbl, frame, interpreter):
-    right_obj = frame.pop()
-    left      = frame.pop()
+
+def _div(ivkbl, frame, rcvr, args):
+    right_obj = args[0]
+    left      = rcvr
 
     # Do operation and perform conversion to Integer if required
     result = left.get_embedded_biginteger() / right_obj.get_embedded_value()
     if integer_value_fits(result):
-        frame.push(interpreter.get_universe().new_integer(result))
+        return ivkbl.get_universe().new_integer(result)
     else:
-        frame.push(interpreter.get_universe().new_biginteger(result))
+        return ivkbl.get_universe().new_biginteger(result)
 
-def _mod(ivkbl, frame, interpreter):
-    right_obj = frame.pop()
-    left      = frame.pop()
 
-    # Do operation:
-    frame.push(interpreter.get_universe().new_biginteger(left.get_embedded_biginteger() % right_obj.get_embedded_value()))
-
-def _and(ivkbl, frame, interpreter):
-    right_obj = frame.pop()
-    left      = frame.pop()
+def _mod(ivkbl, frame, rcvr, args):
+    right_obj = args[0]
+    left      = rcvr
 
     # Do operation:
-    frame.push(interpreter.get_universe().new_biginteger(left.get_embedded_biginteger() & right_obj.get_embedded_value()))
+    return ivkbl.get_universe().new_biginteger(left.get_embedded_biginteger()
+                                               % right_obj.get_embedded_value())
 
-def _equals(ivkbl, frame, interpreter):
-    right_obj = frame.pop()
-    left      = frame.pop()
+
+def _and(ivkbl, frame, rcvr, args):
+    right_obj = args[0]
+    left      = rcvr
+
+    # Do operation:
+    return ivkbl.get_universe().new_biginteger(left.get_embedded_biginteger()
+                                               & right_obj.get_embedded_value())
+
+
+def _equals(ivkbl, frame, rcvr, args):
+    right_obj = args[0]
+    left      = rcvr
 
     # Do operation:
     if left.get_embedded_biginteger() == right_obj.get_embedded_value():
-        frame.push(interpreter.get_universe().trueObject)
+        return ivkbl.get_universe().trueObject
     else:
-        frame.push(interpreter.get_universe().falseObject)
+        return ivkbl.get_universe().falseObject
 
-def _lessThan(ivkbl, frame, interpreter):
-    right_obj = frame.pop()
-    left      = frame.pop()
+
+def _lessThan(ivkbl, frame, rcvr, args):
+    right_obj = args[0]
+    left      = rcvr
 
     # Do operation:
     if left.get_embedded_biginteger() < right_obj.get_embedded_value():
-        frame.push(interpreter.get_universe().trueObject)
+        return ivkbl.get_universe().trueObject
     else:
-        frame.push(interpreter.get_universe().falseObject)
+        return ivkbl.get_universe().falseObject
 
 
 class BigIntegerPrimitives(Primitives):
