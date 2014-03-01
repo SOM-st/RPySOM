@@ -14,6 +14,7 @@ class SequenceNode(ExpressionNode):
 
     @unroll_safe
     def execute(self, frame):
+        result = None
         for expr in self._exprs:
             result = expr.execute(frame)
         return result
