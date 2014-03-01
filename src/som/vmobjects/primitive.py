@@ -1,5 +1,6 @@
 from som.vmobjects.abstract_object    import AbstractObject
 
+
 class Primitive(AbstractObject):
     _immutable_fields_ = ["_invoke", "_is_empty", "_signature", "_holder",
                           "_universe"]
@@ -45,10 +46,12 @@ class Primitive(AbstractObject):
     def get_class(self, universe):
         return universe.primitiveClass
 
+
 def empty_primitive(signature_string, universe):
     """ Return an empty primitive with the given signature """
     return Primitive(signature_string, universe, _invoke, True)
 
-def _invoke(ivkbl, frame, interpreter):
+
+def _invoke(ivkbl, frame, rcvr, args):
     """ Write a warning to the screen """
-    print "Warning: undefined primitive", ivkbl.get_signature().get_string(), " called"
+    print "Warning: undefined primitive %s called" % ivkbl.get_signature()
