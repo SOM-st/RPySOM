@@ -1,5 +1,17 @@
-from som.interpreter.bytecodes import bytecode_length, bytecode_stack_effect, bytecode_stack_effect_depends_on_send
-from som.vmobjects.primitive   import empty_primitive
+from collections import OrderedDict
+
+from rtruffle.source_section import SourceSection
+
+from .variable                                 import Argument, Local
+
+from ..interpreter.nodes.field_node            import FieldWriteNode, \
+                                                      FieldReadNode
+from ..interpreter.nodes.global_read_node      import GenericGlobalReadNode
+from ..interpreter.nodes.return_non_local_node import CatchNonLocalReturnNode
+from ..interpreter.invokable                   import Invokable
+
+from ..vmobjects.primitive                     import empty_primitive
+
 
 class MethodGenerationContext(object):
     
@@ -8,65 +20,90 @@ class MethodGenerationContext(object):
         self._outer_genc  = None
         self._block_method = False
         self._signature   = None
-        self._arguments   = []
-        self._primitive   = False # to be changed
-        self._locals      = []
-        self._literals    = []
-        self._finished    = False
-        self._bytecode    = []
+        self._arguments   = OrderedDict()
+        self._locals      = OrderedDict()
+        self._primitive   = False  # to be changed
 
+        self._throws_non_local_return             = False
+        self._needs_to_catch_non_local_returns    = False
+        self._accesses_variables_of_outer_context = False
   
     def set_holder(self, cgenc):
         self._holder_genc = cgenc
 
-    def add_argument(self, arg):
-        self._arguments.append(arg)
-
     def is_primitive(self):
         return self._primitive
-  
+
+    def make_catch_non_local_return(self):
+        self._throws_non_local_return = True
+        ctx = self._get_outer_context()
+
+        assert ctx is not None
+        ctx._needs_to_catch_non_local_returns = True
+
+    def requires_context(self):
+        return (self._throws_non_local_return or
+                self._accesses_variables_of_outer_context)
+
+    def _get_outer_context(self):
+        ctx = self._outer_genc
+        while ctx._outer_genc is not None:
+            ctx = ctx._outer_genc
+        return ctx
+
+    def needs_to_catch_non_local_return(self):
+        return self._needs_to_catch_non_local_returns
+
     def assemble_primitive(self, universe):
         return empty_primitive(self._signature.get_string(), universe)
 
-    def assemble(self, universe):
-        num_locals = len(self._locals)
-        
-        meth = universe.new_method(self._signature,
-                                   len(self._bytecode),
-                                   list(self._literals),
-                                   universe.new_integer(num_locals),
-                                   universe.new_integer(self._compute_stack_depth()))
-        
-        # copy bytecodes into method
-        i = 0
-        for bc in self._bytecode:
-            meth.set_bytecode(i, bc)
-            i += 1
-    
-        # return the method - the holder field is to be set later on!
-        return meth
-
-    def _compute_stack_depth(self): 
-        depth     = 0
-        max_depth = 0
-        i         = 0
-
-        while i < len(self._bytecode):
-            bc = self._bytecode[i]
-            
-            if bytecode_stack_effect_depends_on_send(bc):
-                signature = self._literals[self._bytecode[i + 1]]
-                depth += bytecode_stack_effect(bc, signature.get_number_of_signature_arguments())
+    @staticmethod
+    def _separate_variables(variables, only_local_access,
+                            non_local_access):
+        for var in variables:
+            if var.is_accessed_out_of_context():
+                non_local_access.append(var)
             else:
-                depth += bytecode_stack_effect(bc)
-            
-            i += bytecode_length(bc)
-            
-            if depth > max_depth:
-                max_depth = depth
-        
-        return max_depth
+                only_local_access.append(var)
 
+    def _add_argument_initialization(self, method_body):
+        return method_body
+        # TODO: see whether that has any for of benefit, or whether that is
+        # really just for the partial evaluator, that knows a certain pattern
+
+        # writes = [LocalVariableWriteNode(arg.get_frame_idx(),
+        #                                  ArgumentReadNode(arg.get_frame_idx()))
+        #           for arg in self._arguments.values()]
+        # return ArgumentInitializationNode(writes, method_body,
+        #                                   method_body.get_source_section())
+
+    def assemble(self, universe, method_body):
+        only_local_access = []
+        non_local_access = []
+        self._separate_variables(self._arguments.values(), only_local_access,
+                                 non_local_access)
+        self._separate_variables(self._locals.values(), only_local_access,
+                                 non_local_access)
+
+        if self.needs_to_catch_non_local_return():
+            method_body = CatchNonLocalReturnNode(method_body,
+                                                  method_body.get_source_section())
+
+        method_body = self._add_argument_initialization(method_body)
+        method = Invokable(self._get_source_section_for_method(method_body),
+                           method_body, len(self._locals), universe)
+        return universe.new_method(self._signature, method, False)
+
+    def _get_source_section_for_method(self, expr):
+        src_body = expr.get_source_section()
+        if not isinstance(src_body, SourceSection):
+            pass
+        assert isinstance(src_body, SourceSection)
+        src_method = SourceSection(identifier = (
+                                       self._holder_genc.get_name().get_string()
+                                       + ">>" + str(self._signature)),
+                                   source_section = src_body)
+        return src_method
 
     def set_primitive(self, boolean):
         self._primitive = boolean
@@ -74,41 +111,29 @@ class MethodGenerationContext(object):
     def set_signature(self, sig):
         self._signature = sig
 
+    def add_argument(self, arg):
+        if ("self" == arg or "$blockSelf" == arg) and len(self._arguments) > 0:
+            raise RuntimeError("The self argument always has to be the first "
+                               "argument of a method")
+        argument = Argument(arg, len(self._arguments) - 1)
+        self._arguments[arg] = argument
+
     def add_argument_if_absent(self, arg):
-        if arg in self._locals:
-            return False
-        
-        self._arguments.append(arg)
-        return True
-
-    def is_finished(self):
-        return self._finished
-
-    def set_finished(self, boolean = True):
-        self._finished = boolean
+        if arg in self._arguments:
+            return
+        self.add_argument(arg)
 
     def add_local_if_absent(self, local):
         if local in self._locals:
-            return False
-   
-        self._locals.append(local)
-        return True
+            return
+        self.add_local(local)
 
     def add_local(self, local):
-        self._locals.append(local)
-
-    def remove_last_bytecode(self):
-        self._bytecode = self._bytecode[:-1]
+        l = Local(local, len(self._locals))
+        self._locals[local] = l
 
     def is_block_method(self):
         return self._block_method
-
-    def add_literal_if_absent(self, lit):
-        if lit in self._literals:
-            return False
-        
-        self._literals.append(lit)
-        return True
 
     def set_is_block_method(self, boolean):
         self._block_method = boolean
@@ -119,25 +144,63 @@ class MethodGenerationContext(object):
     def set_outer(self, mgenc):
         self._outer_genc = mgenc
 
-    def add_literal(self, lit):
-        self._literals.append(lit)
+    def get_outer_self_context_level(self):
+        level = 0
+        ctx = self._outer_genc
+        while ctx is not None:
+            ctx = ctx._outer_genc
+            level += 1
+        return level
 
-    def find_var(self, var, triplet):
-        # triplet: index, context, isArgument
-        if var in self._locals:
-            triplet[0] = self._locals.index(var)
-            return True
-        
-        if var in self._arguments:
-            triplet[0] = self._arguments.index(var)
-            triplet[2] = True
-            return True
-        
+    def get_context_level(self, var_name):
+        if var_name in self._locals or var_name in self._arguments:
+            return 0
+        assert self._outer_genc is not None
+        return 1 + self._outer_genc.get_context_level(var_name)
+
+    def get_variable(self, var_name):
+        if var_name in self._locals:
+            return self._locals[var_name]
+
+        if var_name in self._arguments:
+            return self._arguments[var_name]
+
         if self._outer_genc:
-            triplet[1] = triplet[1] + 1
-            return self._outer_genc.find_var(var, triplet)
-        else:
-            return False
+            outer_var = self._outer_genc.get_variable(var_name)
+            if outer_var:
+                self._accesses_variables_of_outer_context = True
+                return outer_var
+        return None
+
+    def get_local(self, var_name):
+        if var_name in self._locals:
+            return self._locals[var_name]
+
+        if self._outer_genc:
+            outer_local = self._outer_genc.get_local(var_name)
+            if outer_local:
+                self._accesses_variables_of_outer_context = True
+                return outer_local
+        return None
+
+    def _get_self_read(self):
+        return self.get_variable("self").get_read_node(
+            self.get_context_level("self"))
+
+    def get_object_field_read(self, field_name):
+        if not self.has_field(field_name):
+            return None
+        return FieldReadNode(self.get_field_index(field_name),
+                             self._get_self_read())
+
+    def get_global_read(self, var_name, universe):
+        return GenericGlobalReadNode(var_name, universe)
+
+    def get_object_field_write(self, field_name, exp, universe):
+        if not self.has_field(field_name):
+            return None
+        return FieldWriteNode(self.get_field_index(field_name),
+                              universe, self._get_self_read(), exp)
 
     def has_field(self, field):
         return self._holder_genc.has_field(field)
@@ -148,14 +211,9 @@ class MethodGenerationContext(object):
     def get_number_of_arguments(self):
         return len(self._arguments)
 
-    def add_bytecode(self, bc):
-        self._bytecode.append(bc)
-
-    def find_literal_index(self, lit):
-        return self._literals.index(lit)
-
-    def get_outer(self):
-        return self._outer_genc
-
     def get_signature(self):
         return self._signature
+
+    def __str__(self):
+        return "MethodGenC(%s>>%s)" % (self._holder_genc.get_name().get_string,
+                                       self._signature)

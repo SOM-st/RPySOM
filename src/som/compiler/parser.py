@@ -1,9 +1,18 @@
-from som.compiler.symbol                    import Symbol, symbol_as_str
-from som.compiler.lexer                     import Lexer
-from som.compiler.bytecode_generator        import BytecodeGenerator
-from som.compiler.method_generation_context import MethodGenerationContext
+from rtruffle.source_section import SourceSection
 
-from som.vmobjects.integer import integer_value_fits
+from ..interpreter.nodes.block_node       import BlockNode, BlockNodeWithContext
+from ..interpreter.nodes.global_read_node import GenericGlobalReadNode
+from ..interpreter.nodes.literal_node     import LiteralNode
+from ..interpreter.nodes.message_node     import GenericMessageNode
+from ..interpreter.nodes.return_non_local_node import ReturnNonLocalNode
+from ..interpreter.nodes.sequence_node    import SequenceNode
+
+from .lexer                     import Lexer
+from .method_generation_context import MethodGenerationContext
+from .symbol                    import Symbol, symbol_as_str
+
+from ..vmobjects.integer import integer_value_fits
+
 
 class Parser(object):
     
@@ -20,10 +29,11 @@ class Parser(object):
     
     _keyword_selector_syms = [Symbol.Keyword, Symbol.KeywordSequence]
   
-    def __init__(self, reader, universe):
+    def __init__(self, reader, file_name, universe):
         self._universe = universe
+        self._source_reader = reader
+        self._file_name = file_name
         self._lexer    = Lexer(reader)
-        self._bc_gen   = BytecodeGenerator()
         self._sym      = Symbol.NONE
         self._text     = None
         self._next_sym = Symbol.NONE
@@ -46,12 +56,14 @@ class Parser(object):
             mgenc.set_holder(cgenc)
             mgenc.add_argument("self")
          
-            self._method(mgenc)
+            method_body = self._method(mgenc)
          
             if mgenc.is_primitive():
-                cgenc.add_instance_method(mgenc.assemble_primitive(self._universe))
+                cgenc.add_instance_method(
+                    mgenc.assemble_primitive(self._universe))
             else:
-                cgenc.add_instance_method(mgenc.assemble(self._universe))
+                cgenc.add_instance_method(
+                    mgenc.assemble(self._universe, method_body))
 
         if self._accept(Symbol.Separator):
             cgenc.set_class_side(True)
@@ -65,12 +77,14 @@ class Parser(object):
                 mgenc.set_holder(cgenc)
                 mgenc.add_argument("self")
          
-                self._method(mgenc)
+                method_body = self._method(mgenc)
          
                 if mgenc.is_primitive():
-                    cgenc.add_class_method(mgenc.assemble_primitive(self._universe))
+                    cgenc.add_class_method(
+                        mgenc.assemble_primitive(self._universe))
                 else:
-                    cgenc.add_class_method(mgenc.assemble(self._universe))
+                    cgenc.add_class_method(
+                        mgenc.assemble(self._universe, method_body))
         
         self._expect(Symbol.EndTerm)
 
@@ -86,9 +100,13 @@ class Parser(object):
         # Load the super class, if it is not nil (break the dependency cycle)
         if super_name.get_string() != "nil":
             super_class = self._universe.load_class(super_name)
-            cgenc.set_instance_fields_of_super(super_class.get_instance_fields())
-            cgenc.set_class_fields_of_super(super_class.get_class(self._universe).get_instance_fields())
+            cgenc.set_instance_fields_of_super(
+                super_class.get_instance_fields())
+            cgenc.set_class_fields_of_super(
+                super_class.get_class(self._universe).get_instance_fields())
         else:
+            # TODO: figure out what this is
+            #raise Exception("What is going on here, not in Java, and I don't think we still got a 'class' field")
             # WARNING:
             # We hardcode here the field names for Class
             # since Object class superclass = Class
@@ -119,8 +137,9 @@ class Parser(object):
         if self._accept(s):
             return True
         
-        err = ("Error: unexpected symbol in line %d. Expected %s, but found %s" %
-                (self._lexer.get_current_line_number(), symbol_as_str(s), symbol_as_str(self._sym))) 
+        err = ("Error: unexpected symbol in line %d. Expected %s, but found %s"
+               % (self._lexer.get_current_line_number(), symbol_as_str(s),
+                  symbol_as_str(self._sym)))
         if self._printable_symbol():
             err += " (" + self._text + ")"
         err += ": " + self._lexer.get_raw_buffer()
@@ -153,18 +172,25 @@ class Parser(object):
                 cgenc.add_class_field(self._universe.symbol_for(var))
             self._expect(Symbol.Or)
 
+    def _assign_source(self, node, coord):
+        node.assign_source_section(SourceSection(
+            self._source_reader, "method", coord,
+            self._lexer.get_number_of_characters_read(),
+            self._file_name))
+        return node
+
     def _method(self, mgenc):
         self._pattern(mgenc)
         self._expect(Symbol.Equal)
         if self._sym == Symbol.Primitive:
             mgenc.set_primitive(True)
-            self._primitive_block()
+            return self._primitive_block()
         else:
-            self._method_block(mgenc)
+            return self._method_block(mgenc)
 
- 
     def _primitive_block(self):
         self._expect(Symbol.Primitive)
+        return None
 
     def _pattern(self, mgenc):
         if self._sym == Symbol.Identifier:
@@ -191,21 +217,11 @@ class Parser(object):
             
         mgenc.set_signature(self._universe.symbol_for(kw))
 
- 
     def _method_block(self, mgenc):
         self._expect(Symbol.NewTerm)
-        self._block_contents(mgenc)
-        
-        # if no return has been generated so far, we can be sure there was no .
-        # terminating the last expression, so the last expression's value must
-        # be popped off the stack and a ^self be generated
-        if not mgenc.is_finished():
-            self._bc_gen.emitPOP(mgenc)
-            self._bc_gen.emitPUSHARGUMENT(mgenc, 0, 0)
-            self._bc_gen.emitRETURNLOCAL(mgenc)
-            mgenc.set_finished()
-        
+        method_body = self._block_contents(mgenc)
         self._expect(Symbol.EndTerm)
+        return method_body
 
     def _unary_selector(self):
         return self._universe.symbol_for(self._identifier())
@@ -243,237 +259,218 @@ class Parser(object):
             self._locals(mgenc)
             self._expect(Symbol.Or)
   
-        self._block_body(mgenc, False)
+        return self._block_body(mgenc)
 
     def _locals(self, mgenc):
-        while (self._sym == Symbol.Identifier):
+        while self._sym == Symbol.Identifier:
             mgenc.add_local_if_absent(self._variable())
+ 
+    def _block_body(self, mgenc):
+        coordinate = self._lexer.get_source_coordinate()
+        expressions = []
 
- 
-    def _block_body(self, mgenc, seenPeriod):
-        if self._accept(Symbol.Exit):
-            self._result(mgenc)
-        elif self._sym == Symbol.EndBlock:
-            if seenPeriod:
-                # a POP has been generated which must be elided (blocks always
-                # return the value of the last expression, regardless of
-                # whether it was terminated with a . or not)
-                mgenc.remove_last_bytecode()
-            
-            self._bc_gen.emitRETURNLOCAL(mgenc)
-            mgenc.set_finished()
-        elif self._sym == Symbol.EndTerm:
-            # it does not matter whether a period has been seen, as the end of
-            # the method has been found (EndTerm) - so it is safe to emit a
-            # "return self"
-            self._bc_gen.emitPUSHARGUMENT(mgenc, 0, 0)
-            self._bc_gen.emitRETURNLOCAL(mgenc)
-            mgenc.set_finished()
-        else:
-            self._expression(mgenc)
-            if self._accept(Symbol.Period):
-                self._bc_gen.emitPOP(mgenc)
-                self._block_body(mgenc, True)
- 
+        while True:
+            if self._accept(Symbol.Exit):
+                expressions.append(self._result(mgenc))
+                return self._create_sequence_node(coordinate, expressions)
+            elif self._sym == Symbol.EndBlock:
+                return self._create_sequence_node(coordinate, expressions)
+            elif self._sym == Symbol.EndTerm:
+                # the end of the method has been found (EndTerm) - make it
+                # implicitly return "self"
+                self_exp = self._variable_read(mgenc, "self")
+                self_coord = self._lexer.get_source_coordinate()
+                self._assign_source(self_exp, self_coord)
+                expressions.append(self_exp)
+                return self._create_sequence_node(coordinate, expressions)
+
+            expressions.append(self._expression(mgenc))
+            self._accept(Symbol.Period)
+
+    def _create_sequence_node(self, coordinate, expressions):
+        if not expressions:
+            nil_exp = GenericGlobalReadNode(self._universe.symbol_for("nil"),
+                                            self._universe)
+            return self._assign_source(nil_exp, coordinate)
+        if len(expressions) == 1:
+            return expressions[0]
+
+        seq_node = SequenceNode(expressions)
+        return self._assign_source(seq_node, coordinate)
+
     def _result(self, mgenc):
-        self._expression(mgenc)
+        exp   = self._expression(mgenc)
+        coord = self._lexer.get_source_coordinate()
  
-        if mgenc.is_block_method():
-            self._bc_gen.emitRETURNNONLOCAL(mgenc)
-        else:
-            self._bc_gen.emitRETURNLOCAL(mgenc)
- 
-        mgenc.set_finished(True)
         self._accept(Symbol.Period)
+
+        if mgenc.is_block_method():
+            node = ReturnNonLocalNode(mgenc.get_outer_self_context_level(),
+                                      exp, self._universe)
+            mgenc.make_catch_non_local_return()
+            return self._assign_source(node, coord)
+        else:
+            return exp
 
     def _expression(self, mgenc):
         self._peek_for_next_symbol_from_lexer()
  
         if self._next_sym == Symbol.Assign:
-            self._assignation(mgenc)
+            return self._assignation(mgenc)
         else:
-            self._evaluation(mgenc)
+            return self._evaluation(mgenc)
 
- 
     def _assignation(self, mgenc):
-        l = []
- 
-        self._assignments(mgenc, l)
-        self._evaluation(mgenc)
- 
-        for assignment in l:
-            self._bc_gen.emitDUP(mgenc)
-  
-        for assignment in l:
-            self._gen_pop_variable(mgenc, assignment)
+        return self._assignments(mgenc)
 
-    def _assignments(self, mgenc, l):
-        if self._sym == Symbol.Identifier:
-            l.append(self._assignment(mgenc))
-            self._peek_for_next_symbol_from_lexer()
-            if self._next_sym == Symbol.Assign:
-                self._assignments(mgenc, l)
+    def _assignments(self, mgenc):
+        coord = self._lexer.get_source_coordinate()
 
+        if self._sym != Symbol.Identifier:
+            raise RuntimeError("Assignments should always target variables of"
+                               " fields, but found instead a " + str(self._sym))
+
+        variable = self._assignment()
+        self._peek_for_next_symbol_from_lexer()
+
+        if self._next_sym == Symbol.Assign:
+            value = self._assignments(mgenc)
+        else:
+            value = self._evaluation(mgenc)
+
+        exp = self._variable_write(mgenc, variable, value)
+        return self._assign_source(exp, coord)
  
-    def _assignment(self, mgenc):
-        v   = self._variable()
-        var = self._universe.symbol_for(v)
-        mgenc.add_literal_if_absent(var)
- 
+    def _assignment(self):
+        v = self._variable()
         self._expect(Symbol.Assign)
- 
         return v
  
     def _evaluation(self, mgenc):
-        # single: superSend
-        is_super_send = [False]
+        exp = self._primary(mgenc)
  
-        self._primary(mgenc, is_super_send)
         if (self._sym == Symbol.Identifier       or
             self._sym == Symbol.Keyword          or 
             self._sym == Symbol.OperatorSequence or
             self._sym_in(self._binary_op_syms)):
-            self._messages(mgenc, is_super_send)
+            exp = self._messages(mgenc, exp)
+        return exp
  
-    def _primary(self, mgenc, is_super_send):
-        is_super_send[0] = False
-        
+    def _primary(self, mgenc):
         if self._sym == Symbol.Identifier:
+            coordinate = self._lexer.get_source_coordinate()
             v = self._variable()
-            if v == "super":
-                is_super_send[0] = True
-                # sends to super push self as the receiver
-                v = "self"
-            self._gen_push_variable(mgenc, v)
+            var_read = self._variable_read(mgenc, v)
+            return self._assign_source(var_read, coordinate)
 
-        elif self._sym == Symbol.NewTerm:
-            self._nested_term(mgenc)
-        elif self._sym == Symbol.NewBlock:
+        if self._sym == Symbol.NewTerm:
+            return self._nested_term(mgenc)
+
+        if self._sym == Symbol.NewBlock:
+            coordinate = self._lexer.get_source_coordinate()
             bgenc = MethodGenerationContext()
             bgenc.set_is_block_method(True)
             bgenc.set_holder(mgenc.get_holder())
             bgenc.set_outer(mgenc)
  
-            self._nested_block(bgenc)
- 
-            block_method = bgenc.assemble(self._universe)
-            mgenc.add_literal(block_method)
-            self._bc_gen.emitPUSHBLOCK(mgenc, block_method)
-        else:
-            self._literal(mgenc)
+            block_body   = self._nested_block(bgenc)
+            block_method = bgenc.assemble(self._universe, block_body)
+
+            if bgenc.requires_context():
+                result = BlockNodeWithContext(block_method, self._universe)
+            else:
+                result = BlockNode(block_method, self._universe)
+            return self._assign_source(result, coordinate)
+
+        return self._literal()
  
     def _variable(self):
         return self._identifier()
  
-    def _messages(self, mgenc, is_super_send):
-        if self._sym == Symbol.Identifier:
-            while self._sym == Symbol.Identifier:
-                # only the first message in a sequence can be a super send
-                self._unary_message(mgenc, is_super_send)
-                is_super_send[0] = False
+    def _messages(self, mgenc, receiver):
+        msg = receiver
 
-            while (self._sym == Symbol.OperatorSequence or
-                   self._sym_in(self._binary_op_syms)):
-                self._binary_message(mgenc, [False])
+        while self._sym == Symbol.Identifier:
+            msg = self._unary_message(msg)
+
+        while (self._sym == Symbol.OperatorSequence or
+               self._sym_in(self._binary_op_syms)):
+            msg = self._binary_message(mgenc, msg)
     
-            if self._sym == Symbol.Keyword:
-                self._keyword_message(mgenc, [False])
+        if self._sym == Symbol.Keyword:
+            msg = self._keyword_message(mgenc, msg)
         
-        elif (self._sym == Symbol.OperatorSequence or
-              self._sym_in(self._binary_op_syms)):
-            while (self._sym == Symbol.OperatorSequence or
-                   self._sym_in(self._binary_op_syms)):
-                # only the first message in a sequence can be a super send
-                self._binary_message(mgenc, is_super_send)
-                is_super_send[0] = False
-    
-            if self._sym == Symbol.Keyword:
-                self._keyword_message(mgenc, [False])
-        
-        else:
-            self._keyword_message(mgenc, is_super_send)
+        return msg
 
-    def _unary_message(self, mgenc, is_super_send):
-        msg = self._unary_selector()
-        mgenc.add_literal_if_absent(msg)
- 
-        if is_super_send[0]:
-            self._bc_gen.emitSUPERSEND(mgenc, msg)
-        else:
-            self._bc_gen.emitSEND(mgenc, msg)
+    def _unary_message(self, receiver):
+        coord = self._lexer.get_source_coordinate()
+        selector = self._unary_selector()
+        msg = GenericMessageNode(selector, self._universe, receiver, None)
+        return self._assign_source(msg, coord)
 
-    def _binary_message(self, mgenc, is_super_send):
-        msg = self._binary_selector()
-        mgenc.add_literal_if_absent(msg)
- 
-        self._binary_operand(mgenc, [False])
- 
-        if is_super_send[0]:
-            self._bc_gen.emitSUPERSEND(mgenc, msg)
-        else:
-            self._bc_gen.emitSEND(mgenc, msg)
+    def _binary_message(self, mgenc, receiver):
+        coord    = self._lexer.get_source_coordinate()
+        selector = self._binary_selector()
+        operand  = self._binary_operand(mgenc)
 
-    def _binary_operand(self, mgenc, is_super_send):
-        self._primary(mgenc, is_super_send)
+        msg = GenericMessageNode(selector, self._universe, receiver, [operand])
+        return self._assign_source(msg, coord)
+
+    def _binary_operand(self, mgenc):
+        operand = self._primary(mgenc)
  
         while self._sym == Symbol.Identifier:
-            self._unary_message(mgenc, is_super_send)
+            operand = self._unary_message(operand)
+        return operand
 
-    def _keyword_message(self, mgenc, is_super_send):
-        kw = self._keyword()
-        self._formula(mgenc)
-      
+    def _keyword_message(self, mgenc, receiver):
+        coord = self._lexer.get_source_coordinate()
+        arguments = []
+        keyword   = []
+
         while self._sym == Symbol.Keyword:
-            kw += self._keyword()
-            self._formula(mgenc)
-      
-        msg = self._universe.symbol_for(kw)
-     
-        mgenc.add_literal_if_absent(msg)
-     
-        if is_super_send[0]:
-            self._bc_gen.emitSUPERSEND(mgenc, msg)
-        else:
-            self._bc_gen.emitSEND(mgenc, msg)
-     
+            keyword.append(self._keyword())
+            arguments.append(self._formula(mgenc))
+
+        selector = self._universe.symbol_for("".join(keyword))
+        msg = GenericMessageNode(selector, self._universe, receiver, arguments)
+        return self._assign_source(msg, coord)
+
     def _formula(self, mgenc):
-        is_super_send = [False]
-        self._binary_operand(mgenc, is_super_send)
-     
-        # only the first message in a sequence can be a super send
-        if self._sym == Symbol.OperatorSequence or self._sym_in(self._binary_op_syms):
-            self._binary_message(mgenc, is_super_send)
-      
-        while self._sym == Symbol.OperatorSequence or self._sym_in(self._binary_op_syms):
-            self._binary_message(mgenc, [False])
-     
+        operand = self._binary_operand(mgenc)
+
+        while (self._sym == Symbol.OperatorSequence or
+               self._sym_in(self._binary_op_syms)):
+            operand = self._binary_message(mgenc, operand)
+        return operand
+
     def _nested_term(self, mgenc):
         self._expect(Symbol.NewTerm)
-        self._expression(mgenc)
+        exp = self._expression(mgenc)
         self._expect(Symbol.EndTerm)
+        return exp
 
-    def _literal(self, mgenc):
+    def _literal(self):
         if self._sym == Symbol.Pound:
-            self._literal_symbol(mgenc)
-        elif self._sym == Symbol.STString:
-            self._literal_string(mgenc)
-        else:
-            self._literal_number(mgenc)
+            return self._literal_symbol()
+        if self._sym == Symbol.STString:
+            return self._literal_string()
+        return self._literal_number()
      
-    def _literal_number(self, mgenc):
+    def _literal_number(self):
+        coord = self._lexer.get_source_coordinate()
+
         if self._sym == Symbol.Minus:
             val = self._negative_decimal()
         else:
             val = self._literal_decimal()
-      
-        
+
         if integer_value_fits(val):
-            lit = self._universe.new_integer(val)
+            lit = LiteralNode(self._universe.new_integer(val))
         else:
-            lit = self._universe.new_biginteger(val)
-      
-        mgenc.add_literal_if_absent(lit)
-        self._bc_gen.emitPUSHCONSTANT(mgenc, lit)
+            lit = LiteralNode(self._universe.new_biginteger(val))
+
+        return self._assign_source(lit, coord)
   
     def _literal_decimal(self):
         return self._literal_integer()
@@ -486,9 +483,10 @@ class Parser(object):
         i = int(self._text)
         self._expect(Symbol.Integer)
         return i
-
  
-    def _literal_symbol(self, mgenc):
+    def _literal_symbol(self):
+        coord = self._lexer.get_source_coordinate()
+
         self._expect(Symbol.Pound)
         if self._sym == Symbol.STString:
             s    = self._string()
@@ -496,24 +494,25 @@ class Parser(object):
         else:
             symb = self._selector()
       
-        mgenc.add_literal_if_absent(symb)
-        self._bc_gen.emitPUSHCONSTANT(mgenc, symb)
-     
-    def _literal_string(self, mgenc):
+        lit = LiteralNode(symb)
+        return self._assign_source(lit, coord)
+
+    def _literal_string(self):
+        coord = self._lexer.get_source_coordinate()
         s = self._string()
      
         string = self._universe.new_string(s)
-        mgenc.add_literal_if_absent(string)
-     
-        self._bc_gen.emitPUSHCONSTANT(mgenc, string)
+        lit = LiteralNode(string)
+        return self._assign_source(lit, coord)
      
     def _selector(self):
-        if self._sym == Symbol.OperatorSequence or self._sym_in(self._single_op_syms):
+        if (self._sym == Symbol.OperatorSequence or
+            self._sym_in(self._single_op_syms)):
             return self._binary_selector()
-        elif self._sym == Symbol.Keyword or self._sym == Symbol.KeywordSequence:
+        if (self._sym == Symbol.Keyword or
+            self._sym == Symbol.KeywordSequence):
             return self._keyword_selector()
-        else:
-            return self._unary_selector()
+        return self._unary_selector()
  
     def _keyword_selector(self):
         s = self._text
@@ -527,29 +526,23 @@ class Parser(object):
         return s
 
     def _nested_block(self, mgenc):
-        mgenc.add_argument_if_absent("$block self")
- 
         self._expect(Symbol.NewBlock)
+
+        mgenc.add_argument_if_absent("$blockSelf")
+
         if self._sym == Symbol.Colon:
             self._block_pattern(mgenc)
  
         # generate Block signature
-        block_sig = "$block method"
+        block_sig = "$blockMethod"
         arg_size = mgenc.get_number_of_arguments()
         block_sig += ":" * (arg_size - 1)
  
         mgenc.set_signature(self._universe.symbol_for(block_sig))
  
-        self._block_contents(mgenc)
- 
-        # if no return has been generated, we can be sure that the last
-        # expression in the block was not terminated by ., and can generate 
-        # a return
-        if not mgenc.is_finished():
-            self._bc_gen.emitRETURNLOCAL(mgenc)
-            mgenc.set_finished(True)
- 
+        expressions = self._block_contents(mgenc)
         self._expect(Symbol.EndBlock)
+        return expressions
  
     def _block_pattern(self, mgenc):
         self._block_arguments(mgenc)
@@ -560,50 +553,49 @@ class Parser(object):
         mgenc.add_argument_if_absent(self._argument())
   
         while self._sym == Symbol.Colon:
-            self._expect(Symbol.Colon)
+            self._accept(Symbol.Colon)
             mgenc.add_argument_if_absent(self._argument())
  
-    def _gen_push_variable(self, mgenc, var):
-        # The purpose of this function is to find out whether the variable to be
-        # pushed on the stack is a local variable, argument, or object field.
-        # This is done by examining all available lexical contexts, starting with
-        # the innermost (i.e., the one represented by mgenc).
- 
-        # triplet: index, context, isArgument
-        triplet = [0, 0, False]
- 
-        if mgenc.find_var(var, triplet):
-            if triplet[2]:
-                self._bc_gen.emitPUSHARGUMENT(mgenc, triplet[0], triplet[1])
-            else:
-                self._bc_gen.emitPUSHLOCAL(mgenc, triplet[0], triplet[1])
-        else:
-            identifier = self._universe.symbol_for(var)
-            if mgenc.has_field(identifier):
-                field_name = identifier
-                mgenc.add_literal_if_absent(field_name)
-                self._bc_gen.emitPUSHFIELD(mgenc, field_name)
-            else:
-                globe = identifier
-                mgenc.add_literal_if_absent(globe)
-                self._bc_gen.emitPUSHGLOBAL(mgenc, globe)
+    def _variable_read(self, mgenc, variable_name):
+        # 'super' needs to be handled separately
+        if variable_name == "super":
+            variable = mgenc.get_variable("self")
+            return variable.get_super_read_node(
+                mgenc.get_outer_self_context_level(),
+                mgenc.get_holder().get_name(),
+                mgenc.get_holder().is_class_side(),
+                self._universe)
 
-    def _gen_pop_variable(self, mgenc, var):
-        # The purpose of this function is to find out whether the variable to be
-        # popped off the stack is a local variable, argument, or object field.
-        # This is done by examining all available lexical contexts, starting with
-        # the innermost (i.e., the one represented by mgenc).
- 
-        # triplet: index, context, isArgument
-        triplet = [0, 0, False]
- 
-        if mgenc.find_var(var, triplet):
-            if triplet[2]:
-                self._bc_gen.emitPOPARGUMENT(mgenc, triplet[0], triplet[1])
-            else:
-                self._bc_gen.emitPOPLOCAL(mgenc, triplet[0], triplet[1])
+        # first lookup in local variables, or method arguments
+        variable = mgenc.get_variable(variable_name)
+        if variable:
+            return variable.get_read_node(
+                mgenc.get_context_level(variable_name))
+
+        # otherwise, it might be an object field
+        var_symbol = self._universe.symbol_for(variable_name)
+        field_read = mgenc.get_object_field_read(var_symbol)
+        if field_read:
+            return field_read
+
+        # nope, so, it is a global?
+        return mgenc.get_global_read(var_symbol, self._universe)
+
+    def _variable_write(self, mgenc, variable_name, exp):
+        variable = mgenc.get_local(variable_name)
+        if variable:
+            return variable.get_write_node(
+                mgenc.get_context_level(variable_name), exp)
+
+        field_name = self._universe.symbol_for(variable_name)
+        field_write = mgenc.get_object_field_write(field_name, exp,
+                                                   self._universe)
+        if field_write:
+            return field_write
         else:
-            self._bc_gen.emitPOPFIELD(mgenc, self._universe.symbol_for(var))
+            raise RuntimeError("Neither a variable nor a field found in current"
+                               " scope that is named " + variable_name +
+                               ". Arguments are read-only.")
 
     def _get_symbol_from_lexer(self):
         self._sym  = self._lexer.get_sym()

@@ -1,4 +1,6 @@
-from som.compiler.symbol import Symbol
+from rtruffle.source_section import SourceCoordinate
+from .symbol import Symbol
+
 
 class Lexer(object):
     
@@ -18,7 +20,12 @@ class Lexer(object):
         self._next_text   = ""
         self._buf         = ""
         self._bufp        = 0
-    
+
+    def get_source_coordinate(self):
+        return SourceCoordinate(self._line_number,
+                                self._bufp + 1,
+                                self._chars_read + self._bufp)
+
     def get_sym(self):
         if self._peek_done:
             self._peek_done = False

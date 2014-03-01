@@ -11,6 +11,9 @@ class ClassGenerationContext(object):
         self._class_fields     = []
         self._class_methods    = []
 
+    def get_name(self):
+        return self._name
+
     def set_name(self, symbol):
         self._name = symbol
 

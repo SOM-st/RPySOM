@@ -28,7 +28,7 @@ class _SourcecodeCompiler(object):
         try:
             input_file = open_file_as_stream(fname, "r")
             try:
-                self._parser = Parser(input_file, universe)
+                self._parser = Parser(input_file, fname, universe)
                 result = self._compile(system_class, universe)
             finally:
                 input_file.close()
@@ -44,7 +44,7 @@ class _SourcecodeCompiler(object):
         return result
 
     def compile_class_string(self, stream, system_class, universe):
-        self._parser = Parser(StringStream(stream), universe)
+        self._parser = Parser(StringStream(stream), "$str", universe)
 
         result = self._compile(system_class, universe)
         return result
