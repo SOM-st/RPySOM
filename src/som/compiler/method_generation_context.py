@@ -24,12 +24,17 @@ class MethodGenerationContext(object):
         self._locals      = OrderedDict()
         self._primitive   = False  # to be changed
 
+        self._embedded_block_methods = []
+
         self._throws_non_local_return             = False
         self._needs_to_catch_non_local_returns    = False
         self._accesses_variables_of_outer_context = False
   
     def set_holder(self, cgenc):
         self._holder_genc = cgenc
+
+    def add_embedded_block_method(self, block_method):
+        self._embedded_block_methods.append(block_method)
 
     def is_primitive(self):
         return self._primitive
@@ -92,7 +97,9 @@ class MethodGenerationContext(object):
         method_body = self._add_argument_initialization(method_body)
         method = Invokable(self._get_source_section_for_method(method_body),
                            method_body, len(self._locals), universe)
-        return universe.new_method(self._signature, method, False)
+        return universe.new_method(self._signature, method, False,
+                                   # copy list to make it immutable for RPython
+                                   self._embedded_block_methods[:])
 
     def _get_source_section_for_method(self, expr):
         src_body = expr.get_source_section()

@@ -334,8 +334,10 @@ class Universe(object):
         result.reset_stack_pointer()
         return result
 
-    def new_method(self, signature, invokable, is_primitive):
-        return Method(signature, invokable, is_primitive, self)
+    def new_method(self, signature, invokable, is_primitive,
+                   embedded_block_method):
+        return Method(signature, invokable, is_primitive, embedded_block_method,
+                      self)
 
     def new_instance(self, instance_class):
         result = Object(self.nilObject, instance_class.get_number_of_instance_fields())

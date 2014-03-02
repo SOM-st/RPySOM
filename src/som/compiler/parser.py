@@ -375,6 +375,7 @@ class Parser(object):
  
             block_body   = self._nested_block(bgenc)
             block_method = bgenc.assemble(self._universe, block_body)
+            mgenc.add_embedded_block_method(block_method)
 
             if bgenc.requires_context():
                 result = BlockNodeWithContext(block_method, self._universe)

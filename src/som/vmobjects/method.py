@@ -10,17 +10,20 @@ from som.vmobjects.abstract_object import AbstractObject
 class Method(AbstractObject):
     
     _immutable_fields_ = ["_signature", "_invokable", "_is_primitive",
-                          "_holder", "_universe"]
+                          "_embedded_block_methods", "_universe", "_holder"]
 
-    def __init__(self, signature, invokable, is_primitive, universe):
+    def __init__(self, signature, invokable, is_primitive,
+                 embedded_block_methods, universe):
         AbstractObject.__init__(self)
 
         self._signature    = signature
         self._invokable    = invokable
         self._is_primitive = is_primitive
-        
-        self._holder   = None
+
+        self._embedded_block_methods = embedded_block_methods
         self._universe = universe
+
+        self._holder   = None
 
     @jit.elidable_promote('all')
     def get_universe(self):
@@ -45,6 +48,8 @@ class Method(AbstractObject):
 
     def set_holder(self, value):
         self._holder = value
+        for method in self._embedded_block_methods:
+            method.set_holder(value)
 
     @jit.elidable_promote('all')
     def get_number_of_arguments(self):
