@@ -17,6 +17,7 @@ class ContextualNode(ExpressionNode):
     def accesses_outer_context(self):
         return self._context_level > 0
 
+    @unroll_safe
     def determine_context(self, frame):
         if self._context_level == 0:
             return  frame
