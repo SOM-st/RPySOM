@@ -435,6 +435,7 @@ class Universe(object):
     def has_global(self, name):
         return name in self._globals
 
+    @jit.elidable_promote("all")
     def get_globals_association(self, name):
         assoc = self._globals.get(name, None)
         if assoc is None:
