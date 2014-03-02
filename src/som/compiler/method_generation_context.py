@@ -6,7 +6,8 @@ from .variable                                 import Argument, Local
 
 from ..interpreter.nodes.field_node            import FieldWriteNode, \
                                                       FieldReadNode
-from ..interpreter.nodes.global_read_node      import GenericGlobalReadNode
+from ..interpreter.nodes.global_read_node      import \
+    UninitializedGlobalReadNode
 from ..interpreter.nodes.return_non_local_node import CatchNonLocalReturnNode
 from ..interpreter.invokable                   import Invokable
 
@@ -198,7 +199,7 @@ class MethodGenerationContext(object):
                              self.get_field_index(field_name))
 
     def get_global_read(self, var_name, universe):
-        return GenericGlobalReadNode(var_name, universe)
+        return UninitializedGlobalReadNode(var_name, universe)
 
     def get_object_field_write(self, field_name, exp, universe):
         if not self.has_field(field_name):

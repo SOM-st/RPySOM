@@ -1,7 +1,8 @@
 from .expression_node import ExpressionNode
+from rtruffle.node import initialize_node_class
 
 
-class GenericGlobalReadNode(ExpressionNode):
+class UninitializedGlobalReadNode(ExpressionNode):
 
     _immutable_fields_ = ["_global_name", "_universe"]
 
@@ -12,9 +13,29 @@ class GenericGlobalReadNode(ExpressionNode):
 
     def execute(self, frame):
         if self._universe.has_global(self._global_name):
-            assoc = self._universe.get_globals_association(self._global_name)
-            return assoc.get_value()
+            return self._specialize().execute(frame)
         else:
             return frame.get_self().send_unknown_global(frame,
                                                         self._global_name,
                                                         self._universe)
+
+    def _specialize(self):
+        assoc = self._universe.get_globals_association(self._global_name)
+        cached = CachedGlobalReadNode(assoc, self.get_source_section())
+        return self.replace(cached)
+
+
+class CachedGlobalReadNode(ExpressionNode):
+
+    _immutable_fields_ = ['_assoc']
+
+    def __init__(self, assoc, source_section):
+        ExpressionNode.__init__(self, source_section)
+        self._assoc = assoc
+
+    def execute(self, frame):
+        return self._assoc.get_value()
+
+
+initialize_node_class(UninitializedGlobalReadNode)
+initialize_node_class(CachedGlobalReadNode)

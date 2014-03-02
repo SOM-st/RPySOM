@@ -1,7 +1,7 @@
 from rtruffle.source_section import SourceSection
 
 from ..interpreter.nodes.block_node       import BlockNode, BlockNodeWithContext
-from ..interpreter.nodes.global_read_node import GenericGlobalReadNode
+from ..interpreter.nodes.global_read_node import UninitializedGlobalReadNode
 from ..interpreter.nodes.literal_node     import LiteralNode
 from ..interpreter.nodes.message_node     import GenericMessageNode
 from ..interpreter.nodes.return_non_local_node import ReturnNonLocalNode
@@ -289,8 +289,8 @@ class Parser(object):
 
     def _create_sequence_node(self, coordinate, expressions):
         if not expressions:
-            nil_exp = GenericGlobalReadNode(self._universe.symbol_for("nil"),
-                                            self._universe)
+            nil_exp = UninitializedGlobalReadNode(
+                self._universe.symbol_for("nil"), self._universe)
             return self._assign_source(nil_exp, coordinate)
         if len(expressions) == 1:
             return expressions[0]
