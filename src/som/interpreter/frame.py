@@ -12,8 +12,8 @@ class Frame(object):
         self._caller_frame   = caller_frame
         self._temps          = [nilObject] * number_of_temps
 
-    @jit.elidable_promote("all")
     def get_argument(self, index):
+        jit.promote(index)
         return self._arguments[index]
 
     def set_argument(self, index, value):
@@ -25,7 +25,6 @@ class Frame(object):
     def set_temp(self, index, value):
         self._temps[index] = value
 
-    @jit.elidable_promote("all")
     def get_self(self):
         return self._receiver
 
