@@ -1,7 +1,6 @@
 from .expression_node import ExpressionNode
 
 from rpython.rlib.jit import unroll_safe
-from rtruffle.node import initialize_node_class
 
 
 class GenericMessageNode(ExpressionNode):
@@ -48,6 +47,3 @@ class GenericMessageNode(ExpressionNode):
         return "%s(%s, %s)" % (self.__class__.__name__,
                                self._selector,
                                self._source_section)
-
-
-initialize_node_class(GenericMessageNode)

@@ -1,5 +1,4 @@
 from .expression_node import ExpressionNode
-from rtruffle.node import initialize_node_class
 
 
 class UninitializedGlobalReadNode(ExpressionNode):
@@ -35,7 +34,3 @@ class CachedGlobalReadNode(ExpressionNode):
 
     def execute(self, frame):
         return self._assoc.get_value()
-
-
-initialize_node_class(UninitializedGlobalReadNode)
-initialize_node_class(CachedGlobalReadNode)

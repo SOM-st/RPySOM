@@ -1,4 +1,4 @@
-from rtruffle.node import Node, initialize_node_class
+from rtruffle.node import Node
 
 
 class ExpressionNode(Node):
@@ -11,6 +11,3 @@ class ExpressionNode(Node):
 
     def is_super_node(self):
         return False
-
-
-initialize_node_class(ExpressionNode)

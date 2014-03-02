@@ -2,7 +2,6 @@ from .contextual_node import ContextualNode
 from .expression_node import ExpressionNode
 
 from ..control_flow   import ReturnException
-from rtruffle.node import initialize_node_class
 
 
 class ReturnNonLocalNode(ContextualNode):
@@ -47,7 +46,3 @@ class CatchNonLocalReturnNode(ExpressionNode):
         finally:
             frame.mark_as_no_longer_on_stack()
         return result
-
-
-initialize_node_class(ReturnNonLocalNode)
-initialize_node_class(CatchNonLocalReturnNode)

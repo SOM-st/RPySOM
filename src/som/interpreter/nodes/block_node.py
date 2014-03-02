@@ -1,5 +1,4 @@
 from .literal_node import LiteralNode
-from rtruffle.node import initialize_node_class
 
 
 class BlockNode(LiteralNode):
@@ -21,7 +20,3 @@ class BlockNodeWithContext(BlockNode):
 
     def execute(self, frame):
         return self._universe.new_block(self._value, frame)
-
-
-initialize_node_class(BlockNode)
-initialize_node_class(BlockNodeWithContext)

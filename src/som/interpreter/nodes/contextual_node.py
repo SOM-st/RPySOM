@@ -1,7 +1,6 @@
 from .expression_node import ExpressionNode
 
 from rpython.rlib.jit import unroll_safe
-from rtruffle.node import initialize_node_class
 
 
 class ContextualNode(ExpressionNode):
@@ -34,6 +33,3 @@ class ContextualNode(ExpressionNode):
         for i in range(0, self._context_level):
             outer_self = outer_self.get_outer_self()
         return outer_self
-
-
-initialize_node_class(ContextualNode)
