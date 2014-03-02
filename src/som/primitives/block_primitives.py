@@ -6,14 +6,14 @@ from rpython.rlib import jit
 
 
 def get_printable_location(loop_body, loop_condition, while_type):
-    from som.vmobjects.method import Method
-    assert isinstance(loop_body, Block)
     assert isinstance(loop_condition, Block)
-    #bc = method.get_bytecode(bytecode_index)
-#     return "%s @ %d in %s" % (bytecode_as_str(bc),
-#                               bytecode_index,
-#                               method.merge_point_string())
-    return "TODO"
+    assert isinstance(loop_body, Block)
+    condition_method = loop_condition.get_method()
+    body_method      = loop_body.get_method()
+
+    return "%s while %s: %s" % (condition_method.merge_point_string(),
+                                while_type,
+                                body_method.merge_point_string())
 
 
 jitdriver = jit.JitDriver(
@@ -26,7 +26,7 @@ jitdriver = jit.JitDriver(
 def _whileLoop(frame, rcvr, args, while_type, universe):
     loop_body      = args[0]
     loop_condition = rcvr
-    
+
     while True:
         jitdriver.jit_merge_point(loop_body     = loop_body,
                                   loop_condition= loop_condition,
