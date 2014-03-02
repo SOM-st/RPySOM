@@ -143,7 +143,7 @@ class TestLLtype(LLJitMixin):
                     counter := 0.
                     iter := 20000.
 
-                    [ iter999 > 0 ] whileTrue: [
+                    [ iter > 0 ] whileTrue: [
                       iter := iter - 1.
                       counter := counter + 1.
                       counter := counter + 1.
