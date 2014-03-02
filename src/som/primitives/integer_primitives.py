@@ -225,7 +225,7 @@ from rpython.rlib import jit
 def get_printable_location(block):
     from som.vmobjects.block import Block
     assert isinstance(block, Block)
-    return "TODO"
+    return "#to:do: %s" % block.get_method().merge_point_string()
 
 
 jitdriver = jit.JitDriver(
