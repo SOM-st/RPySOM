@@ -23,7 +23,7 @@ cp = py.path.local(__file__).dirpath().dirpath().join("Smalltalk").strpath
 
 class TestLLtype(LLJitMixin):
 
-    def _compile(self, source, start):
+    def _compile_and_lookup(self, source, start):
         u = Universe()
         u.setup_classpath(cp)
         u._initialize_object_system()
@@ -32,17 +32,8 @@ class TestLLtype(LLJitMixin):
         invokable = cls.lookup_invokable(u.symbol_for(start))
         return u, obj, invokable
 
-    def test_inc(self):
-        universe, rcvr, invokable = self._compile("""
-            C_0 = (
-                run = ( | tmp |
-                        tmp := 1.
-                        10000 timesRepeat: [
-                          tmp := tmp + 1 ].
-                        ^tmp
-                )
-            )
-            """, "run")
+    def _run_meta_interp(self, program, main_method):
+        universe, rcvr, invokable = self._compile_and_lookup(program, main_method)
 
         def interp_w():
             try:
@@ -53,9 +44,21 @@ class TestLLtype(LLJitMixin):
 
         self.meta_interp(interp_w, [],
                          listcomp=True, listops=True, backendopt=True)
+
+    def test_inc(self):
+        self._run_meta_interp("""
+            C_0 = (
+                run = ( | tmp |
+                        tmp := 1.
+                        10000 timesRepeat: [
+                          tmp := tmp + 1 ].
+                        ^tmp
+                )
+            )
+            """, "run")
     
     def test_purewhile(self):
-        universe, rcvr, invokable = self._compile("""
+        self._run_meta_interp("""
             C_0 = (
                 run = ( | tmp |
                         tmp := 1.
@@ -66,18 +69,8 @@ class TestLLtype(LLJitMixin):
             )
             """, "run")
 
-        def interp_w():
-            try:
-                invokable.invoke(None, rcvr, None)
-            except Exit as e:
-                return e.code
-            return -1
-
-        self.meta_interp(interp_w, [],
-                         listcomp=True, listops=True, backendopt=True)
-
     def test_rec(self):
-        universe, rcvr, invokable = self._compile("""
+        self._run_meta_interp("""
             C_1 = (
                 count: n = ( ^ (n > 0)
                                  ifTrue: [self count: n - 1]
@@ -87,18 +80,9 @@ class TestLLtype(LLJitMixin):
             )
             """, "run")
 
-        def interp_w():
-            try:
-                invokable.invoke(None, rcvr, None)
-            except Exit as e:
-                return e.code
-            return -1
-
-        self.meta_interp(interp_w, [],
-                         listcomp=True, listops=True, backendopt=True)
 
     def test_sieve(self):
-        universe, rcvr, invokable = self._compile("""
+        self._run_meta_interp("""
            "Adapted from Sieve.som"
             Sieve = (
                 benchmark = (
@@ -123,18 +107,8 @@ class TestLLtype(LLJitMixin):
                 )
             )""", "benchmark")
 
-        def interp_w():
-            try:
-                invokable.invoke(None, rcvr, None)
-            except Exit as e:
-                return e.code
-            return -1
-
-        self.meta_interp(interp_w, [],
-                         listcomp=True, listops=True, backendopt=True)
-
     def test_field(self):
-        universe, rcvr, invokable = self._compile("""
+        self._run_meta_interp("""
            "Adapted from FieldLoop.som"
             FieldLoop = (
                 | counter |
@@ -182,13 +156,3 @@ class TestLLtype(LLJitMixin):
                       counter := counter + 1.]
                 )
             )""", "benchmark")
-
-        def interp_w():
-            try:
-                invokable.invoke(None, rcvr, None)
-            except Exit as e:
-                return e.code
-            return -1
-
-        self.meta_interp(interp_w, [],
-                         listcomp=True, listops=True, backendopt=True)
