@@ -1,6 +1,7 @@
 from .expression_node import ExpressionNode
 
 from rpython.rlib.jit import unroll_safe
+from rtruffle.node import initialize_node_class
 
 
 class GenericMessageNode(ExpressionNode):
@@ -42,3 +43,5 @@ class GenericMessageNode(ExpressionNode):
         if self._rcvr_expr.is_super_node():
             return self._rcvr_expr.get_super_class()
         return rcvr.get_class(self._universe)
+
+initialize_node_class(GenericMessageNode)

@@ -1,4 +1,5 @@
 from .expression_node import ExpressionNode
+from rtruffle.node import initialize_node_class
 
 
 class LiteralNode(ExpressionNode):
@@ -11,3 +12,6 @@ class LiteralNode(ExpressionNode):
 
     def execute(self, frame):
         return self._value
+
+
+initialize_node_class(LiteralNode)

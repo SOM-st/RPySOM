@@ -1,4 +1,5 @@
 from .expression_node import ExpressionNode
+from rtruffle.node import initialize_node_class
 
 
 class FieldNode(ExpressionNode):
@@ -36,3 +37,8 @@ class FieldWriteNode(FieldNode):
         value    = self._value_exp.execute(frame)
         self_obj.set_field(self._field_idx, value)
         return value
+
+
+initialize_node_class(FieldNode)
+initialize_node_class(FieldReadNode)
+initialize_node_class(FieldWriteNode)

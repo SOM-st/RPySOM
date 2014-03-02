@@ -1,6 +1,7 @@
 from .contextual_node import ContextualNode
 
 from rpython.rlib import jit
+from rtruffle.node import initialize_node_class
 
 
 class NonLocalVariableNode(ContextualNode):
@@ -79,3 +80,10 @@ class NonLocalVariableWriteNode(NonLocalVariableNode):
         value = self._value_expr.execute(frame)
         self.determine_context(frame).set_temp(self._frame_idx, value)
         return value
+
+
+initialize_node_class(NonLocalVariableNode)
+initialize_node_class(NonLocalVariableReadNode)
+initialize_node_class(NonLocalSelfReadNode)
+initialize_node_class(NonLocalSuperReadNode)
+initialize_node_class(NonLocalVariableWriteNode)

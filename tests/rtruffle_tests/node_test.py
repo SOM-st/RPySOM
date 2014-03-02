@@ -1,5 +1,5 @@
 import unittest
-from rtruffle.node import Node
+from rtruffle.node import Node, initialize_node_class
 
 
 class NodeTest(unittest.TestCase):
@@ -88,4 +88,6 @@ class RootNodeWithChildList(Node):
 class ChildNode(Node):
     pass
 
-
+initialize_node_class(ChildNode)
+initialize_node_class(RootNode)
+initialize_node_class(RootNodeWithChildList)

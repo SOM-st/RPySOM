@@ -1,6 +1,7 @@
 from .expression_node import ExpressionNode
 
 from rpython.rlib.jit import unroll_safe
+from rtruffle.node import initialize_node_class
 
 
 class SequenceNode(ExpressionNode):
@@ -18,3 +19,6 @@ class SequenceNode(ExpressionNode):
         for expr in self._exprs:
             result = expr.execute(frame)
         return result
+
+
+initialize_node_class(SequenceNode)

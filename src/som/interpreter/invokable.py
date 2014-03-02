@@ -1,4 +1,4 @@
-from rtruffle.node import Node
+from rtruffle.node import Node, initialize_node_class
 
 from .frame import Frame
 
@@ -19,3 +19,6 @@ class Invokable(Node):
         frame = Frame(receiver, arguments, self._number_of_temps,
                       caller_frame, self._universe.nilObject)
         return self._expr_or_sequence.execute(frame)
+
+
+initialize_node_class(Invokable)
