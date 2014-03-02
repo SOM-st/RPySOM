@@ -24,9 +24,11 @@ def _generate_replace_method(cls):
                 slot_name = child_slot[:-3]
                 nodes = getattr(parent_node, slot_name)
                 if nodes and old_child in nodes:
-                    new_children = [new_child if n is old_child else n
-                                    for n in nodes]
-                    setattr(parent_node, slot_name, new_children)
+                    # update old list, because iterators might have a copy of it
+                    for i, n in enumerate(nodes):
+                        if n is old_child:
+                            nodes[i] = new_child
+                    setattr(parent_node, slot_name, nodes[:])  # TODO: figure out whether we need the copy of the list here
                     was_replaced = True
             else:
                 current = getattr(parent_node, child_slot)
