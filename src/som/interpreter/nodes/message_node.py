@@ -44,4 +44,10 @@ class GenericMessageNode(ExpressionNode):
             return self._rcvr_expr.get_super_class()
         return rcvr.get_class(self._universe)
 
+    def __str__(self):
+        return "%s(%s, %s)" % (self.__class__.__name__,
+                               self._selector,
+                               self._source_section)
+
+
 initialize_node_class(GenericMessageNode)
