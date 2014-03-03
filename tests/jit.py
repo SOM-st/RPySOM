@@ -107,6 +107,40 @@ class TestLLtype(LLJitMixin):
                 )
             )""", "benchmark")
 
+    def test_fibonacci(self):
+        self._run_meta_interp("""Fibonacci = (
+    benchmark = ( | result |
+        result := self fibonacci: 20.
+        (result = 10946) ifFalse: [self error: 'Wrong result: ' + result + ' should be: 10946' ])
+
+    fibonacci: n = (
+        ^(n <= 1) ifTrue:  1 ifFalse: [ (self fibonacci: (n - 1)) + (self fibonacci: (n - 2)) ])
+)        """, "benchmark")
+
+    def test_whilebench(self):
+        self._run_meta_interp("""WhileLoop = (
+
+    singleRun = (
+        | sum |
+        sum := 0.
+        [sum < 1000]
+            whileTrue:
+                [sum := sum + 1].
+        ^ sum
+    )
+
+    benchmark = (
+        | sum |
+        sum := 0.
+        [sum < 20000]
+            whileTrue:
+                [sum := sum + self singleRun].
+        ^ sum
+    )
+
+)
+""", "benchmark")
+
     def test_field(self):
         self._run_meta_interp("""
            "Adapted from FieldLoop.som"
