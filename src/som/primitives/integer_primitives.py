@@ -1,4 +1,5 @@
 from som.primitives.primitives import Primitives
+from som.vmobjects.method import Method
 from som.vmobjects.primitive   import Primitive
 from som.vmobjects.biginteger  import BigInteger
 from som.vmobjects.integer     import integer_value_fits, Integer
@@ -222,14 +223,13 @@ def _fromString(ivkbl, frame, rcvr, args):
 from rpython.rlib import jit
 
 
-def get_printable_location(block):
-    from som.vmobjects.block import Block
-    assert isinstance(block, Block)
-    return "#to:do: %s" % block.get_method().merge_point_string()
+def get_printable_location(block_method):
+    assert isinstance(block_method, Method)
+    return "#to:do: %s" % block_method.merge_point_string()
 
 
 jitdriver = jit.JitDriver(
-    greens=['block'],
+    greens=['block_method'],
     reds='auto',
     # virtualizables=['frame'],
     get_printable_location=get_printable_location)
@@ -239,6 +239,7 @@ def _toDo(ivkbl, frame, rcvr, args):
     universe = ivkbl.get_universe()
     block = args[1]
     limit = args[0]
+    block_method = block.get_method()
 
     i = rcvr.get_embedded_integer()
     if isinstance(limit, Double):
@@ -246,7 +247,7 @@ def _toDo(ivkbl, frame, rcvr, args):
     else:
         top = limit.get_embedded_value()
     while i <= top:
-        jitdriver.jit_merge_point(block = block)
+        jitdriver.jit_merge_point(block_method = block_method)
         block_evaluate(block, [universe.new_integer(i)], frame)
 
         i += 1

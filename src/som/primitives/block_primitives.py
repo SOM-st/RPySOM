@@ -1,15 +1,14 @@
 from som.primitives.primitives import Primitives
+from som.vmobjects.method import Method
 from som.vmobjects.primitive   import Primitive
 from som.vmobjects.block       import block_evaluate, Block
 
 from rpython.rlib import jit
 
 
-def get_printable_location(loop_body, loop_condition, while_type):
-    assert isinstance(loop_condition, Block)
-    assert isinstance(loop_body, Block)
-    condition_method = loop_condition.get_method()
-    body_method      = loop_body.get_method()
+def get_printable_location(body_method, condition_method, while_type):
+    assert isinstance(condition_method, Method)
+    assert isinstance(body_method, Method)
 
     return "%s while %s: %s" % (condition_method.merge_point_string(),
                                 while_type,
@@ -17,7 +16,7 @@ def get_printable_location(loop_body, loop_condition, while_type):
 
 
 jitdriver = jit.JitDriver(
-    greens=['loop_body', 'loop_condition', 'while_type'],
+    greens=['body_method', 'condition_method', 'while_type'],
     reds='auto',
     # virtualizables=['frame'],
     get_printable_location=get_printable_location)
@@ -26,10 +25,12 @@ jitdriver = jit.JitDriver(
 def _whileLoop(frame, rcvr, args, while_type, universe):
     loop_body      = args[0]
     loop_condition = rcvr
+    body_method    = loop_body.get_method()
+    condition_method = loop_condition.get_method()
 
     while True:
-        jitdriver.jit_merge_point(loop_body     = loop_body,
-                                  loop_condition= loop_condition,
+        jitdriver.jit_merge_point(body_method     = body_method,
+                                  condition_method= condition_method,
                                   while_type    = while_type)
 
         condition_result = block_evaluate(loop_condition, None, frame)
