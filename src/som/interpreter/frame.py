@@ -20,9 +20,11 @@ class Frame(object):
         self._arguments[index] = value
 
     def get_temp(self, index):
+        jit.promote(index)
         return self._temps[index]
 
     def set_temp(self, index, value):
+        jit.promote(index)
         self._temps[index] = value
 
     def get_self(self):
