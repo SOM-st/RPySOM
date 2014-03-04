@@ -340,9 +340,7 @@ class Universe(object):
                       self)
 
     def new_instance(self, instance_class):
-        result = Object(self.nilObject, instance_class.get_number_of_instance_fields())
-        result.set_class(instance_class)
-        return result
+        return Object(self.nilObject, instance_class.get_number_of_instance_fields(), instance_class)
 
     def new_integer(self, value):
         assert isinstance(value, int)

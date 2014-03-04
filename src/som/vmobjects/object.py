@@ -1,5 +1,6 @@
 from som.vmobjects.abstract_object import AbstractObject
 
+
 class Object(AbstractObject):
 
     _immutable_fields_ = ["_class", "_fields"]
@@ -7,10 +8,11 @@ class Object(AbstractObject):
     # Static field indices and number of object fields
     NUMBER_OF_OBJECT_FIELDS = 0
 
-    def __init__(self, nilObject, number_of_fields = -1):
-        num_fields = number_of_fields if number_of_fields != -1 else self._get_default_number_of_fields()
+    def __init__(self, nilObject, number_of_fields = -1, obj_class = None):
+        num_fields = (number_of_fields if number_of_fields != -1
+                      else self._get_default_number_of_fields())
         self._fields = [nilObject] * num_fields
-        self._class = nilObject
+        self._class = obj_class or nilObject
 
     def get_class(self, universe):
         return self._class
