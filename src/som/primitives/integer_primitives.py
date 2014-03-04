@@ -220,41 +220,6 @@ def _fromString(ivkbl, frame, rcvr, args):
     return ivkbl.get_universe().new_integer(int_value)
 
 
-from rpython.rlib import jit
-
-
-def get_printable_location(block_method):
-    assert isinstance(block_method, Method)
-    return "#to:do: %s" % block_method.merge_point_string()
-
-
-jitdriver = jit.JitDriver(
-    greens=['block_method'],
-    reds='auto',
-    # virtualizables=['frame'],
-    get_printable_location=get_printable_location)
-
-
-def _toDo(ivkbl, frame, rcvr, args):
-    universe = ivkbl.get_universe()
-    block = args[1]
-    limit = args[0]
-    block_method = block.get_method()
-
-    i = rcvr.get_embedded_integer()
-    if isinstance(limit, Double):
-        top = limit.get_embedded_double()
-    else:
-        top = limit.get_embedded_value()
-    while i <= top:
-        jitdriver.jit_merge_point(block_method = block_method)
-        block_evaluate(block, [universe.new_integer(i)], frame)
-
-        i += 1
-
-    return rcvr
-
-
 class IntegerPrimitives(Primitives):
 
     def install_primitives(self):
@@ -272,7 +237,5 @@ class IntegerPrimitives(Primitives):
         self._install_instance_primitive(Primitive("&",  self._universe, _and))
         self._install_instance_primitive(Primitive("=",  self._universe, _equals))
         self._install_instance_primitive(Primitive("<",  self._universe, _lessThan))
-        
-        self._install_instance_primitive(Primitive("to:do:", self._universe, _toDo))
-        
+
         self._install_class_primitive(Primitive("fromString:", self._universe, _fromString))

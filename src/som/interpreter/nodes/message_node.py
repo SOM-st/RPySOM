@@ -1,6 +1,10 @@
 from .expression_node import ExpressionNode
 
 from rpython.rlib.jit import unroll_safe
+from som.interpreter.nodes.specialized.to_do_node import IntToIntDoNode, \
+    IntToDoubleDoNode
+from som.vmobjects.double import Double
+from som.vmobjects.integer import Integer
 from .specialized.while_node import WhileMessageNode
 from som.vmobjects.block import Block
 
@@ -50,7 +54,20 @@ class UninitializedMessageNode(AbstractMessageNode):
                         WhileMessageNode(self._rcvr_expr, self._arg_exprs[0],
                                          self._universe.falseObject,
                                          self._universe, self._source_section))
-
+            if (isinstance(args[0], Integer) and isinstance(rcvr, Integer) and
+                len(args) > 1 and isinstance(args[1], Block) and
+                self._selector.get_string() == "to:do:"):
+                return self.replace(
+                    IntToIntDoNode(self._rcvr_expr, self._arg_exprs[0],
+                                   self._arg_exprs[1], self._universe,
+                                   self._source_section))
+            if (isinstance(args[0], Double) and isinstance(rcvr, Integer) and
+                len(args) > 1 and isinstance(args[1], Block) and
+                self._selector.get_string() == "to:do:"):
+                return self.replace(
+                    IntToDoubleDoNode(self._rcvr_expr, self._arg_exprs[0],
+                                      self._arg_exprs[1], self._universe,
+                                      self._source_section))
         return self.replace(
             GenericMessageNode(self._selector,self._universe, self._rcvr_expr,
                                self._arg_exprs, self._source_section))
