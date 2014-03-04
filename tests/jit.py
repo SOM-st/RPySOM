@@ -43,7 +43,7 @@ class TestLLtype(LLJitMixin):
             return -1
 
         self.meta_interp(interp_w, [],
-                         listcomp=True, listops=True, backendopt=True)
+                         listcomp=True, listops=True, backendopt=True, inline=True)
 
     def test_inc(self):
         self._run_meta_interp("""
