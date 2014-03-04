@@ -295,7 +295,7 @@ class Parser(object):
         if len(expressions) == 1:
             return expressions[0]
 
-        seq_node = SequenceNode(expressions)
+        seq_node = SequenceNode(expressions[:])
         return self._assign_source(seq_node, coordinate)
 
     def _result(self, mgenc):
