@@ -3,7 +3,7 @@ from rtruffle.source_section import SourceSection
 from ..interpreter.nodes.block_node       import BlockNode, BlockNodeWithContext
 from ..interpreter.nodes.global_read_node import UninitializedGlobalReadNode
 from ..interpreter.nodes.literal_node     import LiteralNode
-from ..interpreter.nodes.message_node     import GenericMessageNode
+from ..interpreter.nodes.message_node     import UninitializedMessageNode
 from ..interpreter.nodes.return_non_local_node import ReturnNonLocalNode
 from ..interpreter.nodes.sequence_node    import SequenceNode
 
@@ -406,7 +406,7 @@ class Parser(object):
     def _unary_message(self, receiver):
         coord = self._lexer.get_source_coordinate()
         selector = self._unary_selector()
-        msg = GenericMessageNode(selector, self._universe, receiver, None)
+        msg = UninitializedMessageNode(selector, self._universe, receiver, None)
         return self._assign_source(msg, coord)
 
     def _binary_message(self, mgenc, receiver):
@@ -414,7 +414,8 @@ class Parser(object):
         selector = self._binary_selector()
         operand  = self._binary_operand(mgenc)
 
-        msg = GenericMessageNode(selector, self._universe, receiver, [operand])
+        msg = UninitializedMessageNode(selector, self._universe, receiver,
+                                       [operand])
         return self._assign_source(msg, coord)
 
     def _binary_operand(self, mgenc):
@@ -434,7 +435,8 @@ class Parser(object):
             arguments.append(self._formula(mgenc))
 
         selector = self._universe.symbol_for("".join(keyword))
-        msg = GenericMessageNode(selector, self._universe, receiver, arguments)
+        msg = UninitializedMessageNode(selector, self._universe, receiver,
+                                       arguments[:])
         return self._assign_source(msg, coord)
 
     def _formula(self, mgenc):

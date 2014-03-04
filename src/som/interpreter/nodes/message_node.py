@@ -1,32 +1,11 @@
 from .expression_node import ExpressionNode
-from rpython.rlib import jit
 
-from rpython.rlib.jit import unroll_safe, set_param
-
-
-def get_printable_location(method):
-    #assert isinstance(method, Method)
-    #return "send %s" % method.merge_point_string()
-    return "SEND TODO"
+from rpython.rlib.jit import unroll_safe
+from .specialized.while_node import WhileMessageNode
+from som.vmobjects.block import Block
 
 
-# jitdriver = jit.JitDriver(
-#     greens=['method'],
-#     reds= 'auto', #['frame'],
-#     #virtualizables=['frame'],
-#     get_printable_location=get_printable_location,
-#     should_unroll_one_iteration = lambda method: True)
-#
-#
-# def jitpolicy(driver):
-#     from rpython.jit.codewriter.policy import JitPolicy
-#     return JitPolicy()
-#
-# set_param(jitdriver, 'threshold', 16199)
-# set_param(jitdriver, 'function_threshold', 26199)
-
-
-class GenericMessageNode(ExpressionNode):
+class AbstractMessageNode(ExpressionNode):
 
     _immutable_fields_ = ['_selector', '_universe',
                           '_rcvr_expr?', '_arg_exprs?[*]']
@@ -41,18 +20,51 @@ class GenericMessageNode(ExpressionNode):
         self._arg_exprs = self.adopt_children(arg_exprs)
 
     @unroll_safe
-    def execute(self, frame):
+    def _evaluate_rcvr_and_args(self, frame):
         rcvr = self._rcvr_expr.execute(frame)
         if self._arg_exprs:
             args = [arg_exp.execute(frame) for arg_exp in self._arg_exprs]
         else:
             args = None
+        return rcvr, args
+
+
+class UninitializedMessageNode(AbstractMessageNode):
+
+    def execute(self, frame):
+        rcvr, args = self._evaluate_rcvr_and_args(frame)
+        return self._specialize(frame, rcvr, args).execute_evaluated(frame,
+                                                                     rcvr,
+                                                                     args)
+
+    def _specialize(self, frame, rcvr, args):
+        if args:
+            if isinstance(args[0], Block):
+                if   self._selector.get_string() == "whileTrue:":
+                    return self.replace(
+                        WhileMessageNode(self._rcvr_expr, self._arg_exprs[0],
+                                         self._universe.trueObject,
+                                         self._universe, self._source_section))
+                elif self._selector.get_string() == "whileTrue:":
+                    return self.replace(
+                        WhileMessageNode(self._rcvr_expr, self._arg_exprs[0],
+                                         self._universe.falseObject,
+                                         self._universe, self._source_section))
+
+        return self.replace(
+            GenericMessageNode(self._selector,self._universe, self._rcvr_expr,
+                               self._arg_exprs, self._source_section))
+
+
+class GenericMessageNode(AbstractMessageNode):
+
+    def execute(self, frame):
+        rcvr, args = self._evaluate_rcvr_and_args(frame)
         return self.execute_evaluated(frame, rcvr, args)
 
     def execute_evaluated(self, frame, rcvr, args):
         method = self._lookup_method(rcvr)
         if method:
-            #jitdriver.jit_merge_point(method = method)  # , frame = frame
             return method.invoke(frame, rcvr, args)
         else:
             return rcvr.send_does_not_understand(frame, self._selector, args,
