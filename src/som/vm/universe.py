@@ -425,12 +425,7 @@ class Universe(object):
         return self._globals.get(name, None)
 
     def set_global(self, name, value):
-        assoc = self._globals.get(name, None)
-        if assoc is None:
-            assoc = Assoc(name, value)
-            self._globals[name] = assoc
-        else:
-            assoc.set_value(value)
+        self.get_globals_association(name).set_value(value)
 
     def has_global(self, name):
         return name in self._globals
