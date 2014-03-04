@@ -23,17 +23,19 @@ cp = py.path.local(__file__).dirpath().dirpath().join("Smalltalk").strpath
 
 class TestLLtype(LLJitMixin):
 
-    def _compile_and_lookup(self, source, start):
+    def _compile_and_lookup(self, source, start, classpath):
         u = Universe()
-        u.setup_classpath(cp)
+        u.setup_classpath(classpath)
         u._initialize_object_system()
         cls = sourcecode_compiler.compile_class_from_string(source, None, u)
         obj = u.new_instance(cls)
         invokable = cls.lookup_invokable(u.symbol_for(start))
         return u, obj, invokable
 
-    def _run_meta_interp(self, program, main_method):
-        universe, rcvr, invokable = self._compile_and_lookup(program, main_method)
+    def _run_meta_interp(self, program, main_method, classpath = cp):
+        universe, rcvr, invokable = self._compile_and_lookup(program,
+                                                             main_method,
+                                                             classpath)
 
         def interp_w():
             try:
@@ -41,9 +43,12 @@ class TestLLtype(LLJitMixin):
             except Exit as e:
                 return e.code
             return -1
-
         self.meta_interp(interp_w, [],
                          listcomp=True, listops=True, backendopt=True, inline=True)
+
+    def _eval_expr(self, simple_expr, classpath = cp):
+        class_def = """C_0 = ( run = ( %s ) )""" % simple_expr
+        self._run_meta_interp(class_def, "run", classpath)
 
     def test_inc(self):
         self._run_meta_interp("""
