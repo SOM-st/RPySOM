@@ -203,3 +203,18 @@ class TestLLtype(LLJitMixin):
                       counter := counter + 1.]
                 )
             )""", "benchmark")
+
+    def test_instAt(self):
+        self._run_meta_interp("""
+            FieldLoop = (
+                | counter |
+
+                benchmark = ( | iter |
+                    counter := 0.
+                    iter := 20000.
+
+                    [ iter > 0 ] whileTrue: [
+                      iter := iter - 1.
+                      self instVarAt: 1 put: (self instVarAt: 1)]
+                )
+            )""", "benchmark")
