@@ -50,6 +50,14 @@ class TestLLtype(LLJitMixin):
         class_def = """C_0 = ( run = ( %s ) )""" % simple_expr
         self._run_meta_interp(class_def, "run", classpath)
 
+    def test_deltablue(self):
+        deltablue_cp = (py.path.local(__file__).dirpath().dirpath().join(
+                        "Smalltalk").strpath + ":" +
+                        py.path.local(__file__).dirpath().dirpath().join(
+                        "Examples/Benchmarks/DeltaBlue").strpath)
+        self._eval_expr("""Planner chainTest: 100.
+                           Planner projectionTest: 100""", deltablue_cp)
+
     def test_inc(self):
         self._run_meta_interp("""
             C_0 = (
