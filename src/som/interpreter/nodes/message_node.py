@@ -1,7 +1,7 @@
 from .expression_node import ExpressionNode
 from rpython.rlib import jit
 
-from rpython.rlib.jit import unroll_safe
+from rpython.rlib.jit import unroll_safe, set_param
 
 
 def get_printable_location(method):
@@ -10,11 +10,22 @@ def get_printable_location(method):
     return "SEND TODO"
 
 
-jitdriver = jit.JitDriver(
-    greens=['method'],
-    reds= 'auto', #['frame'],
-    #virtualizables=['frame'],
-    get_printable_location=get_printable_location)
+# jitdriver = jit.JitDriver(
+#     greens=['method'],
+#     reds= 'auto', #['frame'],
+#     #virtualizables=['frame'],
+#     get_printable_location=get_printable_location,
+#     should_unroll_one_iteration = lambda method: True)
+#
+#
+# def jitpolicy(driver):
+#     from rpython.jit.codewriter.policy import JitPolicy
+#     return JitPolicy()
+#
+# set_param(jitdriver, 'threshold', 16199)
+# set_param(jitdriver, 'function_threshold', 26199)
+
+
 class GenericMessageNode(ExpressionNode):
 
     _immutable_fields_ = ['_selector', '_universe',
@@ -41,7 +52,7 @@ class GenericMessageNode(ExpressionNode):
     def execute_evaluated(self, frame, rcvr, args):
         method = self._lookup_method(rcvr)
         if method:
-            jitdriver.jit_merge_point(method = method)  # , frame = frame
+            #jitdriver.jit_merge_point(method = method)  # , frame = frame
             return method.invoke(frame, rcvr, args)
         else:
             return rcvr.send_does_not_understand(frame, self._selector, args,
