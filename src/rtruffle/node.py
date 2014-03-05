@@ -35,9 +35,11 @@ def _generate_replace_method(cls):
                 if current is old_child:
                     setattr(parent_node, child_slot, new_child)
                     was_replaced = True
-        if not was_replaced:
-            raise ValueError("%s was not a direct child node of %s" % (
-                old_child, parent_node))
+        # TODO: method recursion is a problem causing specialization more than
+        #       once of a node if the containing method is already on the stack
+        # if not was_replaced:
+        #     raise ValueError("%s was not a direct child node of %s" % (
+        #         old_child, parent_node))
         return new_child
 
     cls._replace_child_with = _replace_child_with
