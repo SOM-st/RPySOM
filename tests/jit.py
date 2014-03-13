@@ -218,3 +218,10 @@ class TestLLtype(LLJitMixin):
                       self instVarAt: 1 put: (self instVarAt: 1)]
                 )
             )""", "benchmark")
+
+    def test_treesort(self):
+        cp = (py.path.local(__file__).dirpath().dirpath().join(
+              "Smalltalk").strpath + ":" +
+              py.path.local(__file__).dirpath().dirpath().join(
+              "Examples/Benchmarks").strpath)
+        self._eval_expr("""TreeSort benchmark""", cp)
