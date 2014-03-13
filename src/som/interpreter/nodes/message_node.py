@@ -2,6 +2,7 @@ from .expression_node import ExpressionNode
 
 from .specialized.if_true_false import IfTrueIfFalseNode, IfNode
 from .specialized.to_do_node    import IntToIntDoNode, IntToDoubleDoNode
+from .specialized.to_by_do_node import IntToIntByDoNode, IntToDoubleByDoNode
 from .specialized.while_node    import WhileMessageNode
 
 from rpython.rlib.jit import unroll_safe
@@ -70,6 +71,24 @@ class UninitializedMessageNode(AbstractMessageNode):
                     IntToDoubleDoNode(self._rcvr_expr, self._arg_exprs[0],
                                       self._arg_exprs[1], self._universe,
                                       self._source_section))
+            if (isinstance(args[0], Integer) and isinstance(rcvr, Integer) and
+                len(args) == 3 and
+                    isinstance(args[1], Integer) and
+                    isinstance(args[2], Block) and
+                self._selector.get_string() == "to:by:do:"):
+                return self.replace(
+                    IntToIntByDoNode(self._rcvr_expr, self._arg_exprs[0],
+                                   self._arg_exprs[1], self._arg_exprs[2],
+                                   self._universe, self._source_section))
+            if (isinstance(args[0], Double) and isinstance(rcvr, Integer) and
+                len(args) == 3 and
+                    isinstance(args[1], Integer) and
+                    isinstance(args[2], Block) and
+                self._selector.get_string() == "to:by:do:"):
+                return self.replace(
+                    IntToDoubleByDoNode(self._rcvr_expr, self._arg_exprs[0],
+                                      self._arg_exprs[1], self._arg_exprs[2],
+                                      self._universe, self._source_section))
             if (len(args) == 2 and (rcvr is self._universe.trueObject or
                                     rcvr is self._universe.falseObject) and
                 self._selector.get_string() == "ifTrue:ifFalse:"):
