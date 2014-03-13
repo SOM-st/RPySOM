@@ -4,12 +4,12 @@ from rtruffle.node import Node
 from .frame import Frame
 
 
-def get_printable_location(do_void, invokable):
+def get_printable_location(invokable):
     return invokable._source_section._identifier
 
 jitdriver = jit.JitDriver(
-     greens=['do_void', 'self'],
-     reds= ['arguments', 'caller_frame', 'receiver'],
+     greens=['self'],
+     reds= ['arguments', 'caller_frame', 'receiver', 'do_void'],
      # virtualizables=['caller_frame'])
       get_printable_location=get_printable_location,
 
@@ -21,7 +21,7 @@ jitdriver = jit.JitDriver(
      # the next line says that calls involving this jitdriver should always be
      # inlined once (which means that things like Integer>>< will be inlined
      # into a while loop again, when enabling this driver).
-     should_unroll_one_iteration = lambda do_void, self: True)
+     should_unroll_one_iteration = lambda self: True)
 
 
 class Invokable(Node):
