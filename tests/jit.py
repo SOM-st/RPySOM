@@ -82,6 +82,13 @@ class TestLLtype(LLJitMixin):
             )
             """, "run")
 
+    def test_dispatch(self):
+        self._run_meta_interp("""
+            Dispatch = (
+                method: n = ( ^ n )
+                run = ( 1 to: 20000 do: [:i | self method: i ] ) )
+            """, "run")
+
     def test_rec(self):
         self._run_meta_interp("""
             C_1 = (
