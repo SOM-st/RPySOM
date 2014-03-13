@@ -9,7 +9,7 @@ def get_printable_location(invokable):
 
 jitdriver = jit.JitDriver(
      greens=['self'],
-     reds= ['arguments', 'caller_frame', 'receiver', 'do_void'],
+     reds= ['do_void', 'arguments', 'caller_frame', 'receiver'],
      # virtualizables=['caller_frame'])
       get_printable_location=get_printable_location,
 
