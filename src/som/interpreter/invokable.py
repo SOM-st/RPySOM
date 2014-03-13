@@ -20,9 +20,7 @@ jitdriver = jit.JitDriver(
      # the next line says that calls involving this jitdriver should always be
      # inlined once (which means that things like Integer>>< will be inlined
      # into a while loop again, when enabling this driver).
-     should_unroll_one_iteration = lambda self: True,
-     )
-
+     should_unroll_one_iteration = lambda self: True)
 
 
 class Invokable(Node):
