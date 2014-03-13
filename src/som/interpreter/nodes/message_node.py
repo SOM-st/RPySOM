@@ -1,4 +1,8 @@
 from .expression_node import ExpressionNode
+from som.interpreter.nodes.dispatch import SuperDispatchNode, \
+    UninitializedDispatchNode
+from som.interpreter.nodes.nonlocal_variable_read_node import \
+    NonLocalSuperReadNode
 
 from .specialized.if_true_false import IfTrueIfFalseNode, IfNode
 from .specialized.to_do_node    import IntToIntDoNode, IntToDoubleDoNode
@@ -108,33 +112,41 @@ class UninitializedMessageNode(AbstractMessageNode):
                         IfNode(self._rcvr_expr, self._arg_exprs[0],
                                self._universe.falseObject, self._universe,
                                self._source_section))
+
+        return self._specialize_to_generic_message_send()
+
+    def _specialize_to_generic_message_send(self):
+        if isinstance(self._rcvr_expr, NonLocalSuperReadNode):
+            dispatch_node = SuperDispatchNode(self._selector, self._rcvr_expr)
+        else:
+            dispatch_node = UninitializedDispatchNode(self._selector,
+                                                      self._universe)
         return self.replace(
             GenericMessageNode(self._selector, self._universe, self._rcvr_expr,
-                               self._arg_exprs, self._source_section))
+                               self._arg_exprs, dispatch_node,
+                               self._source_section))
 
 
 class GenericMessageNode(AbstractMessageNode):
+
+    _immutable_fields_ = ['_dispatch_node?']
+    _child_nodes_      = ['_dispatch_node']
+
+    def __init__(self, selector, universe, rcvr_expr, arg_exprs, dispatch_node,
+                 source_section = None):
+        AbstractMessageNode.__init__(self, selector, universe, rcvr_expr,
+                                     arg_exprs, source_section)
+        self._dispatch_node = self.adopt_child(dispatch_node)
 
     def execute(self, frame):
         rcvr, args = self._evaluate_rcvr_and_args(frame)
         return self.execute_evaluated(frame, rcvr, args)
 
     def execute_evaluated(self, frame, rcvr, args):
-        method = self._lookup_method(rcvr)
-        if method:
-            return method.invoke(frame, rcvr, args)
-        else:
-            return rcvr.send_does_not_understand(frame, self._selector, args,
-                                                 self._universe)
+        return self._dispatch_node.dispatch(frame, rcvr, args)
 
-    def _lookup_method(self, rcvr):
-        rcvr_class = self._class_of_receiver(rcvr)
-        return rcvr_class.lookup_invokable(self._selector)
-
-    def _class_of_receiver(self, rcvr):
-        if self._rcvr_expr.is_super_node():
-            return self._rcvr_expr.get_super_class()
-        return rcvr.get_class(self._universe)
+    def replace_dispatch_chain(self, dispatch_node):
+        self._dispatch_node.replace(dispatch_node)
 
     def __str__(self):
         return "%s(%s, %s)" % (self.__class__.__name__,
