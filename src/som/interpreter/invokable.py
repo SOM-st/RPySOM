@@ -23,22 +23,6 @@ jitdriver = jit.JitDriver(
      # into a while loop again, when enabling this driver).
      should_unroll_one_iteration = lambda self: True)
 
-jitdriver_void = jit.JitDriver(
-     greens=['self'],
-     reds= ['arguments', 'caller_frame', 'receiver'],
-     # virtualizables=['caller_frame'])
-      get_printable_location=get_printable_location,
-
-     # the next line is a workaround around a likely bug in RPython
-     # for some reason, the inlining heuristics default to "never inline" when
-     # two different jit drivers are involved (in our case, the primitive
-     # driver, and this one).
-
-     # the next line says that calls involving this jitdriver should always be
-     # inlined once (which means that things like Integer>>< will be inlined
-     # into a while loop again, when enabling this driver).
-     should_unroll_one_iteration = lambda self: True)
-
 
 class Invokable(Node):
 
@@ -53,21 +37,19 @@ class Invokable(Node):
         self._number_of_temps  = number_of_temps
 
     def invoke(self, caller_frame, receiver, arguments):
+        return self._do_invoke(caller_frame, receiver, arguments, False)
+
+    def invoke_void(self, caller_frame, receiver, arguments):
+        self._do_invoke(caller_frame, receiver, arguments, True)
+
+    def _do_invoke(self,  caller_frame, receiver, arguments, do_void):
         jitdriver.jit_merge_point(self      = self,
                                   receiver  = receiver,
                                   arguments = arguments,
                                   caller_frame = caller_frame)
-
         frame = Frame(receiver, arguments, self._number_of_temps,
                       caller_frame, self._universe.nilObject)
-        return self._expr_or_sequence.execute(frame)
-
-    def invoke_void(self, caller_frame, receiver, arguments):
-        jitdriver_void.jit_merge_point(self      = self,
-                                       receiver  = receiver,
-                                       arguments = arguments,
-                                       caller_frame = caller_frame)
-
-        frame = Frame(receiver, arguments, self._number_of_temps,
-                      caller_frame, self._universe.nilObject)
-        self._expr_or_sequence.execute_void(frame)
+        if do_void:
+            self._expr_or_sequence.execute_void(frame)
+        else:
+            return self._expr_or_sequence.execute(frame)
