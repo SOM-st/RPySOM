@@ -89,6 +89,27 @@ class TestLLtype(LLJitMixin):
                 run = ( 1 to: 20000 do: [:i | self method: i ] ) )
             """, "run")
 
+    def test_whileloop(self):
+        self._run_meta_interp("""
+    WhileLoop = (
+            singleRun = (
+        | sum |
+        sum := 0.
+        [sum < 1000]
+            whileTrue:
+                [sum := sum + 1].
+        ^ sum
+    )
+
+    benchmark = (
+        | sum |
+        sum := 0.
+        [sum < 20000]
+            whileTrue:
+                [sum := sum + self singleRun].
+        ^ sum
+    ) ) """, "benchmark")
+
     def test_rec(self):
         self._run_meta_interp("""
             C_1 = (
@@ -99,7 +120,6 @@ class TestLLtype(LLJitMixin):
                 run = ( ^ self count: 100000 )
             )
             """, "run")
-
 
     def test_sieve(self):
         self._run_meta_interp("""
