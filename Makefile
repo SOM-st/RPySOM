@@ -6,7 +6,8 @@ RPYTHON  ?= $(PYPY_DIR)/rpython/bin/rpython
 
 all: compile
 
-compile: RTruffleSOM-no-jit RTruffleSOM-jit
+# RTruffleSOM-no-jit 
+compile: RTruffleSOM-jit
 
 RTruffleSOM-no-jit:
 	PYTHONPATH=$(PYTHONPATH):$(PYPY_DIR) $(RPYTHON) --batch src/targetsomstandalone.py
