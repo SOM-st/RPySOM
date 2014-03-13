@@ -3,13 +3,12 @@ from rtruffle.node import Node
 
 from .frame import Frame
 
-
 def get_printable_location(invokable):
     return invokable._source_section._identifier
 
 jitdriver = jit.JitDriver(
      greens=['self'],
-     reds= ['do_void', 'arguments', 'caller_frame', 'receiver'],
+     reds= ['arguments', 'caller_frame', 'receiver'],
      # virtualizables=['caller_frame'])
       get_printable_location=get_printable_location,
 
@@ -37,20 +36,11 @@ class Invokable(Node):
         self._number_of_temps  = number_of_temps
 
     def invoke(self, caller_frame, receiver, arguments):
-        return self._do_invoke(caller_frame, receiver, arguments, False)
-
-    def invoke_void(self, caller_frame, receiver, arguments):
-        self._do_invoke(caller_frame, receiver, arguments, True)
-
-    def _do_invoke(self,  caller_frame, receiver, arguments, do_void):
         jitdriver.jit_merge_point(self      = self,
                                   receiver  = receiver,
                                   arguments = arguments,
-                                  caller_frame = caller_frame,
-                                  do_void = do_void)
+                                  caller_frame = caller_frame)
+
         frame = Frame(receiver, arguments, self._number_of_temps,
                       caller_frame, self._universe.nilObject)
-        if do_void:
-            self._expr_or_sequence.execute_void(frame)
-        else:
-            return self._expr_or_sequence.execute(frame)
+        return self._expr_or_sequence.execute(frame)

@@ -28,9 +28,6 @@ class NonLocalVariableReadNode(NonLocalVariableNode):
         else:
             return ctx.get_temp(self._frame_idx)
 
-    def execute_void(self, frame):
-        pass  # NOOP, because it is side-effect free
-
 
 class NonLocalSelfReadNode(ContextualNode):
 
@@ -40,9 +37,6 @@ class NonLocalSelfReadNode(ContextualNode):
     def execute(self, frame):
         ctx = self.determine_context(frame)
         return ctx.get_self()
-
-    def execute_void(self, frame):
-        pass  # NOOP, because it is side-effect free
 
 
 class NonLocalSuperReadNode(NonLocalSelfReadNode):
@@ -85,6 +79,3 @@ class NonLocalVariableWriteNode(NonLocalVariableNode):
         value = self._value_expr.execute(frame)
         self.determine_context(frame).set_temp(self._frame_idx, value)
         return value
-
-    def execute_void(self, frame):
-        self.execute(frame)
