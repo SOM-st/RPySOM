@@ -18,10 +18,14 @@ class AbstractWhileMessageNode(ExpressionNode):
         self._universe       = universe
 
     def execute(self, frame):
+        self.execute_void(frame)
+        return self._universe.nilObject
+
+    def execute_void(self, frame):
         rcvr_value = self._rcvr_expr.execute(frame)
         body_block = self._body_expr.execute(frame)
 
-        return self._do_while(frame, rcvr_value, body_block)
+        self._do_while(frame, rcvr_value, body_block)
 
 # STEFAN: SOM doesn't actually have #whileTrue:, #whileFalse: for booleans.
 
@@ -64,7 +68,11 @@ while_driver = jit.JitDriver(
 class WhileMessageNode(AbstractWhileMessageNode):
 
     def execute_evaluated(self, frame, rcvr, args):
-        return self._do_while(frame, rcvr, args[0])
+        self.execute_evaluated_void(frame, rcvr, args)
+        return self._universe.nilObject
+
+    def execute_evaluated_void(self, frame, rcvr, args):
+        self._do_while(frame, rcvr, args[0])
 
     def _do_while(self, frame, rcvr_block, body_block):
         condition_method = rcvr_block.get_method()
@@ -78,6 +86,4 @@ class WhileMessageNode(AbstractWhileMessageNode):
             condition_value = condition_method.invoke(frame, rcvr_block, None)
             if condition_value is not self._predicate_bool:
                 break
-            body_method.invoke(frame, body_block, None)
-
-        return self._universe.nilObject
+            body_method.invoke_void(frame, body_block, None)
