@@ -1,12 +1,14 @@
 from .expression_node import ExpressionNode
 
+from .specialized.if_true_false import IfTrueIfFalseNode, IfNode
+from .specialized.to_do_node    import IntToIntDoNode, IntToDoubleDoNode
+from .specialized.while_node    import WhileMessageNode
+
 from rpython.rlib.jit import unroll_safe
-from som.interpreter.nodes.specialized.to_do_node import IntToIntDoNode, \
-    IntToDoubleDoNode
-from som.vmobjects.double import Double
-from som.vmobjects.integer import Integer
-from .specialized.while_node import WhileMessageNode
-from som.vmobjects.block import Block
+
+from ...vmobjects.block   import Block
+from ...vmobjects.double  import Double
+from ...vmobjects.integer import Integer
 
 
 class AbstractMessageNode(ExpressionNode):
@@ -68,8 +70,27 @@ class UninitializedMessageNode(AbstractMessageNode):
                     IntToDoubleDoNode(self._rcvr_expr, self._arg_exprs[0],
                                       self._arg_exprs[1], self._universe,
                                       self._source_section))
+            if (len(args) == 2 and (rcvr is self._universe.trueObject or
+                                    rcvr is self._universe.falseObject) and
+                self._selector.get_string() == "ifTrue:ifFalse:"):
+                return self.replace(
+                    IfTrueIfFalseNode(self._rcvr_expr, self._arg_exprs[0],
+                                      self._arg_exprs[1], self._universe,
+                                      self._source_section))
+            if (len(args) == 1 and (rcvr is self._universe.trueObject or
+                                    rcvr is self._universe.falseObject)):
+                if self._selector.get_string() == "ifTrue:":
+                    return self.replace(
+                        IfNode(self._rcvr_expr, self._arg_exprs[0],
+                               self._universe.trueObject, self._universe,
+                               self._source_section))
+                if self._selector.get_string() == "ifFalse:":
+                    return self.replace(
+                        IfNode(self._rcvr_expr, self._arg_exprs[0],
+                               self._universe.falseObject, self._universe,
+                               self._source_section))
         return self.replace(
-            GenericMessageNode(self._selector,self._universe, self._rcvr_expr,
+            GenericMessageNode(self._selector, self._universe, self._rcvr_expr,
                                self._arg_exprs, self._source_section))
 
 
