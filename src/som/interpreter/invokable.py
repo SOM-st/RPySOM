@@ -9,7 +9,7 @@ def get_printable_location(invokable):
 
 jitdriver = jit.JitDriver(
      greens=['self'],
-     reds= ['arguments', 'caller_frame', 'receiver'],
+     reds= ['arguments', 'caller_frame', 'receiver', 'do_void'],
      # virtualizables=['caller_frame'])
       get_printable_location=get_printable_location,
 
@@ -46,7 +46,8 @@ class Invokable(Node):
         jitdriver.jit_merge_point(self      = self,
                                   receiver  = receiver,
                                   arguments = arguments,
-                                  caller_frame = caller_frame)
+                                  caller_frame = caller_frame,
+                                  do_void = do_void)
         frame = Frame(receiver, arguments, self._number_of_temps,
                       caller_frame, self._universe.nilObject)
         if do_void:
