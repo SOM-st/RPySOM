@@ -21,6 +21,9 @@ class FieldReadNode(FieldNode):
         self_obj = self._self_exp.execute(frame)
         return self_obj.get_field(self._field_idx)
 
+    def execute_void(self, frame):
+        pass  # NOOP, because it is side-effect free
+
 
 class FieldWriteNode(FieldNode):
 
@@ -36,3 +39,6 @@ class FieldWriteNode(FieldNode):
         value    = self._value_exp.execute(frame)
         self_obj.set_field(self._field_idx, value)
         return value
+
+    def execute_void(self, frame):
+        self.execute(frame)
