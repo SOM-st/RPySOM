@@ -21,21 +21,10 @@ class AbstractToDoNode(ExpressionNode):
         rcvr  = self._rcvr_expr.execute(frame)
         limit = self._limit_expr.execute(frame)
         body  = self._body_expr.execute(frame)
-        self._do_loop(frame, rcvr, limit, body)
-        return rcvr
-
-    def execute_void(self, frame):
-        rcvr  = self._rcvr_expr.execute(frame)
-        limit = self._limit_expr.execute(frame)
-        body  = self._body_expr.execute(frame)
-        self._do_loop(frame, rcvr, limit, body)
+        return self._do_loop(frame, rcvr, limit, body)
 
     def execute_evaluated(self, frame, rcvr, args):
-        self._do_loop(frame, rcvr, args[0], args[1])
-        return rcvr
-
-    def execute_evaluated_void(self, frame, rcvr, args):
-        self._do_loop(frame, rcvr, args[0], args[1])
+        return self._do_loop(frame, rcvr, args[0], args[1])
 
 
 def get_printable_location(block_method):
@@ -59,9 +48,10 @@ class IntToIntDoNode(AbstractToDoNode):
         top = limit.get_embedded_integer()
         while i <= top:
             int_driver.jit_merge_point(block_method = block_method)
-            block_method.invoke_void(frame, body_block,
-                                     [self._universe.new_integer(i)])
+            block_method.invoke(frame, body_block,
+                                [self._universe.new_integer(i)])
             i += 1
+        return rcvr
 
 
 double_driver = jit.JitDriver(
@@ -80,6 +70,7 @@ class IntToDoubleDoNode(AbstractToDoNode):
         top = limit.get_embedded_double()
         while i <= top:
             double_driver.jit_merge_point(block_method = block_method)
-            block_method.invoke_void(frame, body_block,
-                                     [self._universe.new_integer(i)])
+            block_method.invoke(frame, body_block,
+                                [self._universe.new_integer(i)])
             i += 1
+        return rcvr

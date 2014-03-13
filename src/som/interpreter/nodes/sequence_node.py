@@ -12,15 +12,9 @@ class SequenceNode(ExpressionNode):
         ExpressionNode.__init__(self, source_section)
         self._exprs = self.adopt_children(expressions)
 
-    def execute(self, frame):
-        self._execute_all_but_last(frame)
-        return self._exprs[-1].execute(frame)
-
     @unroll_safe
-    def _execute_all_but_last(self, frame):
-        for expr in self._exprs[:-1]:
-            expr.execute_void(frame)
-
-    def execute_void(self, frame):
-        self._execute_all_but_last(frame)
-        self._exprs[-1].execute_void(frame)
+    def execute(self, frame):
+        result = None
+        for expr in self._exprs:
+            result = expr.execute(frame)
+        return result

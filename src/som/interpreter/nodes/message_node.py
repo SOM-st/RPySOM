@@ -37,13 +37,9 @@ class UninitializedMessageNode(AbstractMessageNode):
 
     def execute(self, frame):
         rcvr, args = self._evaluate_rcvr_and_args(frame)
-        return self._specialize(frame, rcvr, args).\
-            execute_evaluated(frame, rcvr, args)
-
-    def execute_void(self, frame):
-        rcvr, args = self._evaluate_rcvr_and_args(frame)
-        self._specialize(frame, rcvr, args).\
-            execute_evaluated_void(frame, rcvr, args)
+        return self._specialize(frame, rcvr, args).execute_evaluated(frame,
+                                                                     rcvr,
+                                                                     args)
 
     def _specialize(self, frame, rcvr, args):
         if args:
@@ -82,18 +78,6 @@ class GenericMessageNode(AbstractMessageNode):
     def execute(self, frame):
         rcvr, args = self._evaluate_rcvr_and_args(frame)
         return self.execute_evaluated(frame, rcvr, args)
-
-    def execute_void(self, frame):
-        rcvr, args = self._evaluate_rcvr_and_args(frame)
-        self.execute_evaluated_void(frame, rcvr, args)
-
-    def execute_evaluated_void(self, frame, rcvr, args):
-        method = self._lookup_method(rcvr)
-        if method:
-            method.invoke_void(frame, rcvr, args)
-        else:
-            rcvr.send_does_not_understand_void(frame, self._selector, args,
-                                               self._universe)
 
     def execute_evaluated(self, frame, rcvr, args):
         method = self._lookup_method(rcvr)
