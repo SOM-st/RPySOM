@@ -4,8 +4,8 @@ from rtruffle.source_section import SourceSection
 
 from .variable                                 import Argument, Local
 
-from ..interpreter.nodes.field_node            import FieldWriteNode, \
-                                                      FieldReadNode
+from ..interpreter.nodes.field_node            import create_write_node, \
+                                                      create_read_node
 from ..interpreter.nodes.global_read_node      import \
     UninitializedGlobalReadNode
 from ..interpreter.nodes.return_non_local_node import CatchNonLocalReturnNode
@@ -195,7 +195,7 @@ class MethodGenerationContext(object):
     def get_object_field_read(self, field_name):
         if not self.has_field(field_name):
             return None
-        return FieldReadNode(self._get_self_read(),
+        return create_read_node(self._get_self_read(),
                              self.get_field_index(field_name))
 
     def get_global_read(self, var_name, universe):
@@ -204,7 +204,7 @@ class MethodGenerationContext(object):
     def get_object_field_write(self, field_name, exp, universe):
         if not self.has_field(field_name):
             return None
-        return FieldWriteNode(self._get_self_read(),
+        return create_write_node(self._get_self_read(),
                               self.get_field_index(field_name),
                               exp)
 
