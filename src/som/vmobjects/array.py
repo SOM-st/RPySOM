@@ -1,4 +1,4 @@
-from som.vmobjects.abstract_object import AbstractObject
+from .abstract_object import AbstractObject
 
 class Array(AbstractObject):
 
@@ -26,24 +26,18 @@ class Array(AbstractObject):
         return len(self._indexable_fields)
 
     def copy_and_extend_with(self, value, universe):
-        # Allocate a new array which has one indexable field more than this
-        # array
-        result = universe.new_array_with_length(
+        result = Array(universe.nilObject,
                             self.get_number_of_indexable_fields() + 1)
 
-        # Copy the indexable fields from this array to the new array
         self._copy_indexable_fields_to(result)
 
         # Insert the given object as the last indexable field in the new array
         result.set_indexable_field(self.get_number_of_indexable_fields(), value)
-
-        # Return the new array
         return result
 
     def _copy_indexable_fields_to(self, destination):
-        # Copy all indexable fields from this array to the destination array
-        for i in range(self.get_number_of_indexable_fields()):
-            destination.set_indexable_field(i, self.get_indexable_field(i))
+        for i, value in enumerate(self._indexable_fields):
+            destination._indexable_fields[i] = value
 
     def get_class(self, universe):
         return universe.arrayClass
