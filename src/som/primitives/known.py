@@ -3,6 +3,8 @@ from rpython.rlib.unroll import unrolling_iterable
    time with RPython.
 """
 
+EXPECTED_NUMBER_OF_PRIMITIVE_FILES = 12
+
 class PrimitivesNotFound(Exception): pass
 
 def _is_primitives_class(e):
@@ -31,6 +33,15 @@ def _setup_primitives():
     prim_pairs = map(lambda (name, cls):
                 (name[:name.find("Primitives")], cls),
                 all_prims)
+    print ""
+    print "SOM PRIMITIVE DISCOVERY: following primitives found:"
+    for name, clazz in prim_pairs:
+        print "   - %s" % name
+    print "Expected number of primitive files: %d, found %d" % (EXPECTED_NUMBER_OF_PRIMITIVE_FILES, len(prim_pairs))
+    if EXPECTED_NUMBER_OF_PRIMITIVE_FILES != len(prim_pairs):
+        print "ERROR: did not find the expected number of primitive files!"
+        import sys
+        sys.exit(1)
     return prim_pairs
 
 _primitives = unrolling_iterable(_setup_primitives())
