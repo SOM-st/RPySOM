@@ -36,6 +36,9 @@ class FieldReadNode(FieldNode):
         self_obj = self._self_exp.execute(frame)
         assert isinstance(self_obj, Object)
         return self.read(self_obj)
+    
+    def execute_void(self, frame):
+        pass  # NOOP, because it is side-effect free
 
 
 class FieldReadNode1(FieldReadNode):
@@ -95,6 +98,9 @@ class FieldWriteNode(FieldNode):
         assert isinstance(self_obj, Object)
         self.write(self_obj, value)
         return value
+    
+    def execute_void(self, frame):
+        self.execute(frame)
 
 
 class FieldWriteNode1(FieldWriteNode):

@@ -9,16 +9,30 @@ class AbstractObject(object):
         invokable = self.get_class(universe).lookup_invokable(selector)
         return invokable.invoke(frame, self, arguments)
 
+    def send_void(self, frame, selector_string, arguments, universe):
+        # Turn the selector string into a selector
+        selector = universe.symbol_for(selector_string)
+        invokable = self.get_class(universe).lookup_invokable(selector)
+        invokable.invoke_void(frame, self, arguments)
+
+
     def send_does_not_understand(self, frame, selector, arguments, universe):
+        args = self._prepare_dnu_arguments(arguments, selector, universe)
+        return self.send(frame, "doesNotUnderstand:arguments:", args, universe)
+
+    def _prepare_dnu_arguments(self, arguments, selector, universe):
         # Compute the number of arguments
         number_of_arguments = selector.get_number_of_signature_arguments()
         arguments_array = universe.new_array_with_length(number_of_arguments)
-
         for i in range(0, number_of_arguments):
             arguments_array.set_indexable_field(i, arguments[i])
-            
         args = [selector, arguments_array]
-        return self.send(frame, "doesNotUnderstand:arguments:", args, universe)
+        return args
+
+    def send_does_not_understand_void(self, frame, selector, arguments, universe):
+        args = self._prepare_dnu_arguments(arguments, selector, universe)
+        return self.send_void(frame, "doesNotUnderstand:arguments:", args,
+                              universe)
 
     def send_unknown_global(self, frame, global_name, universe):
         arguments = [global_name]
