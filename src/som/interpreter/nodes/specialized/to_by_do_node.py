@@ -29,11 +29,11 @@ class AbstractToByDoNode(AbstractToDoNode):
         self.execute(frame)
 
     def execute_evaluated(self, frame, rcvr, args):
-        self._to_by_loop_rcvr(frame, rcvr, args[0], args[1], args[2])
+        self._to_by_loop_void(frame, rcvr, args[0], args[1], args[2])
         return rcvr
     
     def execute_evaluated_void(self, frame, rcvr, args):
-        self._to_by_loop_rcvr(frame, rcvr, args[0], args[1], args[2])
+        self._to_by_loop_void(frame, rcvr, args[0], args[1], args[2])
 
 
 def get_printable_location(block_method):
