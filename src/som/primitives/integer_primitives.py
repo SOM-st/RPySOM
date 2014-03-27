@@ -10,7 +10,7 @@ from som.vmobjects.block       import block_evaluate
 import math
 
 
-def _long_result(frame, result, universe):
+def _long_result(result, universe):
     # Check with integer bounds and push:
     if integer_value_fits(result):
         return universe.new_integer(int(result))
@@ -18,23 +18,23 @@ def _long_result(frame, result, universe):
         return universe.new_biginteger(result)
 
 
-def _resend_as_biginteger(frame, operator, left, right, universe):
+def _resend_as_biginteger(operator, left, right, universe):
     left_biginteger = universe.new_biginteger(left.get_embedded_integer())
     operands = [right]
-    return left_biginteger.send(frame, operator, operands, universe)
+    return left_biginteger.send(operator, operands, universe)
 
 
-def _resend_as_double(frame, operator, left, right, universe):
+def _resend_as_double(operator, left, right, universe):
     left_double = universe.new_double(left.get_embedded_integer())
     operands    = [right]
-    return left_double.send(frame, operator, operands, universe)
+    return left_double.send(operator, operands, universe)
 
 
-def _asString(ivkbl, frame, rcvr, args):
+def _asString(ivkbl, rcvr, args):
     return ivkbl.get_universe().new_string(str(rcvr.get_embedded_integer()))
 
 
-def _sqrt(ivkbl, frame, rcvr, args):
+def _sqrt(ivkbl, rcvr, args):
     res = math.sqrt(rcvr.get_embedded_integer())
     if res == float(int(res)):
         return ivkbl.get_universe().new_integer(int(res))
@@ -42,11 +42,11 @@ def _sqrt(ivkbl, frame, rcvr, args):
         return ivkbl.get_universe().new_double(res)
 
 
-def _atRandom(ivkbl, frame, rcvr, args):
+def _atRandom(ivkbl, rcvr, args):
     return ivkbl.get_universe().new_integer(int(
         rcvr.get_embedded_integer() * ivkbl.get_universe().random.random()))
 
-def _plus(ivkbl, frame, rcvr, args):
+def _plus(ivkbl, rcvr, args):
     right_obj = args[0]
     left      = rcvr
     universe  = ivkbl.get_universe()
@@ -54,17 +54,17 @@ def _plus(ivkbl, frame, rcvr, args):
     # Check second parameter type:
     if isinstance(right_obj, BigInteger):
         # Second operand was BigInteger
-        return _resend_as_biginteger(frame, "+", left, right_obj, universe)
+        return _resend_as_biginteger("+", left, right_obj, universe)
     elif isinstance(right_obj, Double):
-        return _resend_as_double(frame, "+", left, right_obj, universe)
+        return _resend_as_double("+", left, right_obj, universe)
     else:
         # Do operation:
         right = right_obj
         result = left.get_embedded_integer() + right.get_embedded_integer()
-        return _long_result(frame, result, universe)
+        return _long_result(result, universe)
 
 
-def _minus(ivkbl, frame, rcvr, args):
+def _minus(ivkbl, rcvr, args):
     right_obj = args[0]
     left      = rcvr
     universe  = ivkbl.get_universe()
@@ -72,16 +72,16 @@ def _minus(ivkbl, frame, rcvr, args):
     # Check second parameter type:
     if isinstance(right_obj, BigInteger):
         # Second operand was BigInteger
-        return _resend_as_biginteger(frame, "-", left, right_obj, universe)
+        return _resend_as_biginteger("-", left, right_obj, universe)
     elif isinstance(right_obj, Double):
-        return _resend_as_double(frame, "-", left, right_obj, universe)
+        return _resend_as_double("-", left, right_obj, universe)
     else:
         # Do operation:
         right = right_obj
         result = left.get_embedded_integer() - right.get_embedded_integer()
-        return _long_result(frame, result, universe)
+        return _long_result(result, universe)
 
-def _mult(ivkbl, frame, rcvr, args):
+def _mult(ivkbl, rcvr, args):
     right_obj = args[0]
     left      = rcvr
     universe  = ivkbl.get_universe()
@@ -89,17 +89,17 @@ def _mult(ivkbl, frame, rcvr, args):
     # Check second parameter type:
     if isinstance(right_obj, BigInteger):
         # Second operand was BigInteger
-        return _resend_as_biginteger(frame, "*", left, right_obj, universe)
+        return _resend_as_biginteger("*", left, right_obj, universe)
     elif isinstance(right_obj, Double):
-        return _resend_as_double(frame, "*", left, right_obj, universe)
+        return _resend_as_double("*", left, right_obj, universe)
     else:
         # Do operation:
         right = right_obj
         result = left.get_embedded_integer() * right.get_embedded_integer()
-        return _long_result(frame, result, universe)
+        return _long_result(result, universe)
 
 
-def _doubleDiv(ivkbl, frame, rcvr, args):
+def _doubleDiv(ivkbl, rcvr, args):
     right_obj = args[0]
     left      = rcvr
     universe  = ivkbl.get_universe()
@@ -107,9 +107,9 @@ def _doubleDiv(ivkbl, frame, rcvr, args):
     # Check second parameter type:
     if isinstance(right_obj, BigInteger):
         # Second operand was BigInteger
-        return _resend_as_biginteger(frame, "/", left, right_obj, universe)
+        return _resend_as_biginteger("/", left, right_obj, universe)
     elif isinstance(right_obj, Double):
-        return _resend_as_double(frame, "/", left, right_obj, universe)
+        return _resend_as_double("/", left, right_obj, universe)
     else:
         # Do operation:
         right = right_obj
@@ -117,7 +117,7 @@ def _doubleDiv(ivkbl, frame, rcvr, args):
         return universe.new_double(result)
 
 
-def _intDiv(ivkbl, frame, rcvr, args):
+def _intDiv(ivkbl, rcvr, args):
     right_obj = args[0]
     left      = rcvr
     universe  = ivkbl.get_universe()
@@ -125,17 +125,17 @@ def _intDiv(ivkbl, frame, rcvr, args):
     # Check second parameter type:
     if isinstance(right_obj, BigInteger):
         # Second operand was BigInteger
-        return _resend_as_biginteger(frame, "/", left, right_obj, universe)
+        return _resend_as_biginteger("/", left, right_obj, universe)
     elif isinstance(right_obj, Double):
-        return _resend_as_double(frame, "/", left, right_obj, universe)
+        return _resend_as_double("/", left, right_obj, universe)
     else:
         # Do operation:
         right = right_obj
         result = left.get_embedded_integer() / right.get_embedded_integer()
-        return _long_result(frame, result, universe)
+        return _long_result(result, universe)
 
 
-def _mod(ivkbl, frame, rcvr, args):
+def _mod(ivkbl, rcvr, args):
     right_obj = args[0]
     left      = rcvr
     universe  = ivkbl.get_universe()
@@ -143,15 +143,15 @@ def _mod(ivkbl, frame, rcvr, args):
     # Check second parameter type:
     if isinstance(right_obj, BigInteger):
         # Second operand was BigInteger
-        _resend_as_biginteger(frame, "%", left, right_obj, universe)
+        _resend_as_biginteger("%", left, right_obj, universe)
     elif isinstance(right_obj, Double):
-        return _resend_as_double(frame, "%", left, right_obj, universe)
+        return _resend_as_double("%", left, right_obj, universe)
     else:
         # Do operation:
-        return _long_result(frame, left.get_embedded_integer()
+        return _long_result(left.get_embedded_integer()
                                    % right_obj.get_embedded_integer(), universe)
 
-def _and(ivkbl, frame, rcvr, args):
+def _and(ivkbl, rcvr, args):
     right_obj = args[0]
     left      = rcvr
     universe  = ivkbl.get_universe()
@@ -159,17 +159,17 @@ def _and(ivkbl, frame, rcvr, args):
     # Check second parameter type:
     if isinstance(right_obj, BigInteger):
         # Second operand was BigInteger
-        return _resend_as_biginteger(frame, "&", left, right_obj, universe)
+        return _resend_as_biginteger("&", left, right_obj, universe)
     elif isinstance(right_obj, Double):
-        return _resend_as_double(frame, "&", left, right_obj, universe)
+        return _resend_as_double("&", left, right_obj, universe)
     else:
         # Do operation:
         right = right_obj
         result = left.get_embedded_integer() & right.get_embedded_integer()
-        return _long_result(frame, result, universe)
+        return _long_result(result, universe)
 
 
-def _equals(ivkbl, frame, rcvr, args):
+def _equals(ivkbl, rcvr, args):
     right_obj = args[0]
     left      = rcvr
     universe  = ivkbl.get_universe()
@@ -177,7 +177,7 @@ def _equals(ivkbl, frame, rcvr, args):
     # Check second parameter type:
     if isinstance(right_obj, BigInteger):
         # Second operand was BigInteger
-        return _resend_as_biginteger(frame, "=", left, right_obj, universe)
+        return _resend_as_biginteger("=", left, right_obj, universe)
     elif isinstance(right_obj, Integer):
         if left.get_embedded_integer() == right_obj.get_embedded_integer():
             return universe.trueObject
@@ -192,7 +192,7 @@ def _equals(ivkbl, frame, rcvr, args):
         return universe.falseObject
 
 
-def _lessThan(ivkbl, frame, rcvr, args):
+def _lessThan(ivkbl, rcvr, args):
     right_obj = args[0]
     left      = rcvr
     universe  = ivkbl.get_universe()
@@ -200,9 +200,9 @@ def _lessThan(ivkbl, frame, rcvr, args):
     # Check second parameter type:
     if isinstance(right_obj, BigInteger):
         # Second operand was BigInteger
-        return _resend_as_biginteger(frame, "<", left, right_obj, universe)
+        return _resend_as_biginteger("<", left, right_obj, universe)
     elif isinstance(right_obj, Double):
-        return _resend_as_double(frame, "<", left, right_obj, universe)
+        return _resend_as_double("<", left, right_obj, universe)
     else:
         if left.get_embedded_integer() < right_obj.get_embedded_integer():
             return universe.trueObject
@@ -210,7 +210,7 @@ def _lessThan(ivkbl, frame, rcvr, args):
             return universe.falseObject
 
 
-def _fromString(ivkbl, frame, rcvr, args):
+def _fromString(ivkbl, rcvr, args):
     param = args[0]
     
     if not isinstance(param, String):

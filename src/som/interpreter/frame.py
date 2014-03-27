@@ -5,11 +5,11 @@ class Frame(object):
         
     _immutable_fields_ = ["_receiver", "_arguments[*]", "_temps"]
 
-    def __init__(self, receiver, arguments, number_of_temps, caller_frame,
+    def __init__(self, receiver, arguments, number_of_temps,
                  nilObject):
         self._receiver       = receiver
         self._arguments      = arguments
-        self._caller_frame   = caller_frame
+        self._on_stack       = True
         self._temps          = [nilObject] * number_of_temps
 
     def get_argument(self, index):
@@ -31,10 +31,10 @@ class Frame(object):
         return self._receiver
 
     def is_on_stack(self):
-        return self._caller_frame is not None
+        return self._on_stack
 
     def mark_as_no_longer_on_stack(self):
-        self._caller_frame = None
+        self._on_stack = False
 
     def __str__(self):
         return "Frame(%s, %s, %s)" % (self._receiver, self._arguments,

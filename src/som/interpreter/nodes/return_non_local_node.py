@@ -23,7 +23,7 @@ class ReturnNonLocalNode(ContextualNode):
         else:
             block      = frame.get_self()
             outer_self = ctx_frame.get_self()
-            return outer_self.send_escaped_block(frame, block, self._universe)
+            return outer_self.send_escaped_block(block, self._universe)
 
     def execute_void(self, frame):
         self.execute(frame)

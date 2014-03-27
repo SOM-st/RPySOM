@@ -2,12 +2,12 @@ from som.vmobjects.primitive   import Primitive
 from som.primitives.primitives import Primitives
 
 
-def _at(ivkbl, frame, rcvr, args):
+def _at(ivkbl, rcvr, args):
     i    = args[0]
     return  rcvr.get_indexable_field(i.get_embedded_integer() - 1)
 
 
-def _atPut(ivkbl, frame, rcvr, args):
+def _atPut(ivkbl, rcvr, args):
     value = args[1]
     index = args[0]
 
@@ -15,12 +15,12 @@ def _atPut(ivkbl, frame, rcvr, args):
     return value
 
 
-def _length(ivkbl, frame, rcvr, args):
+def _length(ivkbl, rcvr, args):
     return ivkbl.get_universe().new_integer(
         rcvr.get_number_of_indexable_fields())
 
 
-def _new(ivkbl, frame, rcvr, args):
+def _new(ivkbl, rcvr, args):
     length = args[0]
 
     return ivkbl.get_universe().new_array_with_length(

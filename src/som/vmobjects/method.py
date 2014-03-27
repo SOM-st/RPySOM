@@ -55,11 +55,11 @@ class Method(AbstractObject):
     def get_number_of_arguments(self):
         return self.get_signature().get_number_of_signature_arguments()
 
-    def invoke(self, caller_frame, receiver, args):
-        return self._invokable.invoke(caller_frame, receiver, args)
+    def invoke(self, receiver, args):
+        return self._invokable.invoke(receiver, args)
 
-    def invoke_void(self, caller_frame, receiver, args):
-        self._invokable.invoke_void(caller_frame, receiver, args)
+    def invoke_void(self, receiver, args):
+        self._invokable.invoke_void(receiver, args)
 
     def __str__(self):
         return ("Method(" + self.get_holder().get_name().get_string() + ">>" +

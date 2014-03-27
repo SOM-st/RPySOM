@@ -7,7 +7,7 @@ from som.vmobjects.primitive import Primitive
 from som.vmobjects.array     import Array 
 
 
-def _equals(ivkbl, frame, rcvr, args):
+def _equals(ivkbl, rcvr, args):
     op1 = args[0]
     op2 = rcvr
     if op1 is op2:
@@ -16,12 +16,12 @@ def _equals(ivkbl, frame, rcvr, args):
         return ivkbl.get_universe().falseObject
 
 
-def _hashcode(ivkbl, frame, rcvr, args):
+def _hashcode(ivkbl, rcvr, args):
     return ivkbl.get_universe().new_integer(
         compute_identity_hash(rcvr))
 
 
-def _objectSize(ivkbl, frame, rcvr, args):
+def _objectSize(ivkbl, rcvr, args):
     size = 0
     
     if isinstance(rcvr, Object):
@@ -32,48 +32,48 @@ def _objectSize(ivkbl, frame, rcvr, args):
     return ivkbl.get_universe().new_integer(size)
 
 
-def _perform(ivkbl, frame, rcvr, args):
+def _perform(ivkbl, rcvr, args):
     selector = args[0]
 
     invokable = rcvr.get_class(ivkbl.get_universe()).lookup_invokable(selector)
-    return invokable.invoke(frame, rcvr, None)
+    return invokable.invoke(rcvr, None)
 
 
-def _performInSuperclass(ivkbl, frame, rcvr, args):
+def _performInSuperclass(ivkbl, rcvr, args):
     clazz    = args[1]
     selector = args[0]
 
     invokable = clazz.lookup_invokable(selector)
-    return invokable.invoke(frame, rcvr, None)
+    return invokable.invoke(rcvr, None)
 
 
-def _performWithArguments(ivkbl, frame, rcvr, arguments):
+def _performWithArguments(ivkbl, rcvr, arguments):
     arg_arr  = arguments[1].get_indexable_fields()
     selector = arguments[0]
 
     invokable = rcvr.get_class(ivkbl.get_universe()).lookup_invokable(selector)
-    return invokable.invoke(frame, rcvr, arg_arr)
+    return invokable.invoke(rcvr, arg_arr)
 
 
-def _instVarAt(ivkbl, frame, rcvr, args):
+def _instVarAt(ivkbl, rcvr, args):
     idx  = args[0]
     return rcvr.get_field(idx.get_embedded_integer() - 1)
 
 
-def _instVarAtPut(ivkbl, frame, rcvr, args):
+def _instVarAtPut(ivkbl, rcvr, args):
     val  = args[1]
     idx  = args[0]
     rcvr.set_field(idx.get_embedded_integer() - 1, val)
     return val
 
 
-def _halt(ivkbl, frame, rcvr, args):
+def _halt(ivkbl, rcvr, args):
     # noop
     print "BREAKPOINT"
     return rcvr
 
 
-def _class(ivkbl, frame, rcvr, args):
+def _class(ivkbl, rcvr, args):
     return rcvr.get_class(ivkbl.get_universe())
     
 

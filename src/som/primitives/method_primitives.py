@@ -2,11 +2,11 @@ from som.primitives.primitives import Primitives
 from som.vmobjects.primitive   import Primitive 
 
 
-def _holder(ivkbl, frame, rcvr, args):
+def _holder(ivkbl, rcvr, args):
     return rcvr.get_holder()
 
 
-def _signature(ivkbl, frame, rcvr, args):
+def _signature(ivkbl, rcvr, args):
     return rcvr.get_signature()
 
 class MethodPrimitives(Primitives):

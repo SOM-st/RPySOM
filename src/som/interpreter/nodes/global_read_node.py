@@ -14,8 +14,7 @@ class UninitializedGlobalReadNode(ExpressionNode):
         if self._universe.has_global(self._global_name):
             return self._specialize().execute(frame)
         else:
-            return frame.get_self().send_unknown_global(frame,
-                                                        self._global_name,
+            return frame.get_self().send_unknown_global(self._global_name,
                                                         self._universe)
 
     def _specialize(self):

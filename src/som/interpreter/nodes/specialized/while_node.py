@@ -25,7 +25,7 @@ class AbstractWhileMessageNode(ExpressionNode):
         rcvr_value = self._rcvr_expr.execute(frame)
         body_block = self._body_expr.execute(frame)
 
-        self._do_while(frame, rcvr_value, body_block)
+        self._do_while(rcvr_value, body_block)
 
 # STEFAN: SOM doesn't actually have #whileTrue:, #whileFalse: for booleans.
 
@@ -48,7 +48,7 @@ class AbstractWhileMessageNode(ExpressionNode):
 #         while True:
 #             while_value_driver.jit_merge_point(body_method = body_method,
 #                                                node        = self)
-#             body_method.invoke(frame, body_block, None)
+#             body_method.invoke(body_block, None)
 
 
 def get_printable_location_while(body_method, condition_method, while_type):
@@ -72,9 +72,9 @@ class WhileMessageNode(AbstractWhileMessageNode):
         return self._universe.nilObject
 
     def execute_evaluated_void(self, frame, rcvr, args):
-        self._do_while(frame, rcvr, args[0])
+        self._do_while(rcvr, args[0])
 
-    def _do_while(self, frame, rcvr_block, body_block):
+    def _do_while(self, rcvr_block, body_block):
         condition_method = rcvr_block.get_method()
         body_method      = body_block.get_method()
 
@@ -83,7 +83,7 @@ class WhileMessageNode(AbstractWhileMessageNode):
                                          condition_method= condition_method,
                                          node            = self)
 
-            condition_value = condition_method.invoke(frame, rcvr_block, None)
+            condition_value = condition_method.invoke(rcvr_block, None)
             if condition_value is not self._predicate_bool:
                 break
-            body_method.invoke_void(frame, body_block, None)
+            body_method.invoke_void(body_block, None)

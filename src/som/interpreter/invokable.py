@@ -9,9 +9,9 @@ def get_printable_location(invokable):
 
 jitdriver = jit.JitDriver(
      greens=['self'],
-     reds= ['do_void', 'arguments', 'caller_frame', 'receiver'],
      # virtualizables=['caller_frame'])
       get_printable_location=get_printable_location,
+     reds= ['do_void', 'arguments', 'receiver', 'frame'],
 
      # the next line is a workaround around a likely bug in RPython
      # for some reason, the inlining heuristics default to "never inline" when
@@ -36,20 +36,21 @@ class Invokable(Node):
         self._universe         = universe
         self._number_of_temps  = number_of_temps
 
-    def invoke(self, caller_frame, receiver, arguments):
-        return self._do_invoke(caller_frame, receiver, arguments, False)
+    def invoke(self, receiver, arguments):
+        return self._do_invoke(receiver, arguments, False)
 
-    def invoke_void(self, caller_frame, receiver, arguments):
-        self._do_invoke(caller_frame, receiver, arguments, True)
+    def invoke_void(self, receiver, arguments):
+        self._do_invoke(receiver, arguments, True)
 
-    def _do_invoke(self,  caller_frame, receiver, arguments, do_void):
+    def _do_invoke(self, receiver, arguments, do_void):
+        frame = Frame(receiver, arguments, self._number_of_temps,
+                      self._universe.nilObject)
         jitdriver.jit_merge_point(self      = self,
                                   receiver  = receiver,
                                   arguments = arguments,
-                                  caller_frame = caller_frame,
+                                  frame     = frame,
                                   do_void = do_void)
-        frame = Frame(receiver, arguments, self._number_of_temps,
-                      caller_frame, self._universe.nilObject)
+        
         if do_void:
             self._expr_or_sequence.execute_void(frame)
         else:

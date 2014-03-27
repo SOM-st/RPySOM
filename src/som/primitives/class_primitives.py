@@ -3,23 +3,23 @@ from som.primitives.primitives import Primitives
 from som.vmobjects.primitive   import Primitive
 
 
-def _new(ivkbl, frame, rcvr, args):
+def _new(ivkbl, rcvr, args):
     return ivkbl.get_universe().new_instance(rcvr)
 
 
-def _name(ivkbl, frame, rcvr, args):
+def _name(ivkbl, rcvr, args):
     return rcvr.get_name()
 
 
-def _super_class(ivkbl, frame, rcvr, args):
+def _super_class(ivkbl, rcvr, args):
     return rcvr.get_super_class()
 
 
-def _methods(ivkbl, frame, rcvr, args):
+def _methods(ivkbl, rcvr, args):
     return rcvr.get_instance_invokables()
     
 
-def _fields(ivkbl, frame, rcvr, args):
+def _fields(ivkbl, rcvr, args):
     return rcvr.get_instance_fields()
 
 

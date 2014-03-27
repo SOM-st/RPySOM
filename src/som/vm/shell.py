@@ -16,8 +16,6 @@ class Shell(object):
 
         std_println("SOM Shell. Type \"quit\" to exit.\n")
 
-        current_frame = Frame(None, None, 0, None, None)
-
         while True:
             try:
                 # Read a statement from the keyboard
@@ -46,7 +44,7 @@ class Shell(object):
                         self._universe.symbol_for("run:"))
 
                     # Invoke the run method
-                    it = initialize.invoke(current_frame, my_object, [it])
+                    it = initialize.invoke(my_object, [it])
             except Exception as e:
                 if not we_are_translated():  # this cannot be done in rpython
                     import traceback

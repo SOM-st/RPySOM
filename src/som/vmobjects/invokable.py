@@ -10,10 +10,6 @@ class Invokable(object):
     def is_primitive(self):
         raise NotImplementedError()
 
-    # Invoke this invokable object in a given frame
-    def invoke(self, frame, interpreter):
-        raise NotImplementedError()
-
     # Get the signature for this invokable object
     def get_signature(self):
         raise NotImplementedError()

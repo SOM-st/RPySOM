@@ -50,11 +50,11 @@ def block_evaluation_primitive(num_args, universe):
     return Block.Evaluation(num_args, universe, _invoke)
 
 
-def block_evaluate(block, args, frame):
+def block_evaluate(block, args):
     method = block.get_method()
-    return method.invoke(frame, block, args)
+    return method.invoke(block, args)
 
 
-def _invoke(ivkbl, frame, rcvr, args):
+def _invoke(ivkbl, rcvr, args):
     assert isinstance(ivkbl, Block.Evaluation)
-    return block_evaluate(rcvr, args, frame)
+    return block_evaluate(rcvr, args)

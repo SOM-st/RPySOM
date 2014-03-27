@@ -130,17 +130,17 @@ class GenericMessageNode(AbstractMessageNode):
     def execute_evaluated_void(self, frame, rcvr, args):
         method = self._lookup_method(rcvr)
         if method:
-            method.invoke_void(frame, rcvr, args)
+            method.invoke_void(rcvr, args)
         else:
-            rcvr.send_does_not_understand_void(frame, self._selector, args,
+            rcvr.send_does_not_understand_void(self._selector, args,
                                                self._universe)
 
     def execute_evaluated(self, frame, rcvr, args):
         method = self._lookup_method(rcvr)
         if method:
-            return method.invoke(frame, rcvr, args)
+            return method.invoke(rcvr, args)
         else:
-            return rcvr.send_does_not_understand(frame, self._selector, args,
+            return rcvr.send_does_not_understand(self._selector, args,
                                                  self._universe)
 
     def _lookup_method(self, rcvr):

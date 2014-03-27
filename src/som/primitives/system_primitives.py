@@ -7,53 +7,53 @@ from rpython.rlib import rgc, jit
 import time
 
 
-def _load(ivkbl, frame, rcvr, args):
+def _load(ivkbl, rcvr, args):
     argument = args[0]
     result = ivkbl.get_universe().load_class(argument)
     return result if result else ivkbl.get_universe().nilObject
 
 
-def _exit(ivkbl, frame, rcvr, args):
+def _exit(ivkbl, rcvr, args):
     error = args[0]
     return ivkbl.get_universe().exit(error.get_embedded_integer())
 
 
-def _global(ivkbl, frame, rcvr, args):
+def _global(ivkbl, rcvr, args):
     argument = args[0]
     result = ivkbl.get_universe().get_global(argument)
     return result if result else ivkbl.get_universe().nilObject
 
 
-def _global_put(ivkbl, frame, rcvr, args):
+def _global_put(ivkbl, rcvr, args):
     value    = args[1]
     argument = args[0]
     ivkbl.get_universe().set_global(argument, value)
     return value
 
 
-def _print_string(ivkbl, frame, rcvr, args):
+def _print_string(ivkbl, rcvr, args):
     argument = args[0]
     std_print(argument.get_embedded_string())
     return rcvr
 
 
-def _print_newline(ivkbl, frame, rcvr, args):
+def _print_newline(ivkbl, rcvr, args):
     std_println()
     return rcvr
 
 
-def _time(ivkbl, frame, rcvr, args):
+def _time(ivkbl, rcvr, args):
     since_start = time.time() - ivkbl.get_universe().start_time
     return ivkbl.get_universe().new_integer(int(since_start * 1000))
 
 
-def _ticks(ivkbl, frame, rcvr, args):
+def _ticks(ivkbl, rcvr, args):
     since_start = time.time() - ivkbl.get_universe().start_time
     return ivkbl.get_universe().new_integer(int(since_start * 1000000))
 
 
 @jit.dont_look_inside
-def _fullGC(ivkbl, frame, rcvr, args):
+def _fullGC(ivkbl, rcvr, args):
     rgc.collect()
     return ivkbl.get_universe().trueObject
 

@@ -4,16 +4,16 @@ from som.vmobjects.integer     import integer_value_fits
  
 import math
 
-def _asString(ivkbl, frame, rcvr, args):
+def _asString(ivkbl, rcvr, args):
     return ivkbl.get_universe().new_string(str(rcvr.get_embedded_biginteger()))
 
 
-def _sqrt(ivkbl, frame, rcvr, args):
+def _sqrt(ivkbl, rcvr, args):
     return ivkbl.get_universe().new_double(
         math.sqrt(rcvr.get_embedded_biginteger()))
 
 
-def _plus(ivkbl, frame, rcvr, args):
+def _plus(ivkbl, rcvr, args):
     right_obj = args[0]
     left      = rcvr
 
@@ -25,7 +25,7 @@ def _plus(ivkbl, frame, rcvr, args):
         return ivkbl.get_universe().new_biginteger(result)
 
 
-def _minus(ivkbl, frame, rcvr, args):
+def _minus(ivkbl, rcvr, args):
     right_obj = args[0]
     left      = rcvr
 
@@ -37,7 +37,7 @@ def _minus(ivkbl, frame, rcvr, args):
         return ivkbl.get_universe().new_biginteger(result)
 
 
-def _mult(ivkbl, frame, rcvr, args):
+def _mult(ivkbl, rcvr, args):
     right_obj = args[0]
     left      = rcvr
 
@@ -49,7 +49,7 @@ def _mult(ivkbl, frame, rcvr, args):
         return ivkbl.get_universe().new_biginteger(result)
 
 
-def _div(ivkbl, frame, rcvr, args):
+def _div(ivkbl, rcvr, args):
     right_obj = args[0]
     left      = rcvr
 
@@ -61,7 +61,7 @@ def _div(ivkbl, frame, rcvr, args):
         return ivkbl.get_universe().new_biginteger(result)
 
 
-def _mod(ivkbl, frame, rcvr, args):
+def _mod(ivkbl, rcvr, args):
     right_obj = args[0]
     left      = rcvr
 
@@ -70,7 +70,7 @@ def _mod(ivkbl, frame, rcvr, args):
                                                % right_obj.get_embedded_value())
 
 
-def _and(ivkbl, frame, rcvr, args):
+def _and(ivkbl, rcvr, args):
     right_obj = args[0]
     left      = rcvr
 
@@ -79,7 +79,7 @@ def _and(ivkbl, frame, rcvr, args):
                                                & right_obj.get_embedded_value())
 
 
-def _equals(ivkbl, frame, rcvr, args):
+def _equals(ivkbl, rcvr, args):
     right_obj = args[0]
     left      = rcvr
 
@@ -90,7 +90,7 @@ def _equals(ivkbl, frame, rcvr, args):
         return ivkbl.get_universe().falseObject
 
 
-def _lessThan(ivkbl, frame, rcvr, args):
+def _lessThan(ivkbl, rcvr, args):
     right_obj = args[0]
     left      = rcvr
 
