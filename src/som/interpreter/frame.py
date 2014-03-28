@@ -4,10 +4,9 @@ from rpython.rlib import jit
 class Frame(object):
         
     _immutable_fields_ = ["_receiver", "_arguments[*]", "_temps"]
-    _virtualizable_    = ["_temps[*]"]
 
-    def __init__(self, receiver, arguments, number_of_temps, nilObject):
-        self = jit.hint(self, access_directly=True, fresh_virtualizable=True)
+    def __init__(self, receiver, arguments, number_of_temps,
+                 nilObject):
         self._receiver       = receiver
         self._arguments      = arguments
         self._on_stack       = True
