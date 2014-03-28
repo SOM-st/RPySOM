@@ -1,13 +1,13 @@
 from som.primitives.primitives import Primitives
+from som.vmobjects.method import Method
 from som.vmobjects.primitive   import Primitive
 from som.vmobjects.biginteger  import BigInteger
 from som.vmobjects.integer     import integer_value_fits, Integer
 from som.vmobjects.double      import Double
 from som.vmobjects.string      import String
+from som.vmobjects.block       import block_evaluate
 
 import math
-
-from rpython.rlib.rarithmetic import ovfcheck
 
 
 def _long_result(result, universe):
@@ -59,13 +59,9 @@ def _plus(ivkbl, rcvr, args):
         return _resend_as_double("+", left, right_obj, universe)
     else:
         # Do operation:
-        left_int  = left.get_embedded_integer()
-        right_int = right_obj.get_embedded_integer()
-        try:
-            result = ovfcheck(left_int + right_int)
-            return universe.new_integer(int(result))
-        except OverflowError:
-            return universe.new_biginteger(left_int + right_int)
+        right = right_obj
+        result = left.get_embedded_integer() + right.get_embedded_integer()
+        return _long_result(result, universe)
 
 
 def _minus(ivkbl, rcvr, args):
@@ -80,14 +76,10 @@ def _minus(ivkbl, rcvr, args):
     elif isinstance(right_obj, Double):
         return _resend_as_double("-", left, right_obj, universe)
     else:
-        left_int  = left.get_embedded_integer()
-        right_int = right_obj.get_embedded_integer()
-        try:
-            result = ovfcheck(left_int - right_int)
-            return universe.new_integer(int(result))
-        except OverflowError:
-            return universe.new_biginteger(left_int - right_int)
-
+        # Do operation:
+        right = right_obj
+        result = left.get_embedded_integer() - right.get_embedded_integer()
+        return _long_result(result, universe)
 
 def _mult(ivkbl, rcvr, args):
     right_obj = args[0]
@@ -101,13 +93,10 @@ def _mult(ivkbl, rcvr, args):
     elif isinstance(right_obj, Double):
         return _resend_as_double("*", left, right_obj, universe)
     else:
-        left_int  = left.get_embedded_integer()
-        right_int = right_obj.get_embedded_integer()
-        try:
-            result = ovfcheck(left_int * right_int)
-            return universe.new_integer(int(result))
-        except OverflowError:
-            return universe.new_biginteger(left_int * right_int)
+        # Do operation:
+        right = right_obj
+        result = left.get_embedded_integer() * right.get_embedded_integer()
+        return _long_result(result, universe)
 
 
 def _doubleDiv(ivkbl, rcvr, args):
