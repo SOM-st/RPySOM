@@ -8,7 +8,7 @@ def create_read_node(self_exp, index):
     if index == 2: return FieldReadNode3(self_exp)
     if index == 3: return FieldReadNode4(self_exp)
     if index == 4: return FieldReadNode5(self_exp)
-    return FieldReadNodeN(self_exp, Object.NUMBER_OF_DIRECT_FIELDS - index)
+    return FieldReadNodeN(self_exp, index - Object.NUMBER_OF_DIRECT_FIELDS)
     
 
 def create_write_node(self_exp, index, value_exp):
@@ -17,7 +17,7 @@ def create_write_node(self_exp, index, value_exp):
     if index == 2: return FieldWriteNode3(self_exp, value_exp)
     if index == 3: return FieldWriteNode4(self_exp, value_exp)
     if index == 4: return FieldWriteNode5(self_exp, value_exp)
-    return FieldWriteNodeN(self_exp, value_exp, Object.NUMBER_OF_DIRECT_FIELDS - index)
+    return FieldWriteNodeN(self_exp, value_exp, index - Object.NUMBER_OF_DIRECT_FIELDS)
 
 
 class FieldNode(ExpressionNode):
@@ -77,6 +77,7 @@ class FieldReadNodeN(FieldReadNode):
     
     def __init__(self, self_exp, extension_index, source_section = None):
         FieldReadNode.__init__(self, self_exp, source_section)
+        assert extension_index >= 0
         self._extension_index = extension_index
 
     def read(self, self_obj):
@@ -139,6 +140,7 @@ class FieldWriteNodeN(FieldWriteNode):
     
     def __init__(self, self_exp, value_exp, extension_index, source_section = None):
         FieldWriteNode.__init__(self, self_exp, value_exp, source_section)
+        assert extension_index >= 0
         self._extension_index = extension_index
 
     def write(self, self_obj, value):
