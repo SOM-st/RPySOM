@@ -39,7 +39,7 @@ class TestLLtype(LLJitMixin):
 
         def interp_w():
             try:
-                invokable.invoke(None, rcvr, None)
+                invokable.invoke(rcvr, None)
             except Exit as e:
                 return e.code
             return -1
