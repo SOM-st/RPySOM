@@ -1,11 +1,9 @@
 from som.primitives.primitives import Primitives
-from som.vmobjects.method import Method
 from som.vmobjects.primitive   import Primitive
 from som.vmobjects.biginteger  import BigInteger
 from som.vmobjects.integer     import integer_value_fits, Integer
 from som.vmobjects.double      import Double
 from som.vmobjects.string      import String
-from som.vmobjects.block       import block_evaluate
 
 import math
 
