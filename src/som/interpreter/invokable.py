@@ -9,9 +9,9 @@ def get_printable_location(invokable):
 
 jitdriver = jit.JitDriver(
      greens=['self'],
-     # virtualizables=['caller_frame'])
-      get_printable_location=get_printable_location,
      reds= ['do_void', 'arguments', 'receiver', 'frame'],
+     virtualizables=['frame'],
+     get_printable_location=get_printable_location,
 
      # the next line is a workaround around a likely bug in RPython
      # for some reason, the inlining heuristics default to "never inline" when
@@ -44,7 +44,7 @@ class Invokable(Node):
 
     def _do_invoke(self, receiver, arguments, do_void):
         frame = Frame(receiver, arguments, self._number_of_temps,
-                      self._universe.nilObject)
+              self._universe.nilObject)
         jitdriver.jit_merge_point(self      = self,
                                   receiver  = receiver,
                                   arguments = arguments,
