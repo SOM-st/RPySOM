@@ -1,6 +1,18 @@
 from rpython.rlib import jit
 
 
+class _FrameOnStackMarker(object):
+    
+    def __init__(self):
+        self._on_stack = True
+    
+    def is_on_stack(self):
+        return self._on_stack
+    
+    def frame_no_longer_on_stack(self):
+        self._on_stack = False
+
+
 class Frame(object):
         
     _immutable_fields_ = ["_receiver", "_arguments[*]", "_temps"]
@@ -9,8 +21,8 @@ class Frame(object):
                  nilObject):
         self._receiver       = receiver
         self._arguments      = arguments
-        self._on_stack       = True
         self._temps          = [nilObject] * number_of_temps
+        self._on_stack_marker= None
 
     def get_argument(self, index):
         jit.promote(index)
@@ -29,12 +41,13 @@ class Frame(object):
 
     def get_self(self):
         return self._receiver
-
-    def is_on_stack(self):
-        return self._on_stack
-
-    def mark_as_no_longer_on_stack(self):
-        self._on_stack = False
+    
+    def init_and_get_on_stack_marker(self):
+        self._on_stack_marker = _FrameOnStackMarker()
+        return self._on_stack_marker
+    
+    def get_on_stack_marker(self):
+        return self._on_stack_marker
 
     def __str__(self):
         return "Frame(%s, %s, %s)" % (self._receiver, self._arguments,
