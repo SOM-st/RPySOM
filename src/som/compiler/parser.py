@@ -14,6 +14,41 @@ from .symbol                    import Symbol, symbol_as_str
 from ..vmobjects.integer import integer_value_fits
 
 
+class ParseError(BaseException):
+    def __init__(self, message, expected_sym, parser):
+        self._message           = message
+        self._source_coordinate = parser._lexer.get_source_coordinate()
+        self._text              = parser._text
+        self._raw_buffer        = parser._lexer.get_raw_buffer()
+        self._file_name         = parser._file_name
+        self._expected_sym      = expected_sym
+        self._found_sym         = parser._sym
+
+    def _printable_symbol(self):
+        return (self._found_sym == Symbol.Integer or
+                self._found_sym >= Symbol.STString)
+
+    def __str__(self):
+        msg = "%(file)s:%(line)d:%(column)d: error: " + self._message
+        if self._printable_symbol():
+            found = "%s (%s)" % (symbol_as_str(self._found_sym), self._text)
+        else:
+            found = symbol_as_str(self._found_sym)
+        msg += ": %s" % self._raw_buffer
+
+        if isinstance(self._expected_sym, list):
+            expected = ", ".join([symbol_as_str(x) for x in self._expected_sym])
+        else:
+            expected = symbol_as_str(self._expected_sym)
+
+        return (msg % {
+            'file'       : self._file_name,
+            'line'       : self._source_coordinate.get_start_line(),
+            'column'     : self._source_coordinate.get_start_column(),
+            'expected'   : expected,
+            'found'      : found})
+
+
 class Parser(object):
     
     _single_op_syms        = [Symbol.Not,  Symbol.And,  Symbol.Or,    Symbol.Star,
@@ -136,27 +171,14 @@ class Parser(object):
     def _expect(self, s):
         if self._accept(s):
             return True
-        
-        err = ("Error: unexpected symbol in line %d. Expected %s, but found %s"
-               % (self._lexer.get_current_line_number(), symbol_as_str(s),
-                  symbol_as_str(self._sym)))
-        if self._printable_symbol():
-            err += " (" + self._text + ")"
-        err += ": " + self._lexer.get_raw_buffer()
-        raise ValueError(err)
+        raise ParseError("Unexpected symbol. Expected %(expected)s, but found "
+                         "%(found)s", s, self)
 
     def _expect_one_of(self, symbol_list):
         if self._accept_one_of(symbol_list):
             return True
-        
-        expected = ", ".join([symbol_as_str(x) for x in symbol_list])
-        
-        err = ("Error: unexpected symbol in line %d. Expected one of %s, but found %s" %
-                (self._lexer.get_current_line_number(), expected, symbol_as_str(self._sym))) 
-        if self._printable_symbol():
-            err += " (" + self._text + ")"
-        err += ": " + self._lexer.get_raw_buffer()
-        raise ValueError(err)
+        raise ParseError("Unexpected symbol. Expected one of "
+                         "%(expected)s, but found %(found)s", symbol_list, self)
 
     def _instance_fields(self, cgenc):
         if self._accept(Symbol.Or):
@@ -327,8 +349,8 @@ class Parser(object):
         coord = self._lexer.get_source_coordinate()
 
         if self._sym != Symbol.Identifier:
-            raise RuntimeError("Assignments should always target variables of"
-                               " fields, but found instead a " + str(self._sym))
+            raise ParseError("Assignments should always target variables or"
+                             " fields, but found instead a %(found)s")
 
         variable = self._assignment()
         self._peek_for_next_symbol_from_lexer()
@@ -607,5 +629,3 @@ class Parser(object):
     def _peek_for_next_symbol_from_lexer(self):
         self._next_sym = self._lexer.peek()
 
-    def _printable_symbol(self):
-        return self._sym == Symbol.Integer or self._sym >= Symbol.STString
