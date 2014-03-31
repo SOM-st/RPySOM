@@ -56,7 +56,7 @@ class UninitializedMessageNode(AbstractMessageNode):
                         WhileMessageNode(self._rcvr_expr, self._arg_exprs[0],
                                          self._universe.trueObject,
                                          self._universe, self._source_section))
-                elif self._selector.get_string() == "whileTrue:":
+                elif self._selector.get_string() == "whileFalse:":
                     return self.replace(
                         WhileMessageNode(self._rcvr_expr, self._arg_exprs[0],
                                          self._universe.falseObject,
