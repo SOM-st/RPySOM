@@ -350,7 +350,8 @@ class Parser(object):
 
         if self._sym != Symbol.Identifier:
             raise ParseError("Assignments should always target variables or"
-                             " fields, but found instead a %(found)s")
+                             " fields, but found instead a %(found)s",
+                             Symbol.Identifier, self)
 
         variable = self._assignment()
         self._peek_for_next_symbol_from_lexer()
