@@ -24,22 +24,22 @@ class ParseError(BaseException):
         self._expected_sym      = expected_sym
         self._found_sym         = parser._sym
 
-    def _printable_symbol(self):
+    def _is_printable_symbol(self):
         return (self._found_sym == Symbol.Integer or
                 self._found_sym >= Symbol.STString)
 
+    def _expected_sym_str(self):
+        return symbol_as_str(self._expected_sym)
+
     def __str__(self):
         msg = "%(file)s:%(line)d:%(column)d: error: " + self._message
-        if self._printable_symbol():
+        if self._is_printable_symbol():
             found = "%s (%s)" % (symbol_as_str(self._found_sym), self._text)
         else:
             found = symbol_as_str(self._found_sym)
         msg += ": %s" % self._raw_buffer
 
-        if isinstance(self._expected_sym, list):
-            expected = ", ".join([symbol_as_str(x) for x in self._expected_sym])
-        else:
-            expected = symbol_as_str(self._expected_sym)
+        expected = self._expected_sym_str()
 
         return (msg % {
             'file'       : self._file_name,
@@ -47,6 +47,16 @@ class ParseError(BaseException):
             'column'     : self._source_coordinate.get_start_column(),
             'expected'   : expected,
             'found'      : found})
+
+
+class ParseErrorSymList(ParseError):
+
+    def __init__(self, message, expected_syms, parser):
+        ParseError.__init__(self, message, 0, parser)
+        self._expected_syms = expected_syms
+
+    def _expected_sym_str(self):
+        return  ", ".join([symbol_as_str(x) for x in self._expected_syms])
 
 
 class Parser(object):
@@ -177,8 +187,9 @@ class Parser(object):
     def _expect_one_of(self, symbol_list):
         if self._accept_one_of(symbol_list):
             return True
-        raise ParseError("Unexpected symbol. Expected one of "
-                         "%(expected)s, but found %(found)s", symbol_list, self)
+        raise ParseErrorSymList("Unexpected symbol. Expected one of "
+                                "%(expected)s, but found %(found)s",
+                                symbol_list, self)
 
     def _instance_fields(self, cgenc):
         if self._accept(Symbol.Or):
