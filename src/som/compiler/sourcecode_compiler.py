@@ -36,6 +36,7 @@ class _SourcecodeCompiler(object):
             from som.vm.universe import error_println
             error_println(str(e))
             universe.exit(1)
+            return None
 
         cname = result.get_name()
         cnameC = cname.get_string()
