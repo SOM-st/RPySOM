@@ -1,23 +1,7 @@
+from rpython.rlib.unroll import unrolling_iterable
+
 from .expression_node import ExpressionNode
 from som.vmobjects.object import Object
-
-
-def create_read_node(self_exp, index):
-    if index == 0: return FieldReadNode1(self_exp)
-    if index == 1: return FieldReadNode2(self_exp)
-    if index == 2: return FieldReadNode3(self_exp)
-    if index == 3: return FieldReadNode4(self_exp)
-    if index == 4: return FieldReadNode5(self_exp)
-    return FieldReadNodeN(self_exp, index - Object.NUMBER_OF_DIRECT_FIELDS)
-    
-
-def create_write_node(self_exp, index, value_exp):
-    if index == 0: return FieldWriteNode1(self_exp, value_exp)
-    if index == 1: return FieldWriteNode2(self_exp, value_exp)
-    if index == 2: return FieldWriteNode3(self_exp, value_exp)
-    if index == 3: return FieldWriteNode4(self_exp, value_exp)
-    if index == 4: return FieldWriteNode5(self_exp, value_exp)
-    return FieldWriteNodeN(self_exp, value_exp, index - Object.NUMBER_OF_DIRECT_FIELDS)
 
 
 class FieldNode(ExpressionNode):
@@ -41,34 +25,14 @@ class FieldReadNode(FieldNode):
         pass  # NOOP, because it is side-effect free
 
 
-class FieldReadNode1(FieldReadNode):
+def _make_field_read_node_class(field_idx):
+    class _FieldReadNodeI(FieldReadNode):
+        def read(self, self_obj):
+            return getattr(self_obj, "_field" + str(field_idx))
+    return _FieldReadNodeI
 
-    def read(self, self_obj):
-        return self_obj._field1
-
-
-class FieldReadNode2(FieldReadNode):
-
-    def read(self, self_obj):
-        return self_obj._field2
-
-
-class FieldReadNode3(FieldReadNode):
-
-    def read(self, self_obj):
-        return self_obj._field3
-
-
-class FieldReadNode4(FieldReadNode):
-
-    def read(self, self_obj):
-        return self_obj._field4
-
-
-class FieldReadNode5(FieldReadNode):
-
-    def read(self, self_obj):
-        return self_obj._field5
+def _make_field_read_node_classes(count):
+    return [_make_field_read_node_class(i + 1) for i in range(count)]
 
 
 class FieldReadNodeN(FieldReadNode):
@@ -104,34 +68,14 @@ class FieldWriteNode(FieldNode):
         self.execute(frame)
 
 
-class FieldWriteNode1(FieldWriteNode):
-    
-    def write(self, self_obj, value):
-        self_obj._field1 = value
+def _make_field_write_node_class(field_idx):
+    class _FieldWriteNodeI(FieldWriteNode):
+        def write(self, self_obj, value):
+            return setattr(self_obj, "_field" + str(field_idx), value)
+    return _FieldWriteNodeI
 
-
-class FieldWriteNode2(FieldWriteNode):
-    
-    def write(self, self_obj, value):
-        self_obj._field2 = value
-
-
-class FieldWriteNode3(FieldWriteNode):
-    
-    def write(self, self_obj, value):
-        self_obj._field3 = value
-
-
-class FieldWriteNode4(FieldWriteNode):
-    
-    def write(self, self_obj, value):
-        self_obj._field4 = value
-
-
-class FieldWriteNode5(FieldWriteNode):
-    
-    def write(self, self_obj, value):
-        self_obj._field5 = value
+def _make_field_write_node_classes(count):
+    return [_make_field_write_node_class(i + 1) for i in range(count)]
 
 
 class FieldWriteNodeN(FieldWriteNode):
@@ -145,3 +89,22 @@ class FieldWriteNodeN(FieldWriteNode):
 
     def write(self, self_obj, value):
         self_obj._fields[self._extension_index] = value
+
+
+_field_read_node_classes  = _make_field_read_node_classes(Object.NUMBER_OF_DIRECT_FIELDS)
+_field_write_node_classes = _make_field_write_node_classes(Object.NUMBER_OF_DIRECT_FIELDS)
+
+
+def create_read_node(self_exp, index):
+    if index < Object.NUMBER_OF_DIRECT_FIELDS:
+        return _field_read_node_classes[index](self_exp)
+    else:
+        return FieldReadNodeN(self_exp, index - Object.NUMBER_OF_DIRECT_FIELDS)
+
+
+def create_write_node(self_exp, index, value_exp):
+    if index < Object.NUMBER_OF_DIRECT_FIELDS:
+        return _field_write_node_classes[index](self_exp, value_exp)
+    else:
+        return FieldWriteNodeN(self_exp, value_exp, index - Object.NUMBER_OF_DIRECT_FIELDS)
+
