@@ -1,4 +1,5 @@
 from rpython.rlib.unroll import unrolling_iterable
+from rtruffle.source_section import SourceSection
 
 
 class AbstractNode(object):
@@ -61,6 +62,8 @@ class Node(AbstractNode):
     _child_nodes_      = []
 
     def __init__(self, source_section = None):
+        assert (source_section is None or
+                isinstance(source_section, SourceSection))
         self._source_section = source_section
         self._parent         = None
 
@@ -68,6 +71,7 @@ class Node(AbstractNode):
         return self._parent
 
     def assign_source_section(self, source_section):
+        assert isinstance(source_section, SourceSection)
         if self._source_section:
             raise ValueError("Source section already set.")
         self._source_section = source_section
