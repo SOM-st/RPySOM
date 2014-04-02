@@ -205,11 +205,14 @@ class Parser(object):
                 cgenc.add_class_field(self._universe.symbol_for(var))
             self._expect(Symbol.Or)
 
-    def _assign_source(self, node, coord):
-        node.assign_source_section(SourceSection(
+    def _get_source_section(self, coord):
+        return SourceSection(
             self._source_reader, "method", coord,
             self._lexer.get_number_of_characters_read(),
-            self._file_name))
+            self._file_name)
+
+    def _assign_source(self, node, coord):
+        node.assign_source_section(self._get_source_section(coord))
         return node
 
     def _method(self, mgenc):
