@@ -128,15 +128,19 @@ class Class(Object):
     def get_number_of_instance_fields(self):
         # Get the total number of instance fields in this class
         return self.get_instance_fields().get_number_of_indexable_fields()
-  
-    def has_primitives(self):
-        # Lookup invokable with given signature in array of instance invokables
-        for i in range(0, self.get_number_of_instance_invokables()):
+
+    @staticmethod
+    def _includes_primitives(clazz):
+        for i in range(0, clazz.get_number_of_instance_invokables()):
             # Get the next invokable in the instance invokable array
-            if self.get_instance_invokable(i).is_primitive():
+            if clazz.get_instance_invokable(i).is_primitive():
                 return True
         return False
-  
+
+    def has_primitives(self):
+        return (self._includes_primitives(self) or
+                self._includes_primitives(self._class))
+
     def load_primitives(self):
         from som.primitives.known import (primitives_for_class,
                                           PrimitivesNotFound)
