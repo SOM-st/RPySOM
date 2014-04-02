@@ -523,7 +523,12 @@ class Parser(object):
         return -self._literal_integer()
  
     def _literal_integer(self):
-        i = int(self._text)
+        try:
+            i = int(self._text)
+        except ValueError:
+            raise ParseError("Could not parse integer. "
+                             "Expected a number but got '%s'" % self._text,
+                             Symbol.NONE, self)
         self._expect(Symbol.Integer)
         return i
  
