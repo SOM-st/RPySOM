@@ -42,7 +42,10 @@ class _SourcecodeCompiler(object):
         cnameC = cname.get_string()
 
         if filename != cnameC:
-            raise ValueError("File name " + filename + " does not match class name " + cnameC)
+            from som.vm.universe import error_println
+            error_println("File name %s does not match class name %s."
+                          % (filename, cnameC))
+            universe.exit(1)
     
         return result
 
