@@ -135,7 +135,7 @@ class Lexer(object):
             elif self._current_char() == '%':
                 self._match(Symbol.Per)
 
-        elif self._buf[self._bufp:].startswith(self._PRIMITIVE):
+        elif self._next_word_in_buffer_is(self._PRIMITIVE):
             self._bufp += len(self._PRIMITIVE)
             self._sym  = Symbol.Primitive
             self._symc = '\0'
@@ -171,6 +171,12 @@ class Lexer(object):
             self._text = self._symc
 
         return self._sym
+
+    def _next_word_in_buffer_is(self, text):
+        if not self._buf[self._bufp:].startswith(text):
+            return False
+        char_after_text = self._bufchar(self._bufp + len(text))
+        return not char_after_text.isalnum()
 
     def peek(self):
         save_sym  = self._sym
