@@ -1,4 +1,5 @@
 from rpython.rlib import jit
+from rpython.rlib.debug import make_sure_not_resized
 from rtruffle.node import Node
 
 from .frame import Frame
@@ -43,6 +44,7 @@ class Invokable(Node):
         self._do_invoke(receiver, arguments, True)
 
     def _do_invoke(self, receiver, arguments, do_void):
+        make_sure_not_resized(arguments)
         frame = Frame(receiver, arguments, self._number_of_temps,
                       self._universe.nilObject)
         jitdriver.jit_merge_point(self      = self,

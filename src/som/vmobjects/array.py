@@ -1,14 +1,20 @@
 from .abstract_object import AbstractObject
+from rpython.rlib.debug import make_sure_not_resized
+
 
 class Array(AbstractObject):
 
     _immutable_fields_ = ["_indexable_fields"]
     
-    def __init__(self, nilObject, number_of_indexable_fields):
+    def __init__(self, nilObject, number_of_indexable_fields, values = None):
         AbstractObject.__init__(self)
-        
+
         # Private array of indexable fields
-        self._indexable_fields = [nilObject] * number_of_indexable_fields
+        if values is None:
+            self._indexable_fields = [nilObject] * number_of_indexable_fields
+        else:
+            self._indexable_fields = values
+        make_sure_not_resized(self._indexable_fields)
         
     def get_indexable_field(self, index):
         # Get the indexable field with the given index

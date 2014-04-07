@@ -1,4 +1,5 @@
 from rpython.rlib import jit
+from rpython.rlib.debug import make_sure_not_resized
 
 
 class Frame(object):
@@ -7,6 +8,7 @@ class Frame(object):
 
     def __init__(self, receiver, arguments, number_of_temps,
                  nilObject):
+        make_sure_not_resized(arguments)
         self._receiver       = receiver
         self._arguments      = arguments
         self._on_stack       = True

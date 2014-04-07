@@ -1,4 +1,5 @@
 from .expression_node import ExpressionNode
+from rpython.rlib.debug import make_sure_not_resized
 
 from .specialized.if_true_false import IfTrueIfFalseNode, IfNode
 from .specialized.to_do_node    import IntToIntDoNode, IntToDoubleDoNode
@@ -128,6 +129,7 @@ class GenericMessageNode(AbstractMessageNode):
         self.execute_evaluated_void(frame, rcvr, args)
 
     def execute_evaluated_void(self, frame, rcvr, args):
+        make_sure_not_resized(args)
         method = self._lookup_method(rcvr)
         if method:
             method.invoke_void(rcvr, args)
@@ -136,6 +138,7 @@ class GenericMessageNode(AbstractMessageNode):
                                                self._universe)
 
     def execute_evaluated(self, frame, rcvr, args):
+        make_sure_not_resized(args)
         method = self._lookup_method(rcvr)
         if method:
             return method.invoke(rcvr, args)

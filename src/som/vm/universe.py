@@ -1,3 +1,4 @@
+from rpython.rlib.debug import make_sure_not_resized
 from rpython.rlib.rrandom import Random
 from rpython.rlib import jit
 
@@ -292,15 +293,9 @@ class Universe(object):
         return Array(self.nilObject, length)
   
     def new_array_from_list(self, values):
-        # Allocate a new array with the same length as the list
-        result = self.new_array_with_length(len(values))
+        make_sure_not_resized(values)
+        return Array(self.nilObject, 0, values)
 
-        # Copy all elements from the list into the array
-        for i in range(len(values)):
-            result.set_indexable_field(i, values[i])
-
-        return result
-  
     def new_array_with_strings(self, strings):
         # Allocate a new array with the same length as the string array
         result = self.new_array_with_length(len(strings))
