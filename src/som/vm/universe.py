@@ -326,10 +326,10 @@ class Universe(object):
     def new_integer(self, value):
         assert isinstance(value, int)
         return Integer(value)
- 
+
     def new_biginteger(self, value):
         return BigInteger(value)
- 
+
     def new_double(self, value):
         return Double(value)
     
@@ -346,7 +346,7 @@ class Universe(object):
 
     def new_string(self, embedded_string):
         return String(embedded_string)
-    
+
     def new_symbol(self, string):
         result = Symbol(string)
 
@@ -387,7 +387,7 @@ class Universe(object):
 
         # Insert the system class into the dictionary of globals
         self.set_global(system_class.get_name(), system_class)
-    
+
     
     def get_global(self, name):
         # Return the global with the given name if it's in the dictionary of globals
@@ -459,9 +459,9 @@ class Universe(object):
 
         if not result:
             error_println(system_class.get_name().get_string()
-                   + " class could not be loaded. It is likely that the "
-                   + " class path has not been initialized properly. "
-                   + "Please make sure that the '-cp' parameter is given on the command-line.")
+                   + " class could not be loaded. It is likely that the"
+                   + " class path has not been initialized properly."
+                   + " Please make sure that the '-cp' parameter is given on the command-line.")
             self.exit(200)
 
         # Load primitives if necessary
