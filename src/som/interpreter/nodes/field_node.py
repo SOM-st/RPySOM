@@ -71,7 +71,7 @@ class FieldWriteNode(FieldNode):
 def _make_field_write_node_class(field_idx):
     class _FieldWriteNodeI(FieldWriteNode):
         def write(self, self_obj, value):
-            return setattr(self_obj, "_field" + str(field_idx), value)
+            setattr(self_obj, "_field" + str(field_idx), value)
     return _FieldWriteNodeI
 
 def _make_field_write_node_classes(count):
