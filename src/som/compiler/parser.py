@@ -26,6 +26,7 @@ class ParseError(BaseException):
 
     def _is_printable_symbol(self):
         return (self._found_sym == Symbol.Integer or
+                self._found_sym == Symbol.Double  or
                 self._found_sym >= Symbol.STString)
 
     def _expected_sym_str(self):
@@ -507,33 +508,50 @@ class Parser(object):
         coord = self._lexer.get_source_coordinate()
 
         if self._sym == Symbol.Minus:
-            val = self._negative_decimal()
+            lit = self._negative_decimal()
         else:
-            val = self._literal_decimal()
-
-        if integer_value_fits(val):
-            lit = LiteralNode(self._universe.new_integer(val))
-        else:
-            lit = LiteralNode(self._universe.new_biginteger(val))
+            lit = self._literal_decimal(False)
 
         return self._assign_source(lit, coord)
   
-    def _literal_decimal(self):
-        return self._literal_integer()
+    def _literal_decimal(self, negate_value):
+        if self._sym == Symbol.Integer:
+            return self._literal_integer(negate_value)
+        else:
+            assert self._sym == Symbol.Double
+            return self._literal_double(negate_value)
 
     def _negative_decimal(self):
         self._expect(Symbol.Minus)
-        return -self._literal_integer()
+        return self._literal_decimal(True)
  
-    def _literal_integer(self):
+    def _literal_integer(self, negate_value):
         try:
             i = int(self._text)
+            if negate_value:
+                i = 0 - i
         except ValueError:
             raise ParseError("Could not parse integer. "
                              "Expected a number but got '%s'" % self._text,
                              Symbol.NONE, self)
         self._expect(Symbol.Integer)
-        return i
+
+        if integer_value_fits(i):
+            return LiteralNode(self._universe.new_integer(i))
+        else:
+            return LiteralNode(self._universe.new_biginteger(i))
+
+    def _literal_double(self, negate_value):
+        try:
+            f = float(self._text)
+            if negate_value:
+                f = 0 - f
+        except ValueError:
+            raise ParseError("Could not parse double. "
+                             "Expected a number but got '%s'" % self._text,
+                             Symbol.NONE, self)
+        self._expect(Symbol.Double)
+        return LiteralNode(self._universe.new_double(f))
  
     def _literal_symbol(self):
         coord = self._lexer.get_source_coordinate()

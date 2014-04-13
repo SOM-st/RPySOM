@@ -26,6 +26,24 @@ class Lexer(object):
                                 self._bufp + 1,
                                 self._chars_read + self._bufp)
 
+    def _lex_number(self):
+        self._sym = Symbol.Integer
+        self._symc = '\0'
+        self._text = ''
+
+        saw_decimal_mark = False
+
+        while self._current_char().isdigit():
+            self._text += self._bufchar(self._bufp)
+            self._bufp += 1
+
+            if (not saw_decimal_mark and '.' == self._bufchar(self._bufp) and
+                    self._bufchar(self._bufp + 1).isdigit()):
+                self._sym = Symbol.Double
+                saw_decimal_mark = True
+                self._text += self._bufchar(self._bufp)
+                self._bufp += 1
+
     def _lex_operator(self):
         if self._is_operator(self._bufchar(self._bufp + 1)):
             self._sym = Symbol.OperatorSequence
@@ -161,13 +179,7 @@ class Lexer(object):
                         self._text += self._bufchar(self._bufp)
                         self._bufp += 1
         elif self._current_char().isdigit():
-            self._sym  = Symbol.Integer
-            self._symc = '\0'
-            self._text = self._bufchar(self._bufp)
-            self._bufp += 1
-            while self._current_char().isdigit():
-                self._text += self._bufchar(self._bufp)
-                self._bufp += 1
+            self._lex_number()
         else:
             self._sym  = Symbol.NONE
             self._symc = self._current_char()
