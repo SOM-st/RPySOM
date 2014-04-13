@@ -23,7 +23,7 @@ def _resend_as_biginteger(operator, left, right, universe):
 
 
 def _resend_as_double(operator, left, right, universe):
-    left_double = universe.new_double(left.get_embedded_integer())
+    left_double = universe.new_double(float(left.get_embedded_integer()))
     operands    = [right]
     return left_double.send(operator, operands, universe)
 
