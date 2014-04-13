@@ -26,6 +26,52 @@ class Lexer(object):
                                 self._bufp + 1,
                                 self._chars_read + self._bufp)
 
+    def _lex_operator(self):
+        if self._is_operator(self._bufchar(self._bufp + 1)):
+            self._sym = Symbol.OperatorSequence
+            self._symc = '\0'
+            self._text = ""
+            while self._is_operator(self._current_char()):
+                self._text += self._bufchar(self._bufp)
+                self._bufp += 1
+        elif self._current_char() == '~':
+            self._match(Symbol.Not)
+        elif self._current_char() == '&':
+            self._match(Symbol.And)
+        elif self._current_char() == '|':
+            self._match(Symbol.Or)
+        elif self._current_char() == '*':
+            self._match(Symbol.Star)
+        elif self._current_char() == '/':
+            self._match(Symbol.Div)
+        elif self._current_char() == '\\':
+            self._match(Symbol.Mod)
+        elif self._current_char() == '+':
+            self._match(Symbol.Plus)
+        elif self._current_char() == '=':
+            self._match(Symbol.Equal)
+        elif self._current_char() == '>':
+            self._match(Symbol.More)
+        elif self._current_char() == '<':
+            self._match(Symbol.Less)
+        elif self._current_char() == ',':
+            self._match(Symbol.Comma)
+        elif self._current_char() == '@':
+            self._match(Symbol.At)
+        elif self._current_char() == '%':
+            self._match(Symbol.Per)
+
+    def _lex_string(self):
+        self._sym = Symbol.STString
+        self._symc = '\0'
+        self._bufp += 1
+        self._text = self._bufchar(self._bufp)
+        while self._current_char() != '\'':
+            self._bufp += 1
+            self._text += self._bufchar(self._bufp)
+        self._text = self._text[:-1]
+        self._bufp += 1
+
     def get_sym(self):
         if self._peek_done:
             self._peek_done = False
@@ -49,18 +95,7 @@ class Lexer(object):
                 break
         
         if self._current_char() == '\'':
-            self._sym = Symbol.STString
-            self._symc = '\0'
-            
-            self._bufp += 1
-            self._text = self._bufchar(self._bufp)
-            
-            while self._current_char() != '\'':
-                self._bufp += 1
-                self._text += self._bufchar(self._bufp)
-      
-            self._text = self._text[:-1]
-            self._bufp += 1
+            self._lex_string()
         elif self._current_char() == '[':
             self._match(Symbol.NewBlock)
         elif self._current_char() == ']':
@@ -101,39 +136,7 @@ class Lexer(object):
                 self._text = "-"
         
         elif self._is_operator(self._current_char()):
-            if self._is_operator(self._bufchar(self._bufp + 1)):
-                self._sym  = Symbol.OperatorSequence
-                self._symc = '\0'
-                self._text = ""
-                while self._is_operator(self._current_char()):
-                    self._text += self._bufchar(self._bufp)
-                    self._bufp += 1
-            elif self._current_char() == '~':
-                self._match(Symbol.Not)
-            elif self._current_char() == '&':
-                self._match(Symbol.And)
-            elif self._current_char() == '|':
-                self._match(Symbol.Or)
-            elif self._current_char() == '*':
-                self._match(Symbol.Star)
-            elif self._current_char() == '/':
-                self._match(Symbol.Div)
-            elif self._current_char() == '\\':
-                self._match(Symbol.Mod)
-            elif self._current_char() == '+':
-                self._match(Symbol.Plus)
-            elif self._current_char() == '=':
-                self._match(Symbol.Equal)
-            elif self._current_char() == '>':
-                self._match(Symbol.More)
-            elif self._current_char() == '<':
-                self._match(Symbol.Less)
-            elif self._current_char() == ',':
-                self._match(Symbol.Comma)
-            elif self._current_char() == '@':
-                self._match(Symbol.At)
-            elif self._current_char() == '%':
-                self._match(Symbol.Per)
+            self._lex_operator()
 
         elif self._next_word_in_buffer_is(self._PRIMITIVE):
             self._bufp += len(self._PRIMITIVE)
