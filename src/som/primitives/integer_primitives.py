@@ -219,7 +219,7 @@ def _fromString(ivkbl, rcvr, args):
     return ivkbl.get_universe().new_integer(int_value)
 
 
-def _leftShift(ivkbl, rcvr, args, domain):
+def _leftShift(ivkbl, rcvr, args):
     right_obj = args[0]
     left      = rcvr
     universe  = ivkbl.get_universe()
@@ -229,7 +229,7 @@ def _leftShift(ivkbl, rcvr, args, domain):
                         << right_obj.get_embedded_integer(), universe)
 
 
-def _bitXor(ivkbl, rcvr, args, domain):
+def _bitXor(ivkbl, rcvr, args):
     right    = args[0]
     left     = rcvr
     universe = ivkbl.get_universe()
