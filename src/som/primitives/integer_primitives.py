@@ -147,7 +147,8 @@ def _mod(ivkbl, rcvr, args):
     else:
         # Do operation:
         return _long_result(left.get_embedded_integer()
-                                   % right_obj.get_embedded_integer(), universe)
+                            % right_obj.get_embedded_integer(), universe)
+
 
 def _and(ivkbl, rcvr, args):
     right_obj = args[0]
@@ -218,6 +219,26 @@ def _fromString(ivkbl, rcvr, args):
     return ivkbl.get_universe().new_integer(int_value)
 
 
+def _leftShift(ivkbl, rcvr, args, domain):
+    right_obj = args[0]
+    left      = rcvr
+    universe  = ivkbl.get_universe()
+
+    assert isinstance(right_obj, Integer)
+    return _long_result(left.get_embedded_integer()
+                        << right_obj.get_embedded_integer(), universe)
+
+
+def _bitXor(ivkbl, rcvr, args, domain):
+    right    = args[0]
+    left     = rcvr
+    universe = ivkbl.get_universe()
+
+    assert isinstance(right, Integer)
+    return universe.new_integer(left.get_embedded_integer()
+                                ^ right.get_embedded_integer())
+
+
 class IntegerPrimitives(Primitives):
 
     def install_primitives(self):
@@ -235,5 +256,8 @@ class IntegerPrimitives(Primitives):
         self._install_instance_primitive(Primitive("&",  self._universe, _and))
         self._install_instance_primitive(Primitive("=",  self._universe, _equals))
         self._install_instance_primitive(Primitive("<",  self._universe, _lessThan))
+
+        self._install_instance_primitive(Primitive("<<", self._universe, _leftShift))
+        self._install_instance_primitive(Primitive("bitXor:", self._universe, _bitXor))
 
         self._install_class_primitive(Primitive("fromString:", self._universe, _fromString))
