@@ -2,9 +2,6 @@ from rpython.rlib.debug import make_sure_not_resized
 from rpython.rlib.rrandom import Random
 from rpython.rlib import jit
 
-from som.interpreter.frame       import Frame
- 
-from som.vm.symbol_table         import SymbolTable
 from som.vmobjects.object        import Object
 from som.vmobjects.clazz         import Class
 from som.vmobjects.array         import Array
@@ -73,8 +70,7 @@ class Universe(object):
             "_globals"]
 
     def __init__(self, avoid_exit = False):
-        self._symbol_table   = SymbolTable()
-        
+        self._symbol_table   = {}
         self._globals        = {}
 
         self.nilObject      = None
@@ -96,7 +92,7 @@ class Universe(object):
         self.blockClasses   = None
         self.stringClass    = None
         self.doubleClass    = None
-        
+
         self._last_exit_code = 0
         self._avoid_exit     = avoid_exit
         self._dump_bytecodes = False
@@ -291,15 +287,16 @@ class Universe(object):
                 [self._make_block_class(i) for i in [1, 2, 3]]
 
         return system_object
-    
+
+    @jit.elidable
     def symbol_for(self, string):
         # Lookup the symbol in the symbol table
-        result = self._symbol_table.lookup(string)
-        if result:
+        result = self._symbol_table.get(string, None)
+        if result is not None:
             return result
         
         # Create a new symbol and return it
-        result = self.new_symbol(string)
+        result = self._new_symbol(string)
         return result
     
     def new_array_with_length(self, length):
@@ -360,11 +357,11 @@ class Universe(object):
     def new_string(self, embedded_string):
         return String(embedded_string)
 
-    def new_symbol(self, string):
+    def _new_symbol(self, string):
         result = Symbol(string)
 
         # Insert the new symbol into the symbol table
-        self._symbol_table.insert(result)
+        self._symbol_table[string] = result
         return result
       
     def new_system_class(self):
