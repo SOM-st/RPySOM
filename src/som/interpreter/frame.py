@@ -23,11 +23,17 @@ class Frame(object):
 
     def get_temp(self, index):
         jit.promote(index)
-        return self._temps[index]
+        temps = self._temps
+        assert 0 <= index < len(temps)
+        assert temps is not None
+        return temps[index]
 
     def set_temp(self, index, value):
         jit.promote(index)
-        self._temps[index] = value
+        temps = self._temps
+        assert temps is not None
+        assert 0 <= index < len(temps)
+        temps[index] = value
 
     def get_self(self):
         return self._receiver
