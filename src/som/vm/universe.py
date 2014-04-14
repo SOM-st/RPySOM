@@ -55,9 +55,22 @@ class Universe(object):
             "trueObject",
             "falseObject",
             "objectClass",
+            "classClass",
+            "metaclassClass",
+            "nilClass",
             "integerClass",
+            "bigintegerClass",
+            "arrayClass",
+            "methodClass",
+            "symbolClass",
+            "primitiveClass",
+            "systemClass",
+            "blockClass",
+            "blockClasses[*]",
+            "stringClass",
             "doubleClass",
-            "primitiveClass"]
+            "_symbol_table",
+            "_globals"]
 
     def __init__(self, avoid_exit = False):
         self._symbol_table   = SymbolTable()
