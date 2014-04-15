@@ -48,6 +48,7 @@ def _mult(ivkbl, rcvr, args):
     return ivkbl.get_universe().new_double(op2.get_embedded_double()
                                            * op1.get_embedded_double())
 
+
 def _doubleDiv(ivkbl, rcvr, args):
     op1 = _coerce_to_double(args[0], ivkbl.get_universe())
     op2 = rcvr
