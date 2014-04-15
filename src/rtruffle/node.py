@@ -100,7 +100,9 @@ class Node(AbstractNode):
 
     def replace(self, node):
         if node:
-            return self._parent._replace_child_with(self, node)
+            self._parent._replace_child_with(self, node)
+            node._parent = self._parent
+            return node
         else:
             return None
 
