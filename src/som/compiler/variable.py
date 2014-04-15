@@ -59,7 +59,7 @@ class Local(_Variable):
         self._is_written_out_of_context = False
 
     def is_accessed(self):
-        return _Variable.is_accessed() or self._is_written
+        return _Variable.is_accessed(self) or self._is_written
 
     def is_accessed_out_of_context(self):
         return (_Variable.is_accessed_out_of_context(self) or
