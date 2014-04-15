@@ -2,8 +2,6 @@ from __future__ import absolute_import
 
 from rpython.rlib import jit
 
-from som.interpreter.control_flow import ReturnException
-
 from som.vmobjects.abstract_object import AbstractObject
 
 

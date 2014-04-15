@@ -1,7 +1,6 @@
 from rpython.rlib.objectmodel import we_are_translated
 
 from rlib.osext import raw_input
-from ..interpreter.frame import Frame
 
 
 class Shell(object):

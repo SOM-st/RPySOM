@@ -1,5 +1,5 @@
 from rpython.rlib.rfloat import (formatd, DTSF_ADD_DOT_0, DTSF_STR_PRECISION,
-    NAN, INFINITY, isfinite, round_double)
+                                 round_double)
 
 from som.primitives.primitives import Primitives
 from som.vmobjects.primitive   import Primitive

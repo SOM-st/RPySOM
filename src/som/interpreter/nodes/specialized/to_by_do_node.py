@@ -1,4 +1,3 @@
-from ..expression_node import ExpressionNode
 from .to_do_node       import AbstractToDoNode
 
 from rpython.rlib import jit

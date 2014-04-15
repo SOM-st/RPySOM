@@ -1,5 +1,3 @@
-from rpython.rlib.unroll import unrolling_iterable
-
 from .expression_node import ExpressionNode
 from som.vmobjects.object import Object
 
