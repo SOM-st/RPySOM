@@ -199,7 +199,8 @@ class MethodGenerationContext(object):
         return create_read_node(self._get_self_read(),
                              self.get_field_index(field_name))
 
-    def get_global_read(self, var_name, universe):
+    @staticmethod
+    def get_global_read(var_name, universe):
         return UninitializedGlobalReadNode(var_name, universe)
 
     def get_object_field_write(self, field_name, exp, universe):

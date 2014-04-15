@@ -20,7 +20,8 @@ class AbstractObject(object):
         args = self._prepare_dnu_arguments(arguments, selector, universe)
         return self.send("doesNotUnderstand:arguments:", args, universe)
 
-    def _prepare_dnu_arguments(self, arguments, selector, universe):
+    @staticmethod
+    def _prepare_dnu_arguments(arguments, selector, universe):
         # Compute the number of arguments
         number_of_arguments = selector.get_number_of_signature_arguments()
         arguments_array = universe.new_array_with_length(number_of_arguments)

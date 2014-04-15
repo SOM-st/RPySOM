@@ -33,7 +33,8 @@ class Block(AbstractObject):
                                universe, invoke)
             self._number_of_arguments = num_args
 
-        def _compute_signature_string(self, num_args):
+        @staticmethod
+        def _compute_signature_string(num_args):
             # Compute the signature string
             signature_string = "value"
             if num_args > 1:

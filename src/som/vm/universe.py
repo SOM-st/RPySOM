@@ -164,7 +164,7 @@ class Universe(object):
     
         if not got_classpath:
             # Get the default class path of the appropriate size
-            self.classpath = self._setup_default_classpath()
+            self.classpath = self._default_classpath()
 
         # check remaining args for class paths, and strip file extension
         i = 0
@@ -181,13 +181,15 @@ class Universe(object):
     
     def setup_classpath(self, cp):
         self.classpath = cp.split(os.pathsep)
-    
-    def _setup_default_classpath(self):
+
+    @staticmethod
+    def _default_classpath():
         return ['.']
     
     # take argument of the form "../foo/Test.som" and return
     # "../foo", "Test", "som"
-    def _get_path_class_ext(self, path):
+    @staticmethod
+    def _get_path_class_ext(path):
         return path_split(path)
     
     def _print_usage_and_exit(self):
@@ -315,8 +317,9 @@ class Universe(object):
             result.set_indexable_field(i, self.new_string(strings[i]))
     
         return result
-    
-    def new_block(self, method, context_frame):
+
+    @staticmethod
+    def new_block(method, context_frame):
         return Block(method, context_frame)
 
     def new_class(self, class_class):
@@ -333,14 +336,17 @@ class Universe(object):
     def new_instance(self, instance_class):
         return Object(self.nilObject, instance_class.get_number_of_instance_fields(), instance_class)
 
-    def new_integer(self, value):
+    @staticmethod
+    def new_integer(value):
         assert isinstance(value, int)
         return Integer(value)
 
-    def new_biginteger(self, value):
+    @staticmethod
+    def new_biginteger(value):
         return BigInteger(value)
 
-    def new_double(self, value):
+    @staticmethod
+    def new_double(value):
         return Double(value)
     
     def new_metaclass_class(self):
@@ -354,7 +360,8 @@ class Universe(object):
         # Return the freshly allocated metaclass class
         return result
 
-    def new_string(self, embedded_string):
+    @staticmethod
+    def new_string(embedded_string):
         return String(embedded_string)
 
     def _new_symbol(self, string):

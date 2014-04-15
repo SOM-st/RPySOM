@@ -275,7 +275,8 @@ class Lexer(object):
     def _end_of_buffer(self):
         return self._bufp >= len(self._buf)
 
-    def _is_operator(self, c):
+    @staticmethod
+    def _is_operator(c):
         return (c == '~'  or c == '&' or c == '|' or c == '*' or c == '/' or
                 c == '\\' or c == '+' or c == '=' or c == '>' or c == '<' or
                 c == ','  or c == '@' or c == '%')
