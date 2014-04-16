@@ -1,12 +1,15 @@
 from rpython.rlib import jit
 from som.vmobjects.object      import Object
 
+
 class Class(Object):
     
     _immutable_fields_ = ["_super_class"
                           "_name",
                           "_instance_fields"
-                          "_instance_invokables"]
+                          "_instance_invokables",
+                          "_invokables_table",
+                          "_universe"]
     
     def __init__(self, universe, number_of_fields=-1):
         Object.__init__(self, universe.nilObject, number_of_fields)
