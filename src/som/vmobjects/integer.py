@@ -22,6 +22,7 @@ class Integer(AbstractObject):
     
     def get_class(self, universe):
         return universe.integerClass
-    
+
+
 def integer_value_fits(value):
     return -2147483646 < value <= 2147483647
