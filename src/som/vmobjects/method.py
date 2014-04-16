@@ -7,16 +7,14 @@ from som.vmobjects.abstract_object import AbstractObject
 
 class Method(AbstractObject):
     
-    _immutable_fields_ = ["_signature", "_invokable", "_is_primitive",
+    _immutable_fields_ = ["_signature", "_invokable",
                           "_embedded_block_methods", "_universe", "_holder"]
 
-    def __init__(self, signature, invokable, is_primitive,
-                 embedded_block_methods, universe):
+    def __init__(self, signature, invokable, embedded_block_methods, universe):
         AbstractObject.__init__(self)
 
         self._signature    = signature
         self._invokable    = invokable
-        self._is_primitive = is_primitive
 
         self._embedded_block_methods = embedded_block_methods
         self._universe = universe
@@ -29,7 +27,7 @@ class Method(AbstractObject):
 
     @jit.elidable_promote('all')
     def is_primitive(self):
-        return self._is_primitive
+        return False
 
     @jit.elidable_promote('all')
     def is_invokable(self):
@@ -64,10 +62,7 @@ class Method(AbstractObject):
                 str(self.get_signature()) + ")")
     
     def get_class(self, universe):
-        if self._is_primitive:
-            return universe.primitiveClass
-        else:
-            return universe.methodClass
+        return universe.methodClass
 
     def merge_point_string(self):
         """ debug info for the jit """
