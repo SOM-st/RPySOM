@@ -3,23 +3,52 @@ from rpython.rlib import jit
 from som.vmobjects.abstract_object import AbstractObject
 from som.vmobjects.primitive import Primitive
 
+
 class Block(AbstractObject):
     
-    _immutable_fields_ = ["_method", "_context"]
-    
-    def __init__(self, method, context):
+    _immutable_fields_ = ["_method", "_outer_rcvr", '_outer_args[*]',
+                          '_outer_tmps']
+
+    def __init__(self, method, context_values):
         AbstractObject.__init__(self)
-        self._method  = method
-        self._context = context
+        self._method         = method
+        self._outer_rcvr     = context_values[0]
+        self._outer_args     = context_values[1]
+        self._outer_tmps     = context_values[2]
+        self._outer_on_stack = context_values[3]
         
     def get_method(self):
         return jit.promote(self._method)
     
-    def get_context(self):
-        return self._context
+    def get_context_argument(self, index):
+        jit.promote(index)
+        args = self._outer_args
+        assert 0 <= index < len(args)
+        assert args is not None
+        return args[index]
+
+    def get_context_temp(self, index):
+        jit.promote(index)
+        temps = self._outer_tmps
+        assert 0 <= index < len(temps)
+        assert temps is not None
+        return temps[index]
+
+    def set_context_temp(self, index, value):
+        jit.promote(index)
+        temps = self._outer_tmps
+        assert 0 <= index < len(temps)
+        assert temps is not None
+        temps[index] = value
+
+    def is_outer_on_stack(self):
+        return self._outer_on_stack.is_on_stack()
+
+    def get_on_stack_marker(self):
+        return self._outer_on_stack
 
     def get_outer_self(self):
-        return self._context.get_self()
+        return self._outer_rcvr
     
     def get_class(self, universe):
         return universe.blockClasses[self._method.get_number_of_arguments()]

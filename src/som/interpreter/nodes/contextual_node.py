@@ -9,6 +9,7 @@ class ContextualNode(ExpressionNode):
 
     def __init__(self, context_level, source_section = None):
         ExpressionNode.__init__(self, source_section)
+        assert context_level >= 0
         self._context_level = context_level
 
     def get_context_level(self):
@@ -18,14 +19,13 @@ class ContextualNode(ExpressionNode):
         return self._context_level > 0
 
     @unroll_safe
-    def determine_context(self, frame):
-        if self._context_level == 0:
-            return  frame
+    def determine_block(self, frame):
+        assert self._context_level > 0
 
         block = frame.get_self()
         for i in range(0, self._context_level - 1):
             block = block.get_outer_self()
-        return block.get_context()
+        return block
 
     @unroll_safe
     def determine_outer_self(self, frame):
