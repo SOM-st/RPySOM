@@ -70,7 +70,6 @@ class Universe(object):
             "_globals"]
 
     def __init__(self, avoid_exit = False):
-        jit.set_param(None, 'trace_limit', 6000 * 100)
         self._symbol_table   = {}
         self._globals        = {}
 
