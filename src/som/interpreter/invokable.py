@@ -10,9 +10,9 @@ def get_printable_location(invokable):
 
 jitdriver = jit.JitDriver(
     greens=['self'],
-    # virtualizables=['frame'],
+    virtualizables=['frame'],
     get_printable_location=get_printable_location,
-    reds= ['do_void', 'arguments', 'receiver'],  # , 'frame'
+    reds= ['do_void', 'arguments', 'receiver', 'frame'],
 
     # the next line is a workaround around a likely bug in RPython
     # for some reason, the inlining heuristics default to "never inline" when
@@ -51,11 +51,11 @@ class Invokable(Node):
     def _do_invoke(self, receiver, arguments, do_void):
         make_sure_not_resized(arguments)
 
-        jitdriver.jit_merge_point(self=self, receiver=receiver, arguments=arguments, do_void=do_void)  # , frame=frame
-
         frame = Frame(receiver, arguments, self._arg_mapping,
                       self._num_local_temps, self._num_context_temps,
                       self._universe.nilObject)
+        jitdriver.jit_merge_point(self=self, receiver=receiver, arguments=arguments, do_void=do_void, frame=frame)
+
         if do_void:
             self._expr_or_sequence.execute_void(frame)
         else:

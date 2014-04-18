@@ -18,13 +18,13 @@ class Frame(object):
         
     _immutable_fields_ = ['_receiver', '_arguments[*]', '_args_for_inner[*]',
                           '_temps', '_temps_for_inner', '_on_stack']
-    # _virtualizable_    = ['_temps[*]']
+    _virtualizable_    = ['_temps[*]']
 
     def __init__(self, receiver, arguments, arg_mapping, num_local_temps,
                  num_context_temps, nilObject):
         make_sure_not_resized(arguments)
         make_sure_not_resized(arg_mapping)
-        # self = jit.hint(self, access_directly=True, fresh_virtualizable=True)
+        self = jit.hint(self, access_directly=True, fresh_virtualizable=True)
         self._receiver        = receiver
         self._arguments       = arguments
         self._on_stack        = _FrameOnStackMarker()
