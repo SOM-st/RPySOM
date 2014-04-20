@@ -545,7 +545,7 @@ class Parser(object):
         try:
             f = float(self._text)
             if negate_value:
-                f = 0 - f
+                f = 0.0 - f
         except ValueError:
             raise ParseError("Could not parse double. "
                              "Expected a number but got '%s'" % self._text,
