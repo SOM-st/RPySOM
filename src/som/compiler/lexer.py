@@ -34,14 +34,14 @@ class Lexer(object):
         saw_decimal_mark = False
 
         while self._current_char().isdigit():
-            self._text += self._bufchar(self._bufp)
+            self._text += self._current_char()
             self._bufp += 1
 
-            if (not saw_decimal_mark and '.' == self._bufchar(self._bufp) and
+            if (not saw_decimal_mark and '.' == self._current_char() and
                     self._bufchar(self._bufp + 1).isdigit()):
                 self._sym = Symbol.Double
                 saw_decimal_mark = True
-                self._text += self._bufchar(self._bufp)
+                self._text += self._current_char()
                 self._bufp += 1
 
     def _lex_operator(self):
@@ -50,7 +50,7 @@ class Lexer(object):
             self._symc = '\0'
             self._text = ""
             while self._is_operator(self._current_char()):
-                self._text += self._bufchar(self._bufp)
+                self._text += self._current_char()
                 self._bufp += 1
         elif self._current_char() == '~':
             self._match(Symbol.Not)
@@ -83,10 +83,10 @@ class Lexer(object):
         self._sym = Symbol.STString
         self._symc = '\0'
         self._bufp += 1
-        self._text = self._bufchar(self._bufp)
+        self._text = self._current_char()
         while self._current_char() != '\'':
             self._bufp += 1
-            self._text += self._bufchar(self._bufp)
+            self._text += self._current_char()
         self._text = self._text[:-1]
         self._bufp += 1
 
@@ -144,7 +144,7 @@ class Lexer(object):
             if self._buf[self._bufp:].startswith(self._SEPARATOR):
                 self._text = ""
                 while self._current_char() == '-':
-                    self._text += self._bufchar(self._bufp)
+                    self._text += self._current_char()
                     self._bufp += 1
                 self._sym = Symbol.Separator
             else:
@@ -165,10 +165,10 @@ class Lexer(object):
             self._symc = '\0'
             self._text = ""
             while self._current_char().isalnum() or self._current_char() == '_':
-                self._text += self._bufchar(self._bufp)
+                self._text += self._current_char()
                 self._bufp += 1
             self._sym = Symbol.Identifier
-            if self._bufchar(self._bufp) == ':':
+            if self._current_char() == ':':
                 self._sym = Symbol.Keyword
                 self._bufp += 1
                 self._text += ':'
@@ -176,7 +176,7 @@ class Lexer(object):
                     self._sym = Symbol.KeywordSequence
                     while (self._current_char().isalpha() or
                            self._current_char() == ':'):
-                        self._text += self._bufchar(self._bufp)
+                        self._text += self._current_char()
                         self._bufp += 1
         elif self._current_char().isdigit():
             self._lex_number()
