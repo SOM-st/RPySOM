@@ -7,7 +7,7 @@ def dump(clazz):
 
         # output header and skip if the Invokable is a Primitive
         error_print(str(clazz.get_name()) + ">>" +
-                             str(inv.get_signature()) + " = ")
+                    str(inv.get_signature()) + " = ")
 
         if inv.is_primitive():
             error_println("<primitive>")
@@ -15,6 +15,7 @@ def dump(clazz):
   
         # output actual method
         dump_method(inv, "\t")
+
 
 def dump_method(m, indent):
     error_println("(")
