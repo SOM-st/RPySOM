@@ -1,9 +1,9 @@
-from som.compiler.symbol                    import Symbol, symbol_as_str
-from som.compiler.lexer                     import Lexer
-from som.compiler.bytecode_generator        import BytecodeGenerator
-from som.compiler.method_generation_context import MethodGenerationContext
+from .lexer                     import Lexer
+from .bytecode_generator        import BytecodeGenerator
+from .method_generation_context import MethodGenerationContext
+from .symbol                    import Symbol, symbol_as_str
 
-from som.vmobjects.integer import integer_value_fits
+from ..vmobjects.integer import integer_value_fits
 
 class Parser(object):
     
@@ -536,7 +536,7 @@ class Parser(object):
             self._block_pattern(mgenc)
 
         # generate Block signature
-        block_sig = "$block method"
+        block_sig = "$blockMethod"
         arg_size = mgenc.get_number_of_arguments()
         block_sig += ":" * (arg_size - 1)
 
