@@ -6,7 +6,8 @@ RPYTHON  ?= $(PYPY_DIR)/rpython/bin/rpython
 
 all: compile
 
-compile: RPySOM-no-jit RPySOM-jit
+# RPySOM-no-jit
+compile: RPySOM-jit
 
 RPySOM-no-jit:
 	PYTHONPATH=$(PYTHONPATH):$(PYPY_DIR) $(RPYTHON) --batch src/targetsomstandalone.py
@@ -16,7 +17,7 @@ RPySOM-jit:
 
 test: compile
 	PYTHONPATH=$(PYTHONPATH):$(PYPY_DIR) nosetests
-	./RPySOM-no-jit -cp Smalltalk TestSuite/TestHarness.som
+	#./RPySOM-no-jit -cp Smalltalk TestSuite/TestHarness.som
 	./RPySOM-jit    -cp Smalltalk TestSuite/TestHarness.som
 
 clean:
