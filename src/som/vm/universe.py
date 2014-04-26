@@ -29,8 +29,23 @@ from rlib.exit  import Exit
 from rlib.osext import path_split
 
 
-class GlobalVersion(object):
-    pass
+class Assoc(object):
+
+    _immutable_fields_ = ["_global_name", "_value?"]
+
+    def __init__(self, global_name, value):
+        self._global_name = global_name
+        self._value       = value
+
+    def get_value(self):
+        return self._value
+
+    def set_value(self, value):
+        self._value = value
+
+    def __str__(self):
+        return "(%s => %s)" % (self._global_name, self._value)
+
 
 class Universe(object):
     
@@ -41,18 +56,27 @@ class Universe(object):
             "trueObject",
             "falseObject",
             "objectClass",
+            "classClass",
+            "metaclassClass",
+            "nilClass",
             "integerClass",
-            "doubleClass",
+            "bigintegerClass",
+            "arrayClass",
+            "methodClass",
+            "symbolClass",
             "primitiveClass",
-            "_global_version?",
-            ]
+            "systemClass",
+            "blockClass",
+            "blockClasses[*]",
+            "stringClass",
+            "doubleClass",
+            "_symbol_table",
+            "_globals"]
 
     def __init__(self, avoid_exit = False):
         self._interpreter    = Interpreter(self)
-        self._symbol_table   = SymbolTable()
-        
+        self._symbol_table   = {}
         self._globals        = {}
-        self._global_version = GlobalVersion()
 
         self.nilObject      = None
         self.trueObject     = None
@@ -297,15 +321,16 @@ class Universe(object):
                 [self._make_block_class(i) for i in [1, 2, 3]]
 
         return system_object
-    
+
+    @jit.elidable
     def symbol_for(self, string):
         # Lookup the symbol in the symbol table
-        result = self._symbol_table.lookup(string)
-        if result:
+        result = self._symbol_table.get(string, None)
+        if result is not None:
             return result
         
         # Create a new symbol and return it
-        result = self.new_symbol(string)
+        result = self._new_symbol(string)
         return result
     
     def new_array_with_length(self, length):
@@ -390,12 +415,12 @@ class Universe(object):
     @staticmethod
     def new_string(embedded_string):
         return String(embedded_string)
-    
-    def new_symbol(self, string):
+
+    def _new_symbol(self, string):
         result = Symbol(string)
 
         # Insert the new symbol into the symbol table
-        self._symbol_table.insert(result)
+        self._symbol_table[string] = result
         return result
       
     def new_system_class(self):
@@ -436,19 +461,29 @@ class Universe(object):
         # Return the global with the given name if it's in the dictionary of globals
         # if not, return None
         jit.promote(self)
-        return self._get_global(name, self._global_version)
+        assoc = self._get_global(name)
+        if assoc:
+            return assoc.get_value()
+        else:
+            return None
 
     @jit.elidable
-    def _get_global(self, name, version):
+    def _get_global(self, name):
         return self._globals.get(name, None)
 
     def set_global(self, name, value):
-        # Insert the given value into the dictionary of globals
-        self._globals[name] = value
-        self._global_version = GlobalVersion()
+        self.get_globals_association(name).set_value(value)
 
     def has_global(self, name):
         return name in self._globals
+
+    @jit.elidable_promote("all")
+    def get_globals_association(self, name):
+        assoc = self._globals.get(name, None)
+        if assoc is None:
+            assoc = Assoc(name, self.nilObject)
+            self._globals[name] = assoc
+        return assoc
 
     def _get_block_class(self, number_of_arguments):
         return self.blockClasses[number_of_arguments]
