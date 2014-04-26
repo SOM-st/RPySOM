@@ -61,8 +61,8 @@ def _mod(ivkbl, frame, interpreter):
     op1 = _coerce_to_double(frame.pop(), interpreter.get_universe())
     op2 = frame.pop()
     
-    o1 = float(op1.get_embedded_double())
-    o2 = float(op2.get_embedded_double())
+    o1 = op1.get_embedded_double()
+    o2 = op2.get_embedded_double()
     r = math.fmod(o1, o2)
     frame.push(interpreter.get_universe().new_double(r))
 
