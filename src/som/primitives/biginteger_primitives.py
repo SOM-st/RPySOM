@@ -8,10 +8,12 @@ def _asString(ivkbl, frame, interpreter):
     rcvr = frame.pop()
     frame.push(interpreter.get_universe().new_string(str(rcvr.get_embedded_biginteger())))
 
+
 def _sqrt(ivkbl, frame, interpreter):
     rcvr = frame.pop()
     frame.push(interpreter.get_universe().new_double(
                        math.sqrt(rcvr.get_embedded_biginteger())))
+
 
 def _plus(ivkbl, frame, interpreter):
     right_obj = frame.pop()
@@ -24,6 +26,7 @@ def _plus(ivkbl, frame, interpreter):
     else:
         frame.push(interpreter.get_universe().new_biginteger(result))
 
+
 def _minus(ivkbl, frame, interpreter):
     right_obj = frame.pop()
     left      = frame.pop()
@@ -34,6 +37,7 @@ def _minus(ivkbl, frame, interpreter):
         frame.push(interpreter.get_universe().new_integer(result))
     else:
         frame.push(interpreter.get_universe().new_biginteger(result))
+
 
 def _mult(ivkbl, frame, interpreter):
     right_obj = frame.pop()
@@ -46,6 +50,7 @@ def _mult(ivkbl, frame, interpreter):
     else:
         frame.push(interpreter.get_universe().new_biginteger(result))
 
+
 def _div(ivkbl, frame, interpreter):
     right_obj = frame.pop()
     left      = frame.pop()
@@ -56,6 +61,7 @@ def _div(ivkbl, frame, interpreter):
         frame.push(interpreter.get_universe().new_integer(result))
     else:
         frame.push(interpreter.get_universe().new_biginteger(result))
+
 
 def _mod(ivkbl, frame, interpreter):
     right_obj = frame.pop()
@@ -71,6 +77,7 @@ def _and(ivkbl, frame, interpreter):
     # Do operation:
     frame.push(interpreter.get_universe().new_biginteger(left.get_embedded_biginteger() & right_obj.get_embedded_value()))
 
+
 def _equals(ivkbl, frame, interpreter):
     right_obj = frame.pop()
     left      = frame.pop()
@@ -80,6 +87,7 @@ def _equals(ivkbl, frame, interpreter):
         frame.push(interpreter.get_universe().trueObject)
     else:
         frame.push(interpreter.get_universe().falseObject)
+
 
 def _lessThan(ivkbl, frame, interpreter):
     right_obj = frame.pop()

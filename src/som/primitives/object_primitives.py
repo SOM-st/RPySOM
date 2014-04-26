@@ -6,6 +6,7 @@ from som.vmobjects.object    import Object
 from som.vmobjects.primitive import Primitive
 from som.vmobjects.array     import Array 
 
+
 def _equals(ivkbl, frame, interpreter):
     op1 = frame.pop()
     op2 = frame.pop()
@@ -14,10 +15,12 @@ def _equals(ivkbl, frame, interpreter):
     else:
         frame.push(interpreter.get_universe().falseObject)
 
+
 def _hashcode(ivkbl, frame, interpreter):
     rcvr = frame.pop()
     frame.push(interpreter.get_universe().new_integer(
         compute_identity_hash(rcvr)))
+
 
 def _objectSize(ivkbl, frame, interpreter):
     rcvr = frame.pop()
@@ -30,12 +33,14 @@ def _objectSize(ivkbl, frame, interpreter):
 
     frame.push(interpreter.get_universe().new_integer(size))
 
+
 def _perform(ivkbl, frame, interpreter):
     selector = frame.pop()
     rcvr     = frame.get_stack_element(0)
 
     invokable = rcvr.get_class(interpreter.get_universe()).lookup_invokable(selector)
     invokable.invoke(frame, interpreter)
+
 
 def _performInSuperclass(ivkbl, frame, interpreter):
     clazz    = frame.pop()
@@ -44,6 +49,7 @@ def _performInSuperclass(ivkbl, frame, interpreter):
 
     invokable = clazz.lookup_invokable(selector)
     invokable.invoke(frame, interpreter)
+
 
 def _performWithArguments(ivkbl, frame, interpreter):
     args     = frame.pop()
@@ -56,11 +62,13 @@ def _performWithArguments(ivkbl, frame, interpreter):
     invokable = rcvr.get_class(interpreter.get_universe()).lookup_invokable(selector)
     invokable.invoke(frame, interpreter)
 
+
 def _instVarAt(ivkbl, frame, interpreter):
     idx  = frame.pop()
     rcvr = frame.pop()
 
     frame.push(rcvr.get_field(idx.get_embedded_integer() - 1))
+
 
 def _instVarAtPut(ivkbl, frame, interpreter):
     val  = frame.pop()
@@ -68,6 +76,7 @@ def _instVarAtPut(ivkbl, frame, interpreter):
     rcvr = frame.get_stack_element(0)
 
     rcvr.set_field(idx.get_embedded_integer() - 1, val)
+
 
 def _halt(ivkbl, frame, interpreter):
     # noop

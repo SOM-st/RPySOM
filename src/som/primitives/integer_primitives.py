@@ -8,6 +8,7 @@ from som.vmobjects.block       import block_evaluate
 
 import math
 
+
 def _push_long_result(frame, result, universe):
     # Check with integer bounds and push:
     if integer_value_fits(result):
@@ -15,19 +16,23 @@ def _push_long_result(frame, result, universe):
     else:
         frame.push(universe.new_biginteger(result))
 
+
 def _resend_as_biginteger(frame, operator, left, right, universe):
     left_biginteger = universe.new_biginteger(left.get_embedded_integer())
     operands = [right]
     left_biginteger.send(frame, operator, operands, universe, universe.get_interpreter())
+
 
 def _resend_as_double(frame, operator, left, right, universe):
     left_double = universe.new_double(left.get_embedded_integer())
     operands    = [right]
     left_double.send(frame, operator, operands, universe, universe.get_interpreter())
 
+
 def _asString(ivkbl, frame, interpreter):
     rcvr = frame.pop()
     frame.push(interpreter.get_universe().new_string(str(rcvr.get_embedded_integer())))
+
 
 def _sqrt(ivkbl, frame, interpreter):
     rcvr = frame.pop()
@@ -37,10 +42,12 @@ def _sqrt(ivkbl, frame, interpreter):
     else:
         frame.push(interpreter.get_universe().new_double(res))
 
+
 def _atRandom(ivkbl, frame, interpreter):
     rcvr = frame.pop()
     frame.push(interpreter.get_universe().new_integer(int(
         rcvr.get_embedded_integer() * interpreter.get_universe().random.random())))
+
 
 def _plus(ivkbl, frame, interpreter):
     right_obj = frame.pop()
@@ -58,6 +65,7 @@ def _plus(ivkbl, frame, interpreter):
         result = left.get_embedded_integer() + right.get_embedded_integer()
         _push_long_result(frame, result, interpreter.get_universe())
 
+
 def _minus(ivkbl, frame, interpreter):
     right_obj = frame.pop()
     left      = frame.pop()
@@ -73,6 +81,7 @@ def _minus(ivkbl, frame, interpreter):
         right = right_obj
         result = left.get_embedded_integer() - right.get_embedded_integer()
         _push_long_result(frame, result, interpreter.get_universe())
+
 
 def _mult(ivkbl, frame, interpreter):
     right_obj = frame.pop()
@@ -90,6 +99,7 @@ def _mult(ivkbl, frame, interpreter):
         result = left.get_embedded_integer() * right.get_embedded_integer()
         _push_long_result(frame, result, interpreter.get_universe())
 
+
 def _doubleDiv(ivkbl, frame, interpreter):
     right_obj = frame.pop()
     left      = frame.pop()
@@ -105,6 +115,7 @@ def _doubleDiv(ivkbl, frame, interpreter):
         right = right_obj
         result = float(left.get_embedded_integer()) / float(right.get_embedded_integer())
         frame.push(interpreter.get_universe().new_double(result))
+
 
 def _intDiv(ivkbl, frame, interpreter):
     right_obj = frame.pop()
@@ -122,6 +133,7 @@ def _intDiv(ivkbl, frame, interpreter):
         result = left.get_embedded_integer() / right.get_embedded_integer()
         _push_long_result(frame, result, interpreter.get_universe())
 
+
 def _mod(ivkbl, frame, interpreter):
     right_obj = frame.pop()
     left      = frame.pop()
@@ -135,6 +147,7 @@ def _mod(ivkbl, frame, interpreter):
     else:
         # Do operation:
         _push_long_result(frame, left.get_embedded_integer() % right_obj.get_embedded_integer(), interpreter.get_universe())
+
 
 def _and(ivkbl, frame, interpreter):
     right_obj = frame.pop()
@@ -174,6 +187,7 @@ def _equals(ivkbl, frame, interpreter):
     else:
         frame.push(interpreter.get_universe().falseObject)
 
+
 def _lessThan(ivkbl, frame, interpreter):
     right_obj = frame.pop()
     left      = frame.pop()
@@ -189,6 +203,7 @@ def _lessThan(ivkbl, frame, interpreter):
             frame.push(interpreter.get_universe().trueObject)
         else:
             frame.push(interpreter.get_universe().falseObject)
+
 
 def _fromString(ivkbl, frame, interpreter):
     param = frame.pop()
@@ -219,7 +234,9 @@ def _bitXor(ivkbl, frame, interpreter):
 
     frame.push(interpreter.get_universe().new_integer(result))
 
+
 from rpython.rlib import jit
+
 
 def get_printable_location(interpreter, block_method):
     from som.vmobjects.method import Method

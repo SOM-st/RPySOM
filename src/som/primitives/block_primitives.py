@@ -23,14 +23,13 @@ jitdriver = jit.JitDriver(
     get_printable_location=get_printable_location)
 
 
-
-
 def _execute_block(frame, block, block_method, interpreter, universe):
     b = universe.new_block(block_method, block.get_context())
     frame.push(b)
     
     block_evaluate(b, interpreter, frame)
     return frame.pop()    
+
 
 def _whileLoop(frame, interpreter, while_type):
     loop_body      = frame.pop()
@@ -55,8 +54,10 @@ def _whileLoop(frame, interpreter, while_type):
     
     frame.push(universe.nilObject)
 
+
 def _whileFalse(ivkbl, frame, interpreter):
     _whileLoop(frame, interpreter, interpreter.get_universe().falseObject)
+
 
 def _whileTrue(ivkbl, frame, interpreter):
     _whileLoop(frame, interpreter, interpreter.get_universe().trueObject)

@@ -3,19 +3,23 @@ from rpython.rlib.objectmodel import compute_identity_hash
 from som.primitives.primitives import Primitives
 from som.vmobjects.primitive import Primitive
 
+
 def _concat(ivkbl, frame, interpreter):
     argument = frame.pop()
     rcvr     = frame.pop()
     frame.push(interpreter.get_universe().new_string(rcvr.get_embedded_string()
                                    + argument.get_embedded_string()))
 
+
 def _asSymbol(ivkbl, frame, interpreter):
     rcvr = frame.pop()
     frame.push(interpreter.get_universe().symbol_for(rcvr.get_embedded_string()))
 
+
 def _length(ivkbl, frame, interpreter):
     rcvr = frame.pop()
     frame.push(interpreter.get_universe().new_integer(len(rcvr.get_embedded_string())))
+
 
 def _equals(ivkbl, frame, interpreter):
     op1 = frame.pop()
@@ -26,6 +30,7 @@ def _equals(ivkbl, frame, interpreter):
             frame.push(universe.trueObject)
             return
     frame.push(universe.falseObject)
+
 
 def _substring(ivkbl, frame, interpreter):
     end   = frame.pop()
@@ -41,10 +46,12 @@ def _substring(ivkbl, frame, interpreter):
     else:
         frame.push(interpreter.get_universe().new_string(string[s:e]))
 
+
 def _hashcode(ivkbl, frame, interpreter):
     rcvr = frame.pop()
     frame.push(interpreter.get_universe().new_integer(
         compute_identity_hash(rcvr.get_embedded_string())))
+
 
 class StringPrimitives(Primitives):
     
