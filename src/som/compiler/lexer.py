@@ -25,9 +25,18 @@ class Lexer(object):
         self._symc = '\0'
         self._text = ''
 
+        saw_decimal_mark = False
+
         while self._current_char().isdigit():
             self._text += self._current_char()
             self._bufp += 1
+
+            if (not saw_decimal_mark and '.' == self._current_char() and
+                    self._bufchar(self._bufp + 1).isdigit()):
+                self._sym = Symbol.Double
+                saw_decimal_mark = True
+                self._text += self._current_char()
+                self._bufp += 1
 
     def _lex_operator(self):
         if self._is_operator(self._bufchar(self._bufp + 1)):

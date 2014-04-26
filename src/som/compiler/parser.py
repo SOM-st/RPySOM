@@ -465,30 +465,42 @@ class Parser(object):
 
     def _literal_number(self, mgenc):
         if self._sym == Symbol.Minus:
-            val = self._negative_decimal()
+            lit = self._negative_decimal()
         else:
-            val = self._literal_decimal()
+            lit = self._literal_decimal(False)
 
-        if integer_value_fits(val):
-            lit = self._universe.new_integer(val)
-        else:
-            lit = self._universe.new_biginteger(val)
-      
         mgenc.add_literal_if_absent(lit)
         self._bc_gen.emitPUSHCONSTANT(mgenc, lit)
 
-    def _literal_decimal(self):
-        return self._literal_integer()
+    def _literal_decimal(self, negate_value):
+        if self._sym == Symbol.Integer:
+            return self._literal_integer(negate_value)
+        else:
+            assert self._sym == Symbol.Double
+            return self._literal_double(negate_value)
 
     def _negative_decimal(self):
         self._expect(Symbol.Minus)
-        return -self._literal_integer()
+        return self._literal_decimal(True)
  
-    def _literal_integer(self):
+    def _literal_integer(self, negate_value):
         i = int(self._text)
+        if negate_value:
+            i = 0 - i
         self._expect(Symbol.Integer)
-        return i
 
+        if integer_value_fits(i):
+            return self._universe.new_integer(i)
+        else:
+            return self._universe.new_biginteger(i)
+
+
+    def _literal_double(self, negate_value):
+        f = float(self._text)
+        if negate_value:
+            f = 0.0 - f
+        self._expect(Symbol.Double)
+        return self._universe.new_double(f)
  
     def _literal_symbol(self, mgenc):
         self._expect(Symbol.Pound)
@@ -529,9 +541,10 @@ class Parser(object):
         return s
 
     def _nested_block(self, mgenc):
-        mgenc.add_argument_if_absent("$block self")
- 
         self._expect(Symbol.NewBlock)
+
+        mgenc.add_argument_if_absent("$blockSelf")
+
         if self._sym == Symbol.Colon:
             self._block_pattern(mgenc)
 
