@@ -69,9 +69,15 @@ class Frame(object):
     def get_number_of_arguments(self):
         return self._method.get_number_of_arguments()
 
+    def top(self):
+        stack_pointer = jit.promote(self._stack_pointer)
+        assert 0 <= stack_pointer < len(self._stack)
+        return self._stack[stack_pointer]
+
     def pop(self):
         """ Pop an object from the expression stack and return it """
-        stack_pointer = self._stack_pointer
+        stack_pointer = jit.promote(self._stack_pointer)
+        assert 0 <= stack_pointer < len(self._stack)
         self._stack_pointer = stack_pointer - 1
         result = self._stack[stack_pointer]
         self._stack[stack_pointer] = None
@@ -81,6 +87,7 @@ class Frame(object):
     def push(self, value):
         """ Push an object onto the expression stack """
         stack_pointer = jit.promote(self._stack_pointer) + 1
+        assert 0 <= stack_pointer < len(self._stack)
         self._stack[stack_pointer] = value
         self._stack_pointer = stack_pointer
 

@@ -106,12 +106,12 @@ class Interpreter(object):
             receiver.send_does_not_understand(frame, signature, self._universe, self)
 
     def _do_return_local(self, frame):
-        return frame.pop()
+        return frame.top()
 
     @jit.unroll_safe
     def _do_return_non_local(self, frame):
         # get result from stack
-        result = frame.pop()
+        result = frame.top()
 
         # Compute the context for the non-local return
         context = frame.get_outer_context()
@@ -127,7 +127,7 @@ class Interpreter(object):
 
             # ... and execute the escapedBlock message instead
             sender.send_escaped_block(frame, block, self._universe, self)
-            return frame.pop()
+            return frame.top()
 
         raise ReturnException(result, context)
 
