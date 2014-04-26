@@ -22,13 +22,16 @@ class Block(AbstractObject):
         return universe.blockClasses[self._method.get_number_of_arguments()]
   
     class Evaluation(Primitive):
+
         _immutable_fields_ = ['_number_of_arguments']
+
         def __init__(self, num_args, universe, invoke):
             Primitive.__init__(self, self._compute_signature_string(num_args),
                                universe, invoke)
             self._number_of_arguments = num_args
 
-        def _compute_signature_string(self, num_args):
+        @staticmethod
+        def _compute_signature_string(num_args):
             # Compute the signature string
             signature_string = "value"
             if num_args > 1:
@@ -40,8 +43,10 @@ class Block(AbstractObject):
             # Return the signature string
             return signature_string
 
+
 def block_evaluation_primitive(num_args, universe):
     return Block.Evaluation(num_args, universe, _invoke)
+
 
 def block_evaluate(block, interpreter, frame):
     context = block.get_context()
@@ -52,7 +57,7 @@ def block_evaluate(block, interpreter, frame):
     result = interpreter.interpret(method, new_frame)
     frame.pop_old_arguments_and_push_result(method, result)
     new_frame.clear_previous_frame()
-    
+
 
 def _invoke(ivkbl, frame, interpreter):
     assert isinstance(ivkbl, Block.Evaluation)
