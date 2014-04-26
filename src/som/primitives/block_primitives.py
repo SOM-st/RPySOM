@@ -4,17 +4,17 @@ from som.vmobjects.block       import block_evaluate
 
 from rpython.rlib import jit
 
+
 def get_printable_location(interpreter, method_body, method_condition, while_type):
     from som.vmobjects.method import Method
     from som.interpreter.bytecodes import bytecode_as_str
     assert isinstance(method_body, Method)
     assert isinstance(method_condition, Method)
-    #bc = method.get_bytecode(bytecode_index)
-#     return "%s @ %d in %s" % (bytecode_as_str(bc),
-#                               bytecode_index,
-#                               method.merge_point_string())
-    return "TODO"
 
+    return "[%s>>%s] while [%s>>%s]" % (method_condition.get_holder().get_name().get_string(),
+                                        method_condition.get_signature().get_string(),
+                                        method_body.get_holder().get_name().get_string(),
+                                        method_body.get_signature().get_string())
 
 jitdriver = jit.JitDriver(
     greens=['interpreter', 'method_body', 'method_condition', 'while_type'],

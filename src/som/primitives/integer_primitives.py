@@ -241,14 +241,53 @@ from rpython.rlib import jit
 def get_printable_location(interpreter, block_method):
     from som.vmobjects.method import Method
     assert isinstance(block_method, Method)
-    return "TODO"
+    return "to:do: [%s>>%s]" % (block_method.get_holder().get_name().get_string(),
+                                block_method.get_signature().get_string())
 
 
-jitdriver = jit.JitDriver(
+jitdriver_int = jit.JitDriver(
     greens=['interpreter', 'block_method'],
     reds='auto',
     # virtualizables=['frame'],
     get_printable_location=get_printable_location)
+
+jitdriver_double = jit.JitDriver(
+    greens=['interpreter', 'block_method'],
+    reds='auto',
+    # virtualizables=['frame'],
+    get_printable_location=get_printable_location)
+
+
+
+def _toDoInt(i, top, frame, context, interpreter, block_method, universe):
+    assert isinstance(i, int)
+    assert isinstance(top, int)
+    while i <= top:
+        jitdriver_int.jit_merge_point(interpreter=interpreter,
+                                      block_method=block_method)
+
+        b = universe.new_block(block_method, context)
+        frame.push(b)
+        frame.push(universe.new_integer(i))
+        block_evaluate(b, interpreter, frame)
+        frame.pop()
+        i += 1
+
+
+def _toDoDouble(i, top, frame, context, interpreter, block_method, universe):
+    assert isinstance(i, int)
+    assert isinstance(top, float)
+    while i <= top:
+        jitdriver_double.jit_merge_point(interpreter=interpreter,
+                                         block_method=block_method)
+
+        b = universe.new_block(block_method, context)
+        frame.push(b)
+        frame.push(universe.new_integer(i))
+        block_evaluate(b, interpreter, frame)
+        frame.pop()
+        i += 1
+
 
 def _toDo(ivkbl, frame, interpreter):
     universe = interpreter.get_universe()
@@ -261,21 +300,14 @@ def _toDo(ivkbl, frame, interpreter):
 
     i = self.get_embedded_integer()
     if isinstance(limit, Double):
-        top = limit.get_embedded_double()
+        _toDoDouble(i, limit.get_embedded_double(), frame, context, interpreter,
+                    block_method, universe)
     else:
-        top = limit.get_embedded_value()
-    while i <= top:
-        jitdriver.jit_merge_point(interpreter=interpreter,
-                                  block_method=block_method)
-
-        b = universe.new_block(block_method, context)
-        frame.push(b)
-        frame.push(universe.new_integer(i))
-        block_evaluate(b, interpreter, frame)
-        frame.pop()
-        i += 1
+        _toDoInt(i, limit.get_embedded_value(), frame, context, interpreter,
+                 block_method, universe)
 
     frame.push(self)
+
 
 class IntegerPrimitives(Primitives):
 
