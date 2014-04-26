@@ -5,6 +5,54 @@ from .symbol                    import Symbol, symbol_as_str
 
 from ..vmobjects.integer import integer_value_fits
 
+
+class ParseError(BaseException):
+    def __init__(self, message, expected_sym, parser):
+        self._message           = message
+        self._line              = parser._lexer.get_current_line_number()
+        self._column            = parser._lexer.get_current_column()
+        self._text              = parser._text
+        self._raw_buffer        = parser._lexer.get_raw_buffer()
+        self._file_name         = parser._file_name
+        self._expected_sym      = expected_sym
+        self._found_sym         = parser._sym
+
+    def _is_printable_symbol(self):
+        return (self._found_sym == Symbol.Integer or
+                self._found_sym == Symbol.Double  or
+                self._found_sym >= Symbol.STString)
+
+    def _expected_sym_str(self):
+        return symbol_as_str(self._expected_sym)
+
+    def __str__(self):
+        msg = "%(file)s:%(line)d:%(column)d: error: " + self._message
+        if self._is_printable_symbol():
+            found = "%s (%s)" % (symbol_as_str(self._found_sym), self._text)
+        else:
+            found = symbol_as_str(self._found_sym)
+        msg += ": %s" % self._raw_buffer
+
+        expected = self._expected_sym_str()
+
+        return (msg % {
+            'file'       : self._file_name,
+            'line'       : self._line,
+            'column'     : self._column,
+            'expected'   : expected,
+            'found'      : found})
+
+
+class ParseErrorSymList(ParseError):
+
+    def __init__(self, message, expected_syms, parser):
+        ParseError.__init__(self, message, 0, parser)
+        self._expected_syms = expected_syms
+
+    def _expected_sym_str(self):
+        return  ", ".join([symbol_as_str(x) for x in self._expected_syms])
+
+
 class Parser(object):
     
     _single_op_syms        = [Symbol.Not,  Symbol.And,  Symbol.Or,    Symbol.Star,
@@ -20,8 +68,9 @@ class Parser(object):
     
     _keyword_selector_syms = [Symbol.Keyword, Symbol.KeywordSequence]
   
-    def __init__(self, reader, universe):
+    def __init__(self, reader, file_name, universe):
         self._universe = universe
+        self._file_name = file_name
         self._lexer    = Lexer(reader)
         self._bc_gen   = BytecodeGenerator()
         self._sym      = Symbol.NONE
@@ -90,6 +139,9 @@ class Parser(object):
         # Load the super class, if it is not nil (break the dependency cycle)
         if super_name.get_string() != "nil":
             super_class = self._universe.load_class(super_name)
+            if not super_class:
+                raise ParseError("Super class %s could not be loaded"
+                                 % super_name.get_string(), Symbol.NONE, self)
             cgenc.set_instance_fields_of_super(
                 super_class.get_instance_fields())
             cgenc.set_class_fields_of_super(
@@ -127,26 +179,15 @@ class Parser(object):
     def _expect(self, s):
         if self._accept(s):
             return True
-        
-        err = ("Error: unexpected symbol in line %d. Expected %s, but found %s" %
-                (self._lexer.get_current_line_number(), symbol_as_str(s), symbol_as_str(self._sym))) 
-        if self._printable_symbol():
-            err += " (" + self._text + ")"
-        err += ": " + self._lexer.get_raw_buffer()
-        raise ValueError(err)
+        raise ParseError("Unexpected symbol. Expected %(expected)s, but found "
+                         "%(found)s", s, self)
 
     def _expect_one_of(self, symbol_list):
         if self._accept_one_of(symbol_list):
             return True
-        
-        expected = ", ".join([symbol_as_str(x) for x in symbol_list])
-        
-        err = ("Error: unexpected symbol in line %d. Expected one of %s, but found %s" %
-                (self._lexer.get_current_line_number(), expected, symbol_as_str(self._sym))) 
-        if self._printable_symbol():
-            err += " (" + self._text + ")"
-        err += ": " + self._lexer.get_raw_buffer()
-        raise ValueError(err)
+        raise ParseErrorSymList("Unexpected symbol. Expected one of "
+                                "%(expected)s, but found %(found)s",
+                                symbol_list, self)
 
     def _instance_fields(self, cgenc):
         if self._accept(Symbol.Or):
@@ -484,9 +525,14 @@ class Parser(object):
         return self._literal_decimal(True)
  
     def _literal_integer(self, negate_value):
-        i = int(self._text)
-        if negate_value:
-            i = 0 - i
+        try:
+            i = int(self._text)
+            if negate_value:
+                i = 0 - i
+        except ValueError:
+            raise ParseError("Could not parse integer. "
+                             "Expected a number but got '%s'" % self._text,
+                             Symbol.NONE, self)
         self._expect(Symbol.Integer)
 
         if integer_value_fits(i):
@@ -496,9 +542,14 @@ class Parser(object):
 
 
     def _literal_double(self, negate_value):
-        f = float(self._text)
-        if negate_value:
-            f = 0.0 - f
+        try:
+            f = float(self._text)
+            if negate_value:
+                f = 0.0 - f
+        except ValueError:
+            raise ParseError("Could not parse double. "
+                             "Expected a number but got '%s'" % self._text,
+                             Symbol.NONE, self)
         self._expect(Symbol.Double)
         return self._universe.new_double(f)
  
@@ -627,6 +678,3 @@ class Parser(object):
     
     def _peek_for_next_symbol_from_lexer(self):
         self._next_sym = self._lexer.peek()
-
-    def _printable_symbol(self):
-        return self._sym == Symbol.Integer or self._sym >= Symbol.STString

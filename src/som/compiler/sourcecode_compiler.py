@@ -2,7 +2,7 @@ import os
 from rpython.rlib.streamio import open_file_as_stream
 from rlib.string_stream    import StringStream
 
-from som.compiler.parser                   import Parser
+from som.compiler.parser                   import Parser, ParseError
 from som.compiler.class_generation_context import ClassGenerationContext
 
 
@@ -26,23 +26,31 @@ class _SourcecodeCompiler(object):
         try:
             input_file = open_file_as_stream(fname, "r")
             try:
-                self._parser = Parser(input_file, universe)
+                self._parser = Parser(input_file, fname, universe)
                 result = self._compile(system_class, universe)
             finally:
                 input_file.close()
         except OSError:
             raise IOError()
+        except ParseError as e:
+            from som.vm.universe import error_println
+            error_println(str(e))
+            universe.exit(1)
+            return None
 
         cname = result.get_name()
         cnameC = cname.get_string()
 
         if filename != cnameC:
-            raise ValueError("File name " + filename + " does not match class name " + cnameC)
+            from som.vm.universe import error_println
+            error_println("File name %s does not match class name %s."
+                          % (filename, cnameC))
+            universe.exit(1)
     
         return result
 
     def compile_class_string(self, stream, system_class, universe):
-        self._parser = Parser(StringStream(stream), universe)
+        self._parser = Parser(StringStream(stream), "$str", universe)
 
         result = self._compile(system_class, universe)
         return result
