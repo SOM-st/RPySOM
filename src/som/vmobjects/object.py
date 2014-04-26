@@ -25,7 +25,7 @@ class Object(AbstractObject):
 
     def get_field_index(self, name):
         # Get the index for the field with the given name
-        return self._class.lookup_field_fndex(name)
+        return self._class.lookup_field_index(name)
 
     def get_number_of_fields(self):
         # Get the number of fields in this object
