@@ -522,12 +522,13 @@ class Parser(object):
         self._bc_gen.emitPUSHCONSTANT(mgenc, string)
      
     def _selector(self):
-        if self._sym == Symbol.OperatorSequence or self._sym_in(self._single_op_syms):
+        if (self._sym == Symbol.OperatorSequence or
+            self._sym_in(self._single_op_syms)):
             return self._binary_selector()
-        elif self._sym == Symbol.Keyword or self._sym == Symbol.KeywordSequence:
+        if (self._sym == Symbol.Keyword or
+            self._sym == Symbol.KeywordSequence):
             return self._keyword_selector()
-        else:
-            return self._unary_selector()
+        return self._unary_selector()
  
     def _keyword_selector(self):
         s = self._text
