@@ -40,6 +40,12 @@ class Primitive(AbstractObject):
     def get_class(self, universe):
         return universe.primitiveClass
 
+    def __str__(self):
+        return ("Primitive(" + self.get_holder().get_name().get_string() + ">>"
+                + str(self.get_signature()) + ")")
+
+
+
 def empty_primitive(signature_string, universe):
     """ Return an empty primitive with the given signature """
     return Primitive(signature_string, universe, _invoke, True)
