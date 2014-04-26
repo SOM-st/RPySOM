@@ -283,14 +283,14 @@ class Parser(object):
 
     def _result(self, mgenc):
         self._expression(mgenc)
- 
+        self._accept(Symbol.Period)
+
         if mgenc.is_block_method():
             self._bc_gen.emitRETURNNONLOCAL(mgenc)
         else:
             self._bc_gen.emitRETURNLOCAL(mgenc)
 
         mgenc.set_finished(True)
-        self._accept(Symbol.Period)
 
     def _expression(self, mgenc):
         self._peek_for_next_symbol_from_lexer()
