@@ -39,7 +39,7 @@ class Parser(object):
         self._expect(Symbol.NewTerm)
         self._instance_fields(cgenc)
         
-        while (self._sym == Symbol.Identifier or self._sym == Symbol.Keyword or 
+        while (self._sym_is_identifier() or self._sym == Symbol.Keyword or
                self._sym == Symbol.OperatorSequence or
                self._sym_in(self._binary_op_syms)):
             mgenc = MethodGenerationContext()
@@ -59,7 +59,7 @@ class Parser(object):
             cgenc.set_class_side(True)
             self._class_fields(cgenc)
             
-            while (self._sym == Symbol.Identifier or
+            while (self._sym_is_identifier()      or
                    self._sym == Symbol.Keyword    or
                    self._sym == Symbol.OperatorSequence or
                    self._sym_in(self._binary_op_syms)):
@@ -109,6 +109,9 @@ class Parser(object):
     def _sym_in(self, symbol_list):
         return self._sym in symbol_list
 
+    def _sym_is_identifier(self):
+        return self._sym == Symbol.Identifier or self._sym == Symbol.Primitive
+
     def _accept(self, s):
         if self._sym == s:
             self._get_symbol_from_lexer()
@@ -147,14 +150,14 @@ class Parser(object):
 
     def _instance_fields(self, cgenc):
         if self._accept(Symbol.Or):
-            while self._sym == Symbol.Identifier:
+            while self._sym_is_identifier():
                 var = self._variable()
                 cgenc.add_instance_field(self._universe.symbol_for(var))
             self._expect(Symbol.Or)
  
     def _class_fields(self, cgenc):
         if self._accept(Symbol.Or):
-            while self._sym == Symbol.Identifier:
+            while self._sym_is_identifier():
                 var = self._variable()
                 cgenc.add_class_field(self._universe.symbol_for(var))
             self._expect(Symbol.Or)
@@ -172,7 +175,7 @@ class Parser(object):
         self._expect(Symbol.Primitive)
 
     def _pattern(self, mgenc):
-        if self._sym == Symbol.Identifier:
+        if self._sym_is_identifier():
             self._unary_pattern(mgenc)
         elif self._sym == Symbol.Keyword:
             self._keyword_pattern(mgenc)
@@ -250,7 +253,7 @@ class Parser(object):
         self._block_body(mgenc, False)
 
     def _locals(self, mgenc):
-        while (self._sym == Symbol.Identifier):
+        while self._sym_is_identifier():
             mgenc.add_local_if_absent(self._variable())
 
     def _block_body(self, mgenc, seenPeriod):
@@ -310,7 +313,7 @@ class Parser(object):
             self._gen_pop_variable(mgenc, assignment)
 
     def _assignments(self, mgenc, l):
-        if self._sym == Symbol.Identifier:
+        if self._sym_is_identifier():
             l.append(self._assignment(mgenc))
             self._peek_for_next_symbol_from_lexer()
             if self._next_sym == Symbol.Assign:
@@ -329,7 +332,7 @@ class Parser(object):
         is_super_send = [False]
  
         self._primary(mgenc, is_super_send)
-        if (self._sym == Symbol.Identifier       or
+        if (self._sym_is_identifier()            or
             self._sym == Symbol.Keyword          or 
             self._sym == Symbol.OperatorSequence or
             self._sym_in(self._binary_op_syms)):
@@ -338,7 +341,7 @@ class Parser(object):
     def _primary(self, mgenc, is_super_send):
         is_super_send[0] = False
         
-        if self._sym == Symbol.Identifier:
+        if self._sym_is_identifier():
             v = self._variable()
             if v == "super":
                 is_super_send[0] = True
@@ -366,8 +369,8 @@ class Parser(object):
         return self._identifier()
 
     def _messages(self, mgenc, is_super_send):
-        if self._sym == Symbol.Identifier:
-            while self._sym == Symbol.Identifier:
+        if self._sym_is_identifier():
+            while self._sym_is_identifier():
                 # only the first message in a sequence can be a super send
                 self._unary_message(mgenc, is_super_send)
                 is_super_send[0] = False
@@ -416,7 +419,7 @@ class Parser(object):
     def _binary_operand(self, mgenc, is_super_send):
         self._primary(mgenc, is_super_send)
  
-        while self._sym == Symbol.Identifier:
+        while self._sym_is_identifier():
             self._unary_message(mgenc, is_super_send)
 
     def _keyword_message(self, mgenc, is_super_send):
