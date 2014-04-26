@@ -1,5 +1,6 @@
 from som.vmobjects.object      import Object
 
+
 class Class(Object):
     
     _immutable_fields_ = ["_super_class"

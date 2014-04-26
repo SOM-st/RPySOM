@@ -14,7 +14,7 @@ class Symbol(AbstractObject):
     
     def _determine_number_of_signature_arguments(self):
         # Check for binary signature
-        if self.is_binary_signature():
+        if self._is_binary_signature():
             return 2
         else:
             # Count the colons in the signature string
@@ -31,7 +31,7 @@ class Symbol(AbstractObject):
     def get_number_of_signature_arguments(self):
         return self._number_of_signature_arguments
 
-    def is_binary_signature(self):
+    def _is_binary_signature(self):
         # Check the individual characters of the string
         for c in self._string:
             if (c != '~' and c != '&' and c != '|' and c != '*' and c != '/' and

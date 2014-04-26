@@ -1,5 +1,6 @@
 from som.vmobjects.abstract_object import AbstractObject
 
+
 class Object(AbstractObject):
 
     _immutable_fields_ = ["_class", "_fields"]

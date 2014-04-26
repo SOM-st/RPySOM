@@ -4,8 +4,6 @@
 import sys
 
 from som.vm.universe import main, Exit
-from rpython.rlib import jit
-#from rpython.rlib.debug import debug_start, debug_stop, debug_print
 
 
 # __________  Entry points  __________
