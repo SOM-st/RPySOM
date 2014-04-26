@@ -482,7 +482,8 @@ class Universe(object):
         # Load primitives (if necessary) and return the resulting class
         if result and result.has_primitives():
             result.load_primitives()
-    
+
+        self.set_global(name, result)
         return result
 
     def _load_system_class(self, system_class):
