@@ -5,7 +5,7 @@ class ClassGenerationContext(object):
 
         self._name       = None
         self._super_name = None
-        self._class_side = False # to be overridden
+        self._class_side = False  # to be overridden
         self._instance_fields  = []
         self._instance_methods = []
         self._class_fields     = []
@@ -25,14 +25,14 @@ class ClassGenerationContext(object):
         for i in range(0, field_names.get_number_of_indexable_fields()):
             self._class_fields.append(field_names.get_indexable_field(i))
   
-    def add_instance_method(self, meth):
-        self._instance_methods.append(meth)
+    def add_instance_method(self, method):
+        self._instance_methods.append(method)
 
     def set_class_side(self, boolean):
         self._class_side = boolean
 
-    def add_class_method(self, meth):
-        self._class_methods.append(meth)
+    def add_class_method(self, method):
+        self._class_methods.append(method)
 
     def add_instance_field(self, field):
         self._instance_fields.append(field)
@@ -41,10 +41,11 @@ class ClassGenerationContext(object):
         self._class_fields.append(field)
 
     def has_field(self, field):
-        return field in (self._class_fields if self.is_class_side() else self._instance_fields)
+        return field in (self._class_fields if self.is_class_side()
+                         else self._instance_fields)
 
     def get_field_index(self, field):
-        if (self.is_class_side()):
+        if self.is_class_side():
             return self._class_fields.index(field)
         else:
             return self._instance_fields.index(field)
@@ -54,7 +55,7 @@ class ClassGenerationContext(object):
 
     def assemble(self):
         # build class class name
-        ccname = self._name.get_string() + " class"
+        cc_name = self._name.get_string() + " class"
 
         # Load the super class
         super_class = self._universe.load_class(self._super_name)
@@ -65,10 +66,10 @@ class ClassGenerationContext(object):
         # Initialize the class of the resulting class
         result_class.set_instance_fields(self._universe.new_array_from_list(self._class_fields))
         result_class.set_instance_invokables(self._universe.new_array_from_list(self._class_methods))
-        result_class.set_name(self._universe.symbol_for(ccname))
+        result_class.set_name(self._universe.symbol_for(cc_name))
 
-        super_mclass = super_class.get_class(self._universe)
-        result_class.set_super_class(super_mclass)
+        super_m_class = super_class.get_class(self._universe)
+        result_class.set_super_class(super_m_class)
 
         # Allocate the resulting class
         result = self._universe.new_class(result_class)

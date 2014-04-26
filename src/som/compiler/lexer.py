@@ -18,7 +18,7 @@ class Lexer(object):
         self._next_text   = ""
         self._buf         = ""
         self._bufp        = 0
-    
+
     def get_sym(self):
         if self._peek_done:
             self._peek_done = False
@@ -246,7 +246,8 @@ class Lexer(object):
     def _end_of_buffer(self):
         return self._bufp >= len(self._buf)
 
-    def _is_operator(self, c):
+    @staticmethod
+    def _is_operator(c):
         return (c == '~'  or c == '&' or c == '|' or c == '*' or c == '/' or
                 c == '\\' or c == '+' or c == '=' or c == '>' or c == '<' or
                 c == ','  or c == '@' or c == '%')

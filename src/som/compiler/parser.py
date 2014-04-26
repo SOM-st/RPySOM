@@ -28,8 +28,7 @@ class Parser(object):
         self._text     = None
         self._next_sym = Symbol.NONE
         self._get_symbol_from_lexer()
- 
- 
+
     def classdef(self, cgenc):
         cgenc.set_name(self._universe.symbol_for(self._text))
         self._expect(Symbol.Identifier)
@@ -50,9 +49,11 @@ class Parser(object):
             self._method(mgenc)
          
             if mgenc.is_primitive():
-                cgenc.add_instance_method(mgenc.assemble_primitive(self._universe))
+                cgenc.add_instance_method(
+                    mgenc.assemble_primitive(self._universe))
             else:
-                cgenc.add_instance_method(mgenc.assemble(self._universe))
+                cgenc.add_instance_method(
+                    mgenc.assemble(self._universe))
 
         if self._accept(Symbol.Separator):
             cgenc.set_class_side(True)
@@ -69,12 +70,13 @@ class Parser(object):
                 self._method(mgenc)
          
                 if mgenc.is_primitive():
-                    cgenc.add_class_method(mgenc.assemble_primitive(self._universe))
+                    cgenc.add_class_method(
+                        mgenc.assemble_primitive(self._universe))
                 else:
-                    cgenc.add_class_method(mgenc.assemble(self._universe))
+                    cgenc.add_class_method(
+                        mgenc.assemble(self._universe))
         
         self._expect(Symbol.EndTerm)
-
 
     def _superclass(self, cgenc):
         if self._sym == Symbol.Identifier:
@@ -88,8 +90,10 @@ class Parser(object):
         # Load the super class, if it is not nil (break the dependency cycle)
         if super_name.get_string() != "nil":
             super_class = self._universe.load_class(super_name)
-            cgenc.set_instance_fields_of_super(super_class.get_instance_fields())
-            cgenc.set_class_fields_of_super(super_class.get_class(self._universe).get_instance_fields())
+            cgenc.set_instance_fields_of_super(
+                super_class.get_instance_fields())
+            cgenc.set_class_fields_of_super(
+                super_class.get_class(self._universe).get_instance_fields())
         else:
             # WARNING:
             # We hardcode here the field names for Class
@@ -140,8 +144,7 @@ class Parser(object):
             err += " (" + self._text + ")"
         err += ": " + self._lexer.get_raw_buffer()
         raise ValueError(err)
-   
-  
+
     def _instance_fields(self, cgenc):
         if self._accept(Symbol.Or):
             while self._sym == Symbol.Identifier:
@@ -165,7 +168,6 @@ class Parser(object):
         else:
             self._method_block(mgenc)
 
- 
     def _primitive_block(self):
         self._expect(Symbol.Primitive)
 
@@ -194,11 +196,10 @@ class Parser(object):
             
         mgenc.set_signature(self._universe.symbol_for(kw))
 
- 
     def _method_block(self, mgenc):
         self._expect(Symbol.NewTerm)
         self._block_contents(mgenc)
-        
+
         # if no return has been generated so far, we can be sure there was no .
         # terminating the last expression, so the last expression's value must
         # be popped off the stack and a ^self be generated
@@ -207,7 +208,7 @@ class Parser(object):
             self._bc_gen.emitPUSHARGUMENT(mgenc, 0, 0)
             self._bc_gen.emitRETURNLOCAL(mgenc)
             mgenc.set_finished()
-        
+
         self._expect(Symbol.EndTerm)
 
     def _unary_selector(self):
@@ -241,7 +242,6 @@ class Parser(object):
     def _argument(self):
         return self._variable()
 
- 
     def _block_contents(self, mgenc):
         if self._accept(Symbol.Or):
             self._locals(mgenc)
@@ -253,7 +253,6 @@ class Parser(object):
         while (self._sym == Symbol.Identifier):
             mgenc.add_local_if_absent(self._variable())
 
- 
     def _block_body(self, mgenc, seenPeriod):
         if self._accept(Symbol.Exit):
             self._result(mgenc)
@@ -278,7 +277,7 @@ class Parser(object):
             if self._accept(Symbol.Period):
                 self._bc_gen.emitPOP(mgenc)
                 self._block_body(mgenc, True)
- 
+
     def _result(self, mgenc):
         self._expression(mgenc)
  
@@ -286,7 +285,7 @@ class Parser(object):
             self._bc_gen.emitRETURNNONLOCAL(mgenc)
         else:
             self._bc_gen.emitRETURNLOCAL(mgenc)
- 
+
         mgenc.set_finished(True)
         self._accept(Symbol.Period)
 
@@ -298,10 +297,9 @@ class Parser(object):
         else:
             self._evaluation(mgenc)
 
- 
     def _assignation(self, mgenc):
         l = []
- 
+
         self._assignments(mgenc, l)
         self._evaluation(mgenc)
  
@@ -318,16 +316,14 @@ class Parser(object):
             if self._next_sym == Symbol.Assign:
                 self._assignments(mgenc, l)
 
- 
     def _assignment(self, mgenc):
         v   = self._variable()
         var = self._universe.symbol_for(v)
         mgenc.add_literal_if_absent(var)
- 
+
         self._expect(Symbol.Assign)
- 
         return v
- 
+
     def _evaluation(self, mgenc):
         # single: superSend
         is_super_send = [False]
@@ -357,18 +353,18 @@ class Parser(object):
             bgenc.set_is_block_method(True)
             bgenc.set_holder(mgenc.get_holder())
             bgenc.set_outer(mgenc)
- 
+
             self._nested_block(bgenc)
- 
+
             block_method = bgenc.assemble(self._universe)
             mgenc.add_literal(block_method)
             self._bc_gen.emitPUSHBLOCK(mgenc, block_method)
         else:
             self._literal(mgenc)
- 
+
     def _variable(self):
         return self._identifier()
- 
+
     def _messages(self, mgenc, is_super_send):
         if self._sym == Symbol.Identifier:
             while self._sym == Symbol.Identifier:
@@ -439,7 +435,7 @@ class Parser(object):
             self._bc_gen.emitSUPERSEND(mgenc, msg)
         else:
             self._bc_gen.emitSEND(mgenc, msg)
-     
+
     def _formula(self, mgenc):
         is_super_send = [False]
         self._binary_operand(mgenc, is_super_send)
@@ -450,7 +446,7 @@ class Parser(object):
       
         while self._sym == Symbol.OperatorSequence or self._sym_in(self._binary_op_syms):
             self._binary_message(mgenc, [False])
-     
+
     def _nested_term(self, mgenc):
         self._expect(Symbol.NewTerm)
         self._expression(mgenc)
@@ -463,14 +459,13 @@ class Parser(object):
             self._literal_string(mgenc)
         else:
             self._literal_number(mgenc)
-     
+
     def _literal_number(self, mgenc):
         if self._sym == Symbol.Minus:
             val = self._negative_decimal()
         else:
             val = self._literal_decimal()
-      
-        
+
         if integer_value_fits(val):
             lit = self._universe.new_integer(val)
         else:
@@ -478,7 +473,7 @@ class Parser(object):
       
         mgenc.add_literal_if_absent(lit)
         self._bc_gen.emitPUSHCONSTANT(mgenc, lit)
-  
+
     def _literal_decimal(self):
         return self._literal_integer()
 
@@ -502,7 +497,7 @@ class Parser(object):
       
         mgenc.add_literal_if_absent(symb)
         self._bc_gen.emitPUSHCONSTANT(mgenc, symb)
-     
+
     def _literal_string(self, mgenc):
         s = self._string()
      
@@ -536,16 +531,16 @@ class Parser(object):
         self._expect(Symbol.NewBlock)
         if self._sym == Symbol.Colon:
             self._block_pattern(mgenc)
- 
+
         # generate Block signature
         block_sig = "$block method"
         arg_size = mgenc.get_number_of_arguments()
         block_sig += ":" * (arg_size - 1)
- 
+
         mgenc.set_signature(self._universe.symbol_for(block_sig))
- 
+
         self._block_contents(mgenc)
- 
+
         # if no return has been generated, we can be sure that the last
         # expression in the block was not terminated by ., and can generate 
         # a return
@@ -558,7 +553,7 @@ class Parser(object):
     def _block_pattern(self, mgenc):
         self._block_arguments(mgenc)
         self._expect(Symbol.Or)
- 
+
     def _block_arguments(self, mgenc):
         self._expect(Symbol.Colon)
         mgenc.add_argument_if_absent(self._argument())

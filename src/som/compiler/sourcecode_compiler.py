@@ -1,23 +1,25 @@
 import os
-
 from rpython.rlib.streamio import open_file_as_stream
-
-from rlib.string_stream import StringStream
+from rlib.string_stream    import StringStream
 
 from som.compiler.parser                   import Parser
 from som.compiler.class_generation_context import ClassGenerationContext
 
+
 def compile_class_from_file(path, filename, system_class, universe):
     return _SourcecodeCompiler().compile(path, filename, system_class, universe)
 
+
 def compile_class_from_string(stmt, system_class, universe):
-    return _SourcecodeCompiler().compile_class_string(stmt, system_class, universe)
+    return _SourcecodeCompiler().compile_class_string(stmt, system_class,
+                                                      universe)
+
 
 class _SourcecodeCompiler(object):
     
     def __init__(self):
         self._parser = None
-    
+
     def compile(self, path, filename, system_class, universe):
         fname = path + os.sep + filename + ".som"
 

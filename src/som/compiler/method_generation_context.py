@@ -24,7 +24,7 @@ class MethodGenerationContext(object):
 
     def is_primitive(self):
         return self._primitive
-  
+
     def assemble_primitive(self, universe):
         return empty_primitive(self._signature.get_string(), universe)
 
@@ -90,7 +90,6 @@ class MethodGenerationContext(object):
     def add_local_if_absent(self, local):
         if local in self._locals:
             return False
-   
         self._locals.append(local)
         return True
 
@@ -127,12 +126,12 @@ class MethodGenerationContext(object):
         if var in self._locals:
             triplet[0] = self._locals.index(var)
             return True
-        
+
         if var in self._arguments:
             triplet[0] = self._arguments.index(var)
             triplet[2] = True
             return True
-        
+
         if self._outer_genc:
             triplet[1] = triplet[1] + 1
             return self._outer_genc.find_var(var, triplet)
