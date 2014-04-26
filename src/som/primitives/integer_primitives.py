@@ -24,7 +24,7 @@ def _resend_as_biginteger(frame, operator, left, right, universe):
 
 
 def _resend_as_double(frame, operator, left, right, universe):
-    left_double = universe.new_double(left.get_embedded_integer())
+    left_double = universe.new_double(float(left.get_embedded_integer()))
     operands    = [right]
     left_double.send(frame, operator, operands, universe, universe.get_interpreter())
 
