@@ -22,7 +22,7 @@ Hello = (
 )
 ```
 
-This repository contains the RPython-based implementation of SOM, including
+This repository contains a RPython-based implementation of SOM, including
 SOM's standard library and a number of examples. Please see the [main project
 page][SOMst] for links to other VM implementations.
 
