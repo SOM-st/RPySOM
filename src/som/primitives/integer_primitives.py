@@ -202,6 +202,23 @@ def _fromString(ivkbl, frame, interpreter):
     frame.push(interpreter.get_universe().new_integer(int_value))
 
 
+def _leftShift(ivkbl, frame, interpreter):
+    right = frame.pop()
+    left  = frame.pop()
+
+    result = left.get_embedded_integer() << right.get_embedded_integer()
+
+    _push_long_result(frame, result, interpreter.get_universe())
+
+
+def _bitXor(ivkbl, frame, interpreter):
+    right = frame.pop()
+    left  = frame.pop()
+    
+    result = left.get_embedded_integer() ^ right.get_embedded_integer()
+
+    frame.push(interpreter.get_universe().new_integer(result))
+
 from rpython.rlib import jit
 
 def get_printable_location(interpreter, block_method):
@@ -260,7 +277,10 @@ class IntegerPrimitives(Primitives):
         self._install_instance_primitive(Primitive("&",  self._universe, _and))
         self._install_instance_primitive(Primitive("=",  self._universe, _equals))
         self._install_instance_primitive(Primitive("<",  self._universe, _lessThan))
-        
+
+        self._install_instance_primitive(Primitive("<<", self._universe, _leftShift))
+        self._install_instance_primitive(Primitive("bitXor:", self._universe, _bitXor))
+
         self._install_instance_primitive(Primitive("to:do:", self._universe, _toDo))
         
         self._install_class_primitive(Primitive("fromString:", self._universe, _fromString))
