@@ -4,8 +4,7 @@ from rpython.rlib import jit
 from som.interpreter.interpreter import Interpreter
 from som.interpreter.bytecodes   import Bytecodes 
 from som.interpreter.frame       import Frame
- 
-from som.vm.symbol_table         import SymbolTable
+
 from som.vmobjects.object        import Object
 from som.vmobjects.clazz         import Class
 from som.vmobjects.array         import Array
