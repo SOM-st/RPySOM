@@ -126,37 +126,24 @@ class Class(Object):
             std_println(" is not in class definition for class " + self.get_name().get_string())
   
     def get_instance_field_name(self, index):
-        # Get the name of the instance field with the given index
-        if index >= self._get_number_of_super_instance_fields():
-            # Adjust the index to account for fields defined in the super class
-            index -= self._get_number_of_super_instance_fields()
-  
-            # Return the symbol representing the instance fields name
-            return self.get_instance_fields().get_indexable_field(index)
-        else:
-            # Ask the super class to return the name of the instance field
-            return self.get_super_class().get_instance_field_name(index)
+        return self.get_instance_fields().get_indexable_field(index)
  
     def get_number_of_instance_fields(self):
         # Get the total number of instance fields in this class
-        return (self.get_instance_fields().get_number_of_indexable_fields() +
-                self._get_number_of_super_instance_fields())
+        return self.get_instance_fields().get_number_of_indexable_fields()
 
-    def _get_number_of_super_instance_fields(self):
-        # Get the total number of instance fields defined in super classes
-        if self.has_super_class():
-            return self.get_super_class().get_number_of_instance_fields()
-        else:
-            return 0
-  
-    def has_primitives(self):
-        # Lookup invokable with given signature in array of instance invokables
-        for i in range(0, self.get_number_of_instance_invokables()):
+    @staticmethod
+    def _includes_primitives(clazz):
+        for i in range(0, clazz.get_number_of_instance_invokables()):
             # Get the next invokable in the instance invokable array
-            if self.get_instance_invokable(i).is_primitive():
+            if clazz.get_instance_invokable(i).is_primitive():
                 return True
         return False
-  
+
+    def has_primitives(self):
+        return (self._includes_primitives(self) or
+                self._includes_primitives(self._class))
+
     def load_primitives(self):
         from som.primitives.known import (primitives_for_class,
                                           PrimitivesNotFound)
