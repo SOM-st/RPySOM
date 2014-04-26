@@ -11,6 +11,9 @@ class ClassGenerationContext(object):
         self._class_fields     = []
         self._class_methods    = []
 
+    def get_name(self):
+        return self._name
+
     def set_name(self, symbol):
         self._name = symbol
 
@@ -64,8 +67,10 @@ class ClassGenerationContext(object):
         result_class = self._universe.new_class(self._universe.metaclassClass)
 
         # Initialize the class of the resulting class
-        result_class.set_instance_fields(self._universe.new_array_from_list(self._class_fields))
-        result_class.set_instance_invokables(self._universe.new_array_from_list(self._class_methods))
+        result_class.set_instance_fields(self._universe.new_array_from_list(
+            self._class_fields[:]))
+        result_class.set_instance_invokables(self._universe.new_array_from_list(
+            self._class_methods[:]))
         result_class.set_name(self._universe.symbol_for(cc_name))
 
         super_m_class = super_class.get_class(self._universe)
@@ -77,16 +82,22 @@ class ClassGenerationContext(object):
         # Initialize the resulting class
         result.set_name(self._name)
         result.set_super_class(super_class)
-        result.set_instance_fields(self._universe.new_array_from_list(self._instance_fields))
-        result.set_instance_invokables(self._universe.new_array_from_list(self._instance_methods))
+        result.set_instance_fields(self._universe.new_array_from_list(
+            self._instance_fields[:]))
+        result.set_instance_invokables(self._universe.new_array_from_list(
+            self._instance_methods[:]))
 
         return result
 
     def assemble_system_class(self, system_class):
-        system_class.set_instance_invokables(self._universe.new_array_from_list(self._instance_methods))
-        system_class.set_instance_fields(self._universe.new_array_from_list(self._instance_fields))
+        system_class.set_instance_invokables(
+            self._universe.new_array_from_list(self._instance_methods[:]))
+        system_class.set_instance_fields(
+            self._universe.new_array_from_list(self._instance_fields[:]))
     
         # class-bound == class-instance-bound
-        super_mclass = system_class.get_class(self._universe)
-        super_mclass.set_instance_invokables(self._universe.new_array_from_list(self._class_methods))
-        super_mclass.set_instance_fields(self._universe.new_array_from_list(self._class_fields))
+        super_m_class = system_class.get_class(self._universe)
+        super_m_class.set_instance_invokables(
+            self._universe.new_array_from_list(self._class_methods[:]))
+        super_m_class.set_instance_fields(
+            self._universe.new_array_from_list(self._class_fields[:]))
