@@ -1,7 +1,7 @@
 from som.vmobjects.abstract_object    import AbstractObject
 
 class Primitive(AbstractObject):
-    _immutable_fields_ = ["_invoke", "_is_empty", "_signature"]
+    _immutable_fields_ = ["_invoke", "_is_empty", "_signature", "_holder"]
         
     def __init__(self, signature_string, universe, invoke, is_empty=False):
         AbstractObject.__init__(self)

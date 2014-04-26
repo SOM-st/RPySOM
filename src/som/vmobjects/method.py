@@ -12,10 +12,12 @@ class Method(AbstractObject):
     _immutable_fields_ = ["_bytecodes[*]",
                           "_literals[*]",
                           "_inline_cache_class",
+                          "_inline_cache_invokable",
                           "_receiver_class_table",
                           "_number_of_locals",
                           "_maximum_number_of_stack_elements",
-                          "_signature"]
+                          "_signature",
+                          "_holder"]
 
     
     def __init__(self, literals, num_locals, max_stack_elements,
@@ -34,8 +36,7 @@ class Method(AbstractObject):
         self._signature = signature
         
         self._holder = None
-        
-    
+
     def is_primitive(self):
         return False
     
