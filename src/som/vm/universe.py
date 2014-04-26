@@ -1,3 +1,4 @@
+from rpython.rlib.debug import make_sure_not_resized
 from rpython.rlib.rrandom import Random
 from rpython.rlib import jit
 
