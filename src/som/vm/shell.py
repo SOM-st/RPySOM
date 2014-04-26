@@ -61,7 +61,7 @@ class Shell(object):
                     # Save the result of the run method
                     it = current_frame.pop()
             except Exception as e:
-                if not we_are_translated(): # this cannot be done in rpython
+                if not we_are_translated():  # this cannot be done in rpython
                     import traceback
                     traceback.print_exc()
                 error_println("Caught exception: %s" % e)

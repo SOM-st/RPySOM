@@ -73,7 +73,7 @@ class Universe(object):
         self.blockClasses   = None
         self.stringClass    = None
         self.doubleClass    = None
-        
+
         self._last_exit_code = 0
         self._avoid_exit     = avoid_exit
         self._dump_bytecodes = False
@@ -172,7 +172,7 @@ class Universe(object):
     
         if not got_classpath:
             # Get the default class path of the appropriate size
-            self.classpath = self._setup_default_classpath()
+            self.classpath = self._default_classpath()
 
         # check remaining args for class paths, and strip file extension
         i = 0
@@ -189,13 +189,15 @@ class Universe(object):
     
     def setup_classpath(self, cp):
         self.classpath = cp.split(os.pathsep)
-    
-    def _setup_default_classpath(self):
+
+    @staticmethod
+    def _default_classpath():
         return ['.']
     
     # take argument of the form "../foo/Test.som" and return
     # "../foo", "Test", "som"
-    def _get_path_class_ext(self, path):
+    @staticmethod
+    def _get_path_class_ext(path):
         return path_split(path)
     
     def _print_usage_and_exit(self):
@@ -328,8 +330,9 @@ class Universe(object):
             result.set_indexable_field(i, self.new_string(strings[i]))
     
         return result
-    
-    def new_block(self, method, context_frame):
+
+    @staticmethod
+    def new_block(method, context_frame):
         return Block(method, context_frame)
 
     def new_class(self, class_class):
@@ -349,7 +352,8 @@ class Universe(object):
 
         return Frame(length, method, context, previous_frame)
 
-    def new_method(self, signature, num_bytecodes, literals,
+    @staticmethod
+    def new_method(signature, num_bytecodes, literals,
                    num_locals, maximum_number_of_stack_elements):
         return Method(literals, num_locals, maximum_number_of_stack_elements,
                       num_bytecodes, signature)
@@ -359,14 +363,17 @@ class Universe(object):
         result.set_class(instance_class)
         return result
 
-    def new_integer(self, value):
+    @staticmethod
+    def new_integer(value):
         assert isinstance(value, int)
         return Integer(value)
- 
-    def new_biginteger(self, value):
+
+    @staticmethod
+    def new_biginteger(value):
         return BigInteger(value)
- 
-    def new_double(self, value):
+
+    @staticmethod
+    def new_double(value):
         return Double(value)
     
     def new_metaclass_class(self):
@@ -380,7 +387,8 @@ class Universe(object):
         # Return the freshly allocated metaclass class
         return result
 
-    def new_string(self, embedded_string):
+    @staticmethod
+    def new_string(embedded_string):
         return String(embedded_string)
     
     def new_symbol(self, string):
@@ -424,7 +432,6 @@ class Universe(object):
         # Insert the system class into the dictionary of globals
         self.set_global(system_class.get_name(), system_class)
     
-    
     def get_global(self, name):
         # Return the global with the given name if it's in the dictionary of globals
         # if not, return None
@@ -441,7 +448,6 @@ class Universe(object):
         self._global_version = GlobalVersion()
 
     def has_global(self, name):
-        # Returns if the universe has a value for the global of the given name
         return name in self._globals
 
     def _get_block_class(self, number_of_arguments):
@@ -485,9 +491,9 @@ class Universe(object):
 
         if not result:
             error_println(system_class.get_name().get_string()
-                   + " class could not be loaded. It is likely that the "
-                   + " class path has not been initialized properly. "
-                   + "Please make sure that the '-cp' parameter is given on the command-line.")
+                   + " class could not be loaded. It is likely that the"
+                   + " class path has not been initialized properly."
+                   + " Please make sure that the '-cp' parameter is given on the command-line.")
             self.exit(200)
 
         # Load primitives if necessary
