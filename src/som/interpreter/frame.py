@@ -15,11 +15,11 @@ class Frame(object):
         
     _immutable_fields_ = ["_method", "_context", "_stack"]
 
-    def __init__(self, nilObject, num_elements, method, context, previous_frame):
+    def __init__(self, num_elements, method, context, previous_frame):
         self._method         = method
         self._context        = context
         self._stack          = [None] * num_elements
-        self._stack_pointer  = 0
+        self._stack_pointer  = self._get_initial_stack_pointer()
         self._previous_frame = previous_frame
     
     def get_previous_frame(self):
@@ -88,7 +88,10 @@ class Frame(object):
         """ Set the stack pointer to its initial value thereby clearing
             the stack """
         # arguments are stored in front of local variables
-        self._stack_pointer = (self.get_number_of_arguments() +
+        self._stack_pointer = self._get_initial_stack_pointer()
+
+    def _get_initial_stack_pointer(self):
+        return (self.get_number_of_arguments() +
                 self.get_method().get_number_of_locals().get_embedded_integer() - 1)
 
     def get_stack_element(self, index):
