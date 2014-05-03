@@ -21,24 +21,21 @@ class Method(AbstractObject):
 
         self._holder   = None
 
-    @jit.elidable_promote('all')
     def get_universe(self):
         return self._universe
 
-    @jit.elidable_promote('all')
-    def is_primitive(self):
+    @staticmethod
+    def is_primitive():
         return False
 
-    @jit.elidable_promote('all')
-    def is_invokable(self):
+    @staticmethod
+    def is_invokable():
         """ We use this method to identify methods and primitives """
         return True
-  
-    @jit.elidable_promote('all')
+
     def get_signature(self):
         return self._signature
 
-    @jit.elidable_promote('all')
     def get_holder(self):
         return self._holder
 
