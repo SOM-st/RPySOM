@@ -402,7 +402,6 @@ class Universe(object):
 
         # Insert the system class into the dictionary of globals
         self.set_global(system_class.get_name(), system_class)
-
     
     def get_global(self, name):
         # Return the global with the given name if it's in the dictionary of globals

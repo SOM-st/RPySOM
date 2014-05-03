@@ -1,11 +1,14 @@
 from som.primitives.primitives import Primitives
 from som.vmobjects.primitive   import Primitive 
 
+
 def _holder(ivkbl, rcvr, args):
     return rcvr.get_holder()
 
+
 def _signature(ivkbl, rcvr, args):
     return rcvr.get_signature()
+
 
 class PrimitivePrimitives(Primitives):
     def install_primitives(self):
