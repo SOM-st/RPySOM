@@ -6,7 +6,7 @@ python:
 install:
   - wget https://bitbucket.org/pypy/pypy/downloads/pypy-2.3-src.tar.bz2 || wget https://bitbucket.org/pypy/pypy/downloads/pypy-2.3-src.tar.bz2
   - tar -xjf pypy-2.3-src.tar.bz2
-  - mv pypy-* pypy
+  - mv pypy-pypy-394146e9bb67 pypy
 # command to run tests
 script:
   - PYTHONPATH=$PYTHONPATH:pypy nosetests
