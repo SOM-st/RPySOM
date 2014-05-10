@@ -450,7 +450,7 @@ class Parser(object):
     def _unary_message(self, receiver):
         coord = self._lexer.get_source_coordinate()
         selector = self._unary_selector()
-        msg = UninitializedMessageNode(selector, self._universe, receiver, None)
+        msg = UninitializedMessageNode(selector, self._universe, receiver, [])
         return self._assign_source(msg, coord)
 
     def _binary_message(self, mgenc, receiver):

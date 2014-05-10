@@ -24,16 +24,15 @@ class AbstractMessageNode(ExpressionNode):
         ExpressionNode.__init__(self, source_section)
         self._selector = selector
         self._universe = universe
+        assert arg_exprs is not None
+        make_sure_not_resized(arg_exprs)
         self._rcvr_expr = self.adopt_child(rcvr_expr)
         self._arg_exprs = self.adopt_children(arg_exprs)
 
     @unroll_safe
     def _evaluate_rcvr_and_args(self, frame):
         rcvr = self._rcvr_expr.execute(frame)
-        if self._arg_exprs:
-            args = [arg_exp.execute(frame) for arg_exp in self._arg_exprs]
-        else:
-            args = None
+        args = [arg_exp.execute(frame) for arg_exp in self._arg_exprs]
         return rcvr, args
 
 
