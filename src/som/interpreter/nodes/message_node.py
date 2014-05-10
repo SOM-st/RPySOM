@@ -129,6 +129,7 @@ class GenericMessageNode(AbstractMessageNode):
         self.execute_evaluated_void(frame, rcvr, args)
 
     def execute_evaluated_void(self, frame, rcvr, args):
+        assert args is not None
         make_sure_not_resized(args)
         method = self._lookup_method(rcvr)
         if method:
@@ -138,6 +139,7 @@ class GenericMessageNode(AbstractMessageNode):
                                                self._universe)
 
     def execute_evaluated(self, frame, rcvr, args):
+        assert args is not None
         make_sure_not_resized(args)
         method = self._lookup_method(rcvr)
         if method:
