@@ -1,5 +1,4 @@
-from rpython.rlib.rfloat import (formatd, DTSF_ADD_DOT_0, DTSF_STR_PRECISION,
-                                 round_double)
+from rpython.rlib.rfloat import round_double
 
 from som.primitives.primitives import Primitives
 from som.vmobjects.primitive   import Primitive
@@ -18,9 +17,7 @@ def _coerce_to_double(obj, universe):
 
 
 def _asString(ivkbl, rcvr, args):
-    d = rcvr.get_embedded_double()
-    s = formatd(d, "g", DTSF_STR_PRECISION, DTSF_ADD_DOT_0)
-    return ivkbl.get_universe().new_string(s)
+    return rcvr.prim_as_string(ivkbl.get_universe())
 
 
 def _sqrt(ivkbl, rcvr, args):
@@ -29,84 +26,45 @@ def _sqrt(ivkbl, rcvr, args):
 
 
 def _plus(ivkbl, rcvr, args):
-    op1 = _coerce_to_double(args[0], ivkbl.get_universe())
-    op2 = rcvr
-    return ivkbl.get_universe().new_double(op1.get_embedded_double()
-                                           + op2.get_embedded_double())
+    return rcvr.prim_add(args[0], ivkbl.get_universe())
 
 
 def _minus(ivkbl, rcvr, args):
-    op1 = _coerce_to_double(args[0], ivkbl.get_universe())
-    op2 = rcvr
-    return ivkbl.get_universe().new_double(op2.get_embedded_double()
-                                           - op1.get_embedded_double())
+    return rcvr.prim_subtract(args[0], ivkbl.get_universe())
 
 
 def _mult(ivkbl, rcvr, args):
-    op1 = _coerce_to_double(args[0], ivkbl.get_universe())
-    op2 = rcvr
-    return ivkbl.get_universe().new_double(op2.get_embedded_double()
-                                           * op1.get_embedded_double())
+    return rcvr.prim_multiply(args[0], ivkbl.get_universe())
 
 
 def _doubleDiv(ivkbl, rcvr, args):
-    op1 = _coerce_to_double(args[0], ivkbl.get_universe())
-    op2 = rcvr
-    return ivkbl.get_universe().new_double(op2.get_embedded_double()
-                                           / op1.get_embedded_double())
+    return rcvr.prim_double_div(args[0], ivkbl.get_universe())
 
 
 def _mod(ivkbl, rcvr, args):
-    op1 = _coerce_to_double(args[0], ivkbl.get_universe())
-    op2 = rcvr
-    
-    o1 = float(op1.get_embedded_double())
-    o2 = float(op2.get_embedded_double())
-    r = math.fmod(o1, o2)
-    return ivkbl.get_universe().new_double(r)
+    return rcvr.prim_modulo(args[0], ivkbl.get_universe())
 
 
 def _equals(ivkbl, rcvr, args):
-    op1 = _coerce_to_double(args[0], ivkbl.get_universe())
-    op2 = rcvr
-    if op1.get_embedded_double() == op2.get_embedded_double():
-        return ivkbl.get_universe().trueObject
-    else:
-        return ivkbl.get_universe().falseObject
+    return rcvr.prim_equals(args[0], ivkbl.get_universe())
 
 
 def _lessThan(ivkbl, rcvr, args):
-    op1 = _coerce_to_double(args[0], ivkbl.get_universe())
-    op2 = rcvr
-    if op2.get_embedded_double() < op1.get_embedded_double():
-        return ivkbl.get_universe().trueObject
-    else:
-        return ivkbl.get_universe().falseObject
+    return rcvr.prim_less_than(args[0], ivkbl.get_universe())
 
 
 def _and(ivkbl, rcvr, args):
-    op1 = _coerce_to_double(args[0], ivkbl.get_universe())
-    op2 = rcvr
-    
-    left  = int(op2.get_embedded_double())
-    right = int(op1.get_embedded_double())
-    result = float(left & right)
-    return ivkbl.get_universe().new_double(result)
+    return rcvr.prim_add(args[0], ivkbl.get_universe())
 
 
 def _bitXor(ivkbl, rcvr, args):
-    op1 = _coerce_to_double(args[0], ivkbl.get_universe())
-    op2 = rcvr
-    
-    left  = int(op2.get_embedded_double())
-    right = int(op1.get_embedded_double())
-    result = float(left ^ right)
-    return ivkbl.get_universe().new_double(result)
+    return rcvr.prim_bit_xor(args[0], ivkbl.get_universe())
 
 
 def _round(ivkbl, rcvr, args):
     int_value = int(round_double(rcvr.get_embedded_double(), 0))
     return ivkbl.get_universe().new_integer(int_value)
+
 
 class DoublePrimitives(Primitives):
 

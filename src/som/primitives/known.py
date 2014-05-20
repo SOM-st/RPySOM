@@ -3,7 +3,7 @@ from rpython.rlib.unroll import unrolling_iterable
    time with RPython.
 """
 
-EXPECTED_NUMBER_OF_PRIMITIVE_FILES = 12
+EXPECTED_NUMBER_OF_PRIMITIVE_FILES = 11
 
 class PrimitivesNotFound(Exception): pass
 

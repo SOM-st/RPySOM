@@ -11,8 +11,6 @@ from .lexer                     import Lexer
 from .method_generation_context import MethodGenerationContext
 from .symbol                    import Symbol, symbol_as_str
 
-from ..vmobjects.integer import integer_value_fits
-
 
 class ParseError(BaseException):
     def __init__(self, message, expected_sym, parser):
@@ -535,11 +533,7 @@ class Parser(object):
                              "Expected a number but got '%s'" % self._text,
                              Symbol.NONE, self)
         self._expect(Symbol.Integer)
-
-        if integer_value_fits(i):
-            return LiteralNode(self._universe.new_integer(i))
-        else:
-            return LiteralNode(self._universe.new_biginteger(i))
+        return LiteralNode(self._universe.new_integer(i))
 
     def _literal_double(self, negate_value):
         try:
