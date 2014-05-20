@@ -16,7 +16,13 @@ class Block(AbstractObject):
         self._outer_args     = context_values[1]
         self._outer_tmps     = context_values[2]
         self._outer_on_stack = context_values[3]
-        
+
+    def is_same_context(self, other_block):
+        assert isinstance(other_block, Block)
+        return (self._outer_rcvr == other_block._outer_rcvr and
+                self._outer_args == other_block._outer_args and
+                self._outer_tmps == other_block._outer_tmps)
+
     def get_method(self):
         return jit.promote(self._method)
     
