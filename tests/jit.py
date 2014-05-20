@@ -252,3 +252,10 @@ class TestLLtype(LLJitMixin):
               py.path.local(__file__).dirpath().dirpath().join(
               "Examples/Benchmarks").strpath)
         self._eval_expr("""TreeSort benchmark""", cp)
+
+    def test_mandelbrot(self):
+        cp = (py.path.local(__file__).dirpath().dirpath().join(
+              "Smalltalk").strpath + ":" +
+              py.path.local(__file__).dirpath().dirpath().join(
+              "Examples/Benchmarks").strpath)
+        self._eval_expr("""Mandelbrot benchmark""", cp)
