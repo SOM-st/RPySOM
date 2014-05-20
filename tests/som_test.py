@@ -37,6 +37,7 @@ class SomTest(unittest.TestCase):
         self.assertEquals(0, u.last_exit_code())
 
 import sys
-if sys.modules.has_key('pytest'):
+
+if 'pytest' in sys.modules:
     # hack to make pytest not to collect the unexpanded test method
     delattr(SomTest, "test_som_test")
