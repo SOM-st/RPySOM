@@ -120,7 +120,7 @@ class Universe(object):
         invokable = clazz.get_class(self).lookup_invokable(self.symbol_for(
             selector))
 
-        return invokable.invoke(clazz, None)
+        return invokable.invoke(clazz, [])
     
     def interpret(self, arguments):
         # Check for command line switches
