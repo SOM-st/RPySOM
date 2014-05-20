@@ -28,7 +28,7 @@ class IfTrueIfFalseNode(ExpressionNode):
 
     def _value_of(self, obj):
         if isinstance(obj, Block):
-            return obj.get_method().invoke(obj, None)
+            return obj.get_method().invoke(obj, [])
         else:
             return obj
 
@@ -51,7 +51,7 @@ class IfTrueIfFalseNode(ExpressionNode):
 
     def _value_of_void(self, obj):
         if isinstance(obj, Block):
-            obj.get_method().invoke_void(obj, None)
+            obj.get_method().invoke_void(obj, [])
 
     def _do_iftrue_iffalse_void(self, rcvr, true, false):
         if rcvr is self._universe.trueObject:
@@ -59,7 +59,6 @@ class IfTrueIfFalseNode(ExpressionNode):
         else:
             assert rcvr is self._universe.falseObject
             self._value_of_void(false)
-
 
 
 class IfNode(ExpressionNode):
@@ -94,13 +93,13 @@ class IfNode(ExpressionNode):
 
     def _value_of(self, obj):
         if isinstance(obj, Block):
-            return obj.get_method().invoke(obj, None)
+            return obj.get_method().invoke(obj, [])
         else:
             return obj
     
     def _value_of_void(self, obj):
         if isinstance(obj, Block):
-            obj.get_method().invoke_void(obj, None)
+            obj.get_method().invoke_void(obj, [])
 
     def _do_if(self, rcvr, branch):
         if rcvr is self._condition:

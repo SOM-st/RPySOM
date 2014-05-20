@@ -83,7 +83,7 @@ class WhileMessageNode(AbstractWhileMessageNode):
                                          condition_method= condition_method,
                                          node            = self)
 
-            condition_value = condition_method.invoke(rcvr_block, None)
+            condition_value = condition_method.invoke(rcvr_block, [])
             if condition_value is not self._predicate_bool:
                 break
-            body_method.invoke_void(body_block, None)
+            body_method.invoke_void(body_block, [])

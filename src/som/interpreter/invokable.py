@@ -49,6 +49,7 @@ class Invokable(Node):
         self._do_invoke(receiver, arguments, True)
 
     def _do_invoke(self, receiver, arguments, do_void):
+        assert arguments is not None
         make_sure_not_resized(arguments)
 
         frame = Frame(receiver, arguments, self._arg_mapping,
