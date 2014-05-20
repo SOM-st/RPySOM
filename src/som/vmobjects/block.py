@@ -21,7 +21,8 @@ class Block(AbstractObject):
         assert isinstance(other_block, Block)
         return (self._outer_rcvr == other_block._outer_rcvr and
                 self._outer_args == other_block._outer_args and
-                self._outer_tmps == other_block._outer_tmps)
+                self._outer_tmps == other_block._outer_tmps and
+                self._outer_on_stack == other_block._outer_on_stack)
 
     def get_method(self):
         return jit.promote(self._method)
