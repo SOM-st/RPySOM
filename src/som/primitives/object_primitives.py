@@ -36,7 +36,7 @@ def _perform(ivkbl, rcvr, args):
     selector = args[0]
 
     invokable = rcvr.get_class(ivkbl.get_universe()).lookup_invokable(selector)
-    return invokable.invoke(rcvr, None)
+    return invokable.invoke(rcvr, [])
 
 
 def _performInSuperclass(ivkbl, rcvr, args):
@@ -44,7 +44,7 @@ def _performInSuperclass(ivkbl, rcvr, args):
     selector = args[0]
 
     invokable = clazz.lookup_invokable(selector)
-    return invokable.invoke(rcvr, None)
+    return invokable.invoke(rcvr, [])
 
 
 def _performWithArguments(ivkbl, rcvr, arguments):
