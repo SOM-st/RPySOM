@@ -61,13 +61,13 @@ class Bytecodes(object):
 
 @jit.elidable
 def bytecode_length(bytecode):
-    assert bytecode >= 0 and bytecode <= len(Bytecodes._bytecode_length)
+    assert 0 <= bytecode < len(Bytecodes._bytecode_length)
     return Bytecodes._bytecode_length[bytecode]
 
 
 @jit.elidable
 def bytecode_stack_effect(bytecode, number_of_arguments_of_message_send = 0):
-    assert bytecode >= 0 and bytecode < len(Bytecodes._bytecode_stack_effect)
+    assert 0 <= bytecode < len(Bytecodes._bytecode_stack_effect)
     if bytecode_stack_effect_depends_on_send(bytecode):
         return -number_of_arguments_of_message_send + 1 # +1 in order to account for the return value
     else:
@@ -75,22 +75,22 @@ def bytecode_stack_effect(bytecode, number_of_arguments_of_message_send = 0):
 
 
 def bytecode_stack_effect_depends_on_send(bytecode):
-    assert bytecode >= 0 and bytecode < len(Bytecodes._bytecode_stack_effect)
+    assert 0 <= bytecode < len(Bytecodes._bytecode_stack_effect)
     return Bytecodes._bytecode_stack_effect[bytecode] == Bytecodes._stack_effect_depends_on_message
 
 
 @jit.elidable
 def bytecode_as_str(bytecode):
-    assert bytecode >= 0 and bytecode < len(_bytecode_names)
+    assert 0 <= bytecode < len(_bytecode_names)
     return _bytecode_names[bytecode]
+
 
 def _sorted_bytecode_names(cls):
     "NOT_RPYTHON"
     """This function is only called a single time, at load time of this module.
        For RPypthon, this means, during translation of the module.
     """
-    return [key.upper() for value, key in \
-            sorted([(value, key) for key, value in cls.__dict__.items()]) \
-            if isinstance(value, int) and key[0] != "_"
-    ]
+    return [key.upper() for value, key in
+            sorted([(value, key) for key, value in cls.__dict__.items()])
+            if isinstance(value, int) and key[0] != "_"]
 _bytecode_names = _sorted_bytecode_names(Bytecodes)
