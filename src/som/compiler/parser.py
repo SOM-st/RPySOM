@@ -1,5 +1,6 @@
 from rpython.rlib.rarithmetic import string_to_int
 from rpython.rlib.rbigint import rbigint
+from rpython.rlib.rstring import ParseStringOverflowError
 from .lexer                     import Lexer
 from .bytecode_generator        import BytecodeGenerator
 from .method_generation_context import MethodGenerationContext
@@ -537,7 +538,7 @@ class Parser(object):
             if negate_value:
                 i = 0 - i
             result = self._universe.new_integer(i)
-        except OverflowError:
+        except ParseStringOverflowError:
             bigint = rbigint.fromstr(self._text)
             if negate_value:
                 bigint.sign = -1
