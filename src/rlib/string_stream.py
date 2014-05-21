@@ -1,5 +1,6 @@
 from rpython.rlib.streamio import Stream, StreamError
 
+
 class StringStream(Stream):
     def __init__(self, string):
         self._string = string
@@ -8,14 +9,9 @@ class StringStream(Stream):
 
     def write(self, data):
         raise StreamError("StringStream is not writable")
+
     def truncate(self, size):
         raise StreamError("StringStream is immutable")
-
-    def peek(self):
-        if self.pos < self.max:
-            return self._string[self.pos:]
-        else:
-            return ''
 
     def tell(self):
         return self.pos
@@ -33,6 +29,7 @@ class StringStream(Stream):
     def read(self, n):
         assert isinstance(n, int)
         end = self.pos + n
+        assert end >= 0
         data = self._string[self.pos:end]
         self.pos += len(data)
         return data
