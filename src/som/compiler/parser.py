@@ -1,9 +1,9 @@
+from rpython.rlib.rarithmetic import string_to_int
+from rpython.rlib.rbigint import rbigint
 from .lexer                     import Lexer
 from .bytecode_generator        import BytecodeGenerator
 from .method_generation_context import MethodGenerationContext
 from .symbol                    import Symbol, symbol_as_str
-
-from ..vmobjects.integer import integer_value_fits
 
 
 class ParseError(BaseException):
@@ -532,20 +532,21 @@ class Parser(object):
  
     def _literal_integer(self, negate_value):
         try:
-            i = int(self._text)
+            i = string_to_int(self._text)
             if negate_value:
                 i = 0 - i
+            result = self._universe.new_integer(i)
+        except OverflowError:
+            bigint = rbigint.fromstr(self._text)
+            if negate_value:
+                bigint.sign = -1
+            result = self._universe.new_biginteger(bigint)
         except ValueError:
             raise ParseError("Could not parse integer. "
                              "Expected a number but got '%s'" % self._text,
                              Symbol.NONE, self)
         self._expect(Symbol.Integer)
-
-        if integer_value_fits(i):
-            return self._universe.new_integer(i)
-        else:
-            return self._universe.new_biginteger(i)
-
+        return result
 
     def _literal_double(self, negate_value):
         try:

@@ -1,5 +1,4 @@
-from rpython.rlib.rfloat import (formatd, DTSF_ADD_DOT_0, DTSF_STR_PRECISION,
-    NAN, INFINITY, isfinite, round_double)
+from rpython.rlib.rfloat import round_double
 
 from som.primitives.primitives import Primitives
 from som.vmobjects.primitive   import Primitive
@@ -19,90 +18,67 @@ def _coerce_to_double(obj, universe):
 
 def _asString(ivkbl, frame, interpreter):
     rcvr = frame.pop()
-    d = rcvr.get_embedded_double()
-    s = formatd(d, "g", DTSF_STR_PRECISION, DTSF_ADD_DOT_0)
-    frame.push(interpreter.get_universe().new_string(s))
+    frame.push(rcvr.prim_as_string(interpreter.get_universe()))
 
 
 def _sqrt(ivkbl, frame, interpreter):
     rcvr = frame.pop()
-    frame.push(interpreter.get_universe().new_double(math.sqrt(rcvr.get_embedded_double())))
+    frame.push(interpreter.get_universe().new_double(math.sqrt(
+        rcvr.get_embedded_double())))
 
 
 def _plus(ivkbl, frame, interpreter):
-    op1 = _coerce_to_double(frame.pop(), interpreter.get_universe())
-    op2 = frame.pop()
-    frame.push(interpreter.get_universe().new_double(op1.get_embedded_double()
-                                         + op2.get_embedded_double()))
+    right = frame.pop()
+    rcvr  = frame.pop()
+    frame.push(rcvr.prim_add(right, interpreter.get_universe()))
 
 
 def _minus(ivkbl, frame, interpreter):
-    op1 = _coerce_to_double(frame.pop(), interpreter.get_universe())
-    op2 = frame.pop()
-    frame.push(interpreter.get_universe().new_double(op2.get_embedded_double()
-                                         - op1.get_embedded_double()))
+    right = frame.pop()
+    rcvr  = frame.pop()
+    frame.push(rcvr.prim_subtract(right, interpreter.get_universe()))
 
 
 def _mult(ivkbl, frame, interpreter):
-    op1 = _coerce_to_double(frame.pop(), interpreter.get_universe())
-    op2 = frame.pop()
-    frame.push(interpreter.get_universe().new_double(op2.get_embedded_double()
-                                         * op1.get_embedded_double()))
+    right = frame.pop()
+    rcvr  = frame.pop()
+    frame.push(rcvr.prim_multiply(right, interpreter.get_universe()))
 
 
 def _doubleDiv(ivkbl, frame, interpreter):
-    op1 = _coerce_to_double(frame.pop(), interpreter.get_universe())
-    op2 = frame.pop()
-    frame.push(interpreter.get_universe().new_double(op2.get_embedded_double()
-                                           / op1.get_embedded_double()))
+    right = frame.pop()
+    rcvr  = frame.pop()
+    frame.push(rcvr.prim_double_div(right, interpreter.get_universe()))
 
 
 def _mod(ivkbl, frame, interpreter):
-    op1 = _coerce_to_double(frame.pop(), interpreter.get_universe())
-    op2 = frame.pop()
-    
-    o1 = op1.get_embedded_double()
-    o2 = op2.get_embedded_double()
-    r = math.fmod(o1, o2)
-    frame.push(interpreter.get_universe().new_double(r))
+    right = frame.pop()
+    rcvr  = frame.pop()
+    frame.push(rcvr.prim_modulo(right, interpreter.get_universe()))
 
 
 def _equals(ivkbl, frame, interpreter):
-    op1 = _coerce_to_double(frame.pop(), interpreter.get_universe())
-    op2 = frame.pop()
-    if op1.get_embedded_double() == op2.get_embedded_double():
-        frame.push(interpreter.get_universe().trueObject)
-    else:
-        frame.push(interpreter.get_universe().falseObject)
+    right = frame.pop()
+    rcvr  = frame.pop()
+    frame.push(rcvr.prim_equals(right, interpreter.get_universe()))
 
 
 def _lessThan(ivkbl, frame, interpreter):
-    op1 = _coerce_to_double(frame.pop(), interpreter.get_universe())
-    op2 = frame.pop()
-    if op2.get_embedded_double() < op1.get_embedded_double():
-        frame.push(interpreter.get_universe().trueObject)
-    else:
-        frame.push(interpreter.get_universe().falseObject)
+    right = frame.pop()
+    rcvr  = frame.pop()
+    frame.push(rcvr.prim_less_than(right, interpreter.get_universe()))
 
 
 def _and(ivkbl, frame, interpreter):
-    op1 = _coerce_to_double(frame.pop(), interpreter.get_universe())
-    op2 = frame.pop()
-    
-    left  = int(op2.get_embedded_double())
-    right = int(op1.get_embedded_double())
-    result = float(left & right)
-    frame.push(interpreter.get_universe().new_double(result))
+    right = frame.pop()
+    rcvr  = frame.pop()
+    frame.push(rcvr.prim_and(right, interpreter.get_universe()))
 
 
 def _bitXor(ivkbl, frame, interpreter):
-    op1 = _coerce_to_double(frame.pop(), interpreter.get_universe())
-    op2 = frame.pop()
-    
-    left  = int(op2.get_embedded_double())
-    right = int(op1.get_embedded_double())
-    result = float(left ^ right)
-    frame.push(interpreter.get_universe().new_double(result))
+    right = frame.pop()
+    rcvr  = frame.pop()
+    frame.push(rcvr.prim_bit_xor(right, interpreter.get_universe()))
 
 
 def _round(ivkbl, frame, interpreter):

@@ -7,7 +7,6 @@ class SomTest(unittest.TestCase):
     @parameterized.expand([
         ("ClassStructure",),
         ("Array"         ,),
-        ("BigInteger"    ,),
         ("Block"         ,),
         ("ClassLoading"  ,),
 

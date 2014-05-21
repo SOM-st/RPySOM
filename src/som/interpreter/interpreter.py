@@ -2,7 +2,9 @@ from som.interpreter.bytecodes import bytecode_length, Bytecodes
 from som.interpreter.control_flow import ReturnException
 
 from rpython.rlib import jit
-from som.vmobjects.integer import Integer, integer_value_fits
+from som.vmobjects.biginteger import BigInteger
+from som.vmobjects.double import Double
+from som.vmobjects.integer import Integer
 
 
 class Interpreter(object):
@@ -137,23 +139,16 @@ class Interpreter(object):
 
         raise ReturnException(result, context)
 
-    # TODO: this should be done like in the RTruffleSOM variant
-    def _push_long_result(self, frame, result):
-        # Check with integer bounds and push:
-        if integer_value_fits(result):
-            frame.push(self._universe.new_integer(int(result)))
-        else:
-            frame.push(self._universe.new_biginteger(result))
-
     def _do_add(self, bytecode_index, frame, method):
         rcvr  = frame.get_stack_element(1)
         right = frame.get_stack_element(0)
 
-        if isinstance(rcvr, Integer) and isinstance(right, Integer):
+        if (isinstance(rcvr, Integer) or
+                isinstance(rcvr, BigInteger) or
+                isinstance(rcvr, Double)):
             frame.pop()
             frame.pop()
-            result = rcvr.get_embedded_integer() + right.get_embedded_integer()
-            self._push_long_result(frame, result)
+            frame.push(rcvr.prim_add(right, self._universe))
         else:
             self._send(method, frame, self._add_symbol,
                        rcvr.get_class(self._universe), bytecode_index)
