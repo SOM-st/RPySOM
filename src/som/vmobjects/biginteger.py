@@ -7,7 +7,7 @@ class BigInteger(AbstractObject):
 
     def __init__(self, value):
         AbstractObject.__init__(self)
-        assert isinstance(value, long) or isinstance(value, int)
+        assert isinstance(value, int)
         self._embedded_biginteger = value
     
     def get_embedded_biginteger(self):
