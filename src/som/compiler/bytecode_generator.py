@@ -48,7 +48,7 @@ class BytecodeGenerator(object):
         if msg.get_string() == "+":
             self._emit1(mgenc, BC.add)
         else:
-            raise RuntimeError("Unsupported msg: " + msg)
+            raise RuntimeError("Unsupported msg: " + str(msg))
 
     def emitPUSHCONSTANT(self, mgenc, lit):
         self._emit2(mgenc, BC.push_constant, mgenc.find_literal_index(lit))
