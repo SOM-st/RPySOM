@@ -320,6 +320,8 @@ class Universe(object):
         self.blockClasses = [self.blockClass] + \
                 [self._make_block_class(i) for i in [1, 2, 3]]
 
+        self._interpreter.initialize_known_quick_sends()
+
         return system_object
 
     @jit.elidable

@@ -1,6 +1,7 @@
 from rpython.rlib.unroll import unrolling_iterable
 from rpython.rlib import jit
 
+
 class Bytecodes(object):
     
     # Bytecodes used by the Simple Object Machine (SOM)
@@ -20,8 +21,11 @@ class Bytecodes(object):
     super_send       = 13
     return_local     = 14
     return_non_local = 15
+
+    # quick sends, short cutting well known operations
+    add              = 16
     
-    _num_bytecodes   = 16
+    _num_bytecodes   = 17
     
     _bytecode_length = [ 1, # halt
                          1,  # dup             
@@ -38,7 +42,10 @@ class Bytecodes(object):
                          2,  # send            
                          2,  # super_send      
                          1,  # return_local    
-                         1 ] # return_non_local
+                         1,  # return_non_local
+
+                         1,  # add
+                         ]
     
     _stack_effect_depends_on_message = -1000 # chose a unresonable number to be recognizable
     
@@ -56,8 +63,9 @@ class Bytecodes(object):
                               -1,                               # pop_field       
                               _stack_effect_depends_on_message, # send            
                               _stack_effect_depends_on_message, # super_send      
-                              0,                                # return_local    
-                              0 ]                               # return_non_local
+                               0,                                # return_local
+                               0,
+                              -1]                               # return_non_local
 
 @jit.elidable
 def bytecode_length(bytecode):

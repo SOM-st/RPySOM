@@ -446,14 +446,20 @@ class Parser(object):
         else:
             self._bc_gen.emitSEND(mgenc, msg)
 
+    @staticmethod
+    def _is_quick_send(msg):
+        return msg.get_string() == "+"
+
     def _binary_message(self, mgenc, is_super_send):
         msg = self._binary_selector()
         mgenc.add_literal_if_absent(msg)
  
         self._binary_operand(mgenc, [False])
- 
+
         if is_super_send[0]:
             self._bc_gen.emitSUPERSEND(mgenc, msg)
+        elif self._is_quick_send(msg):
+            self._bc_gen.emitQUICKSEND(mgenc, msg)
         else:
             self._bc_gen.emitSEND(mgenc, msg)
 

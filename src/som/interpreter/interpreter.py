@@ -2,13 +2,19 @@ from som.interpreter.bytecodes import bytecode_length, Bytecodes
 from som.interpreter.control_flow import ReturnException
 
 from rpython.rlib import jit
+from som.vmobjects.integer import Integer, integer_value_fits
+
 
 class Interpreter(object):
     
-    _immutable_fields_ = ["_universe"]
+    _immutable_fields_ = ["_universe", "_add_symbol"]
     
     def __init__(self, universe):
-        self._universe = universe
+        self._universe   = universe
+        self._add_symbol = None
+
+    def initialize_known_quick_sends(self):
+        self._add_symbol = self._universe.symbol_for("+")
     
     def get_universe(self):
         return self._universe
@@ -131,6 +137,27 @@ class Interpreter(object):
 
         raise ReturnException(result, context)
 
+    # TODO: this should be done like in the RTruffleSOM variant
+    def _push_long_result(self, frame, result):
+        # Check with integer bounds and push:
+        if integer_value_fits(result):
+            frame.push(self._universe.new_integer(int(result)))
+        else:
+            frame.push(self._universe.new_biginteger(result))
+
+    def _do_add(self, bytecode_index, frame, method):
+        rcvr  = frame.get_stack_element(1)
+        right = frame.get_stack_element(0)
+
+        if isinstance(rcvr, Integer) and isinstance(right, Integer):
+            frame.pop()
+            frame.pop()
+            result = rcvr.get_embedded_integer() + right.get_embedded_integer()
+            self._push_long_result(frame, result)
+        else:
+            self._send(method, frame, self._add_symbol,
+                       rcvr.get_class(self._universe), bytecode_index)
+
     def _do_send(self, bytecode_index, frame, method):
         # Handle the send bytecode
         signature = method.get_constant(bytecode_index)
@@ -142,7 +169,8 @@ class Interpreter(object):
         receiver = frame.get_stack_element(num_args - 1)
 
         # Send the message
-        self._send(method, frame, signature, receiver.get_class(self._universe), bytecode_index)
+        self._send(method, frame, signature, receiver.get_class(self._universe),
+                   bytecode_index)
 
 
     @jit.unroll_safe
@@ -200,6 +228,8 @@ class Interpreter(object):
                 return self._do_return_local(frame)
             elif bytecode == Bytecodes.return_non_local:                # BC:15
                 return self._do_return_non_local(frame)
+            elif bytecode == Bytecodes.add:
+                self._do_add(current_bc_idx, frame, method)
 
             current_bc_idx = next_bc_idx
 
