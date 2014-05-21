@@ -67,8 +67,10 @@ class Method(AbstractObject):
 
         # Make sure all nested invokables have the same holder
         for i in range(0, len(self._literals)):
-            if self._literals[i].is_invokable():
-                self._literals[i].set_holder(value)
+            obj = self._literals[i]
+            assert isinstance(obj, AbstractObject)
+            if obj.is_invokable():
+                obj.set_holder(value)
 
     # XXX this means that the JIT doesn't see changes to the constants
     @jit.elidable_promote('all')

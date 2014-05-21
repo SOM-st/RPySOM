@@ -48,7 +48,8 @@ class AbstractObject(object):
     def get_class(self, universe):
         raise NotImplementedError("Subclasses need to implement get_class(universe).")
 
-    def is_invokable(self):
+    @staticmethod
+    def is_invokable():
         return False
 
     def __str__(self):
