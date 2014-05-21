@@ -37,13 +37,13 @@ class Method(AbstractObject):
         
         self._holder = None
 
-    def is_primitive(self):
+    @staticmethod
+    def is_primitive():
         return False
-    
-    def is_invokable(self):
-        """In the RPython version, we use this method to identify methods 
-           and primitives
-        """
+
+    @staticmethod
+    def is_invokable():
+        """ We use this method to identify methods and primitives """
         return True
   
     def get_number_of_locals(self):
@@ -114,7 +114,8 @@ class Method(AbstractObject):
                 raise e
 
     def __str__(self):
-        return "Method(" + self.get_holder().get_name().get_string() + ">>" + str(self.get_signature()) + ")"
+        return ("Method(" + self.get_holder().get_name().get_string() + ">>" +
+                str(self.get_signature()) + ")")
     
     def get_class(self, universe):
         return universe.methodClass

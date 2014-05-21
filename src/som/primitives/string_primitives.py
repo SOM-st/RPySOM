@@ -8,7 +8,7 @@ def _concat(ivkbl, frame, interpreter):
     argument = frame.pop()
     rcvr     = frame.pop()
     frame.push(interpreter.get_universe().new_string(rcvr.get_embedded_string()
-                                   + argument.get_embedded_string()))
+                                           + argument.get_embedded_string()))
 
 
 def _asSymbol(ivkbl, frame, interpreter):

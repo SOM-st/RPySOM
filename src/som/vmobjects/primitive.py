@@ -1,5 +1,6 @@
 from som.vmobjects.abstract_object    import AbstractObject
 
+
 class Primitive(AbstractObject):
     _immutable_fields_ = ["_invoke", "_is_empty", "_signature", "_holder"]
         
@@ -15,13 +16,13 @@ class Primitive(AbstractObject):
         inv = self._invoke
         inv(self, frame, interpreter)
 
-    def is_primitive(self):
+    @staticmethod
+    def is_primitive():
         return True
-    
-    def is_invokable(self):
-        """In the RPython version, we use this method to identify methods 
-           and primitives
-        """
+
+    @staticmethod
+    def is_invokable():
+        """ We use this method to identify methods and primitives """
         return True
 
     def get_signature(self):
@@ -52,4 +53,4 @@ def empty_primitive(signature_string, universe):
 
 def _invoke(ivkbl, frame, interpreter):
     """ Write a warning to the screen """
-    print "Warning: undefined primitive %s called" % ivkbl.get_signature().get_string()
+    print "Warning: undefined primitive %s called" % str(ivkbl.get_signature())

@@ -13,5 +13,7 @@ def _signature(ivkbl, frame, interpreter):
 
 class MethodPrimitives(Primitives):
     def install_primitives(self):
-        self._install_instance_primitive(Primitive("holder",    self._universe, _holder))
-        self._install_instance_primitive(Primitive("signature", self._universe, _signature))
+        self._install_instance_primitive(Primitive("holder",
+                                                   self._universe, _holder))
+        self._install_instance_primitive(Primitive("signature",
+                                                   self._universe, _signature))
