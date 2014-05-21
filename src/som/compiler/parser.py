@@ -448,7 +448,8 @@ class Parser(object):
 
     @staticmethod
     def _is_quick_send(msg):
-        return msg.get_string() == "+"
+        m = msg.get_string()
+        return m == "+" or m == "-" or m == "*"
 
     def _binary_message(self, mgenc, is_super_send):
         msg = self._binary_selector()

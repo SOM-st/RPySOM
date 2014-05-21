@@ -13,10 +13,14 @@ class Interpreter(object):
     
     def __init__(self, universe):
         self._universe   = universe
-        self._add_symbol = None
+        self._add_symbol      = None
+        self._multiply_symbol = None
+        self._subtract_symbol = None
 
     def initialize_known_quick_sends(self):
-        self._add_symbol = self._universe.symbol_for("+")
+        self._add_symbol      = self._universe.symbol_for("+")
+        self._multiply_symbol = self._universe.symbol_for("*")
+        self._subtract_symbol = self._universe.symbol_for("-")
     
     def get_universe(self):
         return self._universe
@@ -153,6 +157,34 @@ class Interpreter(object):
             self._send(method, frame, self._add_symbol,
                        rcvr.get_class(self._universe), bytecode_index)
 
+    def _do_multiply(self, bytecode_index, frame, method):
+        rcvr  = frame.get_stack_element(1)
+        right = frame.get_stack_element(0)
+
+        if (isinstance(rcvr, Integer) or
+                isinstance(rcvr, BigInteger) or
+                isinstance(rcvr, Double)):
+            frame.pop()
+            frame.pop()
+            frame.push(rcvr.prim_multiply(right, self._universe))
+        else:
+            self._send(method, frame, self._multiply_symbol,
+                       rcvr.get_class(self._universe), bytecode_index)
+
+    def _do_subtract(self, bytecode_index, frame, method):
+        rcvr  = frame.get_stack_element(1)
+        right = frame.get_stack_element(0)
+
+        if (isinstance(rcvr, Integer) or
+                isinstance(rcvr, BigInteger) or
+                isinstance(rcvr, Double)):
+            frame.pop()
+            frame.pop()
+            frame.push(rcvr.prim_subtract(right, self._universe))
+        else:
+            self._send(method, frame, self._subtract_symbol,
+                       rcvr.get_class(self._universe), bytecode_index)
+
     def _do_send(self, bytecode_index, frame, method):
         # Handle the send bytecode
         signature = method.get_constant(bytecode_index)
@@ -225,6 +257,10 @@ class Interpreter(object):
                 return self._do_return_non_local(frame)
             elif bytecode == Bytecodes.add:
                 self._do_add(current_bc_idx, frame, method)
+            elif bytecode == Bytecodes.multiply:
+                self._do_multiply(current_bc_idx, frame, method)
+            elif bytecode == Bytecodes.subtract:
+                self._do_subtract(current_bc_idx, frame, method)
 
             current_bc_idx = next_bc_idx
 

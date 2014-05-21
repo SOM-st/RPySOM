@@ -24,8 +24,10 @@ class Bytecodes(object):
 
     # quick sends, short cutting well known operations
     add              = 16
+    multiply         = 17
+    subtract         = 18
     
-    _num_bytecodes   = 17
+    _num_bytecodes   = 19
     
     _bytecode_length = [ 1, # halt
                          1,  # dup             
@@ -45,6 +47,8 @@ class Bytecodes(object):
                          1,  # return_non_local
 
                          1,  # add
+                         1,  # multiply
+                         1,  # subtract
                          ]
     
     _stack_effect_depends_on_message = -1000 # chose a unresonable number to be recognizable
@@ -63,9 +67,12 @@ class Bytecodes(object):
                               -1,                               # pop_field       
                               _stack_effect_depends_on_message, # send            
                               _stack_effect_depends_on_message, # super_send      
-                               0,                                # return_local
-                               0,
-                              -1]                               # return_non_local
+                               0,                               # return_local
+                               0,                               # return_non_local
+                              -1,                               # add
+                              -1,                               # multiply
+                              -1,                               # subtract
+                              ]
 
 @jit.elidable
 def bytecode_length(bytecode):

@@ -45,8 +45,13 @@ class BytecodeGenerator(object):
         self._emit2(mgenc, BC.send, mgenc.find_literal_index(msg))
 
     def emitQUICKSEND(self, mgenc, msg):
-        if msg.get_string() == "+":
+        m = msg.get_string()
+        if m == "+":
             self._emit1(mgenc, BC.add)
+        elif m == "*":
+            self._emit1(mgenc, BC.multiply)
+        elif m == "-":
+            self._emit1(mgenc, BC.subtract)
         else:
             raise RuntimeError("Unsupported msg: " + str(msg))
 
