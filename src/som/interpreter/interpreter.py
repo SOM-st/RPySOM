@@ -115,7 +115,7 @@ class Interpreter(object):
             # Compute the receiver
             receiver = frame.get_stack_element(num_args - 1)
 
-            receiver.send_does_not_understand(frame, signature, self._universe, self)
+            receiver.send_does_not_understand(frame, signature, self)
 
     def _do_return_local(self, frame):
         return frame.top()
@@ -297,8 +297,9 @@ class Interpreter(object):
 
             # Compute the receiver
             receiver = frame.get_stack_element(num_args - 1)
-            receiver.send_does_not_understand(frame, selector, self._universe, self)
-         
+            receiver.send_does_not_understand(frame, selector, self)
+
+
 def get_printable_location(bytecode_index, interp, method):
     from som.vmobjects.method import Method
     from som.interpreter.bytecodes import bytecode_as_str
@@ -323,6 +324,7 @@ jitdriver = jit.JitDriver(
     # into a while loop again, when enabling this drivers).
     should_unroll_one_iteration = lambda bytecode_index, inter, method: True)
         #reds=['tape'])
+
 
 def jitpolicy(driver):
     from rpython.jit.codewriter.policy import JitPolicy

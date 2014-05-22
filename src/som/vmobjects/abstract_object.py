@@ -20,7 +20,9 @@ class AbstractObject(object):
         # Invoke the invokable
         invokable.invoke(frame, interpreter)
 
-    def send_does_not_understand(self, frame, selector, universe, interpreter):
+    def send_does_not_understand(self, frame, selector, interpreter):
+        universe = interpreter.get_universe()
+
         # Compute the number of arguments
         number_of_arguments = selector.get_number_of_signature_arguments()
 
