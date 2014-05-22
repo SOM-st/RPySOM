@@ -145,45 +145,15 @@ class Interpreter(object):
 
     def _do_add(self, bytecode_index, frame, method):
         rcvr  = frame.get_stack_element(1)
-        right = frame.get_stack_element(0)
-
-        if (isinstance(rcvr, Integer) or
-                isinstance(rcvr, BigInteger) or
-                isinstance(rcvr, Double)):
-            frame.pop()
-            frame.pop()
-            frame.push(rcvr.prim_add(right, self._universe))
-        else:
-            self._send(method, frame, self._add_symbol,
-                       rcvr.get_class(self._universe), bytecode_index)
+        rcvr.quick_add(method, frame, self, bytecode_index)
 
     def _do_multiply(self, bytecode_index, frame, method):
         rcvr  = frame.get_stack_element(1)
-        right = frame.get_stack_element(0)
-
-        if (isinstance(rcvr, Integer) or
-                isinstance(rcvr, BigInteger) or
-                isinstance(rcvr, Double)):
-            frame.pop()
-            frame.pop()
-            frame.push(rcvr.prim_multiply(right, self._universe))
-        else:
-            self._send(method, frame, self._multiply_symbol,
-                       rcvr.get_class(self._universe), bytecode_index)
+        rcvr.quick_multiply(method, frame, self, bytecode_index)
 
     def _do_subtract(self, bytecode_index, frame, method):
         rcvr  = frame.get_stack_element(1)
-        right = frame.get_stack_element(0)
-
-        if (isinstance(rcvr, Integer) or
-                isinstance(rcvr, BigInteger) or
-                isinstance(rcvr, Double)):
-            frame.pop()
-            frame.pop()
-            frame.push(rcvr.prim_subtract(right, self._universe))
-        else:
-            self._send(method, frame, self._subtract_symbol,
-                       rcvr.get_class(self._universe), bytecode_index)
+        rcvr.quick_subtract(method, frame, self, bytecode_index)
 
     def _do_send(self, bytecode_index, frame, method):
         # Handle the send bytecode
@@ -272,6 +242,8 @@ class Interpreter(object):
         return frame.get_outer_context().get_argument(0, 0)
 
     def _send(self, m, frame, selector, receiver_class, bytecode_index):
+        # selector.inc_send_count()
+        
         # First try the inline cache
         cached_class = m.get_inline_cache_class(bytecode_index)
         if cached_class == receiver_class:
