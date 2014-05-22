@@ -554,22 +554,28 @@ class Universe(object):
             dump(result)
         return result
 
+
 def error_print(msg):
     os.write(2, msg or "")
+
 
 def error_println(msg = ""):
     os.write(2, msg + "\n")
 
+
 def std_print(msg):
     os.write(1, msg or "")
 
+
 def std_println(msg = ""):
     os.write(1, msg + "\n")
+
 
 def main(args):
     u = Universe()
     u.interpret(args[1:])
     u.exit(0)
+
 
 def get_current():
     return Universe.CURRENT
