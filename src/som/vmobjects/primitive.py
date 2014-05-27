@@ -62,4 +62,4 @@ def empty_primitive(signature_string, universe):
 
 def _invoke(ivkbl, rcvr, args):
     """ Write a warning to the screen """
-    print "Warning: undefined primitive %s called" % ivkbl.get_signature()
+    print "Warning: undefined primitive %s called" % str(ivkbl.get_signature())

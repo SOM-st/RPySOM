@@ -95,7 +95,7 @@ class Universe(object):
         self._avoid_exit     = avoid_exit
         self._dump_bytecodes = False
         self.classpath       = None
-        self.start_time      = time.time() # a float of the time in seconds
+        self.start_time      = time.time()  # a float of the time in seconds
         self.random          = Random(abs(int(time.clock() * time.time())))
 
         CURRENT = self
