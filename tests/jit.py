@@ -259,3 +259,10 @@ class TestLLtype(LLJitMixin):
               py.path.local(__file__).dirpath().dirpath().join(
               "Examples/Benchmarks").strpath)
         self._eval_expr("""Mandelbrot benchmark""", cp)
+
+    def test_integerloop(self):
+        cp = (py.path.local(__file__).dirpath().dirpath().join(
+              "Smalltalk").strpath + ":" +
+              py.path.local(__file__).dirpath().dirpath().join(
+              "Examples/Benchmarks").strpath)
+        self._eval_expr("""IntegerLoop benchmark""", cp)
