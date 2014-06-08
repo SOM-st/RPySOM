@@ -37,10 +37,7 @@ class Double(AbstractObject):
         return universe.new_double(self._embedded_double + r)
 
     def prim_bit_xor(self, right, universe):
-        l = int(self._embedded_double)
-        r = int(self._get_float(right))
-        result = float(l ^ r)
-        return universe.new_double(result)
+        raise NotImplementedError("bit operations on Double are not supported.")
 
     def prim_as_string(self, universe):
         s = formatd(self._embedded_double, "g", DTSF_STR_PRECISION, DTSF_ADD_DOT_0)
@@ -63,8 +60,7 @@ class Double(AbstractObject):
         return universe.new_double(math.fmod(self._embedded_double, r))
 
     def prim_and(self, right, universe):
-        r = int(self._get_float(right))
-        return universe.new_double(float(int(self._embedded_double) & r))
+        raise NotImplementedError("bit operations on Double are not supported.")
 
     def prim_equals(self, right, universe):
         r = self._get_float(right)

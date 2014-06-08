@@ -53,14 +53,6 @@ def _lessThan(ivkbl, rcvr, args):
     return rcvr.prim_less_than(args[0], ivkbl.get_universe())
 
 
-def _and(ivkbl, rcvr, args):
-    return rcvr.prim_add(args[0], ivkbl.get_universe())
-
-
-def _bitXor(ivkbl, rcvr, args):
-    return rcvr.prim_bit_xor(args[0], ivkbl.get_universe())
-
-
 def _round(ivkbl, rcvr, args):
     int_value = int(round_double(rcvr.get_embedded_double(), 0))
     return ivkbl.get_universe().new_integer(int_value)
@@ -79,6 +71,3 @@ class DoublePrimitives(Primitives):
         self._install_instance_primitive(Primitive("%",  self._universe, _mod))
         self._install_instance_primitive(Primitive("=",  self._universe, _equals))
         self._install_instance_primitive(Primitive("<",  self._universe, _lessThan))
-        
-        self._install_instance_primitive(Primitive("&",  self._universe, _and))
-        self._install_instance_primitive(Primitive("bitXor:",  self._universe, _bitXor))
