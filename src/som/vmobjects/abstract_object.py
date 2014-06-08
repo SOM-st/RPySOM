@@ -24,7 +24,7 @@ class AbstractObject(object):
         universe = interpreter.get_universe()
 
         # Compute the number of arguments
-        number_of_arguments = selector.get_number_of_signature_arguments()
+        number_of_arguments = selector.get_number_of_signature_arguments() - 1  ## do ignore self
 
         # Allocate an array with enough room to hold all arguments
         arguments_array = universe.new_array_with_length(number_of_arguments)
@@ -35,7 +35,8 @@ class AbstractObject(object):
         while i >= 0:
             arguments_array.set_indexable_field(i, frame.pop())
             i -= 1
-            
+
+        frame.pop()  # pop self from stack
         args = [selector, arguments_array]
         self.send(frame, "doesNotUnderstand:arguments:", args, universe, interpreter)
 
