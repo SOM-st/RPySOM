@@ -18,7 +18,6 @@ class AbstractObject(object):
         invokable = self.get_class(universe).lookup_invokable(selector)
         invokable.invoke_void(self, arguments)
 
-
     def send_does_not_understand(self, selector, arguments, universe):
         args = self._prepare_dnu_arguments(arguments, selector, universe)
         return self.send("doesNotUnderstand:arguments:", args, universe)
@@ -27,6 +26,8 @@ class AbstractObject(object):
     @jit.unroll_safe
     def _prepare_dnu_arguments(arguments, selector, universe):
         # Compute the number of arguments
+        selector = jit.promote(selector)
+        universe = jit.promote(universe)
         number_of_arguments = selector.get_number_of_signature_arguments() - 1 ## without self
         assert number_of_arguments == len(arguments)
 
