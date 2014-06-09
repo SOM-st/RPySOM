@@ -1,5 +1,6 @@
 from som.vmobjects.abstract_object import AbstractObject
 
+
 class Symbol(AbstractObject):
     _immutable_fields_ = ["_string", "_number_of_signature_arguments"]
     

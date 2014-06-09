@@ -24,6 +24,7 @@ class Frame(object):
                  num_context_temps, nilObject):
         make_sure_not_resized(arguments)
         make_sure_not_resized(arg_mapping)
+        nilObject = jit.promote(nilObject)
         self = jit.hint(self, access_directly=True, fresh_virtualizable=True)
         self._receiver        = receiver
         self._arguments       = arguments

@@ -1,3 +1,4 @@
+from rpython.rlib.jit import promote
 from .abstract_object import AbstractObject
 from rpython.rlib.debug import make_sure_not_resized
 
@@ -8,6 +9,7 @@ class Array(AbstractObject):
     
     def __init__(self, nilObject, number_of_indexable_fields, values = None):
         AbstractObject.__init__(self)
+        nilObject = promote(nilObject)
 
         # Private array of indexable fields
         if values is None:
