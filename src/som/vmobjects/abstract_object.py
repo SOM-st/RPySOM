@@ -1,3 +1,6 @@
+from rpython.rlib import jit
+
+
 class AbstractObject(object):
     
     def __init__(self):
@@ -21,6 +24,7 @@ class AbstractObject(object):
         return self.send("doesNotUnderstand:arguments:", args, universe)
 
     @staticmethod
+    @jit.unroll_safe
     def _prepare_dnu_arguments(arguments, selector, universe):
         # Compute the number of arguments
         number_of_arguments = selector.get_number_of_signature_arguments() - 1 ## without self
