@@ -14,6 +14,7 @@ class SomTest(unittest.TestCase):
         ("Coercion"      ,),
         ("CompilerReturn",),
         ("Double"        ,),
+        ("DoesNotUnderstand",),
 
         ("Empty"         ,),
         ("Hash"          ,),
