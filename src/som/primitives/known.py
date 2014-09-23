@@ -7,6 +7,7 @@ EXPECTED_NUMBER_OF_PRIMITIVE_FILES = 11
 
 class PrimitivesNotFound(Exception): pass
 
+
 def _is_primitives_class(e):
     "NOT_RPYTHON"
     from som.primitives.primitives import Primitives
@@ -15,6 +16,7 @@ def _is_primitives_class(e):
     return (inspect.isclass(entry) and
             issubclass(entry, Primitives)
             and entry is not Primitives)
+
 
 def _setup_primitives():
     "NOT_RPYTHON"
@@ -44,7 +46,9 @@ def _setup_primitives():
         sys.exit(1)
     return prim_pairs
 
+
 _primitives = unrolling_iterable(_setup_primitives())
+
 
 def primitives_for_class(cls):
     name = cls.get_name().get_string()

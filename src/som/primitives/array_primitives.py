@@ -30,8 +30,8 @@ def _new(ivkbl, rcvr, args):
 class ArrayPrimitives(Primitives):
     
     def install_primitives(self):
-        self._install_instance_primitive(Primitive("at:", self._universe, _at))
+        self._install_instance_primitive(Primitive("at:",     self._universe, _at))
         self._install_instance_primitive(Primitive("at:put:", self._universe, _atPut))
-        self._install_instance_primitive(Primitive("length", self._universe, _length))
+        self._install_instance_primitive(Primitive("length",  self._universe, _length))
         
-        self._install_class_primitive(Primitive("new:", self._universe, _new))
+        self._install_class_primitive(Primitive("new:",       self._universe, _new))

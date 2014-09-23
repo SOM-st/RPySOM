@@ -349,8 +349,6 @@ class Universe(object):
 
         # Setup the metaclass hierarchy
         result.get_class(self).set_class(result)
-
-        # Return the freshly allocated metaclass class
         return result
 
     @staticmethod
@@ -371,8 +369,6 @@ class Universe(object):
         # Setup the metaclass hierarchy
         system_class.set_class(Class(self))
         system_class.get_class(self).set_class(self.metaclassClass)
-
-        # Return the freshly allocated system class
         return system_class
     
     def _initialize_system_class(self, system_class, super_class, name):
@@ -397,7 +393,7 @@ class Universe(object):
 
         # Insert the system class into the dictionary of globals
         self.set_global(system_class.get_name(), system_class)
-    
+
     def get_global(self, name):
         # Return the global with the given name if it's in the dictionary of globals
         # if not, return None
@@ -504,22 +500,28 @@ class Universe(object):
             dump(result)
         return result
 
+
 def error_print(msg):
     os.write(2, msg or "")
+
 
 def error_println(msg = ""):
     os.write(2, msg + "\n")
 
+
 def std_print(msg):
     os.write(1, msg or "")
 
+
 def std_println(msg = ""):
     os.write(1, msg + "\n")
+
 
 def main(args):
     u = Universe()
     u.interpret(args[1:])
     u.exit(0)
+
 
 def get_current():
     return Universe.CURRENT

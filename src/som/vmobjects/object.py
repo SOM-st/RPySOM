@@ -8,7 +8,7 @@ class Object(AbstractObject):
     
     # Static field indices and number of object fields
     NUMBER_OF_OBJECT_FIELDS = 0
-    
+
     NUMBER_OF_DIRECT_FIELDS = 5
 
     def __init__(self, nilObject, number_of_fields = -1, obj_class = None):
