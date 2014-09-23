@@ -386,9 +386,9 @@ class Parser(object):
         return self._assign_source(exp, coord)
  
     def _assignment(self):
-        v = self._variable()
+        var_name = self._variable()
         self._expect(Symbol.Assign)
-        return v
+        return var_name
 
     def _evaluation(self, mgenc):
         exp = self._primary(mgenc)
@@ -403,8 +403,8 @@ class Parser(object):
     def _primary(self, mgenc):
         if self._sym_is_identifier():
             coordinate = self._lexer.get_source_coordinate()
-            v = self._variable()
-            var_read = self._variable_read(mgenc, v)
+            var_name = self._variable()
+            var_read = self._variable_read(mgenc, var_name)
             return self._assign_source(var_read, coordinate)
 
         if self._sym == Symbol.NewTerm:
