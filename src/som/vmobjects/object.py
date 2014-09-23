@@ -14,7 +14,7 @@ class Object(AbstractObject):
     def __init__(self, nilObject, number_of_fields = -1, obj_class = None):
         nilObject = promote(nilObject)
         num_fields = (number_of_fields if number_of_fields != -1
-                      else self._get_default_number_of_fields())
+                      else self.NUMBER_OF_OBJECT_FIELDS)
         
         self._field1 = nilObject
         self._field2 = nilObject
@@ -47,10 +47,6 @@ class Object(AbstractObject):
         # Get the number of fields in this object
         return len(self._fields)
 
-    def _get_default_number_of_fields(self):
-        # Return the default number of fields in an object
-        return self.NUMBER_OF_OBJECT_FIELDS
-    
     def get_field(self, index):
         # Get the field with the given index
         assert isinstance(index, int)
