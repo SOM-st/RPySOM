@@ -205,7 +205,7 @@ class Universe(object):
 
     def _initialize_object_system(self):
         # Allocate the nil object
-        self.nilObject = Object(None)
+        self.nilObject = Object(None, None)
 
         # Allocate the Metaclass classes
         self.metaclassClass = self.new_metaclass_class()
@@ -327,7 +327,8 @@ class Universe(object):
         return Method(signature, invokable, embedded_block_methods, self)
 
     def new_instance(self, instance_class):
-        return Object(self.nilObject, instance_class.get_number_of_instance_fields(), instance_class)
+        return Object(self.nilObject, instance_class,
+                      instance_class.get_number_of_instance_fields())
 
     @staticmethod
     def new_integer(value):
@@ -344,8 +345,7 @@ class Universe(object):
     
     def new_metaclass_class(self):
         # Allocate the metaclass classes
-        result = Class(self)
-        result.set_class(Class(self))
+        result = Class(self, -1, Class(self, -1, None))
 
         # Setup the metaclass hierarchy
         result.get_class(self).set_class(result)
@@ -364,10 +364,9 @@ class Universe(object):
       
     def new_system_class(self):
         # Allocate the new system class
-        system_class = Class(self)
+        system_class = Class(self, -1, Class(self, -1, None))
 
         # Setup the metaclass hierarchy
-        system_class.set_class(Class(self))
         system_class.get_class(self).set_class(self.metaclassClass)
         return system_class
     
@@ -375,7 +374,8 @@ class Universe(object):
         # Initialize the superclass hierarchy
         if super_class:
             system_class.set_super_class(super_class)
-            system_class.get_class(self).set_super_class(super_class.get_class(self))
+            system_class.get_class(self).set_super_class(
+                super_class.get_class(self))
         else:
             system_class.get_class(self).set_super_class(self.classClass)
 

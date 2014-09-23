@@ -11,8 +11,8 @@ class Class(Object):
                           "_invokables_table",
                           "_universe"]
     
-    def __init__(self, universe, number_of_fields=-1):
-        Object.__init__(self, universe.nilObject, number_of_fields)
+    def __init__(self, universe, number_of_fields = -1, obj_class = None):
+        Object.__init__(self, universe.nilObject, obj_class, number_of_fields)
         self._super_class = universe.nilObject
         self._name        = None
         self._instance_fields = None
