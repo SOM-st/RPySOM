@@ -16,10 +16,6 @@ class AbstractObject(object):
         invokable = self.get_class(universe).lookup_invokable(selector)
         invokable.invoke_void(self, arguments)
 
-    def send_does_not_understand(self, selector, arguments, universe):
-        args = self._prepare_dnu_arguments(arguments, selector, universe)
-        return self.send("doesNotUnderstand:arguments:", args, universe)
-
     @staticmethod
     @jit.unroll_safe
     def _prepare_dnu_arguments(arguments, selector, universe):
@@ -34,6 +30,10 @@ class AbstractObject(object):
             arguments_array.set_indexable_field(i, arguments[i])
         args = [selector, arguments_array]
         return args
+
+    def send_does_not_understand(self, selector, arguments, universe):
+        args = self._prepare_dnu_arguments(arguments, selector, universe)
+        return self.send("doesNotUnderstand:arguments:", args, universe)
 
     def send_does_not_understand_void(self, selector, arguments, universe):
         args = self._prepare_dnu_arguments(arguments, selector, universe)
