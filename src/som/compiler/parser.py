@@ -605,7 +605,9 @@ class Parser(object):
             self._block_pattern(mgenc)
 
         # generate Block signature
-        block_sig = "$blockMethod"
+        block_sig = ("$blockMethod@" +
+                     str(self._lexer.get_current_line_number()) +
+                     "@" + str(self._lexer.get_current_column()))
         arg_size = mgenc.get_number_of_arguments()
         block_sig += ":" * (arg_size - 1)
 
