@@ -7,13 +7,11 @@ class AbstractObject(object):
         pass
         
     def send(self, selector_string, arguments, universe):
-        # Turn the selector string into a selector
         selector = universe.symbol_for(selector_string)
         invokable = self.get_class(universe).lookup_invokable(selector)
         return invokable.invoke(self, arguments)
 
     def send_void(self, selector_string, arguments, universe):
-        # Turn the selector string into a selector
         selector = universe.symbol_for(selector_string)
         invokable = self.get_class(universe).lookup_invokable(selector)
         invokable.invoke_void(self, arguments)
