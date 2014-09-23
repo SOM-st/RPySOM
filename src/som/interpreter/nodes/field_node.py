@@ -1,5 +1,7 @@
 from .expression_node import ExpressionNode
-from som.vmobjects.object import Object
+
+from som.vmobjects.abstract_object import AbstractObject
+from som.vmobjects.object          import Object
 
 
 class FieldNode(ExpressionNode):
@@ -17,7 +19,7 @@ class FieldReadNode(FieldNode):
     def execute(self, frame):
         self_obj = self._self_exp.execute(frame)
         assert isinstance(self_obj, Object)
-        return self.read(self_obj)
+        return self.do_read(self_obj)
     
     def execute_void(self, frame):
         pass  # NOOP, because it is side-effect free
@@ -25,7 +27,7 @@ class FieldReadNode(FieldNode):
 
 def _make_field_read_node_class(field_idx):
     class _FieldReadNodeI(FieldReadNode):
-        def read(self, self_obj):
+        def do_read(self, self_obj):
             return getattr(self_obj, "_field" + str(field_idx))
     return _FieldReadNodeI
 
@@ -42,7 +44,7 @@ class FieldReadNodeN(FieldReadNode):
         assert extension_index >= 0
         self._extension_index = extension_index
 
-    def read(self, self_obj):
+    def do_read(self, self_obj):
         return self_obj._fields[self._extension_index]
 
 
@@ -59,7 +61,8 @@ class FieldWriteNode(FieldNode):
         self_obj = self._self_exp.execute(frame)
         value    = self._value_exp.execute(frame)
         assert isinstance(self_obj, Object)
-        self.write(self_obj, value)
+        assert isinstance(value, AbstractObject)
+        self.do_write(self_obj, value)
         return value
     
     def execute_void(self, frame):
@@ -68,7 +71,7 @@ class FieldWriteNode(FieldNode):
 
 def _make_field_write_node_class(field_idx):
     class _FieldWriteNodeI(FieldWriteNode):
-        def write(self, self_obj, value):
+        def do_write(self, self_obj, value):
             setattr(self_obj, "_field" + str(field_idx), value)
     return _FieldWriteNodeI
 
@@ -85,7 +88,7 @@ class FieldWriteNodeN(FieldWriteNode):
         assert extension_index >= 0
         self._extension_index = extension_index
 
-    def write(self, self_obj, value):
+    def do_write(self, self_obj, value):
         self_obj._fields[self._extension_index] = value
 
 
