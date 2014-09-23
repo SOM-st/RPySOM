@@ -95,5 +95,5 @@ class ObjectPrimitives(Primitives):
         self._install_instance_primitive(Primitive("instVarAt:put:", self._universe, _instVarAtPut))
         self._install_instance_primitive(Primitive("instVarNamed:",  self._universe, _instVarNamed))
         
-        self._install_instance_primitive(Primitive("halt", self._universe, _halt))
+        self._install_instance_primitive(Primitive("halt",  self._universe, _halt))
         self._install_instance_primitive(Primitive("class", self._universe, _class))
