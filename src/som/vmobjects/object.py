@@ -22,7 +22,7 @@ class Object(AbstractObject):
         self._field4 = nilObject
         self._field5 = nilObject
         
-        if num_fields >= self.NUMBER_OF_DIRECT_FIELDS:
+        if num_fields > self.NUMBER_OF_DIRECT_FIELDS:
             self._fields = [nilObject] * (num_fields - self.NUMBER_OF_DIRECT_FIELDS)
         else:
             self._fields = []
