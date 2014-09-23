@@ -16,7 +16,7 @@ from ..vmobjects.primitive                     import empty_primitive
 
 class MethodGenerationContext(object):
     
-    def __init__(self):
+    def __init__(self, universe):
         self._holder_genc = None
         self._outer_genc  = None
         self._block_method = False
@@ -30,6 +30,8 @@ class MethodGenerationContext(object):
         self._throws_non_local_return             = False
         self._needs_to_catch_non_local_returns    = False
         self._accesses_variables_of_outer_context = False
+
+        self._universe = universe
   
     def set_holder(self, cgenc):
         self._holder_genc = cgenc
@@ -60,8 +62,8 @@ class MethodGenerationContext(object):
     def needs_to_catch_non_local_return(self):
         return self._needs_to_catch_non_local_returns
 
-    def assemble_primitive(self, universe):
-        return empty_primitive(self._signature.get_string(), universe)
+    def assemble_primitive(self):
+        return empty_primitive(self._signature.get_string(), self._universe)
 
     @staticmethod
     def _separate_variables(variables, only_local_access,
@@ -85,7 +87,7 @@ class MethodGenerationContext(object):
         # return ArgumentInitializationNode(writes, method_body,
         #                                   method_body.get_source_section())
 
-    def assemble(self, universe, method_body):
+    def assemble(self, method_body):
         # local_args     = []
         non_local_args = []
         local_tmps     = []
@@ -105,10 +107,10 @@ class MethodGenerationContext(object):
         method_body = self._add_argument_initialization(method_body)
         method = Invokable(self._get_source_section_for_method(method_body),
                            method_body, arg_mapping, len(local_tmps),
-                           len(non_local_tmps), universe)
-        return universe.new_method(self._signature, method,
-                                   # copy list to make it immutable for RPython
-                                   self._embedded_block_methods[:])
+                           len(non_local_tmps), self._universe)
+        return self._universe.new_method(self._signature, method,
+                                         # copy list to make it immutable for RPython
+                                         self._embedded_block_methods[:])
 
     def _get_source_section_for_method(self, expr):
         src_body = expr.get_source_section()
@@ -119,8 +121,8 @@ class MethodGenerationContext(object):
                                    source_section = src_body)
         return src_method
 
-    def set_primitive(self, boolean):
-        self._primitive = boolean
+    def set_primitive(self):
+        self._primitive = True
 
     def set_signature(self, sig):
         self._signature = sig
@@ -207,11 +209,10 @@ class MethodGenerationContext(object):
         return create_read_node(self._get_self_read(),
                              self.get_field_index(field_name))
 
-    @staticmethod
-    def get_global_read(var_name, universe):
-        return UninitializedGlobalReadNode(var_name, universe)
+    def get_global_read(self, var_name):
+        return UninitializedGlobalReadNode(var_name, self._universe)
 
-    def get_object_field_write(self, field_name, exp, universe):
+    def get_object_field_write(self, field_name, exp):
         if not self.has_field(field_name):
             return None
         return create_write_node(self._get_self_read(),
