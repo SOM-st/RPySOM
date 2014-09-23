@@ -24,6 +24,13 @@ def _global(ivkbl, rcvr, args):
     return result if result else ivkbl.get_universe().nilObject
 
 
+def _has_global(ivkbl, rcvr, args):
+    if ivkbl.get_universe().has_global(args[0]):
+        return ivkbl.get_universe().trueObject
+    else:
+        return ivkbl.get_universe().falseObject
+
+
 def _global_put(ivkbl, rcvr, args):
     value    = args[1]
     argument = args[0]
@@ -63,6 +70,7 @@ class SystemPrimitives(Primitives):
     def install_primitives(self):
         self._install_instance_primitive(Primitive("load:", self._universe, _load))
         self._install_instance_primitive(Primitive("exit:", self._universe, _exit))
+        self._install_instance_primitive(Primitive("hasGlobal:", self._universe, _has_global))
         self._install_instance_primitive(Primitive("global:", self._universe, _global))
         self._install_instance_primitive(Primitive("global:put:", self._universe, _global_put))
         self._install_instance_primitive(Primitive("printString:", self._universe, _print_string))
