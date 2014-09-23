@@ -1,8 +1,11 @@
-from .to_do_node       import AbstractToDoNode
-
 from rpython.rlib import jit
 
-from som.vmobjects.method import Method
+from .to_do_node       import AbstractToDoNode
+
+from ....vmobjects.block   import Block
+from ....vmobjects.double  import Double
+from ....vmobjects.integer import Integer
+from ....vmobjects.method  import Method
 
 
 class AbstractToByDoNode(AbstractToDoNode):
@@ -61,6 +64,19 @@ class IntToIntByDoNode(AbstractToByDoNode):
                                 [self._universe.new_integer(i)])
             i += by
 
+    @staticmethod
+    def can_specialize(selector, rcvr, args, node):
+        return (isinstance(args[0], Integer) and isinstance(rcvr, Integer) and
+                len(args) == 3 and isinstance(args[1], Integer) and
+                isinstance(args[2], Block) and
+                selector.get_string() == "to:by:do:")
+
+    @staticmethod
+    def specialize_node(selector, rcvr, args, node):
+        return node.replace(
+            IntToIntByDoNode(node._rcvr_expr, node._arg_exprs[0],
+                             node._arg_exprs[1], node._arg_exprs[2],
+                             node._universe, node._source_section))
 
 double_driver = jit.JitDriver(
     greens=['block_method'],
@@ -82,3 +98,17 @@ class IntToDoubleByDoNode(AbstractToByDoNode):
             block_method.invoke(body_block,
                                 [self._universe.new_integer(i)])
             i += by
+
+    @staticmethod
+    def can_specialize(selector, rcvr, args, node):
+        return (isinstance(args[0], Double) and isinstance(rcvr, Integer) and
+                len(args) == 3 and isinstance(args[1], Integer) and
+                isinstance(args[2], Block) and
+                selector.get_string() == "to:by:do:")
+
+    @staticmethod
+    def specialize_node(selector, rcvr, args, node):
+        return node.replace(
+            IntToDoubleByDoNode(node._rcvr_expr, node._arg_exprs[0],
+                                node._arg_exprs[1], node._arg_exprs[2],
+                                node._universe, node._source_section))

@@ -1,6 +1,9 @@
-from ..expression_node import ExpressionNode
 from rpython.rlib import jit
-from som.vmobjects.method import Method
+
+from ..expression_node import ExpressionNode
+
+from ....vmobjects.block  import Block
+from ....vmobjects.method import Method
 
 
 class AbstractWhileMessageNode(ExpressionNode):
@@ -94,3 +97,24 @@ class WhileMessageNode(AbstractWhileMessageNode):
             if condition_value is not self._predicate_bool:
                 break
             body_method.invoke_void(body_block, [])
+
+    @staticmethod
+    def can_specialize(selector, rcvr, args, node):
+        sel = selector.get_string()
+        return isinstance(args[0], Block) and (sel == "whileTrue:" or
+                                               sel == "whileFalse:")
+
+    @staticmethod
+    def specialize_node(selector, rcvr, args, node):
+        sel = selector.get_string()
+        if sel == "whileTrue:":
+            return node.replace(
+                WhileMessageNode(node._rcvr_expr, node._arg_exprs[0],
+                                 node._universe.trueObject,
+                                 node._universe, node._source_section))
+        else:
+            assert sel == "whileFalse:"
+            return node.replace(
+                WhileMessageNode(node._rcvr_expr, node._arg_exprs[0],
+                                 node._universe.falseObject,
+                                 node._universe, node._source_section))

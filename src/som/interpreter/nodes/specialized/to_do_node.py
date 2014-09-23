@@ -1,6 +1,11 @@
-from ..expression_node import ExpressionNode
 from rpython.rlib import jit
-from som.vmobjects.method import Method
+
+from ..expression_node import ExpressionNode
+
+from ....vmobjects.block   import Block
+from ....vmobjects.double  import Double
+from ....vmobjects.integer import Integer
+from ....vmobjects.method  import Method
 
 
 class AbstractToDoNode(ExpressionNode):
@@ -63,6 +68,19 @@ class IntToIntDoNode(AbstractToDoNode):
                                      [self._universe.new_integer(i)])
             i += 1
 
+    @staticmethod
+    def can_specialize(selector, rcvr, args, node):
+        return (isinstance(args[0], Integer) and isinstance(rcvr, Integer) and
+                len(args) > 1 and isinstance(args[1], Block) and
+                selector.get_string() == "to:do:")
+
+    @staticmethod
+    def specialize_node(selector, rcvr, args, node):
+        return node.replace(
+            IntToIntDoNode(node._rcvr_expr, node._arg_exprs[0],
+                           node._arg_exprs[1], node._universe,
+                           node._source_section))
+
 
 double_driver = jit.JitDriver(
     greens=['block_method'],
@@ -83,3 +101,16 @@ class IntToDoubleDoNode(AbstractToDoNode):
             block_method.invoke_void(body_block,
                                      [self._universe.new_integer(i)])
             i += 1
+
+    @staticmethod
+    def can_specialize(selector, rcvr, args, node):
+        return (isinstance(args[0], Double) and isinstance(rcvr, Integer) and
+                len(args) > 1 and isinstance(args[1], Block) and
+                selector.get_string() == "to:do:")
+
+    @staticmethod
+    def specialize_node(selector, rcvr, args, node):
+        return node.replace(
+            IntToDoubleDoNode(node._rcvr_expr, node._arg_exprs[0],
+                              node._arg_exprs[1], node._universe,
+                              node._source_section))

@@ -60,6 +60,19 @@ class IfTrueIfFalseNode(ExpressionNode):
             assert rcvr is self._universe.falseObject
             self._value_of_void(false)
 
+    @staticmethod
+    def can_specialize(selector, rcvr, args, node):
+        return (len(args) == 2 and (rcvr is node._universe.trueObject or
+                                    rcvr is node._universe.falseObject) and
+                selector.get_string() == "ifTrue:ifFalse:")
+
+    @staticmethod
+    def specialize_node(selector, rcvr, args, node):
+        return node.replace(
+            IfTrueIfFalseNode(node._rcvr_expr, node._arg_exprs[0],
+                              node._arg_exprs[1], node._universe,
+                              node._source_section))
+
 
 class IfNode(ExpressionNode):
 
@@ -115,3 +128,24 @@ class IfNode(ExpressionNode):
         else:
             assert (rcvr is self._universe.falseObject or
                     rcvr is self._universe.trueObject)
+
+    @staticmethod
+    def can_specialize(selector, rcvr, args, node):
+        sel = selector.get_string()
+        return (len(args) == 1 and (rcvr is node._universe.trueObject or
+                                    rcvr is node._universe.falseObject) and
+                (sel == "ifTrue:" or sel == "ifFalse:"))
+
+    @staticmethod
+    def specialize_node(selector, rcvr, args, node):
+        if selector.get_string() == "ifTrue:":
+            return node.replace(
+                IfNode(node._rcvr_expr, node._arg_exprs[0],
+                       node._universe.trueObject, node._universe,
+                       node._source_section))
+        else:
+            assert selector.get_string() == "ifFalse:"
+            return node.replace(
+                IfNode(node._rcvr_expr, node._arg_exprs[0],
+                       node._universe.falseObject, node._universe,
+                       node._source_section))
