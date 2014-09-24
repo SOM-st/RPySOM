@@ -62,9 +62,6 @@ class MethodGenerationContext(object):
     def needs_to_catch_non_local_return(self):
         return self._needs_to_catch_non_local_returns
 
-    def assemble_primitive(self):
-        return empty_primitive(self._signature.get_string(), self._universe)
-
     @staticmethod
     def _separate_variables(variables, only_local_access,
                             non_local_access):
@@ -88,6 +85,9 @@ class MethodGenerationContext(object):
         #                                   method_body.get_source_section())
 
     def assemble(self, method_body):
+        if self._primitive:
+            return empty_primitive(self._signature.get_string(), self._universe)
+
         # local_args     = []
         non_local_args = []
         local_tmps     = []

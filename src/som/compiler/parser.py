@@ -103,13 +103,7 @@ class Parser(object):
             mgenc.add_argument("self")
          
             method_body = self._method(mgenc)
-         
-            if mgenc.is_primitive():
-                cgenc.add_instance_method(
-                    mgenc.assemble_primitive())
-            else:
-                cgenc.add_instance_method(
-                    mgenc.assemble(method_body))
+            cgenc.add_instance_method(mgenc.assemble(method_body))
 
         if self._accept(Symbol.Separator):
             cgenc.set_class_side(True)
@@ -124,13 +118,7 @@ class Parser(object):
                 mgenc.add_argument("self")
          
                 method_body = self._method(mgenc)
-         
-                if mgenc.is_primitive():
-                    cgenc.add_class_method(
-                        mgenc.assemble_primitive())
-                else:
-                    cgenc.add_class_method(
-                        mgenc.assemble(method_body))
+                cgenc.add_class_method(mgenc.assemble(method_body))
         
         self._expect(Symbol.EndTerm)
 
