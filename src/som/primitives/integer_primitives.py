@@ -1,10 +1,8 @@
-from rpython.rlib.rarithmetic import ovfcheck
+from rpython.rlib.rarithmetic import ovfcheck, LONG_BIT
 from rpython.rlib.rbigint import rbigint
 from som.primitives.primitives import Primitives
 from som.vmobjects.primitive   import Primitive
-from som.vmobjects.biginteger  import BigInteger
 from som.vmobjects.integer     import Integer
-from som.vmobjects.double      import Double
 from som.vmobjects.string      import String
 
 import math
@@ -84,7 +82,13 @@ def _leftShift(ivkbl, rcvr, args):
 
     l = left.get_embedded_integer()
     r = right_obj.get_embedded_integer()
+
+    assert isinstance(l, int)
+    assert isinstance(r, int)
+
     try:
+        if r >= LONG_BIT:
+            raise OverflowError()
         result = ovfcheck(l << r)
         return universe.new_integer(result)
     except OverflowError:
