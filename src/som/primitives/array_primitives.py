@@ -1,3 +1,5 @@
+from rpython.rlib import jit
+from som.vmobjects.method import Method
 from som.vmobjects.primitive   import Primitive
 from som.primitives.primitives import Primitives
 
@@ -27,11 +29,56 @@ def _new(ivkbl, rcvr, args):
         length.get_embedded_integer())
 
 
+def get_do_index_printable_location(block_method):
+    assert isinstance(block_method, Method)
+    return "#doIndexes: %s" % block_method.merge_point_string()
+
+do_index_driver = jit.JitDriver(
+    greens=['block_method'], reds='auto',
+    get_printable_location=get_do_index_printable_location)
+
+
+def _doIndexes(ivkbl, rcvr, args):
+    block = args[0]
+    block_method = block.get_method()
+    universe = ivkbl.get_universe()
+
+    i = 1
+    length = rcvr.get_number_of_indexable_fields()
+    while i <= length:  # the i is propagated to Smalltalk, so, start with 1
+        do_index_driver.jit_merge_point(block_method = block_method)
+        block_method.invoke_void(block, [universe.new_integer(i)])
+        i += 1
+
+
+def get_do_printable_location(block_method):
+    assert isinstance(block_method, Method)
+    return "#doIndexes: %s" % block_method.merge_point_string()
+
+do_driver = jit.JitDriver(greens=['block_method'], reds='auto',
+                          get_printable_location=get_do_printable_location)
+
+
+def _do(ivkbl, rcvr, args):
+    block = args[0]
+    block_method = block.get_method()
+
+    i = 0
+    length = rcvr.get_number_of_indexable_fields()
+    while i <= length - 1:  # the array itself is zero indexed
+        do_driver.jit_merge_point(block_method = block_method)
+        block_method.invoke_void(block, [rcvr.get_indexable_field(i)])
+        i += 1
+
+
 class ArrayPrimitives(Primitives):
     
     def install_primitives(self):
         self._install_instance_primitive(Primitive("at:",     self._universe, _at))
         self._install_instance_primitive(Primitive("at:put:", self._universe, _atPut))
         self._install_instance_primitive(Primitive("length",  self._universe, _length))
+
+        self._install_instance_primitive(Primitive("doIndexes:", self._universe, _doIndexes))
+        self._install_instance_primitive(Primitive("do:",        self._universe, _do))
         
         self._install_class_primitive(Primitive("new:",       self._universe, _new))
