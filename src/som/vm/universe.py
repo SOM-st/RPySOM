@@ -98,7 +98,7 @@ class Universe(object):
         self.start_time      = time.time()  # a float of the time in seconds
         self.random          = Random(abs(int(time.clock() * time.time())))
 
-        CURRENT = self
+        Universe.CURRENT = self
 
     def exit(self, error_code):
         if self._avoid_exit:
@@ -527,8 +527,4 @@ def get_current():
     return Universe.CURRENT
 
 if __name__ == '__main__':
-    import sys
-    try:
-        main(sys.argv)
-    except Exit as e:
-        sys.exit(e.code)
+    raise RuntimeError("Universe should not be used as main anymore")
