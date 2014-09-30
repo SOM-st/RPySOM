@@ -5,7 +5,7 @@ from rtruffle.source_section import SourceSection
 from ..interpreter.nodes.block_node       import BlockNode, BlockNodeWithContext
 from ..interpreter.nodes.global_read_node import UninitializedGlobalReadNode
 from ..interpreter.nodes.literal_node     import LiteralNode
-from ..interpreter.nodes.message_node     import UninitializedMessageNode
+from ..interpreter.nodes.message.uninitialized_node import UninitializedMessageNode
 from ..interpreter.nodes.return_non_local_node import ReturnNonLocalNode
 from ..interpreter.nodes.sequence_node    import SequenceNode
 
