@@ -44,9 +44,7 @@ class Assoc(object):
 
 
 class Universe(object):
-    
-    CURRENT = None
-    
+
     _immutable_fields_ = [
             "nilObject",
             "trueObject",
@@ -97,8 +95,6 @@ class Universe(object):
         self.classpath       = None
         self.start_time      = time.time()  # a float of the time in seconds
         self.random          = Random(abs(int(time.clock() * time.time())))
-
-        Universe.CURRENT = self
 
     def exit(self, error_code):
         if self._avoid_exit:
@@ -501,6 +497,9 @@ class Universe(object):
         return result
 
 
+_current = Universe()
+
+
 def error_print(msg):
     os.write(2, msg or "")
 
@@ -518,13 +517,13 @@ def std_println(msg = ""):
 
 
 def main(args):
-    u = Universe()
+    u = _current
     u.interpret(args[1:])
     u.exit(0)
 
 
 def get_current():
-    return Universe.CURRENT
+    return _current
 
 if __name__ == '__main__':
     raise RuntimeError("Universe should not be used as main anymore")
