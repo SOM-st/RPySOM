@@ -41,7 +41,7 @@ class CatchNonLocalReturnNode(ExpressionNode):
     def execute(self, frame):
         marker = frame.get_on_stack_marker()
         try:
-            result = self._method_body.execute(frame)
+            return self._method_body.execute(frame)
         except ReturnException as e:
             if not e.has_reached_target(marker):
                 raise e
@@ -49,7 +49,6 @@ class CatchNonLocalReturnNode(ExpressionNode):
                 return e.get_result()
         finally:
             marker.mark_as_no_longer_on_stack()
-        return result
 
     def execute_void(self, frame):
         marker = frame.get_on_stack_marker()
