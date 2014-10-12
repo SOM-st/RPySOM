@@ -15,10 +15,10 @@ class ReturnNonLocalNode(ContextualNode):
         self._universe = universe
 
     def execute(self, frame):
+        result = self._expr.execute(frame)
         block = self.determine_block(frame)
 
         if block.is_outer_on_stack():
-            result = self._expr.execute(frame)
             raise ReturnException(result, block.get_on_stack_marker())
         else:
             block      = frame.get_self()
