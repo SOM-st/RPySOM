@@ -65,7 +65,7 @@ def _do(ivkbl, rcvr, args):
 
     i = 0
     length = rcvr.get_number_of_indexable_fields()
-    while i <= length - 1:  # the array itself is zero indexed
+    while i < length:  # the array itself is zero indexed
         do_driver.jit_merge_point(block_method = block_method)
         block_method.invoke_void(block, [rcvr.get_indexable_field(i)])
         i += 1
