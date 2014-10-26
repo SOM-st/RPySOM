@@ -1,4 +1,5 @@
 from rpython.rlib import jit
+from som.vmobjects.block import Block
 from som.vmobjects.method import Method
 from som.vmobjects.primitive   import Primitive
 from som.primitives.primitives import Primitives
@@ -71,14 +72,53 @@ def _do(ivkbl, rcvr, args):
         i += 1
 
 
+def _copy(ivkbl, rcvr, args):
+    return rcvr.copy()
+
+
+def get_put_all_printable_location(block_method):
+    assert isinstance(block_method, Method)
+    return "#putAll: %s" % block_method.merge_point_string()
+
+put_all_driver = jit.JitDriver(greens=['block_method'], reds='auto',
+                          get_printable_location=get_put_all_printable_location)
+
+
+def _putAllWithBlock(rcvr, block):
+    block_method = block.get_method()
+
+    arr = rcvr.get_indexable_fields()
+    i = 0
+    length = rcvr.get_number_of_indexable_fields()
+    while i < length:  # the array itself is zero indexed
+        put_all_driver.jit_merge_point(block_method = block_method)
+        arr[i] = block_method.invoke(block, [])
+        i += 1
+    return rcvr
+
+
+def _putAll(ivkbl, rcvr, args):
+    arg = args[0]
+    if isinstance(arg, Block):
+        return _putAllWithBlock(rcvr, arg)
+
+    ## It is a simple value, just put it into the array
+    arr = rcvr.get_indexable_fields()
+    for i, _ in enumerate(arr):
+        arr[i] = arg
+    return rcvr
+
+
 class ArrayPrimitives(Primitives):
     
     def install_primitives(self):
         self._install_instance_primitive(Primitive("at:",     self._universe, _at))
         self._install_instance_primitive(Primitive("at:put:", self._universe, _atPut))
         self._install_instance_primitive(Primitive("length",  self._universe, _length))
+        self._install_instance_primitive(Primitive("copy",    self._universe, _copy))
 
         self._install_instance_primitive(Primitive("doIndexes:", self._universe, _doIndexes))
         self._install_instance_primitive(Primitive("do:",        self._universe, _do))
-        
+        self._install_instance_primitive(Primitive("putAll:",    self._universe, _putAll))
+
         self._install_class_primitive(Primitive("new:",       self._universe, _new))
