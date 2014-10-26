@@ -29,18 +29,9 @@ class AbstractToDoNode(ExpressionNode):
         self._do_loop(rcvr, limit, body)
         return rcvr
 
-    def execute_void(self, frame):
-        rcvr  = self._rcvr_expr.execute(frame)
-        limit = self._limit_expr.execute(frame)
-        body  = self._body_expr.execute(frame)
-        self._do_loop(rcvr, limit, body)
-
     def execute_evaluated(self, frame, rcvr, args):
         self._do_loop(rcvr, args[0], args[1])
         return rcvr
-
-    def execute_evaluated_void(self, frame, rcvr, args):
-        self._do_loop(rcvr, args[0], args[1])
 
 
 def get_printable_location(block_method):
@@ -64,8 +55,7 @@ class IntToIntDoNode(AbstractToDoNode):
         top = limit.get_embedded_integer()
         while i <= top:
             int_driver.jit_merge_point(block_method = block_method)
-            block_method.invoke_void(body_block,
-                                     [self._universe.new_integer(i)])
+            block_method.invoke(body_block, [self._universe.new_integer(i)])
             i += 1
 
     @staticmethod
@@ -98,8 +88,7 @@ class IntToDoubleDoNode(AbstractToDoNode):
         top = limit.get_embedded_double()
         while i <= top:
             double_driver.jit_merge_point(block_method = block_method)
-            block_method.invoke_void(body_block,
-                                     [self._universe.new_integer(i)])
+            block_method.invoke(body_block, [self._universe.new_integer(i)])
             i += 1
 
     @staticmethod

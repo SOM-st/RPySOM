@@ -17,9 +17,6 @@ class UninitializedReadNode(ExpressionNode):
     def execute(self, frame):
         return self._specialize().execute(frame)
 
-    def execute_void(self, frame):
-        self._specialize().execute_void(frame)
-
     def _specialize(self):
         return self.replace(self._var.get_initialized_read_node(
             self._context_level, self._source_section))
@@ -45,9 +42,6 @@ class UninitializedWriteNode(ExpressionNode):
     def execute(self, frame):
         return self._specialize().execute(frame)
 
-    def execute_void(self, frame):
-        self._specialize().execute_void(frame)
-
     def _specialize(self):
         return self.replace(self._var.get_initialized_write_node(
             self._context_level, self._value_expr, self._source_section))
@@ -68,9 +62,6 @@ class _NonLocalVariableReadNode(_NonLocalVariableNode):
     def execute(self, frame):
         block = self.determine_block(frame)
         return self._do_var_read(block)
-
-    def execute_void(self, frame):
-        pass  # NOOP, because it is side-effect free
 
 
 class NonLocalArgumentReadNode(_NonLocalVariableReadNode):
@@ -94,9 +85,6 @@ class NonLocalSelfReadNode(ContextualNode):
 
     def execute(self, frame):
         return self.determine_outer_self(frame)
-
-    def execute_void(self, frame):
-        pass  # NOOP, because it is side-effect free
 
 
 class NonLocalSuperReadNode(NonLocalSelfReadNode):
@@ -140,9 +128,6 @@ class NonLocalTempWriteNode(_NonLocalVariableNode):
         self.determine_block(frame).set_context_temp(self._frame_idx, value)
         return value
 
-    def execute_void(self, frame):
-        self.execute(frame)
-
 
 class _LocalVariableNode(ExpressionNode):
 
@@ -154,25 +139,19 @@ class _LocalVariableNode(ExpressionNode):
         self._frame_idx = frame_idx
 
 
-class _LocalVariableReadNode(_LocalVariableNode):
-
-    def execute_void(self, frame):
-        pass  # NOOP
-
-
-class LocalArgumentReadNode(_LocalVariableReadNode):
+class LocalArgumentReadNode(_LocalVariableNode):
 
     def execute(self, frame):
         return frame.get_argument(self._frame_idx)
 
 
-class LocalUnsharedTempReadNode(_LocalVariableReadNode):
+class LocalUnsharedTempReadNode(_LocalVariableNode):
 
     def execute(self, frame):
         return frame.get_temp(self._frame_idx)
 
 
-class LocalSharedTempReadNode(_LocalVariableReadNode):
+class LocalSharedTempReadNode(_LocalVariableNode):
 
     def execute(self, frame):
         return frame.get_shared_temp(self._frame_idx)
@@ -182,9 +161,6 @@ class LocalSelfReadNode(ExpressionNode):
 
     def execute(self, frame):
         return frame.get_self()
-
-    def execute_void(self, frame):
-        pass  # NOOP
 
 
 class LocalSuperReadNode(LocalSelfReadNode):
@@ -228,9 +204,6 @@ class _LocalVariableWriteNode(_LocalVariableNode):
         val = self._expr.execute(frame)
         self._do_write(frame, val)
         return val
-
-    def execute_void(self, frame):
-        self.execute(frame)
 
 
 class LocalSharedWriteNode(_LocalVariableWriteNode):

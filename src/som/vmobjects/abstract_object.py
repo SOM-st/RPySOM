@@ -11,11 +11,6 @@ class AbstractObject(object):
         invokable = self.get_class(universe).lookup_invokable(selector)
         return invokable.invoke(self, arguments)
 
-    def send_void(self, selector_string, arguments, universe):
-        selector = universe.symbol_for(selector_string)
-        invokable = self.get_class(universe).lookup_invokable(selector)
-        invokable.invoke_void(self, arguments)
-
     @staticmethod
     @jit.unroll_safe
     def _prepare_dnu_arguments(arguments, selector, universe):
@@ -34,11 +29,6 @@ class AbstractObject(object):
     def send_does_not_understand(self, selector, arguments, universe):
         args = self._prepare_dnu_arguments(arguments, selector, universe)
         return self.send("doesNotUnderstand:arguments:", args, universe)
-
-    def send_does_not_understand_void(self, selector, arguments, universe):
-        args = self._prepare_dnu_arguments(arguments, selector, universe)
-        return self.send_void("doesNotUnderstand:arguments:", args,
-                              universe)
 
     def send_unknown_global(self, global_name, universe):
         arguments = [global_name]

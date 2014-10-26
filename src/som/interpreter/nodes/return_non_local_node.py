@@ -25,9 +25,6 @@ class ReturnNonLocalNode(ContextualNode):
             outer_self = block.get_outer_self()
             return outer_self.send_escaped_block(block, self._universe)
 
-    def execute_void(self, frame):
-        self.execute(frame)
-
 
 class CatchNonLocalReturnNode(ExpressionNode):
 
@@ -47,15 +44,5 @@ class CatchNonLocalReturnNode(ExpressionNode):
                 raise e
             else:
                 return e.get_result()
-        finally:
-            marker.mark_as_no_longer_on_stack()
-
-    def execute_void(self, frame):
-        marker = frame.get_on_stack_marker()
-        try:
-            self._method_body.execute_void(frame)
-        except ReturnException as e:
-            if not e.has_reached_target(marker):
-                raise e
         finally:
             marker.mark_as_no_longer_on_stack()

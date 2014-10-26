@@ -39,27 +39,6 @@ class IfTrueIfFalseNode(ExpressionNode):
             assert rcvr is self._universe.falseObject
             return self._value_of(false)
 
-    def execute_void(self, frame):
-        rcvr  = self._rcvr_expr.execute(frame)
-        true  = self._true_expr.execute(frame)
-        false = self._false_expr.execute(frame)
-
-        return self._do_iftrue_iffalse_void(rcvr, true, false)
-
-    def execute_evaluated_void(self, frame, rcvr, args):
-        return self._do_iftrue_iffalse_void(rcvr, args[0], args[1])
-
-    def _value_of_void(self, obj):
-        if isinstance(obj, Block):
-            obj.get_method().invoke_void(obj, [])
-
-    def _do_iftrue_iffalse_void(self, rcvr, true, false):
-        if rcvr is self._universe.trueObject:
-            self._value_of_void(true)
-        else:
-            assert rcvr is self._universe.falseObject
-            self._value_of_void(false)
-
     @staticmethod
     def can_specialize(selector, rcvr, args, node):
         return (len(args) == 2 and (rcvr is node._universe.trueObject or
@@ -92,27 +71,15 @@ class IfNode(ExpressionNode):
         rcvr   = self._rcvr_expr.execute(frame)
         branch = self._branch_expr.execute(frame)
         return self._do_if(rcvr, branch)
-    
-    def execute_void(self, frame):
-        rcvr   = self._rcvr_expr.execute(frame)
-        branch = self._branch_expr.execute(frame)
-        return self._do_if_void(rcvr, branch)
 
     def execute_evaluated(self, frame, rcvr, args):
         return self._do_if(rcvr, args[0])
-    
-    def execute_evaluated_void(self, frame, rcvr, args):
-        return self._do_if_void(rcvr, args[0])
 
     def _value_of(self, obj):
         if isinstance(obj, Block):
             return obj.get_method().invoke(obj, [])
         else:
             return obj
-    
-    def _value_of_void(self, obj):
-        if isinstance(obj, Block):
-            obj.get_method().invoke_void(obj, [])
 
     def _do_if(self, rcvr, branch):
         if rcvr is self._condition:
@@ -121,13 +88,6 @@ class IfNode(ExpressionNode):
             assert (rcvr is self._universe.falseObject or
                     rcvr is self._universe.trueObject)
             return self._universe.nilObject
-        
-    def _do_if_void(self, rcvr, branch):
-        if rcvr is self._condition:
-            self._value_of_void(branch)
-        else:
-            assert (rcvr is self._universe.falseObject or
-                    rcvr is self._universe.trueObject)
 
     @staticmethod
     def can_specialize(selector, rcvr, args, node):

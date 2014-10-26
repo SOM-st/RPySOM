@@ -22,9 +22,6 @@ class UninitializedGlobalReadNode(ExpressionNode):
         cached = CachedGlobalReadNode(assoc, self.get_source_section())
         return self.replace(cached)
 
-    def execute_void(self, frame):
-        pass  # NOOP, because it is side-effect free
-
 
 class CachedGlobalReadNode(ExpressionNode):
 
@@ -36,6 +33,3 @@ class CachedGlobalReadNode(ExpressionNode):
 
     def execute(self, frame):
         return self._assoc.get_value()
-
-    def execute_void(self, frame):
-        pass  # NOOP, because it is side-effect free

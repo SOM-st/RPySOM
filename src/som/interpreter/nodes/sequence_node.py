@@ -19,8 +19,4 @@ class SequenceNode(ExpressionNode):
     @unroll_safe
     def _execute_all_but_last(self, frame):
         for i in range(0, len(self._exprs) - 1):
-            self._exprs[i].execute_void(frame)
-
-    def execute_void(self, frame):
-        self._execute_all_but_last(frame)
-        self._exprs[-1].execute_void(frame)
+            self._exprs[i].execute(frame)

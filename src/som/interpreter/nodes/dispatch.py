@@ -65,9 +65,6 @@ class UninitializedDispatchNode(_AbstractDispatchWithLookupNode):
     def execute_dispatch(self, rcvr, args):
         return self._specialize(rcvr).execute_dispatch(rcvr, args)
 
-    def execute_dispatch_void(self, rcvr, args):
-        return self._specialize(rcvr).execute_dispatch_void(rcvr, args)
-
 
 class GenericDispatchNode(_AbstractDispatchWithLookupNode):
 
@@ -82,15 +79,6 @@ class GenericDispatchNode(_AbstractDispatchWithLookupNode):
             # Won't use DNU caching here, because it's a megamorphic node
             return rcvr.send_does_not_understand(self._selector, args,
                                                  self._universe)
-
-    def execute_dispatch_void(self, rcvr, args):
-        method = self._lookup_method(rcvr)
-        if method is not None:
-            method.invoke_void(rcvr, args)
-        else:
-            # Won't use DNU caching here, because it's a megamorphic node
-            rcvr.send_does_not_understand_void(self._selector, args,
-                                               self._universe)
 
 
 class _AbstractCachedDispatchNode(_AbstractDispatchNode):
@@ -113,12 +101,6 @@ class _CachedDispatchObjectCheckNode(_AbstractCachedDispatchNode):
         else:
             return self._next.execute_dispatch(rcvr, args)
 
-    def execute_dispatch_void(self, rcvr, args):
-        if rcvr.get_class(self._universe) == self._expected_class:
-            return self._cached_method.invoke_void(rcvr, args)
-        else:
-            return self._next.execute_dispatch_void(rcvr, args)
-
 
 class _CachedDnuObjectCheckNode(_AbstractCachedDispatchNode):
 
@@ -139,14 +121,6 @@ class _CachedDnuObjectCheckNode(_AbstractCachedDispatchNode):
         else:
             return self._next.execute_dispatch(rcvr, args)
 
-    def execute_dispatch_void(self, rcvr, args):
-        if rcvr.get_class(self._universe) == self._expected_class:
-            return self._cached_method.invoke_void(
-                rcvr, [self._selector,
-                       self._universe.new_array_from_list(args)])
-        else:
-            return self._next.execute_dispatch_void(rcvr, args)
-
 
 class SuperDispatchNode(_AbstractDispatchNode):
 
@@ -160,6 +134,3 @@ class SuperDispatchNode(_AbstractDispatchNode):
 
     def execute_dispatch(self, rcvr, args):
         return self._cached_method.invoke(rcvr, args)
-
-    def execute_dispatch_void(self, rcvr, args):
-        return self._cached_method.invoke_void(rcvr, args)

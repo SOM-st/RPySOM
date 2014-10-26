@@ -21,9 +21,6 @@ class Primitive(AbstractObject):
         inv = self._prim_fun
         return inv(self, rcvr, args)
 
-    def invoke_void(self, rcvr, args):
-        self.invoke(rcvr, args)
-
     @staticmethod
     def is_primitive():
         return True

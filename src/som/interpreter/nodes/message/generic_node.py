@@ -28,20 +28,6 @@ class GenericMessageNode(AbstractMessageNode):
         rcvr, args = self._evaluate_rcvr_and_args(frame)
         return self.execute_evaluated(frame, rcvr, args)
 
-    def execute_void(self, frame):
-        rcvr, args = self._evaluate_rcvr_and_args(frame)
-        self.execute_evaluated_void(frame, rcvr, args)
-
-    def execute_evaluated_void(self, frame, rcvr, args):
-        assert frame is not None
-        assert rcvr is not None
-        assert args is not None
-        make_sure_not_resized(args)
-        if we_are_jitted():
-            self._direct_dispatch_void(rcvr, args)
-        else:
-            self._dispatch.execute_dispatch_void(rcvr, args)
-
     def execute_evaluated(self, frame, rcvr, args):
         assert frame is not None
         assert rcvr is not None
@@ -59,14 +45,6 @@ class GenericMessageNode(AbstractMessageNode):
         else:
             return rcvr.send_does_not_understand(self._selector, args,
                                                  self._universe)
-
-    def _direct_dispatch_void(self, rcvr, args):
-        method = self._lookup_method(rcvr)
-        if method:
-            method.invoke_void(rcvr, args)
-        else:
-            rcvr.send_does_not_understand_void(self._selector, args,
-                                               self._universe)
 
     def _lookup_method(self, rcvr):
         rcvr_class = self._class_of_receiver(rcvr)

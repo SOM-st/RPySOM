@@ -51,9 +51,6 @@ class Method(AbstractObject):
     def invoke(self, receiver, args):
         return self._invokable.invoke(receiver, args)
 
-    def invoke_void(self, receiver, args):
-        self._invokable.invoke_void(receiver, args)
-
     def __str__(self):
         return ("Method(" + self.get_holder().get_name().get_string() + ">>" +
                 str(self.get_signature()) + ")")

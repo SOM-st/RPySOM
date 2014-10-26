@@ -11,6 +11,3 @@ class LiteralNode(ExpressionNode):
 
     def execute(self, frame):
         return self._value
-
-    def execute_void(self, frame):
-        pass  # NOOP, because it is side-effect free

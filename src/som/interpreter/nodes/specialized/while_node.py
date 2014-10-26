@@ -21,16 +21,11 @@ class AbstractWhileMessageNode(ExpressionNode):
         self._universe       = universe
 
     def execute(self, frame):
-        self.execute_void(frame)
-        return self._universe.nilObject
-
-    def execute_void(self, frame):
         rcvr_value = self._rcvr_expr.execute(frame)
         body_block = self._body_expr.execute(frame)
 
         self._do_while(rcvr_value, body_block)
-
-# STEFAN: SOM doesn't actually have #whileTrue:, #whileFalse: for booleans.
+        return self._universe.nilObject
 
 # def get_printable_location_while_value(body_method, node):
 #     assert isinstance(body_method, Method)
@@ -71,11 +66,8 @@ while_driver = jit.JitDriver(
 class WhileMessageNode(AbstractWhileMessageNode):
 
     def execute_evaluated(self, frame, rcvr, args):
-        self.execute_evaluated_void(frame, rcvr, args)
-        return self._universe.nilObject
-
-    def execute_evaluated_void(self, frame, rcvr, args):
         self._do_while(rcvr, args[0])
+        return self._universe.nilObject
 
     def _do_while(self, rcvr_block, body_block):
         condition_method = rcvr_block.get_method()
@@ -96,7 +88,7 @@ class WhileMessageNode(AbstractWhileMessageNode):
             condition_value = condition_method.invoke(rcvr_block, [])
             if condition_value is not self._predicate_bool:
                 break
-            body_method.invoke_void(body_block, [])
+            body_method.invoke(body_block, [])
 
     @staticmethod
     def can_specialize(selector, rcvr, args, node):
