@@ -31,6 +31,7 @@ class UninitializedArgumentReadNode(UninitializedReadNode):
         return self.replace(self._var.get_initialized_read_node(
             self._context_level, self._source_section))
 
+
 class UninitializedWriteNode(ExpressionNode):
 
     _immutable_fields_ = ['_var', '_context_level', '_value_expr']

@@ -31,6 +31,7 @@ def _make_field_read_node_class(field_idx):
             return getattr(self_obj, "_field" + str(field_idx))
     return _FieldReadNodeI
 
+
 def _make_field_read_node_classes(count):
     return [_make_field_read_node_class(i + 1) for i in range(count)]
 
@@ -74,6 +75,7 @@ def _make_field_write_node_class(field_idx):
         def do_write(self, self_obj, value):
             setattr(self_obj, "_field" + str(field_idx), value)
     return _FieldWriteNodeI
+
 
 def _make_field_write_node_classes(count):
     return [_make_field_write_node_class(i + 1) for i in range(count)]
