@@ -69,9 +69,30 @@ class Double(AbstractObject):
         else:
             return universe.falseObject
 
+    def prim_unequals(self, right, universe):
+        r = self._get_float(right)
+        if self._embedded_double != r:
+            return universe.trueObject
+        else:
+            return universe.falseObject
+
     def prim_less_than(self, right, universe):
         r = self._get_float(right)
         if self._embedded_double < r:
+            return universe.trueObject
+        else:
+            return universe.falseObject
+
+    def prim_less_than_or_equal(self, right, universe):
+        r = self._get_float(right)
+        if self._embedded_double <= r:
+            return universe.trueObject
+        else:
+            return universe.falseObject
+
+    def prim_greater_than(self, right, universe):
+        r = self._get_float(right)
+        if self._embedded_double > r:
             return universe.trueObject
         else:
             return universe.falseObject

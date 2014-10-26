@@ -59,8 +59,20 @@ def _equals(ivkbl, rcvr, args):
     return rcvr.prim_equals(args[0], ivkbl.get_universe())
 
 
+def _unequals(ivkbl, rcvr, args):
+    return rcvr.prim_unequals(args[0], ivkbl.get_universe())
+
+
 def _lessThan(ivkbl, rcvr, args):
     return rcvr.prim_less_than(args[0], ivkbl.get_universe())
+
+
+def _lessThanOrEqual(ivkbl, rcvr, args):
+    return rcvr.prim_less_than_or_equal(args[0], ivkbl.get_universe())
+
+
+def _greaterThan(ivkbl, rcvr, args):
+    return rcvr.prim_greater_than(args[0], ivkbl.get_universe())
 
 
 def _fromString(ivkbl, rcvr, args):
@@ -123,6 +135,9 @@ class IntegerPrimitives(Primitives):
         self._install_instance_primitive(Primitive("&",  self._universe, _and))
         self._install_instance_primitive(Primitive("=",  self._universe, _equals))
         self._install_instance_primitive(Primitive("<",  self._universe, _lessThan))
+        self._install_instance_primitive(Primitive("<=", self._universe, _lessThanOrEqual))
+        self._install_instance_primitive(Primitive(">",  self._universe, _greaterThan))
+        self._install_instance_primitive(Primitive("<>", self._universe, _unequals))
 
         self._install_instance_primitive(Primitive("<<", self._universe, _leftShift))
         self._install_instance_primitive(Primitive("bitXor:", self._universe, _bitXor))

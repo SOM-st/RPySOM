@@ -41,6 +41,36 @@ class Integer(AbstractObject):
         else:
             return universe.falseObject
 
+    def prim_less_than_or_equal(self, right, universe):
+        # Check second parameter type:
+        if isinstance(right, BigInteger):
+            result = rbigint.fromint(self._embedded_integer).le(
+                right.get_embedded_biginteger())
+        elif isinstance(right, Double):
+            return self._to_double(universe).prim_less_than_or_equal(right, universe)
+        else:
+            result = self._embedded_integer <= right.get_embedded_integer()
+
+        if result:
+            return universe.trueObject
+        else:
+            return universe.falseObject
+
+    def prim_greater_than(self, right, universe):
+        # Check second parameter type:
+        if isinstance(right, BigInteger):
+            result = rbigint.fromint(self._embedded_integer).gt(
+                right.get_embedded_biginteger())
+        elif isinstance(right, Double):
+            return self._to_double(universe).prim_greater_than(right, universe)
+        else:
+            result = self._embedded_integer > right.get_embedded_integer()
+
+        if result:
+            return universe.trueObject
+        else:
+            return universe.falseObject
+
     def prim_as_string(self, universe):
         return universe.new_string(str(self._embedded_integer))
 
@@ -155,6 +185,24 @@ class Integer(AbstractObject):
             result = l == r
         else:
             return universe.falseObject
+
+        if result:
+            return universe.trueObject
+        else:
+            return universe.falseObject
+
+    def prim_unequals(self, right, universe):
+        if isinstance(right, BigInteger):
+            result = rbigint.fromint(self._embedded_integer).ne(
+                right.get_embedded_biginteger())
+        elif isinstance(right, Double):
+            result = self._embedded_integer != right.get_embedded_double()
+        elif isinstance(right, Integer):
+            l = self._embedded_integer
+            r = right.get_embedded_integer()
+            result = l != r
+        else:
+            return universe.trueObject
 
         if result:
             return universe.trueObject
