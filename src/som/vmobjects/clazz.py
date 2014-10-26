@@ -1,5 +1,5 @@
 from rpython.rlib import jit
-from som.vmobjects.object      import Object
+from som.vmobjects.object import Object
 
 
 class Class(Object):
@@ -118,8 +118,8 @@ class Class(Object):
         self.set_instance_invokables(self.get_instance_invokables().copy_and_extend_with(value, self._universe))
         return True
   
-    def add_instance_primitive(self, value):
-        if self.add_instance_invokable(value):
+    def add_instance_primitive(self, value, display_warning):
+        if self.add_instance_invokable(value) and display_warning:
             from som.vm.universe import std_print, std_println
             std_print("Warning: Primitive " + value.get_signature().get_string())
             std_println(" is not in class definition for class " + self.get_name().get_string())
@@ -143,15 +143,17 @@ class Class(Object):
         return (self._includes_primitives(self) or
                 self._includes_primitives(self._class))
 
-    def load_primitives(self):
+    def load_primitives(self, display_warning):
         from som.primitives.known import (primitives_for_class,
                                           PrimitivesNotFound)
         try:
-            prims = primitives_for_class(self)
+            prim_class = primitives_for_class(self)
+            prim_class(self._universe, display_warning).install_primitives_in(self)
         except PrimitivesNotFound:
-            prims = None
-        assert prims is not None, "Loading of prims failed for %s. We yet only support prims for known classes" % self.get_name()
-        prims(self._universe).install_primitives_in(self)
+            if display_warning:
+                from som.vm.universe import error_println
+                error_println("Loading of primitives failed for %s. Currently, "
+                              "we support primitives only for known classes" % self.get_name())
 
     def __str__(self):
         return "Class(" + self.get_name().get_string() + ")"

@@ -430,7 +430,8 @@ class Universe(object):
         result = self._load_class(name, None)
 
         # Add the appropriate value primitive to the block class
-        result.add_instance_primitive(block_evaluation_primitive(number_of_arguments, self))
+        result.add_instance_primitive(
+            block_evaluation_primitive(number_of_arguments, self), True)
 
         # Insert the block class into the dictionary of globals
         self.set_global(name, result)
@@ -446,13 +447,16 @@ class Universe(object):
 
         # Load the class
         result = self._load_class(name, None)
-
-        # Load primitives (if necessary) and return the resulting class
-        if result and result.has_primitives():
-            result.load_primitives()
-
+        self._load_primitives(result, False)
         self.set_global(name, result)
         return result
+
+    @staticmethod
+    def _load_primitives(clazz, is_system_class):
+        if not clazz: return
+
+        if clazz.has_primitives() or is_system_class:
+            clazz.load_primitives(not is_system_class)
 
     def _load_system_class(self, system_class):
         # Load the system class
@@ -465,9 +469,7 @@ class Universe(object):
                    + " Please make sure that the '-cp' parameter is given on the command-line.")
             self.exit(200)
 
-        # Load primitives if necessary
-        if result.has_primitives():
-            result.load_primitives()
+        self._load_primitives(result, True)
 
     def _load_class(self, name, system_class):
         # Try loading the class from all different paths
