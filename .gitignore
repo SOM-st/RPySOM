@@ -3,3 +3,6 @@
 RTruffleSOM-no-jit
 RTruffleSOM-jit
 pypy
+.settings
+.idea
+src/attic
