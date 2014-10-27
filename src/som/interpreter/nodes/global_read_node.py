@@ -18,8 +18,19 @@ class UninitializedGlobalReadNode(ExpressionNode):
                                                         self._universe)
 
     def _specialize(self):
-        assoc = self._universe.get_globals_association(self._global_name)
-        cached = CachedGlobalReadNode(assoc, self.get_source_section())
+        glob = self._global_name.get_string()
+        if glob == "true":
+            cached = ConstantGlobalReadNode(self._universe.trueObject,
+                                            self.get_source_section())
+        elif glob == "false":
+            cached = ConstantGlobalReadNode(self._universe.falseObject,
+                                            self.get_source_section())
+        elif glob == "nil":
+            cached = ConstantGlobalReadNode(self._universe.nilObject,
+                                            self.get_source_section())
+        else:
+            assoc = self._universe.get_globals_association(self._global_name)
+            cached = CachedGlobalReadNode(assoc, self.get_source_section())
         return self.replace(cached)
 
 
@@ -33,3 +44,15 @@ class CachedGlobalReadNode(ExpressionNode):
 
     def execute(self, frame):
         return self._assoc.get_value()
+
+
+class ConstantGlobalReadNode(ExpressionNode):
+
+    _immutable_fields_ = ['_value']
+
+    def __init__(self, value, source_section):
+        ExpressionNode.__init__(self, source_section)
+        self._value = value
+
+    def execute(self, frame):
+        return self._value
