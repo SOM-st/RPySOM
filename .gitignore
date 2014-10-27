@@ -1,7 +1,7 @@
 *.pyc
 *.DS_Store
-RTruffleSOM-no-jit
-RTruffleSOM-jit
+RTruffleSOM-no-jit*
+RTruffleSOM-jit*
 pypy
 .settings
 .idea
