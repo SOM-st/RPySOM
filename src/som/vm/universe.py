@@ -407,6 +407,7 @@ class Universe(object):
     def set_global(self, name, value):
         self.get_globals_association(name).set_value(value)
 
+    @jit.elidable_promote("all")
     def has_global(self, name):
         return name in self._globals
 
