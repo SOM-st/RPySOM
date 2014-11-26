@@ -26,6 +26,10 @@ This repository contains a RPython-based implementation of SOM, including
 SOM's standard library and a number of examples. Please see the [main project
 page][SOMst] for links to other VM implementations.
 
+To checkout the code:
+
+    git clone https://github.com/SOM-st/RTruffleSOM.git
+
 RTruffleSOM's tests can be executed with:
 
     $ ./som.sh -cp Smalltalk TestSuite/TestHarness.som
@@ -34,6 +38,12 @@ A simple Hello World program is executed with:
 
     $ ./som.sh -cp Smalltalk Examples/Hello/Hello.som
 
+To compile RTruffleSOM, a recent PyPy is recommended and the RPython source
+code is required. The source distribution of PyPy 2.4 can be used like this:
+
+    wget https://bitbucket.org/pypy/pypy/downloads/pypy-2.4.0-src.tar.bz2
+    tar xvf pypy-2.4.0-src.tar.bz2
+    export PYPY_DIR=`pwd`/pypy-2.4.0-src/
 
 Information on previous authors are included in the AUTHORS file. This code is
 distributed under the MIT License. Please see the LICENSE file for details.

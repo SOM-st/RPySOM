@@ -23,3 +23,6 @@ test: compile
 clean:
 	@-rm RTruffleSOM-no-jit
 	@-rm RTruffleSOM-jit
+
+core-lib/.git:
+	git submodule update --init
