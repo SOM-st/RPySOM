@@ -9,13 +9,13 @@ all: compile
 # RTruffleSOM-no-jit 
 compile: RTruffleSOM-jit
 
-RTruffleSOM-no-jit:
+RTruffleSOM-no-jit: core-lib/.git
 	PYTHONPATH=$(PYTHONPATH):$(PYPY_DIR) $(RPYTHON) --batch src/targetsomstandalone.py
 
-RTruffleSOM-jit:	
+RTruffleSOM-jit: core-lib/.git
 	PYTHONPATH=$(PYTHONPATH):$(PYPY_DIR) $(RPYTHON) --batch -Ojit src/targetsomstandalone.py
 
-test: compile
+test: compile core-lib/.git
 	PYTHONPATH=$(PYTHONPATH):$(PYPY_DIR) nosetests
 	if [ -e ./RTruffleSOM-no-jit ]; then ./RTruffleSOM-no-jit -cp Smalltalk TestSuite/TestHarness.som; fi
 	if [ -e ./RTruffleSOM-jit ];    then ./RTruffleSOM-jit    -cp Smalltalk TestSuite/TestHarness.som; fi
