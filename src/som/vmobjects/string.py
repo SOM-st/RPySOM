@@ -1,5 +1,6 @@
 from som.vmobjects.abstract_object import AbstractObject
 
+
 class String(AbstractObject):
     _immutable_fields_ = ["_string"]
     
