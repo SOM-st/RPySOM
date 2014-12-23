@@ -228,10 +228,10 @@ class Universe(object):
         self._initialize_system_class(self.nilClass,        self.objectClass, "Nil")
         self._initialize_system_class(self.arrayClass,      self.objectClass, "Array")
         self._initialize_system_class(self.methodClass,     self.objectClass, "Method")
-        self._initialize_system_class(self.symbolClass,     self.objectClass, "Symbol")
         self._initialize_system_class(self.integerClass,    self.objectClass, "Integer")
         self._initialize_system_class(self.primitiveClass,  self.objectClass, "Primitive")
         self._initialize_system_class(self.stringClass,     self.objectClass, "String")
+        self._initialize_system_class(self.symbolClass,     self.stringClass, "Symbol")
         self._initialize_system_class(self.doubleClass,     self.objectClass, "Double")
 
         # Load methods and fields into the system classes

@@ -1,6 +1,7 @@
 from rpython.rlib.rarithmetic import ovfcheck, LONG_BIT
 from rpython.rlib.rbigint import rbigint
 from som.primitives.primitives import Primitives
+from som.vmobjects.biginteger import BigInteger
 from som.vmobjects.primitive   import Primitive
 from som.vmobjects.integer     import Integer
 from som.vmobjects.string      import String
@@ -118,9 +119,19 @@ def _bitXor(ivkbl, rcvr, args):
                                 ^ right.get_embedded_integer())
 
 
+def _equalsequals(ivkbl, rcvr, args):
+    op2 = args[0]
+    universe = ivkbl.get_universe()
+    if isinstance(op2, Integer) or isinstance(op2, BigInteger):
+        return rcvr.prim_equals(op2, universe)
+    else:
+        return universe.falseObject
+
 class IntegerPrimitives(Primitives):
 
     def install_primitives(self):
+        self._install_instance_primitive(Primitive("==",  self._universe, _equalsequals))
+
         self._install_instance_primitive(Primitive("asString", self._universe, _asString))
         self._install_instance_primitive(Primitive("sqrt",     self._universe, _sqrt))
         self._install_instance_primitive(Primitive("atRandom", self._universe, _atRandom))
