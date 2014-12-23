@@ -17,9 +17,9 @@ class SomTest(unittest.TestCase):
         ("DoesNotUnderstand",),
 
         ("Empty"         ,),
+        ("Global"        ,),
         ("Hash"          ,),
         ("Integer"       ,),
-        ("ObjectSize"    ,),
 
         ("Preliminary"   ,),
         ("Reflection"    ,),
