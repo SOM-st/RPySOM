@@ -136,11 +136,11 @@ class _SpecializedWriteFieldNode(_AbstractWriteFieldNode):
             return
         except UninitializedStorageLocationException:
             obj._update_layout_with_initialized_field(self._nilObject,
-                                                       self._field_idx,
-                                                       value.__class__)
+                                                      self._field_idx,
+                                                      value.__class__)
         except GeneralizeStorageLocationException:
             obj._update_layout_with_generalized_field(self._nilObject,
-                                                       self._field_idx)
+                                                      self._field_idx)
         self._respecialize(obj, value, self._next).write(obj, value)
 
     def write(self, obj, value):
