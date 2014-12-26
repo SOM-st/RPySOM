@@ -1,5 +1,7 @@
 from rpython.rlib.jit import we_are_jitted
 from rtruffle.node import Node
+from som.interpreter.objectstorage.storage_location import \
+    UninitializedStorageLocationException, GeneralizeStorageLocationException
 from som.vmobjects.object import Object
 
 
@@ -74,7 +76,9 @@ class _AbstractWriteFieldNode(_AbstractFieldAccessorNode):
 
     def _write_and_respecialize(self, obj, value, reason, next_write_node):
         obj.set_field(self._field_idx, value, self._nilObject)
+        return self._respecialize(obj, value, next_write_node)
 
+    def _respecialize(self, obj, value, next_write_node):
         layout = obj.get_object_layout()
         location = layout.get_storage_location(self._field_idx)
         node = _SpecializedWriteFieldNode(self._nilObject, self._field_idx,
@@ -101,9 +105,22 @@ class _SpecializedWriteFieldNode(_AbstractWriteFieldNode):
         self._location = location
         self._next = self.adopt_child(next_write_node)
 
+    def _do_write(self, obj, value):
+        try:
+            self._location.write_location(obj, value)
+            return
+        except UninitializedStorageLocationException:
+            obj._update_layout_with_initialized_field(self._nilObject,
+                                                       self._field_idx,
+                                                       value.__class__)
+        except GeneralizeStorageLocationException:
+            obj._update_layout_with_generalized_field(self._nilObject,
+                                                       self._field_idx)
+        self._respecialize(obj, value, self._next).write(obj, value)
+
     def write(self, obj, value):
         if self._layout is obj.get_object_layout():
-            self._location.write_location(obj, value)
+            self._do_write(obj, value)
         else:
             if self._layout.is_for_same_class(obj.get_object_layout()):
                 self._write_and_respecialize(obj, value, "update outdated node",
