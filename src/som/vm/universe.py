@@ -347,7 +347,7 @@ class Universe(object):
     
     def new_metaclass_class(self):
         # Allocate the metaclass classes
-        result = Class(self, -1, Class(self, -1, None))
+        result = Class(self, 0, Class(self, 0, None))
 
         # Setup the metaclass hierarchy
         result.get_class(self).set_class(result)
@@ -366,7 +366,7 @@ class Universe(object):
       
     def new_system_class(self):
         # Allocate the new system class
-        system_class = Class(self, -1, Class(self, -1, None))
+        system_class = Class(self, 0, Class(self, 0, None))
 
         # Setup the metaclass hierarchy
         system_class.get_class(self).set_class(self.metaclassClass)
