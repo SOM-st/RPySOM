@@ -66,7 +66,7 @@ class _SpecializedReadFieldNode(_AbstractReadFieldNode):
             return self._respecialize_or_next(obj).read(obj)
 
     def _respecialize_or_next(self, obj):
-        if self._layout.is_for_same_class(obj.get_object_layout()):
+        if self._layout.is_for_same_class(obj.get_class(None)):
             return self._specialize(obj, "update outdated node", self._next)
         else:
             return self._next
@@ -122,7 +122,7 @@ class _SpecializedWriteFieldNode(_AbstractWriteFieldNode):
         if self._layout is obj.get_object_layout():
             self._do_write(obj, value)
         else:
-            if self._layout.is_for_same_class(obj.get_object_layout()):
+            if self._layout.is_for_same_class(obj.get_class(None)):
                 self._write_and_respecialize(obj, value, "update outdated node",
                                              self._next)
             else:
