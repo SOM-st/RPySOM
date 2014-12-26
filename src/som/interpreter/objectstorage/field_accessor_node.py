@@ -5,21 +5,25 @@ from som.interpreter.objectstorage.storage_location import \
 from som.vmobjects.object import Object
 
 
+_max_chain_length = 6
+
+
 def create_read(nilObject, field_idx):
-    return _UninitializedReadFieldNode(nilObject, field_idx)
+    return _UninitializedReadFieldNode(nilObject, field_idx, 0)
 
 
 def create_write(nilObject, field_idx):
-    return _UninitializedWriteFieldNode(nilObject, field_idx)
+    return _UninitializedWriteFieldNode(nilObject, field_idx, 0)
 
 
 class _AbstractFieldAccessorNode(Node):
-    _immutable_fields_ = ['_field_idx', '_nilObject']
+    _immutable_fields_ = ['_field_idx', '_nilObject', '_depth']
 
-    def __init__(self, nilObject, field_idx):
+    def __init__(self, nilObject, field_idx, depth):
         Node.__init__(self)
         self._field_idx = field_idx
         self._nilObject = nilObject
+        self._depth     = depth
 
 
 class _AbstractReadFieldNode(_AbstractFieldAccessorNode):
@@ -35,7 +39,8 @@ class _AbstractReadFieldNode(_AbstractFieldAccessorNode):
         location = layout.get_storage_location(self._field_idx)
 
         node = _SpecializedReadFieldNode(self._nilObject, self._field_idx,
-                                         layout, location, next_read_node)
+                                         layout, location, self._depth,
+                                         next_read_node)
         return self.replace(node)
 
 
@@ -44,17 +49,23 @@ class _UninitializedReadFieldNode(_AbstractReadFieldNode):
     def read(self, obj):
         if we_are_jitted():
             assert False
-        return self._specialize_and_read(obj, "uninitialized node",
-                                         _UninitializedReadFieldNode(
-                                             self._nilObject, self._field_idx))
+        if self._depth < _max_chain_length:
+            next_node = _UninitializedReadFieldNode(self._nilObject,
+                                                    self._field_idx,
+                                                    self._depth + 1)
+        else:
+            next_node = _GenericReadFieldNode(self._nilObject, self._field_idx,
+                                              self._depth + 1)
+        return self._specialize_and_read(obj, "uninitialized node", next_node)
 
 
 class _SpecializedReadFieldNode(_AbstractReadFieldNode):
     _immutable_fields_ = ['_layout', '_next?', '_location']
     _child_nodes_      = ['_next']
 
-    def __init__(self, nilObject, field_idx, layout, location, next_read_node):
-        _AbstractReadFieldNode.__init__(self, nilObject, field_idx)
+    def __init__(self, nilObject, field_idx, layout, location, depth,
+                 next_read_node):
+        _AbstractReadFieldNode.__init__(self, nilObject, field_idx, depth)
         self._layout   = layout
         self._location = location
         self._next = self.adopt_child(next_read_node)
@@ -72,6 +83,12 @@ class _SpecializedReadFieldNode(_AbstractReadFieldNode):
             return self._next
 
 
+class _GenericReadFieldNode(_AbstractReadFieldNode):
+
+    def read(self, obj):
+        return obj.get_field(self._field_idx)
+
+
 class _AbstractWriteFieldNode(_AbstractFieldAccessorNode):
 
     def _write_and_respecialize(self, obj, value, reason, next_write_node):
@@ -82,16 +99,23 @@ class _AbstractWriteFieldNode(_AbstractFieldAccessorNode):
         layout = obj.get_object_layout()
         location = layout.get_storage_location(self._field_idx)
         node = _SpecializedWriteFieldNode(self._nilObject, self._field_idx,
-                                          layout, location, next_write_node)
+                                          layout, location, self._depth,
+                                          next_write_node)
         return self.replace(node)
 
 
 class _UninitializedWriteFieldNode(_AbstractWriteFieldNode):
 
     def write(self, obj, value):
+        if self._depth < _max_chain_length:
+            next_node = _UninitializedWriteFieldNode(self._nilObject,
+                                                     self._field_idx,
+                                                     self._depth + 1)
+        else:
+            next_node = _GenericWriteFieldNode(self._nilObject, self._field_idx,
+                                               self._depth + 1)
         self._write_and_respecialize(obj, value, "initialize write node",
-                                     _UninitializedWriteFieldNode(
-                                         self._nilObject, self._field_idx))
+                                     next_node)
         return value
 
 
@@ -99,8 +123,9 @@ class _SpecializedWriteFieldNode(_AbstractWriteFieldNode):
     _immutable_fields_ = ['_layout', '_next?', '_location']
     _child_nodes_      = ['_next']
 
-    def __init__(self, nilObject, field_idx, layout, location, next_write_node):
-        _AbstractWriteFieldNode.__init__(self, nilObject, field_idx)
+    def __init__(self, nilObject, field_idx, layout, location, depth,
+                 next_write_node):
+        _AbstractWriteFieldNode.__init__(self, nilObject, field_idx, depth)
         self._layout = layout
         self._location = location
         self._next = self.adopt_child(next_write_node)
@@ -127,3 +152,9 @@ class _SpecializedWriteFieldNode(_AbstractWriteFieldNode):
                                              self._next)
             else:
                 self._next.write(obj, value)
+
+
+class _GenericWriteFieldNode(_AbstractWriteFieldNode):
+
+    def write(self, obj, value):
+        obj.set_field(self._field_idx, value, self._nilObject)
