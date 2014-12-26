@@ -1,4 +1,6 @@
 from rpython.rlib import jit
+from som.interpreter.objectstorage.object_layout import ObjectLayout
+from som.vmobjects.array import Array
 from som.vmobjects.object import Object
 
 
@@ -9,7 +11,8 @@ class Class(Object):
                           "_instance_fields"
                           "_instance_invokables",
                           "_invokables_table",
-                          "_universe"]
+                          "_universe",
+                          "_layout_for_instances?"]
     
     def __init__(self, universe, number_of_fields = -1, obj_class = None):
         Object.__init__(self, universe.nilObject, obj_class, number_of_fields)
@@ -19,6 +22,11 @@ class Class(Object):
         self._instance_invokables = None
         self._invokables_table = {}
         self._universe = universe
+        if number_of_fields >= 0:
+            self._layout_for_instances = ObjectLayout(universe.nilObject,
+                                                      number_of_fields, self)
+        else:
+            self._layout_for_instances = None
         
     def get_super_class(self):
         return self._super_class
@@ -39,7 +47,14 @@ class Class(Object):
         return self._instance_fields
 
     def set_instance_fields(self, value):
+        assert isinstance(value, Array)
         self._instance_fields = value
+        if (self._layout_for_instances is None or
+                value.get_number_of_indexable_fields() !=
+                self._layout_for_instances.get_number_of_fields()):
+            self._layout_for_instances = ObjectLayout(
+                self._universe.nilObject,
+                value.get_number_of_indexable_fields(), self)
   
     def get_instance_invokables(self):
         return self._instance_invokables
@@ -157,3 +172,20 @@ class Class(Object):
 
     def __str__(self):
         return "Class(" + self.get_name().get_string() + ")"
+
+    def get_layout_for_instances(self):
+        return self._layout_for_instances
+
+    def update_instance_layout_with_initialized_field(self, field_idx,
+                                                      spec_type):
+        updated = self._layout_for_instances.with_initialized_field(field_idx,
+                                                                    spec_type)
+        if updated is not self._layout_for_instances:
+            self._layout_for_instances = updated
+        return self._layout_for_instances
+
+    def update_instance_layout_with_generalized_field(self, field_idx):
+        updated = self._layout_for_instances.with_generalized_field(field_idx)
+        if updated is not self._layout_for_instances:
+            self._layout_for_instances = updated
+        return self._layout_for_instances
