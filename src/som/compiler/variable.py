@@ -107,8 +107,8 @@ class Local(_Variable):
             if self.is_accessed_out_of_context():
                 return LocalSharedTempReadNode(self._access_idx, source_section)
             else:
-                return LocalUnsharedTempReadNode(self._access_idx, source_section)
-
+                return LocalUnsharedTempReadNode(self._access_idx,
+                                                 source_section)
 
     def get_write_node(self, context_level, value_expr):
         self._is_written = True
