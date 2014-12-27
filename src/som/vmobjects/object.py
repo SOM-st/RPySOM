@@ -146,10 +146,12 @@ class Object(AbstractObject):
         return (self._primitive_used_map & mask) != 0
 
     def mark_prim_as_set(self, mask):
-        self._primitive_used_map |= mask
+        if (self._primitive_used_map & mask) == 0:
+            self._primitive_used_map |= mask
 
     def mark_prim_as_unset(self, mask):
-        self._primitive_used_map &= ~mask
+        if (self._primitive_used_map & mask) != 0:
+            self._primitive_used_map &= ~mask
 
     def get_location(self, field_idx):
         location = self._object_layout.get_storage_location(field_idx)
