@@ -167,8 +167,6 @@ class Object(AbstractObject):
     def get_field(self, field_idx):
         # Get the field with the given index
         assert isinstance(field_idx, int)
-        if we_are_jitted():
-            raise RuntimeError("Should not reach here")
 
         return self.get_location(field_idx).read_location(self)
   
@@ -176,8 +174,6 @@ class Object(AbstractObject):
         # Set the field with the given index to the given value
         assert isinstance(field_idx, int)
         assert isinstance(value, AbstractObject)
-        if we_are_jitted():
-            raise RuntimeError("Should not reach here")
 
         location = self.get_location(field_idx)
 
