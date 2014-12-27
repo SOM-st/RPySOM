@@ -61,7 +61,7 @@ class Object(AbstractObject):
             self._fields = None  ## for some reason _EMPTY_LIST doesn't typecheck here
 
     def get_object_layout(self):
-        return self._object_layout
+        return promote(self._object_layout)
 
     def _get_all_fields(self):
         num_fields = self._object_layout.get_number_of_fields()
@@ -145,7 +145,7 @@ class Object(AbstractObject):
         return len(self._fields)
 
     def is_primitive_set(self, mask):
-        return (self._primitive_used_map & mask) != 0
+        return (promote(self._primitive_used_map) & mask) != 0
 
     def mark_prim_as_set(self, mask):
         if (self._primitive_used_map & mask) == 0:
@@ -156,7 +156,8 @@ class Object(AbstractObject):
             self._primitive_used_map &= ~mask
 
     def get_location(self, field_idx):
-        location = self._object_layout.get_storage_location(field_idx)
+        field_idx = promote(field_idx)
+        location = promote(self._object_layout).get_storage_location(field_idx)
         assert location is not None
         return location
 
