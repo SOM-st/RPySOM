@@ -4,6 +4,8 @@ from som.interpreter.objectstorage.storage_location import \
     UninitializedStorageLocationException, GeneralizeStorageLocationException
 from som.vmobjects.abstract_object import AbstractObject
 
+_EMPTY_LIST = []
+
 
 class Object(AbstractObject):
 
@@ -48,7 +50,7 @@ class Object(AbstractObject):
         if n > 0:
             self._primFields = [0] * n
         else:
-            self._primFields = []
+            self._primFields = _EMPTY_LIST
 
         self._primitive_used_map = 0
 
@@ -56,7 +58,7 @@ class Object(AbstractObject):
         if n > 0:
             self._fields = [nilObject] * n
         else:
-            self._fields = []
+            self._fields = None  ## for some reason _EMPTY_LIST doesn't typecheck here
 
     def get_object_layout(self):
         return self._object_layout
@@ -98,7 +100,7 @@ class Object(AbstractObject):
         if n > 0:
             self._primFields = [0] * n
         else:
-            self._primFields = []
+            self._primFields = _EMPTY_LIST
 
         self._primitive_used_map = 0
 
@@ -106,7 +108,7 @@ class Object(AbstractObject):
         if n > 0:
             self._fields = [nilObject] * n
         else:
-            self._fields = []
+            self._fields = None
 
         self._set_all_fields(field_values, nilObject)
 

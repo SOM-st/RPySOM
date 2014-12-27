@@ -13,6 +13,8 @@ class _FrameOnStackMarker(object):
     def is_on_stack(self):
         return self._on_stack
 
+_EMPTY_LIST = []
+
 
 class Frame(object):
         
@@ -29,13 +31,21 @@ class Frame(object):
         self._receiver        = receiver
         self._arguments       = arguments
         self._on_stack        = _FrameOnStackMarker()
-        self._temps           = [nilObject] * num_local_temps
+        if num_local_temps == 0:
+            self._temps       = _EMPTY_LIST
+        else:
+            self._temps       = [nilObject] * num_local_temps
 
         self._args_for_inner  = self._collect_shared_args(arg_mapping)
-        self._temps_for_inner = [nilObject] * num_context_temps
+        if num_context_temps == 0:
+            self._temps_for_inner = _EMPTY_LIST
+        else:
+            self._temps_for_inner = [nilObject] * num_context_temps
 
     @jit.unroll_safe
     def _collect_shared_args(self, arg_mapping):
+        if len(arg_mapping) == 0:
+            return _EMPTY_LIST
         return [self._arguments[i] for i in arg_mapping]
 
     def get_context_values(self):
