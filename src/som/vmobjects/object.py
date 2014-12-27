@@ -9,8 +9,8 @@ _EMPTY_LIST = []
 
 class Object(AbstractObject):
 
-    _immutable_fields_ = ["_class", "_fields?", "_primFields?",
-                          "_object_layout?"]
+    _immutable_fields_ = ["_class", "_object_layout?",
+                          "_fields?", "_primFields?"]
     
     # Static field indices and number of object fields
     NUMBER_OF_OBJECT_FIELDS = 0
