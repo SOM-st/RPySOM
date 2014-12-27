@@ -64,6 +64,7 @@ class Object(AbstractObject):
         return promote(self._object_layout)
 
     def _get_all_fields(self):
+        assert not we_are_jitted()
         num_fields = self._object_layout.get_number_of_fields()
         field_values = [None] * num_fields
         for i in range(0, num_fields):
@@ -72,7 +73,7 @@ class Object(AbstractObject):
         return field_values
 
     def _set_all_fields(self, field_values, nilObject):
-
+        assert not we_are_jitted()
         self._field1 = self._field2 = self._field3 = self._field4 = self._field5 = nilObject
         self._primField1 = self._primField2 = self._primField3 = self._primField4 = self._primField5 = 1234567890
 
@@ -83,6 +84,7 @@ class Object(AbstractObject):
                 self.set_field(i, field_values[i], nilObject)
 
     def update_layout_to_match_class(self, nilObject):
+        assert not we_are_jitted()
         class_layout = self._class.get_layout_for_instances()
         assert self._object_layout.get_number_of_fields() == class_layout.get_number_of_fields()
 
@@ -93,6 +95,7 @@ class Object(AbstractObject):
             return False
 
     def _set_layout_and_transfer_fields(self, layout, nilObject):
+        assert not we_are_jitted()
         field_values = self._get_all_fields()
         self._object_layout = layout
 
@@ -113,6 +116,7 @@ class Object(AbstractObject):
         self._set_all_fields(field_values, nilObject)
 
     def _update_layout_with_initialized_field(self, nilObject, idx, field_type):
+        assert not we_are_jitted()
         layout = self._class.update_instance_layout_with_initialized_field(
             idx, field_type)
 
@@ -121,6 +125,7 @@ class Object(AbstractObject):
         self._set_layout_and_transfer_fields(layout, nilObject)
 
     def _update_layout_with_generalized_field(self, nilObject, idx):
+        assert not we_are_jitted()
         layout = self._class.update_instance_layout_with_generalized_field(idx)
 
         assert layout is not self._object_layout
@@ -188,8 +193,8 @@ class Object(AbstractObject):
         self._set_field_after_layout_change(field_idx, value)
 
     def _set_field_after_layout_change(self, field_idx, value):
-        if we_are_jitted():
-            raise RuntimeError("Should not reach here")
+        assert not we_are_jitted()
+
         location = self.get_location(field_idx)
         # we aren't handling potential exceptions here, because,
         # they should not happen by construction
