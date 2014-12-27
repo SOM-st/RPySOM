@@ -11,7 +11,7 @@ class ObjectLayout(object):
 
     _immutable_fields_ = ["_for_class", "_prim_locations_used",
                           "_ptr_locations_used", "_total_locations",
-                          "_storage_locations", "_storage_types",
+                          "_storage_locations[*]", "_storage_types[*]",
                           "_nilObject"]
 
     def __init__(self, nilObject, number_of_fields, for_class = None,
