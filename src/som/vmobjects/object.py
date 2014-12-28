@@ -1,6 +1,6 @@
 from rpython.rlib.jit import promote, we_are_jitted
 from som.interpreter.objectstorage.object_layout import ObjectLayout
-from som.interpreter.objectstorage.storage_location import \
+from som.interpreter.objectstorage.layout_transitions import \
     UninitializedStorageLocationException, GeneralizeStorageLocationException
 from som.vmobjects.abstract_object import AbstractObject
 
