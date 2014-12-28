@@ -48,7 +48,6 @@ class Assoc(object):
 class Universe(object):
 
     _immutable_fields_ = [
-            "nilObject",
             "trueObject",
             "falseObject",
             "objectClass",
@@ -300,11 +299,11 @@ class Universe(object):
         return result
     
     def new_array_with_length(self, length):
-        return Array(nilObject, length)
+        return Array(length)
   
     def new_array_from_list(self, values):
         make_sure_not_resized(values)
-        return Array(nilObject, 0, values)
+        return Array(0, values)
 
     def new_array_with_strings(self, strings):
         # Allocate a new array with the same length as the string array

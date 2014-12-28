@@ -4,6 +4,7 @@ from som.interpreter.objectstorage.layout_transitions import \
     UninitializedStorageLocationException, GeneralizeStorageLocationException
 from som.vmobjects.abstract_object import AbstractObject
 from som.vmobjects.object_without_fields import ObjectWithoutFields
+from som.vm.globals import nilObject
 
 _EMPTY_LIST = []
 
@@ -16,16 +17,14 @@ class Object(ObjectWithoutFields):
     # Static field indices and number of object fields
     NUMBER_OF_OBJECT_FIELDS = 0
 
-    def __init__(self, nilObject, obj_class,
-                 number_of_fields = NUMBER_OF_OBJECT_FIELDS):
-        nilObject = promote(nilObject)
+    def __init__(self, obj_class, number_of_fields = NUMBER_OF_OBJECT_FIELDS):
         cls = obj_class if obj_class is not None else nilObject
         ObjectWithoutFields.__init__(self, cls)
 
         if obj_class is not None:
             self._object_layout = obj_class.get_layout_for_instances()
         else:
-            self._object_layout = ObjectLayout(nilObject, number_of_fields)
+            self._object_layout = ObjectLayout(number_of_fields)
 
         # IMPORTANT: when changing the number of preallocated fields,
         # you'll also need to update storage_location.py's constants:
@@ -73,29 +72,29 @@ class Object(ObjectWithoutFields):
                 field_values[i] = self.get_field(i)
         return field_values
 
-    def _set_all_fields(self, field_values, nilObject):
+    def _set_all_fields(self, field_values):
         assert not we_are_jitted()
         self._field1 = self._field2 = self._field3 = self._field4 = self._field5 = nilObject
         self._primField1 = self._primField2 = self._primField3 = self._primField4 = self._primField5 = 1234567890
 
         for i in range(0, self._object_layout.get_number_of_fields()):
             if field_values[i] is None:
-                self.set_field(i, nilObject, nilObject)
+                self.set_field(i, nilObject)
             else:
-                self.set_field(i, field_values[i], nilObject)
+                self.set_field(i, field_values[i])
 
-    def update_layout_to_match_class(self, nilObject):
+    def update_layout_to_match_class(self):
         assert not we_are_jitted()
         class_layout = self._class.get_layout_for_instances()
         assert self._object_layout.get_number_of_fields() == class_layout.get_number_of_fields()
 
         if self._object_layout is not class_layout:
-            self._set_layout_and_transfer_fields(class_layout, nilObject)
+            self._set_layout_and_transfer_fields(class_layout)
             return True
         else:
             return False
 
-    def _set_layout_and_transfer_fields(self, layout, nilObject):
+    def _set_layout_and_transfer_fields(self, layout):
         assert not we_are_jitted()
         field_values = self._get_all_fields()
         self._object_layout = layout
@@ -114,23 +113,23 @@ class Object(ObjectWithoutFields):
         else:
             self._fields = None
 
-        self._set_all_fields(field_values, nilObject)
+        self._set_all_fields(field_values)
 
-    def _update_layout_with_initialized_field(self, nilObject, idx, field_type):
+    def _update_layout_with_initialized_field(self, idx, field_type):
         assert not we_are_jitted()
         layout = self._class.update_instance_layout_with_initialized_field(
             idx, field_type)
 
         assert layout is not self._object_layout
 
-        self._set_layout_and_transfer_fields(layout, nilObject)
+        self._set_layout_and_transfer_fields(layout)
 
-    def _update_layout_with_generalized_field(self, nilObject, idx):
+    def _update_layout_with_generalized_field(self, idx):
         assert not we_are_jitted()
         layout = self._class.update_instance_layout_with_generalized_field(idx)
 
         assert layout is not self._object_layout
-        self._set_layout_and_transfer_fields(layout, nilObject)
+        self._set_layout_and_transfer_fields(layout)
 
     def get_field_name(self, index):
         # Get the name of the field with the given index
@@ -170,7 +169,7 @@ class Object(ObjectWithoutFields):
 
         return self.get_location(field_idx).read_location(self)
   
-    def set_field(self, field_idx, value, nilObject):
+    def set_field(self, field_idx, value):
         # Set the field with the given index to the given value
         assert isinstance(field_idx, int)
         assert isinstance(value, AbstractObject)
@@ -181,10 +180,10 @@ class Object(ObjectWithoutFields):
             location.write_location(self, value)
             return
         except UninitializedStorageLocationException:
-            self._update_layout_with_initialized_field(nilObject, field_idx,
+            self._update_layout_with_initialized_field(field_idx,
                                                        value.__class__)
         except GeneralizeStorageLocationException:
-            self._update_layout_with_generalized_field(nilObject, field_idx)
+            self._update_layout_with_generalized_field(field_idx)
         self._set_field_after_layout_change(field_idx, value)
 
     def _set_field_after_layout_change(self, field_idx, value):

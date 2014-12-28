@@ -11,10 +11,9 @@ class ObjectLayout(object):
 
     _immutable_fields_ = ["_for_class", "_prim_locations_used",
                           "_ptr_locations_used", "_total_locations",
-                          "_storage_locations[*]", "_storage_types[*]",
-                          "_nilObject"]
+                          "_storage_locations[*]", "_storage_types[*]"]
 
-    def __init__(self, nilObject, number_of_fields, for_class = None,
+    def __init__(self, number_of_fields, for_class = None,
                  known_types = None):
         assert number_of_fields >= 0
         from som.vmobjects.object import Object
@@ -22,7 +21,6 @@ class ObjectLayout(object):
         self._storage_types = known_types or [None] * number_of_fields
         self._total_locations = number_of_fields
         self._storage_locations = [None] * number_of_fields
-        self._nilObject = nilObject
 
         next_free_prim_idx = 0
         next_free_ptr_idx  = 0
@@ -31,20 +29,17 @@ class ObjectLayout(object):
             storage_type = self._storage_types[i]
 
             if storage_type is Integer:
-                storage = create_location_for_long(nilObject, self,
-                                                   next_free_prim_idx)
+                storage = create_location_for_long(self, next_free_prim_idx)
                 next_free_prim_idx += 1
             elif storage_type is Double:
-                storage = create_location_for_double(nilObject, self,
-                                                     next_free_prim_idx)
+                storage = create_location_for_double(self, next_free_prim_idx)
                 next_free_prim_idx += 1
             elif storage_type is Object:
-                storage = create_location_for_object(nilObject, self,
-                                                     next_free_ptr_idx)
+                storage = create_location_for_object(self, next_free_ptr_idx)
                 next_free_ptr_idx += 1
             else:
                 assert storage_type is None
-                storage = create_location_for_unwritten_value(nilObject, self)
+                storage = create_location_for_unwritten_value(self)
 
             assert isinstance(storage, _AbstractStorageLocation)
             self._storage_locations[i] = storage
@@ -66,8 +61,8 @@ class ObjectLayout(object):
             assert self._storage_types[field_idx] is not None
             with_generalized_field = self._storage_types[:]
             with_generalized_field[field_idx] = Object
-            return ObjectLayout(self._nilObject, self._total_locations,
-                                self._for_class, with_generalized_field)
+            return ObjectLayout(self._total_locations, self._for_class,
+                                with_generalized_field)
 
     def with_initialized_field(self, field_idx, spec_class):
         from som.vmobjects.object import Object
@@ -84,8 +79,8 @@ class ObjectLayout(object):
             assert self._storage_types[field_idx] is None
             with_initialized_field = self._storage_types[:]
             with_initialized_field[field_idx] = spec_type
-            return ObjectLayout(self._nilObject, self._total_locations,
-                                self._for_class, with_initialized_field)
+            return ObjectLayout(self._total_locations, self._for_class,
+                                with_initialized_field)
 
     def get_storage_location(self, field_idx):
         return self._storage_locations[field_idx]

@@ -64,8 +64,7 @@ def _instVarAt(ivkbl, rcvr, args):
 def _instVarAtPut(ivkbl, rcvr, args):
     val  = args[1]
     idx  = args[0]
-    rcvr.set_field(idx.get_embedded_integer() - 1, val,
-                   nilObject)
+    rcvr.set_field(idx.get_embedded_integer() - 1, val)
     return val
 
 

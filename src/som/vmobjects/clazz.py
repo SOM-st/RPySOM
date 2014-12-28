@@ -16,7 +16,7 @@ class Class(Object):
                           "_layout_for_instances?"]
     
     def __init__(self, universe, number_of_fields = -1, obj_class = None):
-        Object.__init__(self, nilObject, obj_class, number_of_fields)
+        Object.__init__(self, obj_class, number_of_fields)
         self._super_class = nilObject
         self._name        = None
         self._instance_fields = None
@@ -24,8 +24,7 @@ class Class(Object):
         self._invokables_table = {}
         self._universe = universe
         if number_of_fields >= 0:
-            self._layout_for_instances = ObjectLayout(nilObject,
-                                                      number_of_fields, self)
+            self._layout_for_instances = ObjectLayout(number_of_fields, self)
         else:
             self._layout_for_instances = None
         
@@ -54,7 +53,6 @@ class Class(Object):
                 value.get_number_of_indexable_fields() !=
                 self._layout_for_instances.get_number_of_fields()):
             self._layout_for_instances = ObjectLayout(
-                nilObject,
                 value.get_number_of_indexable_fields(), self)
   
     def get_instance_invokables(self):

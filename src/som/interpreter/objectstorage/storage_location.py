@@ -2,6 +2,7 @@ from rpython.rlib.jit import we_are_jitted
 from rpython.rlib.longlong2float import longlong2float, float2longlong
 from som.interpreter.objectstorage.layout_transitions import \
     UninitializedStorageLocationException, GeneralizeStorageLocationException
+from som.vm.globals import nilObject
 
 from som.vmobjects.abstract_object import AbstractObject
 from som.vmobjects.double import Double
@@ -19,49 +20,37 @@ def get_primitive_field_mask(field_idx):
     return 1 << field_idx
 
 
-def create_location_for_long(nilObject, layout, prim_field_idx):
+def create_location_for_long(layout, prim_field_idx):
     if prim_field_idx < NUMBER_OF_PRIMITIVE_FIELDS:
-        return _long_direct_class[prim_field_idx](nilObject, layout,
-                                                  prim_field_idx)
+        return _long_direct_class[prim_field_idx](layout, prim_field_idx)
     else:
-        return LongArrayStorageLocation(nilObject, layout, prim_field_idx)
+        return LongArrayStorageLocation(layout, prim_field_idx)
 
 
-def create_location_for_double(nilObject, layout, prim_field_idx):
+def create_location_for_double(layout, prim_field_idx):
     if prim_field_idx < NUMBER_OF_PRIMITIVE_FIELDS:
-        return _double_direct_class[prim_field_idx](nilObject, layout,
-                                                    prim_field_idx)
+        return _double_direct_class[prim_field_idx](layout, prim_field_idx)
     else:
-        return DoubleArrayStorageLocation(nilObject, layout, prim_field_idx)
+        return DoubleArrayStorageLocation(layout, prim_field_idx)
 
 
-def create_location_for_object(nilObject, layout, ptr_field_idx):
+def create_location_for_object(layout, ptr_field_idx):
     if ptr_field_idx < NUMBER_OF_POINTER_FIELDS:
-        return _object_direct_class[ptr_field_idx](nilObject, layout,
-                                                   ptr_field_idx)
+        return _object_direct_class[ptr_field_idx](layout, ptr_field_idx)
     else:
-        return ObjectArrayStorageLocation(nilObject, layout, ptr_field_idx)
+        return ObjectArrayStorageLocation(layout, ptr_field_idx)
 
 
-def create_location_for_unwritten_value(nilObject, layout):
-    return UnwrittenStorageLocation(nilObject, layout)
-
-
-class GeneralizeStorageLocationException(BaseException):
-    pass
-
-
-class UninitializedStorageLocationException(BaseException):
-    pass
+def create_location_for_unwritten_value(layout):
+    return UnwrittenStorageLocation(layout)
 
 
 class _AbstractStorageLocation(object):
 
-    _immutable_fields_ = ['_layout', '_nilObject']
+    _immutable_fields_ = ['_layout']
 
-    def __init__(self, nilObject, layout):
+    def __init__(self, layout):
         self._layout    = layout
-        self._nilObject = nilObject
 
 
 class UnwrittenStorageLocation(_AbstractStorageLocation):
@@ -70,18 +59,18 @@ class UnwrittenStorageLocation(_AbstractStorageLocation):
         return False
 
     def read_location(self, obj):
-        return self._nilObject
+        return nilObject
 
     def write_location(self, obj, value):
-        if value is not self._nilObject:
+        if value is not nilObject:
             raise UninitializedStorageLocationException()
 
 
 class _AbstractObjectStorageLocation(_AbstractStorageLocation):
     _immutable_fields_ = ["_field_idx"]
 
-    def __init__(self, nilObject, layout, field_idx):
-        _AbstractStorageLocation.__init__(self, nilObject, layout)
+    def __init__(self, layout, field_idx):
+        _AbstractStorageLocation.__init__(self, layout)
         self._field_idx = field_idx
 
     def is_set(self, obj):
@@ -105,8 +94,8 @@ class ObjectArrayStorageLocation(_AbstractObjectStorageLocation):
 
     _immutable_fields_ = ['_ext_idx']
 
-    def __init__(self, nilObject, layout, field_idx):
-        _AbstractObjectStorageLocation.__init__(self, nilObject, layout, field_idx)
+    def __init__(self, layout, field_idx):
+        _AbstractObjectStorageLocation.__init__(self, layout, field_idx)
         self._ext_idx = field_idx - NUMBER_OF_POINTER_FIELDS
 
     def read_location(self, obj):
@@ -123,8 +112,8 @@ class _AbstractPrimitiveStorageLocation(_AbstractStorageLocation):
 
     _immutable_fields_ = ['_mask']
 
-    def __init__(self, nilObject, layout, field_idx):
-        _AbstractStorageLocation.__init__(self, nilObject, layout)
+    def __init__(self, layout, field_idx):
+        _AbstractStorageLocation.__init__(self, layout)
         self._mask = get_primitive_field_mask(field_idx)
 
     def is_set(self, obj):
@@ -137,7 +126,7 @@ class _AbstractPrimitiveStorageLocation(_AbstractStorageLocation):
         obj.mark_prim_as_unset(self._mask)
 
     def _unset_or_generalize(self, obj, value):
-        if value is self._nilObject:
+        if value is nilObject:
             self._mark_as_unset(obj)
         else:
             if we_are_jitted():
@@ -154,7 +143,7 @@ def _make_double_direct_storage_location(field_idx):
                     getattr(obj, "_primField" + str(field_idx)))
                 return Double(double_val)
             else:
-                return self._nilObject
+                return nilObject
 
         def write_location(self, obj, value):
             assert value is not None
@@ -177,7 +166,7 @@ def _make_long_direct_storage_location(field_idx):
             if self.is_set(obj):
                 return Integer(getattr(obj, "_primField" + str(field_idx)))
             else:
-                return self._nilObject
+                return nilObject
 
         def write_location(self, obj, value):
             assert value is not None
@@ -196,9 +185,8 @@ class _AbstractPrimitiveArrayStorageLocation(_AbstractPrimitiveStorageLocation):
 
     _immutable_fields_ = ['_ext_idx']
 
-    def __init__(self, nilObject, layout, field_idx):
-        _AbstractPrimitiveStorageLocation.__init__(self, nilObject, layout,
-                                                   field_idx)
+    def __init__(self, layout, field_idx):
+        _AbstractPrimitiveStorageLocation.__init__(self, layout, field_idx)
         self._ext_idx = field_idx - NUMBER_OF_PRIMITIVE_FIELDS
 
 
@@ -208,7 +196,7 @@ class LongArrayStorageLocation(_AbstractPrimitiveArrayStorageLocation):
         if self.is_set(obj):
             return Integer(obj._primFields[self._ext_idx])
         else:
-            return self._nilObject
+            return nilObject
 
     def write_location(self, obj, value):
         if isinstance(value, Integer):
@@ -225,7 +213,7 @@ class DoubleArrayStorageLocation(_AbstractPrimitiveArrayStorageLocation):
             val = longlong2float(obj._primFields[self._ext_idx])
             return Double(val)
         else:
-            return self._nilObject
+            return nilObject
 
     def write_location(self, obj, value):
         if isinstance(value, Double):

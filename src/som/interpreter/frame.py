@@ -1,5 +1,6 @@
 from rpython.rlib import jit
 from rpython.rlib.debug import make_sure_not_resized
+from som.vm.globals import nilObject
 
 
 class _FrameOnStackMarker(object):
@@ -23,10 +24,9 @@ class Frame(object):
     _virtualizable_    = ['_temps[*]']
 
     def __init__(self, receiver, arguments, arg_mapping, num_local_temps,
-                 num_context_temps, nilObject):
+                 num_context_temps):
         make_sure_not_resized(arguments)
         make_sure_not_resized(arg_mapping)
-        nilObject = jit.promote(nilObject)
         self = jit.hint(self, access_directly=True, fresh_virtualizable=True)
         self._receiver        = receiver
         self._arguments       = arguments

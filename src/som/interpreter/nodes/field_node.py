@@ -23,9 +23,9 @@ class FieldReadNode(_AbstractFieldNode):
     _immutable_fields_ = ['_read?']
     _child_nodes_      = ['_read']
 
-    def __init__(self, self_exp, nilObject, field_idx, source_section):
+    def __init__(self, self_exp, field_idx, source_section):
         _AbstractFieldNode.__init__(self, self_exp, field_idx, source_section)
-        self._read = self.adopt_child(create_read(nilObject, field_idx))
+        self._read = self.adopt_child(create_read(field_idx))
 
     def execute(self, frame):
         self_obj = self._self_exp.execute(frame)
@@ -38,14 +38,13 @@ class FieldReadNode(_AbstractFieldNode):
 
 class FieldWriteNode(_AbstractFieldNode):
 
-    _immutable_fields_ = ["_value_exp?", "_write?", "_nilObject"]
+    _immutable_fields_ = ["_value_exp?", "_write?"]
     _child_nodes_      = ["_value_exp",  "_write"]
 
-    def __init__(self, self_exp, value_exp, nilObject, field_idx, source_section):
+    def __init__(self, self_exp, value_exp, field_idx, source_section):
         _AbstractFieldNode.__init__(self, self_exp, field_idx, source_section)
         self._value_exp = self.adopt_child(value_exp)
-        self._write     = self.adopt_child(create_write(nilObject, field_idx))
-        self._nilObject = nilObject
+        self._write     = self.adopt_child(create_write(field_idx))
 
     def execute(self, frame):
         self_obj = self._self_exp.execute(frame)
@@ -53,15 +52,15 @@ class FieldWriteNode(_AbstractFieldNode):
         assert isinstance(self_obj, Object)
         assert isinstance(value, AbstractObject)
         if we_are_jitted():
-            self_obj.set_field(self._field_idx, value, self._nilObject)
+            self_obj.set_field(self._field_idx, value)
         else:
             self._write.write(self_obj, value)
         return value
 
 
-def create_read_node(self_exp, nilObject, index, source_section = None):
-    return FieldReadNode(self_exp, nilObject,index, source_section)
+def create_read_node(self_exp, index, source_section = None):
+    return FieldReadNode(self_exp, index, source_section)
 
 
-def create_write_node(self_exp, value_exp, nilObject, index, source_section = None):
-    return FieldWriteNode(self_exp, value_exp, nilObject, index, source_section)
+def create_write_node(self_exp, value_exp, index, source_section = None):
+    return FieldWriteNode(self_exp, value_exp, index, source_section)

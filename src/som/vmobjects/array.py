@@ -8,9 +8,8 @@ class Array(AbstractObject):
 
     _immutable_fields_ = ["_indexable_fields"]
     
-    def __init__(self, nilObject, number_of_indexable_fields, values = None):
+    def __init__(self, number_of_indexable_fields, values = None):
         AbstractObject.__init__(self)
-        nilObject = promote(nilObject)
 
         # Private array of indexable fields
         if values is None:
@@ -35,11 +34,10 @@ class Array(AbstractObject):
         return len(self._indexable_fields)
 
     def copy(self):
-        return Array(None, 0, self._indexable_fields[:])
+        return Array(0, self._indexable_fields[:])
 
     def copy_and_extend_with(self, value, universe):
-        result = Array(nilObject,
-                       self.get_number_of_indexable_fields() + 1)
+        result = Array(self.get_number_of_indexable_fields() + 1)
 
         self._copy_indexable_fields_to(result)
 
