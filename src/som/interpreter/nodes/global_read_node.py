@@ -1,4 +1,5 @@
 from .expression_node import ExpressionNode
+from som.vm.globals import nilObject
 
 
 class UninitializedGlobalReadNode(ExpressionNode):
@@ -26,7 +27,7 @@ class UninitializedGlobalReadNode(ExpressionNode):
             cached = ConstantGlobalReadNode(self._universe.falseObject,
                                             self.get_source_section())
         elif glob == "nil":
-            cached = ConstantGlobalReadNode(self._universe.nilObject,
+            cached = ConstantGlobalReadNode(nilObject,
                                             self.get_source_section())
         else:
             assoc = self._universe.get_globals_association(self._global_name)

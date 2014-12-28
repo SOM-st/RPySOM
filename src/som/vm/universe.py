@@ -1,6 +1,7 @@
 from rpython.rlib.debug import make_sure_not_resized
 from rpython.rlib.rrandom import Random
 from rpython.rlib import jit
+from som.vm.globals import nilObject
 
 from som.vmobjects.object        import Object
 from som.vmobjects.clazz         import Class
@@ -71,7 +72,6 @@ class Universe(object):
         self._symbol_table   = {}
         self._globals        = {}
 
-        self.nilObject      = None
         self.trueObject     = None
         self.falseObject    = None
         self.objectClass    = None
@@ -202,8 +202,8 @@ class Universe(object):
         self.exit(0)
 
     def _initialize_object_system(self):
-        # Allocate the nil object
-        self.nilObject = Object(None, None)
+
+
 
         # Allocate the Metaclass classes
         self.metaclassClass = self.new_metaclass_class()
@@ -221,7 +221,7 @@ class Universe(object):
         self.doubleClass     = self.new_system_class()
 
         # Setup the class reference for the nil object
-        self.nilObject.set_class(self.nilClass)
+        nilObject.set_class(self.nilClass)
 
         # Initialize the system classes
         self._initialize_system_class(self.objectClass,                 None, "Object")
@@ -266,7 +266,7 @@ class Universe(object):
         system_object = self.new_instance(self.systemClass)
 
         # Put special objects and classes into the dictionary of globals
-        self.set_global(self.symbol_for("nil"),    self.nilObject)
+        self.set_global(self.symbol_for("nil"),    nilObject)
         self.set_global(self.symbol_for("true"),   self.trueObject)
         self.set_global(self.symbol_for("false"),  self.falseObject)
         self.set_global(self.symbol_for("system"), system_object)
@@ -299,11 +299,11 @@ class Universe(object):
         return result
     
     def new_array_with_length(self, length):
-        return Array(self.nilObject, length)
+        return Array(nilObject, length)
   
     def new_array_from_list(self, values):
         make_sure_not_resized(values)
-        return Array(self.nilObject, 0, values)
+        return Array(nilObject, 0, values)
 
     def new_array_with_strings(self, strings):
         # Allocate a new array with the same length as the string array
@@ -329,7 +329,7 @@ class Universe(object):
         return Method(signature, invokable, embedded_block_methods, self)
 
     def new_instance(self, instance_class):
-        return Object(self.nilObject, instance_class,
+        return Object(nilObject, instance_class,
                       instance_class.get_number_of_instance_fields())
 
     @staticmethod
@@ -421,7 +421,7 @@ class Universe(object):
     def get_globals_association(self, name):
         assoc = self._globals.get(name, None)
         if assoc is None:
-            assoc = Assoc(name, self.nilObject)
+            assoc = Assoc(name, nilObject)
             self._globals[name] = assoc
         return assoc
 

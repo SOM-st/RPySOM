@@ -1,4 +1,5 @@
 from som.primitives.primitives import Primitives
+from som.vm.globals import nilObject
 
 from som.vmobjects.abstract_object import AbstractObject
 from som.vmobjects.array           import Array
@@ -17,9 +18,9 @@ def _signature(ivkbl, rcvr, args):
 def _invoke_on_with(ivkbl, rcvr, args):
     assert isinstance(rcvr,    Method)
     assert isinstance(args[0], AbstractObject)
-    assert isinstance(args[1], Array) or args[1] is ivkbl.get_universe().nilObject
+    assert isinstance(args[1], Array) or args[1] is nilObject
 
-    if args[1] is ivkbl.get_universe().nilObject:
+    if args[1] is nilObject:
         direct_args = []
     else:
         direct_args = args[1].get_indexable_fields()

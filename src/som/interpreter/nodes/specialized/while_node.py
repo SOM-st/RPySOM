@@ -1,6 +1,7 @@
 from rpython.rlib import jit
 
 from ..expression_node import ExpressionNode
+from som.vm.globals import nilObject
 
 from ....vmobjects.block  import Block
 from ....vmobjects.method import Method
@@ -25,7 +26,7 @@ class AbstractWhileMessageNode(ExpressionNode):
         body_block = self._body_expr.execute(frame)
 
         self._do_while(rcvr_value, body_block)
-        return self._universe.nilObject
+        return nilObject
 
 # def get_printable_location_while_value(body_method, node):
 #     assert isinstance(body_method, Method)
@@ -40,7 +41,7 @@ class AbstractWhileMessageNode(ExpressionNode):
 #
 #     def execute_evaluated(self, frame, rcvr_value, body_block):
 #         if rcvr_value is not self._predicate_bool:
-#             return self._universe.nilObject
+#             return nilObject
 #         body_method = body_block.get_method()
 #
 #         while True:
@@ -67,7 +68,7 @@ class WhileMessageNode(AbstractWhileMessageNode):
 
     def execute_evaluated(self, frame, rcvr, args):
         self._do_while(rcvr, args[0])
-        return self._universe.nilObject
+        return nilObject
 
     def _do_while(self, rcvr_block, body_block):
         condition_method = rcvr_block.get_method()

@@ -1,4 +1,5 @@
 from som.primitives.primitives import Primitives
+from som.vm.globals import nilObject
 from som.vmobjects.primitive   import Primitive
 
 from som.vm.universe import std_print, std_println
@@ -10,7 +11,7 @@ import time
 def _load(ivkbl, rcvr, args):
     argument = args[0]
     result = ivkbl.get_universe().load_class(argument)
-    return result if result else ivkbl.get_universe().nilObject
+    return result if result else nilObject
 
 
 def _exit(ivkbl, rcvr, args):
@@ -21,7 +22,7 @@ def _exit(ivkbl, rcvr, args):
 def _global(ivkbl, rcvr, args):
     argument = args[0]
     result = ivkbl.get_universe().get_global(argument)
-    return result if result else ivkbl.get_universe().nilObject
+    return result if result else nilObject
 
 
 def _has_global(ivkbl, rcvr, args):

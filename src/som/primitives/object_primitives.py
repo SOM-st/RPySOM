@@ -1,6 +1,7 @@
 from rpython.rlib.objectmodel import compute_identity_hash
 
 from som.primitives.primitives import Primitives
+from som.vm.globals import nilObject
 
 from som.vmobjects.object    import Object  
 from som.vmobjects.primitive import Primitive
@@ -64,7 +65,7 @@ def _instVarAtPut(ivkbl, rcvr, args):
     val  = args[1]
     idx  = args[0]
     rcvr.set_field(idx.get_embedded_integer() - 1, val,
-                   ivkbl.get_universe().nilObject)
+                   nilObject)
     return val
 
 

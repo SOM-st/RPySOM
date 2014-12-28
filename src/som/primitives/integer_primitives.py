@@ -1,6 +1,7 @@
 from rpython.rlib.rarithmetic import ovfcheck, LONG_BIT
 from rpython.rlib.rbigint import rbigint
 from som.primitives.primitives import Primitives
+from som.vm.globals import nilObject
 from som.vmobjects.biginteger import BigInteger
 from som.vmobjects.primitive   import Primitive
 from som.vmobjects.integer     import Integer
@@ -80,7 +81,7 @@ def _fromString(ivkbl, rcvr, args):
     param = args[0]
     
     if not isinstance(param, String):
-        return ivkbl.get_universe().nilObject
+        return nilObject
     
     int_value = int(param.get_embedded_string())
     return ivkbl.get_universe().new_integer(int_value)

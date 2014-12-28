@@ -1,6 +1,7 @@
 from rpython.rlib.jit import promote
 from .abstract_object import AbstractObject
 from rpython.rlib.debug import make_sure_not_resized
+from som.vm.globals import nilObject
 
 
 class Array(AbstractObject):
@@ -37,7 +38,7 @@ class Array(AbstractObject):
         return Array(None, 0, self._indexable_fields[:])
 
     def copy_and_extend_with(self, value, universe):
-        result = Array(universe.nilObject,
+        result = Array(nilObject,
                        self.get_number_of_indexable_fields() + 1)
 
         self._copy_indexable_fields_to(result)

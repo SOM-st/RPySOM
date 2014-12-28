@@ -1,4 +1,5 @@
 from ..expression_node   import ExpressionNode
+from som.vm.globals import nilObject
 from ....vmobjects.block import Block
 
 
@@ -87,7 +88,7 @@ class IfNode(ExpressionNode):
         else:
             assert (rcvr is self._universe.falseObject or
                     rcvr is self._universe.trueObject)
-            return self._universe.nilObject
+            return nilObject
 
     @staticmethod
     def can_specialize(selector, rcvr, args, node):

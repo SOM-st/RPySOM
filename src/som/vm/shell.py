@@ -1,6 +1,7 @@
 from rpython.rlib.objectmodel import we_are_translated
 
 from rlib.osext import raw_input
+from som.vm.globals import nilObject
 
 
 class Shell(object):
@@ -11,7 +12,7 @@ class Shell(object):
     def start(self):
         from som.vm.universe import std_println, error_println
         counter = 0
-        it = self._universe.nilObject
+        it = nilObject
 
         std_println("SOM Shell. Type \"quit\" to exit.\n")
 

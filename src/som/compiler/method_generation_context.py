@@ -1,6 +1,7 @@
 from collections import OrderedDict
 
 from rtruffle.source_section import SourceSection
+from som.vm.globals import nilObject
 
 from .variable                                 import Argument, Local
 
@@ -206,7 +207,7 @@ class MethodGenerationContext(object):
     def get_object_field_read(self, field_name):
         if not self.has_field(field_name):
             return None
-        return create_read_node(self._get_self_read(), self._universe.nilObject,
+        return create_read_node(self._get_self_read(), nilObject,
                                 self.get_field_index(field_name))
 
     def get_global_read(self, var_name):
@@ -216,7 +217,7 @@ class MethodGenerationContext(object):
         if not self.has_field(field_name):
             return None
         return create_write_node(self._get_self_read(), exp,
-                                 self._universe.nilObject,
+                                 nilObject,
                                  self.get_field_index(field_name))
 
     def has_field(self, field):

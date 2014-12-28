@@ -1,5 +1,6 @@
 from rpython.rlib import jit
 from som.interpreter.objectstorage.object_layout import ObjectLayout
+from som.vm.globals import nilObject
 from som.vmobjects.array import Array
 from som.vmobjects.object import Object
 
@@ -15,15 +16,15 @@ class Class(Object):
                           "_layout_for_instances?"]
     
     def __init__(self, universe, number_of_fields = -1, obj_class = None):
-        Object.__init__(self, universe.nilObject, obj_class, number_of_fields)
-        self._super_class = universe.nilObject
+        Object.__init__(self, nilObject, obj_class, number_of_fields)
+        self._super_class = nilObject
         self._name        = None
         self._instance_fields = None
         self._instance_invokables = None
         self._invokables_table = {}
         self._universe = universe
         if number_of_fields >= 0:
-            self._layout_for_instances = ObjectLayout(universe.nilObject,
+            self._layout_for_instances = ObjectLayout(nilObject,
                                                       number_of_fields, self)
         else:
             self._layout_for_instances = None
@@ -35,7 +36,7 @@ class Class(Object):
         self._super_class = value
     
     def has_super_class(self):
-        return self._super_class is not self._universe.nilObject
+        return self._super_class is not nilObject
 
     def get_name(self):
         return self._name
@@ -53,7 +54,7 @@ class Class(Object):
                 value.get_number_of_indexable_fields() !=
                 self._layout_for_instances.get_number_of_fields()):
             self._layout_for_instances = ObjectLayout(
-                self._universe.nilObject,
+                nilObject,
                 value.get_number_of_indexable_fields(), self)
   
     def get_instance_invokables(self):

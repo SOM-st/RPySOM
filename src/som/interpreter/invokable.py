@@ -3,6 +3,7 @@ from rpython.rlib.debug import make_sure_not_resized
 from rtruffle.node import Node
 
 from .frame import Frame
+from som.vm.globals import nilObject
 
 
 def get_printable_location(invokable):
@@ -48,7 +49,7 @@ class Invokable(Node):
 
         frame = Frame(receiver, arguments, self._arg_mapping,
                       self._num_local_temps, self._num_context_temps,
-                      self._universe.nilObject)
+                      nilObject)
         jitdriver.jit_merge_point(self=self, receiver=receiver, arguments=arguments, frame=frame)
 
         return self._expr_or_sequence.execute(frame)
