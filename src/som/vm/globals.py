@@ -1,8 +1,5 @@
+from som.vmobjects.object_without_fields import ObjectWithoutFields
 
-def _create_empty_obj():
-    # Try to work around the include cycle
-    from som.vmobjects.object import Object
-    return Object(None, None)
 
 # The nil object
-nilObject = _create_empty_obj()
+nilObject = ObjectWithoutFields(None)

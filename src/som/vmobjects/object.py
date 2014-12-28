@@ -3,13 +3,14 @@ from som.interpreter.objectstorage.object_layout import ObjectLayout
 from som.interpreter.objectstorage.layout_transitions import \
     UninitializedStorageLocationException, GeneralizeStorageLocationException
 from som.vmobjects.abstract_object import AbstractObject
+from som.vmobjects.object_without_fields import ObjectWithoutFields
 
 _EMPTY_LIST = []
 
 
-class Object(AbstractObject):
+class Object(ObjectWithoutFields):
 
-    _immutable_fields_ = ["_class", "_object_layout?",
+    _immutable_fields_ = ["_object_layout?",
                           "_fields?", "_primFields?"]
     
     # Static field indices and number of object fields
@@ -18,12 +19,12 @@ class Object(AbstractObject):
     def __init__(self, nilObject, obj_class,
                  number_of_fields = NUMBER_OF_OBJECT_FIELDS):
         nilObject = promote(nilObject)
+        cls = obj_class if obj_class is not None else nilObject
+        ObjectWithoutFields.__init__(self, cls)
 
         if obj_class is not None:
-            self._class = obj_class
             self._object_layout = obj_class.get_layout_for_instances()
         else:
-            self._class = nilObject
             self._object_layout = ObjectLayout(nilObject, number_of_fields)
 
         # IMPORTANT: when changing the number of preallocated fields,
@@ -130,12 +131,6 @@ class Object(AbstractObject):
 
         assert layout is not self._object_layout
         self._set_layout_and_transfer_fields(layout, nilObject)
-
-    def get_class(self, universe):
-        return self._class
-
-    def set_class(self, value):
-        self._class = value
 
     def get_field_name(self, index):
         # Get the name of the field with the given index

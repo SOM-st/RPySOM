@@ -6,6 +6,7 @@ from som.vm.globals import nilObject
 from som.vmobjects.object        import Object
 from som.vmobjects.clazz         import Class
 from som.vmobjects.array         import Array
+from som.vmobjects.object_without_fields import ObjectWithoutFields
 from som.vmobjects.symbol        import Symbol
 from som.vmobjects.method        import Method
 from som.vmobjects.integer       import Integer
@@ -329,8 +330,11 @@ class Universe(object):
         return Method(signature, invokable, embedded_block_methods, self)
 
     def new_instance(self, instance_class):
-        return Object(nilObject, instance_class,
-                      instance_class.get_number_of_instance_fields())
+        num_fields = instance_class.get_number_of_instance_fields()
+        if num_fields == 0:
+            return ObjectWithoutFields(instance_class)
+        else:
+            return Object(instance_class, num_fields)
 
     @staticmethod
     def new_integer(value):
