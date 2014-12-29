@@ -49,7 +49,7 @@ def _performInSuperclass(ivkbl, rcvr, args):
 
 
 def _performWithArguments(ivkbl, rcvr, arguments):
-    arg_arr  = arguments[1].get_indexable_fields()
+    arg_arr  = arguments[1].as_argument_array()
     selector = arguments[0]
 
     invokable = rcvr.get_class(ivkbl.get_universe()).lookup_invokable(selector)

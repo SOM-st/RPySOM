@@ -129,7 +129,7 @@ class Class(Object):
                 return False
   
         # Append the given method to the array of instance methods
-        self.set_instance_invokables(self.get_instance_invokables().copy_and_extend_with(value, self._universe))
+        self.set_instance_invokables(self.get_instance_invokables().copy_and_extend_with(value))
         return True
   
     def add_instance_primitive(self, value, display_warning):

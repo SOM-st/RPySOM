@@ -12,7 +12,7 @@ class AbstractObject(object):
         return invokable.invoke(self, arguments)
 
     @staticmethod
-    @jit.unroll_safe
+    # @jit.unroll_safe
     def _prepare_dnu_arguments(arguments, selector, universe):
         # Compute the number of arguments
         selector = jit.promote(selector)
@@ -20,9 +20,9 @@ class AbstractObject(object):
         number_of_arguments = selector.get_number_of_signature_arguments() - 1 ## without self
         assert number_of_arguments == len(arguments)
 
-        arguments_array = universe.new_array_with_length(number_of_arguments)
-        for i in range(0, number_of_arguments):
-            arguments_array.set_indexable_field(i, arguments[i])
+        # TODO: make sure this is still optimizing DNU properly
+        # don't want to see any overhead just for using strategies
+        arguments_array = universe.new_array_from_list(arguments)
         args = [selector, arguments_array]
         return args
 

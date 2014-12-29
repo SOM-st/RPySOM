@@ -76,36 +76,16 @@ def _copy(ivkbl, rcvr, args):
     return rcvr.copy()
 
 
-def get_put_all_printable_location(block_method):
-    assert isinstance(block_method, Method)
-    return "#putAll: %s" % block_method.merge_point_string()
-
-put_all_driver = jit.JitDriver(greens=['block_method'], reds='auto',
-                          get_printable_location=get_put_all_printable_location)
-
-
-def _putAllWithBlock(rcvr, block):
-    block_method = block.get_method()
-
-    arr = rcvr.get_indexable_fields()
-    i = 0
-    length = rcvr.get_number_of_indexable_fields()
-    while i < length:  # the array itself is zero indexed
-        put_all_driver.jit_merge_point(block_method = block_method)
-        arr[i] = block_method.invoke(block, [])
-        i += 1
-    return rcvr
-
-
 def _putAll(ivkbl, rcvr, args):
     arg = args[0]
     if isinstance(arg, Block):
-        return _putAllWithBlock(rcvr, arg)
+        rcvr.set_all_with_block(arg)
+        return rcvr
 
     ## It is a simple value, just put it into the array
-    arr = rcvr.get_indexable_fields()
-    for i, _ in enumerate(arr):
-        arr[i] = arg
+
+    ## TODO: move to array, and adapt to use strategies
+    rcvr.set_all(arg)
     return rcvr
 
 

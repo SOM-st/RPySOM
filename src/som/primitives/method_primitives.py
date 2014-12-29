@@ -23,7 +23,7 @@ def _invoke_on_with(ivkbl, rcvr, args):
     if args[1] is nilObject:
         direct_args = []
     else:
-        direct_args = args[1].get_indexable_fields()
+        direct_args = args[1].as_argument_array()
     return rcvr.invoke(args[0], direct_args)
 
 
