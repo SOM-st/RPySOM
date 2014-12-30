@@ -305,6 +305,9 @@ class _EmptyStrategy(_ArrayStrategy):
     def set_idx(self, array, idx, value):
         size = self._unerase(array._storage)
         if 0 <= idx < size:
+            if value is nilObject:
+                return  # everything is nil already, avoids transition...
+
             assert isinstance(value, AbstractObject)
             # We need to transition to the _PartiallyEmpty strategy, because
             # we are not guaranteed to set all elements of the array.
