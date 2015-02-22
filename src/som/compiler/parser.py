@@ -505,8 +505,12 @@ class Parser(object):
         if self._sym == Symbol.Integer:
             return self._literal_integer(negate_value)
         else:
-            assert self._sym == Symbol.Double
-            return self._literal_double(negate_value)
+            if self._sym == Symbol.Double:
+                return self._literal_double(negate_value)
+            else:
+                raise ParseError("Could not parse double. "
+                                 "Expected a number but got '%s'" % self._text,
+                                 Symbol.Double, self)
 
     def _negative_decimal(self):
         self._expect(Symbol.Minus)
