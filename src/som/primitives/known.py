@@ -34,14 +34,15 @@ def _setup_primitives():
     all_members = reduce(lambda all, each: all + each, all_members)
     all_prims = filter(_is_primitives_class, all_members)
     prim_pairs = map(lambda (name, cls):
-                (name[:name.find("Primitives")], cls),
-                all_prims)
-    print ""
-    print "SOM PRIMITIVE DISCOVERY: following primitives found:"
-    for name, clazz in prim_pairs:
-        print "   - %s" % name
-    print "Expected number of primitive files: %d, found %d" % (EXPECTED_NUMBER_OF_PRIMITIVE_FILES, len(prim_pairs))
+                     (name[:name.find("Primitives")], cls), all_prims)
+
     if EXPECTED_NUMBER_OF_PRIMITIVE_FILES != len(prim_pairs):
+        print ""
+        print "SOM PRIMITIVE DISCOVERY: following primitives found:"
+        for name, clazz in prim_pairs:
+            print "   - %s" % name
+        print "Expected number of primitive files: %d, found %d" % (
+            EXPECTED_NUMBER_OF_PRIMITIVE_FILES, len(prim_pairs))
         print "ERROR: did not find the expected number of primitive files!"
         import sys
         sys.exit(1)
