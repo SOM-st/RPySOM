@@ -87,6 +87,9 @@ class Lexer(object):
         while self._current_char() != '\'':
             self._bufp += 1
             self._text += self._current_char()
+            while self._end_of_buffer():
+                if self._fill_buffer() == -1:
+                    return
         self._text = self._text[:-1]
         self._bufp += 1
 
