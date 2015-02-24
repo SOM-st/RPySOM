@@ -79,18 +79,48 @@ class Lexer(object):
         elif self._current_char() == '%':
             self._match(Symbol.Per)
 
+    def _lex_escape_char(self):
+        if self._end_of_buffer():
+            raise Exception("Invalid escape sequence")
+
+        if self._current_char() == "t":
+            self._text += "\t"
+        elif self._current_char() == "b":
+            self._text += "\b"
+        elif self._current_char() == "n":
+            self._text += "\n"
+        elif self._current_char() == "r":
+            self._text += "\r"
+        elif self._current_char() == "f":
+            self._text += "\f"
+        elif self._current_char() == "'":
+            self._text += "'"
+        elif self._current_char() == "\\":
+            self._text += "\\"
+
+        self._bufp += 1
+
+    def _lex_string_char(self):
+        if self._current_char() == '\\':
+            self._bufp += 1
+            self._lex_escape_char()
+        else:
+            self._text += self._current_char()
+            self._bufp += 1
+
+        while self._end_of_buffer():
+            if self._fill_buffer() == -1:
+                return
+
     def _lex_string(self):
         self._sym = Symbol.STString
         self._symc = '\0'
         self._bufp += 1
-        self._text = self._current_char()
+        self._text = ""
+
         while self._current_char() != '\'':
-            self._bufp += 1
-            self._text += self._current_char()
-            while self._end_of_buffer():
-                if self._fill_buffer() == -1:
-                    return
-        self._text = self._text[:-1]
+            self._lex_string_char()
+
         self._bufp += 1
 
     def get_sym(self):
