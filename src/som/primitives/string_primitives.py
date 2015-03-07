@@ -1,4 +1,4 @@
-from rpython.rlib.objectmodel import compute_identity_hash
+from rpython.rlib.objectmodel import compute_hash
 
 from som.primitives.primitives import Primitives
 from som.vmobjects.primitive import Primitive
@@ -53,7 +53,7 @@ def _substring(ivkbl, rcvr, args):
 
 def _hashcode(ivkbl, rcvr, args):
     return ivkbl.get_universe().new_integer(
-        compute_identity_hash(rcvr.get_embedded_string()))
+        compute_hash(rcvr.get_embedded_string()))
 
 
 class StringPrimitives(Primitives):
