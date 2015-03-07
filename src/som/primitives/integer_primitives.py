@@ -138,6 +138,16 @@ def _bitXor(ivkbl, rcvr, args):
                                 ^ right.get_embedded_integer())
 
 
+def _as32BitSignedValue(ivkbl, rcvr, args):
+    val = rffi.cast(lltype.Signed, rffi.cast(rffi.INT, rcvr.get_embedded_integer()))
+    return ivkbl.get_universe().new_integer(val)
+
+
+def _as32BitUnsignedValue(ivkbl, rcvr, args):
+    val = rffi.cast(lltype.Signed, rffi.cast(rffi.UINT, rcvr.get_embedded_integer()))
+    return ivkbl.get_universe().new_integer(val)
+
+
 def _equalsequals(ivkbl, rcvr, args):
     op2 = args[0]
     universe = ivkbl.get_universe()
@@ -173,5 +183,7 @@ class IntegerPrimitives(Primitives):
         self._install_instance_primitive(Primitive("<<", self._universe, _leftShift))
         self._install_instance_primitive(Primitive("bitXor:", self._universe, _bitXor))
         self._install_instance_primitive(Primitive(">>>", self._universe, _unsignedRightShift))
+        self._install_instance_primitive(Primitive("as32BitSignedValue", self._universe, _as32BitSignedValue))
+        self._install_instance_primitive(Primitive("as32BitUnsignedValue", self._universe, _as32BitUnsignedValue))
 
         self._install_class_primitive(Primitive("fromString:", self._universe, _fromString))
