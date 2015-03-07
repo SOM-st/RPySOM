@@ -1,4 +1,4 @@
-from rpython.rlib.rfloat import round_double
+from rpython.rlib.rfloat import round_double, INFINITY
 
 from som.primitives.primitives import Primitives
 from som.vmobjects.primitive   import Primitive
@@ -70,6 +70,10 @@ def _round(ivkbl, rcvr, args):
     return ivkbl.get_universe().new_integer(int_value)
 
 
+def _positive_infinity(ivkbl, rcvr, args):
+    return ivkbl.get_universe().new_double(INFINITY)
+
+
 class DoublePrimitives(Primitives):
 
     def install_primitives(self):        
@@ -86,3 +90,5 @@ class DoublePrimitives(Primitives):
         self._install_instance_primitive(Primitive("<=",       self._universe, _lessThanOrEqual))
         self._install_instance_primitive(Primitive(">",        self._universe, _greaterThan))
         self._install_instance_primitive(Primitive("<>",       self._universe, _unequals))
+
+        self._install_class_primitive(Primitive("PositiveInfinity", self._universe, _positive_infinity))
