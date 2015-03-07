@@ -1,5 +1,7 @@
 from rpython.rlib.rarithmetic import ovfcheck, LONG_BIT
 from rpython.rlib.rbigint import rbigint
+from rpython.rtyper.lltypesystem import rffi
+from rpython.rtyper.lltypesystem import lltype
 from som.primitives.primitives import Primitives
 from som.vm.globals import nilObject
 from som.vmobjects.biginteger import BigInteger
@@ -110,6 +112,22 @@ def _leftShift(ivkbl, rcvr, args):
             rbigint.fromint(l).lshift(r))
 
 
+def _unsignedRightShift(ivkbl, rcvr, args):
+    right_obj = args[0]
+    left      = rcvr
+    universe  = ivkbl.get_universe()
+
+    assert isinstance(right_obj, Integer)
+
+    l = left.get_embedded_integer()
+    r = right_obj.get_embedded_integer()
+
+    u_l = rffi.cast(lltype.Unsigned, l)
+    u_r = rffi.cast(lltype.Unsigned, r)
+
+    return universe.new_integer(rffi.cast(lltype.Signed, u_l >> u_r))
+
+
 def _bitXor(ivkbl, rcvr, args):
     right    = args[0]
     left     = rcvr
@@ -154,5 +172,6 @@ class IntegerPrimitives(Primitives):
 
         self._install_instance_primitive(Primitive("<<", self._universe, _leftShift))
         self._install_instance_primitive(Primitive("bitXor:", self._universe, _bitXor))
+        self._install_instance_primitive(Primitive(">>>", self._universe, _unsignedRightShift))
 
         self._install_class_primitive(Primitive("fromString:", self._universe, _fromString))
