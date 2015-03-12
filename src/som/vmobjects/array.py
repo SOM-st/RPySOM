@@ -20,6 +20,11 @@ def put_all_nil_pl(block_method):
     return "#putAll: (empty_strategy) %s" % block_method.merge_point_string()
 
 
+def put_all_double_pl(block_method):
+    assert isinstance(block_method, Method)
+    return "#putAll: (double_strategy) %s" % block_method.merge_point_string()
+
+
 def put_all_long_pl(block_method):
     assert isinstance(block_method, Method)
     return "#putAll: (long_strategy) %s" % block_method.merge_point_string()
@@ -28,6 +33,8 @@ put_all_obj_driver  = JitDriver(greens=['block_method'], reds='auto',
                                 get_printable_location=put_all_obj_pl)
 put_all_nil_driver  = JitDriver(greens=['block_method'], reds='auto',
                                 get_printable_location=put_all_nil_pl)
+put_all_double_driver = JitDriver(greens=['block_method'], reds='auto',
+                                  get_printable_location=put_all_double_pl)
 put_all_long_driver = JitDriver(greens=['block_method'], reds='auto',
                                 get_printable_location=put_all_long_pl)
 
@@ -43,6 +50,10 @@ class _ArrayStrategy(object):
             int_arr = [value.get_embedded_integer()] * size
             array._storage  = _long_strategy._erase(int_arr)
             array._strategy = _long_strategy
+        elif isinstance(value, Double):
+            int_arr = [value.get_embedded_double()] * size
+            array._storage  = _double_strategy._erase(int_arr)
+            array._strategy = _double_strategy
         else:
             obj_arr = [value] * size
             array._storage  = _obj_strategy._erase(obj_arr)
@@ -72,8 +83,12 @@ class _ArrayStrategy(object):
             long_store[0] = first.get_embedded_integer()
             _ArrayStrategy._set_remaining_with_block_as_long(array, block, size,
                                                              1, long_store)
-        # elif isinstance(first, Double):
-        #     do double
+        elif isinstance(first, Double):
+            double_store = [0.0] * size
+            double_store[0] = first.get_embedded_double()
+            _ArrayStrategy._set_remaining_with_block_as_double(array, block,
+                                                               size, 1,
+                                                               double_store)
         else:
             obj_store = [None] * size
             obj_store[0] = first
@@ -122,6 +137,28 @@ class _ArrayStrategy(object):
             next_i += 1
         array._strategy = _long_strategy
         array._storage  = _long_strategy._erase(storage)
+
+    @staticmethod
+    def _set_remaining_with_block_as_double(array, block, size, next_i, storage):
+        block_method = block.get_method()
+        while next_i < size:
+            put_all_double_driver.jit_merge_point(block_method = block_method)
+            result = block_method.invoke(block, [])
+            if isinstance(result, Double):
+                storage[next_i] = result.get_embedded_double()
+            else:
+                # something else, so, let's go to the object strategy
+                new_storage = [None] * size
+                for i in range(0, next_i + 1):
+                    new_storage[i] = Double(storage[i])
+                _ArrayStrategy._set_remaining_with_block_as_obj(array, block,
+                                                                size,
+                                                                next_i + 1,
+                                                                new_storage)
+                return
+            next_i += 1
+        array._strategy = _double_strategy
+        array._storage  = _double_strategy._erase(storage)
 
 
     @staticmethod
@@ -275,9 +312,81 @@ class _LongStrategy(_ArrayStrategy):
 
         return Array._from_storage_and_strategy(self._erase(new), _long_strategy)
 
-# class _DoubleStrategy(object):
-#     pass
-#
+
+class _DoubleStrategy(_ArrayStrategy):
+
+    _erase, _unerase = rerased.new_erasing_pair("double_list")
+    _erase   = staticmethod(_erase)
+    _unerase = staticmethod(_unerase)
+
+    def get_idx(self, storage, idx):
+        store = self._unerase(storage)
+        assert isinstance(store, list)
+        assert isinstance(store[idx], float)
+        return Double(store[idx])
+
+    def set_idx(self, array, idx, value):
+        assert isinstance(array, Array)
+        assert isinstance(value, Double)
+        store = self._unerase(array._storage)
+        store[idx] = value.get_embedded_double()
+
+    def set_all(self, array, value):
+        assert isinstance(array, Array)
+
+        store = self._unerase(array._storage)
+        self._set_all_with_value(array, value, len(store))
+
+        # we could avoid the allocation of the new array if value is an Integer
+        # for i, _ in enumerate(store):
+        #     store[i] = value.get_embedded_integer()
+
+    def set_all_with_block(self, array, block):
+        assert isinstance(array, Array)
+        store = self._unerase(array._storage)
+
+        # TODO: perhaps we can sometimes avoid the extra allocation of the underlying storage
+        self._set_all_with_block(array, block, len(store))
+
+    def as_arguments_array(self, storage):
+        store = self._unerase(storage)
+        return [Double(v) for v in store]
+
+    def get_size(self, storage):
+        return len(self._unerase(storage))
+
+    @staticmethod
+    def new_storage_for(size):
+        return _DoubleStrategy._erase([0] * size)
+
+    @staticmethod
+    def new_storage_with_values(values):
+        assert isinstance(values, list)
+        make_sure_not_resized(values)
+        # TODO: do we guarantee this externally?
+        new = [v.get_embedded_double() for v in values]
+        return _DoubleStrategy._erase(new)
+
+    def copy(self, storage):
+        store = self._unerase(storage)
+        return Array._from_storage_and_strategy(self._erase(store[:]),
+                                                _double_strategy)
+
+    def copy_and_extend_with(self, storage, value):
+        assert isinstance(value, Double)
+        store = self._unerase(storage)
+        old_size = len(store)
+        new_size = old_size + 1
+
+        new = [None] * new_size
+
+        for i, _ in enumerate(store):
+            new[i] = store[i]
+
+        new[old_size]  = value.get_embedded_double()
+
+        return Array._from_storage_and_strategy(self._erase(new),
+                                                _double_strategy)
 
 
 class _EmptyStrategy(_ArrayStrategy):
@@ -423,13 +532,19 @@ class _PartiallyEmptyStrategy(_ArrayStrategy):
                 store.type = Integer
             elif store.type is Double:
                 store.type = Object
+        elif isinstance(value, Double):
+            if store.type is None:
+                store.type = Double
+            elif store.type is Integer:
+                store.type = Object
         else:
-            # TODO: support for Double!!
             store.type = Object
 
         if store.empty_elements == 0:
             if store.type is Integer:
                 array._strategy = _long_strategy
+            elif store.type is Double:
+                array._strategy = _double_strategy
             else:
                 array._strategy = _obj_strategy
             array._storage = array._strategy.new_storage_with_values(store.storage)
@@ -496,7 +611,7 @@ class _PartiallyEmptyStrategy(_ArrayStrategy):
 
 _obj_strategy    = _ObjectStrategy()
 _long_strategy   = _LongStrategy()
-# _double_strategy = _DoubleStrategy()
+_double_strategy = _DoubleStrategy()
 _empty_strategy  = _EmptyStrategy()
 _partially_empty_strategy = _PartiallyEmptyStrategy()
 
@@ -561,8 +676,8 @@ class Array(AbstractObject):
 
         if is_empty:
             return _empty_strategy
-        # if only_double:
-        #     return _double_strategy
+        if only_double:
+            return _double_strategy
         if only_long:
             return _long_strategy
         return _obj_strategy
