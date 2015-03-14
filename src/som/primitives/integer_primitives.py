@@ -55,6 +55,10 @@ def _mod(ivkbl, rcvr, args):
     return rcvr.prim_modulo(args[0], ivkbl.get_universe())
 
 
+def _remainder(ivkbl, rcvr, args):
+    return rcvr.prim_remainder(args[0], ivkbl.get_universe())
+
+
 def _and(ivkbl, rcvr, args):
     return rcvr.prim_and(args[0], ivkbl.get_universe())
 
@@ -173,6 +177,7 @@ class IntegerPrimitives(Primitives):
         self._install_instance_primitive(Primitive("//", self._universe, _doubleDiv))
         self._install_instance_primitive(Primitive("/",  self._universe, _intDiv))
         self._install_instance_primitive(Primitive("%",  self._universe, _mod))
+        self._install_instance_primitive(Primitive("rem:",self._universe, _remainder))
         self._install_instance_primitive(Primitive("&",  self._universe, _and))
         self._install_instance_primitive(Primitive("=",  self._universe, _equals))
         self._install_instance_primitive(Primitive("<",  self._universe, _lessThan))
