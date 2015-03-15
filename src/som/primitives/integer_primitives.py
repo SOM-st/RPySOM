@@ -165,7 +165,7 @@ def _equalsequals(ivkbl, rcvr, args):
     if isinstance(op2, Integer) or isinstance(op2, BigInteger):
         return rcvr.prim_equals(op2, universe)
     else:
-        return universe.falseObject
+        return falseObject
 
 
 def _to(ivkbl, rcvr, args):
