@@ -2,6 +2,8 @@ import math
 
 from rpython.rlib.rarithmetic import ovfcheck
 from rpython.rlib.rbigint import rbigint, _divrem
+from rpython.rtyper.lltypesystem import lltype
+from rpython.rtyper.lltypesystem.lloperation import llop
 
 from som.vmobjects.abstract_object import AbstractObject
 from som.vmobjects.biginteger import BigInteger
@@ -174,7 +176,7 @@ class Integer(AbstractObject):
         else:
             l = self._embedded_integer
             r = right.get_embedded_integer()
-            return universe.new_integer(int(math.fmod(l, r)))
+            return universe.new_integer(llop.int_mod(lltype.Signed, l, r))
 
     def prim_and(self, right, universe):
         if isinstance(right, BigInteger):
