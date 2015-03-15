@@ -3,7 +3,7 @@ from rpython.rlib.rbigint import rbigint
 from rpython.rtyper.lltypesystem import rffi
 from rpython.rtyper.lltypesystem import lltype
 from som.primitives.primitives import Primitives
-from som.vm.globals import nilObject
+from som.vm.globals import nilObject, falseObject
 from som.vmobjects.array import Array
 from som.vmobjects.biginteger import BigInteger
 from som.vmobjects.primitive   import Primitive
