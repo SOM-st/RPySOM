@@ -4,6 +4,7 @@ from rpython.rtyper.lltypesystem import rffi
 from rpython.rtyper.lltypesystem import lltype
 from som.primitives.primitives import Primitives
 from som.vm.globals import nilObject
+from som.vmobjects.array import Array
 from som.vmobjects.biginteger import BigInteger
 from som.vmobjects.primitive   import Primitive
 from som.vmobjects.integer     import Integer
@@ -142,6 +143,12 @@ def _bitXor(ivkbl, rcvr, args):
                                 ^ right.get_embedded_integer())
 
 
+def _abs(ivkbl, rcvr, args):
+    left     = rcvr
+    universe = ivkbl.get_universe()
+    return universe.new_integer(abs(left.get_embedded_integer()))
+
+
 def _as32BitSignedValue(ivkbl, rcvr, args):
     val = rffi.cast(lltype.Signed, rffi.cast(rffi.INT, rcvr.get_embedded_integer()))
     return ivkbl.get_universe().new_integer(val)
@@ -159,6 +166,14 @@ def _equalsequals(ivkbl, rcvr, args):
         return rcvr.prim_equals(op2, universe)
     else:
         return universe.falseObject
+
+
+def _to(ivkbl, rcvr, args):
+    assert isinstance(rcvr, Integer)
+    arg = args[0]
+    assert isinstance(arg, Integer)
+    return Array.from_integers(range(rcvr.get_embedded_integer(),
+        arg.get_embedded_integer() + 1))
 
 
 class IntegerPrimitives(Primitives):
@@ -190,5 +205,8 @@ class IntegerPrimitives(Primitives):
         self._install_instance_primitive(Primitive(">>>", self._universe, _unsignedRightShift))
         self._install_instance_primitive(Primitive("as32BitSignedValue", self._universe, _as32BitSignedValue))
         self._install_instance_primitive(Primitive("as32BitUnsignedValue", self._universe, _as32BitUnsignedValue))
+
+        self._install_instance_primitive(Primitive("abs", self._universe, _abs))
+        self._install_instance_primitive(Primitive("to:", self._universe, _to))
 
         self._install_class_primitive(Primitive("fromString:", self._universe, _fromString))

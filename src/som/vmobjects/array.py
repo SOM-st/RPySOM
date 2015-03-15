@@ -651,6 +651,11 @@ class Array(AbstractObject):
         return self
 
     @staticmethod
+    def from_integers(ints):
+        return Array._from_storage_and_strategy(_long_strategy._erase(ints),
+                                                _long_strategy)
+
+    @staticmethod
     def from_objects(values):
         return Array.from_values(values, _obj_strategy)
 
