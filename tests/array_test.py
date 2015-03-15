@@ -1,6 +1,7 @@
 import unittest
+from som.vm.globals import trueObject
 from som.vmobjects.array import Array, _EmptyStrategy, _ObjectStrategy, \
-    _LongStrategy, _PartiallyEmptyStrategy
+    _LongStrategy, _PartiallyEmptyStrategy, _BoolStrategy
 from som.vmobjects.integer import Integer
 
 
@@ -27,6 +28,14 @@ class ArrayTest(unittest.TestCase):
         arr.set_indexable_field(0, int_obj)
         self.assertIsInstance(arr._strategy, _LongStrategy)
         self.assertEqual(42, arr.get_indexable_field(0).get_embedded_integer())
+
+    def test_empty_to_bool(self):
+        arr = Array.from_size(1)
+        self.assertIsInstance(arr._strategy, _EmptyStrategy)
+
+        arr.set_indexable_field(0, trueObject)
+        self.assertIsInstance(arr._strategy, _BoolStrategy)
+        self.assertEqual(trueObject, arr.get_indexable_field(0))
 
     def test_copy_and_extend_partially_empty(self):
         arr = Array.from_size(3)
