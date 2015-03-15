@@ -1,7 +1,7 @@
 from rpython.rlib.objectmodel import compute_identity_hash
 
 from som.primitives.primitives import Primitives
-from som.vm.globals import nilObject
+from som.vm.globals import nilObject, falseObject, trueObject
 
 from som.vmobjects.object    import Object  
 from som.vmobjects.primitive import Primitive
@@ -12,9 +12,9 @@ def _equals(ivkbl, rcvr, args):
     op1 = args[0]
     op2 = rcvr
     if op1 is op2:
-        return ivkbl.get_universe().trueObject
+        return trueObject
     else:
-        return ivkbl.get_universe().falseObject
+        return falseObject
 
 
 def _hashcode(ivkbl, rcvr, args):

@@ -4,6 +4,7 @@ from rpython.rlib.rarithmetic import ovfcheck
 from rpython.rlib.rbigint import rbigint, _divrem
 from rpython.rtyper.lltypesystem import lltype
 from rpython.rtyper.lltypesystem.lloperation import llop
+from som.vm.globals import trueObject, falseObject
 
 from som.vmobjects.abstract_object import AbstractObject
 from som.vmobjects.biginteger import BigInteger
@@ -42,9 +43,9 @@ class Integer(AbstractObject):
             result = self._embedded_integer < right.get_embedded_integer()
 
         if result:
-            return universe.trueObject
+            return trueObject
         else:
-            return universe.falseObject
+            return falseObject
 
     def prim_less_than_or_equal(self, right, universe):
         # Check second parameter type:
@@ -57,9 +58,9 @@ class Integer(AbstractObject):
             result = self._embedded_integer <= right.get_embedded_integer()
 
         if result:
-            return universe.trueObject
+            return trueObject
         else:
-            return universe.falseObject
+            return falseObject
 
     def prim_greater_than(self, right, universe):
         # Check second parameter type:
@@ -72,9 +73,9 @@ class Integer(AbstractObject):
             result = self._embedded_integer > right.get_embedded_integer()
 
         if result:
-            return universe.trueObject
+            return trueObject
         else:
-            return universe.falseObject
+            return falseObject
 
     def prim_as_string(self, universe):
         return universe.new_string(str(self._embedded_integer))
@@ -201,12 +202,12 @@ class Integer(AbstractObject):
             r = right.get_embedded_integer()
             result = l == r
         else:
-            return universe.falseObject
+            return falseObject
 
         if result:
-            return universe.trueObject
+            return trueObject
         else:
-            return universe.falseObject
+            return falseObject
 
     def prim_unequals(self, right, universe):
         if isinstance(right, BigInteger):
@@ -219,9 +220,9 @@ class Integer(AbstractObject):
             r = right.get_embedded_integer()
             result = l != r
         else:
-            return universe.trueObject
+            return trueObject
 
         if result:
-            return universe.trueObject
+            return trueObject
         else:
-            return universe.falseObject
+            return falseObject

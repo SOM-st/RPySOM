@@ -1,6 +1,7 @@
 from rpython.rlib.objectmodel import compute_hash
 
 from som.primitives.primitives import Primitives
+from som.vm.globals import falseObject, trueObject
 from som.vmobjects.primitive import Primitive
 from som.vmobjects.string import String
 from som.vmobjects.symbol import Symbol
@@ -28,13 +29,13 @@ def _equals(ivkbl, rcvr, args):
     if isinstance(op1, String):
         if isinstance(op1, Symbol) and isinstance(op2, Symbol):
             if op1 is op2:
-                return universe.trueObject
+                return trueObject
             else:
-                return universe.falseObject
+                return falseObject
         if isinstance(op2, String):
             if op1.get_embedded_string() == op2.get_embedded_string():
-                return universe.trueObject
-    return universe.falseObject
+                return trueObject
+    return falseObject
 
 
 def _substring(ivkbl, rcvr, args):

@@ -1,7 +1,7 @@
 from rpython.rlib.debug import make_sure_not_resized
 from rpython.rlib.rrandom import Random
 from rpython.rlib import jit
-from som.vm.globals import nilObject
+from som.vm.globals import nilObject, trueObject, falseObject
 
 from som.vmobjects.object        import Object
 from som.vmobjects.clazz         import Class
@@ -48,8 +48,6 @@ class Assoc(object):
 class Universe(object):
 
     _immutable_fields_ = [
-            "trueObject",
-            "falseObject",
             "objectClass",
             "classClass",
             "metaclassClass",
@@ -72,8 +70,6 @@ class Universe(object):
         self._symbol_table   = {}
         self._globals        = {}
 
-        self.trueObject     = None
-        self.falseObject    = None
         self.objectClass    = None
         self.classClass     = None
         self.metaclassClass = None
@@ -255,11 +251,11 @@ class Universe(object):
         # Setup the true and false objects
         trueClassName    = self.symbol_for("True")
         trueClass        = self.load_class(trueClassName)
-        self.trueObject  = self.new_instance(trueClass)
+        trueObject.set_class(trueClass)
         
         falseClassName   = self.symbol_for("False")
         falseClass       = self.load_class(falseClassName)
-        self.falseObject = self.new_instance(falseClass)
+        falseObject.set_class(falseClass)
 
         # Load the system class and create an instance of it
         self.systemClass = self.load_class(self.symbol_for("System"))
@@ -267,8 +263,8 @@ class Universe(object):
 
         # Put special objects and classes into the dictionary of globals
         self.set_global(self.symbol_for("nil"),    nilObject)
-        self.set_global(self.symbol_for("true"),   self.trueObject)
-        self.set_global(self.symbol_for("false"),  self.falseObject)
+        self.set_global(self.symbol_for("true"),   trueObject)
+        self.set_global(self.symbol_for("false"),  falseObject)
         self.set_global(self.symbol_for("system"), system_object)
         self.set_global(self.symbol_for("System"), self.systemClass)
         self.set_global(self.symbol_for("Block"),  self.blockClass)

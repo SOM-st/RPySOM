@@ -1,5 +1,5 @@
 from som.primitives.primitives import Primitives
-from som.vm.globals import nilObject
+from som.vm.globals import nilObject, falseObject, trueObject
 from som.vmobjects.primitive   import Primitive
 
 from som.vm.universe import std_print, std_println
@@ -27,9 +27,9 @@ def _global(ivkbl, rcvr, args):
 
 def _has_global(ivkbl, rcvr, args):
     if ivkbl.get_universe().has_global(args[0]):
-        return ivkbl.get_universe().trueObject
+        return trueObject
     else:
-        return ivkbl.get_universe().falseObject
+        return falseObject
 
 
 def _global_put(ivkbl, rcvr, args):
@@ -63,7 +63,7 @@ def _ticks(ivkbl, rcvr, args):
 @jit.dont_look_inside
 def _fullGC(ivkbl, rcvr, args):
     rgc.collect()
-    return ivkbl.get_universe().trueObject
+    return trueObject
 
 
 class SystemPrimitives(Primitives):

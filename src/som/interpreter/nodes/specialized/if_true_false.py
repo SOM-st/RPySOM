@@ -1,5 +1,5 @@
 from ..expression_node   import ExpressionNode
-from som.vm.globals import nilObject
+from som.vm.globals import nilObject, trueObject, falseObject
 from ....vmobjects.block import Block
 
 
@@ -34,17 +34,16 @@ class IfTrueIfFalseNode(ExpressionNode):
             return obj
 
     def _do_iftrue_iffalse(self, rcvr, true, false):
-        if rcvr is self._universe.trueObject:
+        if rcvr is trueObject:
             return self._value_of(true)
         else:
-            assert rcvr is self._universe.falseObject
+            assert rcvr is falseObject
             return self._value_of(false)
 
     @staticmethod
     def can_specialize(selector, rcvr, args, node):
-        return (len(args) == 2 and (rcvr is node._universe.trueObject or
-                                    rcvr is node._universe.falseObject) and
-                selector.get_string() == "ifTrue:ifFalse:")
+        return (len(args) == 2 and (rcvr is trueObject or rcvr is falseObject)
+                and selector.get_string() == "ifTrue:ifFalse:")
 
     @staticmethod
     def specialize_node(selector, rcvr, args, node):
@@ -86,27 +85,23 @@ class IfNode(ExpressionNode):
         if rcvr is self._condition:
             return self._value_of(branch)
         else:
-            assert (rcvr is self._universe.falseObject or
-                    rcvr is self._universe.trueObject)
+            assert (rcvr is falseObject or rcvr is trueObject)
             return nilObject
 
     @staticmethod
     def can_specialize(selector, rcvr, args, node):
         sel = selector.get_string()
-        return (len(args) == 1 and (rcvr is node._universe.trueObject or
-                                    rcvr is node._universe.falseObject) and
-                (sel == "ifTrue:" or sel == "ifFalse:"))
+        return (len(args) == 1 and (rcvr is trueObject or rcvr is falseObject)
+                and (sel == "ifTrue:" or sel == "ifFalse:"))
 
     @staticmethod
     def specialize_node(selector, rcvr, args, node):
         if selector.get_string() == "ifTrue:":
             return node.replace(
                 IfNode(node._rcvr_expr, node._arg_exprs[0],
-                       node._universe.trueObject, node._universe,
-                       node._source_section))
+                       trueObject, node._universe, node._source_section))
         else:
             assert selector.get_string() == "ifFalse:"
             return node.replace(
                 IfNode(node._rcvr_expr, node._arg_exprs[0],
-                       node._universe.falseObject, node._universe,
-                       node._source_section))
+                       falseObject, node._universe, node._source_section))

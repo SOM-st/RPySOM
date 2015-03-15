@@ -1,7 +1,7 @@
 from rpython.rlib import jit
 
 from ..expression_node import ExpressionNode
-from som.vm.globals import nilObject
+from som.vm.globals import nilObject, falseObject, trueObject
 
 from ....vmobjects.block  import Block
 from ....vmobjects.method import Method
@@ -103,11 +103,11 @@ class WhileMessageNode(AbstractWhileMessageNode):
         if sel == "whileTrue:":
             return node.replace(
                 WhileMessageNode(node._rcvr_expr, node._arg_exprs[0],
-                                 node._universe.trueObject,
-                                 node._universe, node._source_section))
+                                 trueObject, node._universe,
+                                 node._source_section))
         else:
             assert sel == "whileFalse:"
             return node.replace(
                 WhileMessageNode(node._rcvr_expr, node._arg_exprs[0],
-                                 node._universe.falseObject,
-                                 node._universe, node._source_section))
+                                 falseObject, node._universe,
+                                 node._source_section))

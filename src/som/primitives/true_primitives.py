@@ -1,13 +1,14 @@
 from som.primitives.primitives import Primitives
+from som.vm.globals import falseObject, trueObject
 from som.vmobjects.primitive import Primitive
 
 
 def _not(ivkbl, rcvr, args):
-    return ivkbl.get_universe().falseObject
+    return falseObject
 
 
 def _or(ivkbl, rcvr, args):
-    return ivkbl.get_universe().trueObject
+    return trueObject
 
 
 def _and(ivkbl, rcvr, args):

@@ -1,5 +1,5 @@
 from .expression_node import ExpressionNode
-from som.vm.globals import nilObject
+from som.vm.globals import nilObject, trueObject, falseObject
 
 
 class UninitializedGlobalReadNode(ExpressionNode):
@@ -21,10 +21,10 @@ class UninitializedGlobalReadNode(ExpressionNode):
     def _specialize(self):
         glob = self._global_name.get_string()
         if glob == "true":
-            cached = ConstantGlobalReadNode(self._universe.trueObject,
+            cached = ConstantGlobalReadNode(trueObject,
                                             self.get_source_section())
         elif glob == "false":
-            cached = ConstantGlobalReadNode(self._universe.falseObject,
+            cached = ConstantGlobalReadNode(falseObject,
                                             self.get_source_section())
         elif glob == "nil":
             cached = ConstantGlobalReadNode(nilObject,
