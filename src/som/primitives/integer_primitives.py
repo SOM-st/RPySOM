@@ -176,6 +176,14 @@ def _to(ivkbl, rcvr, args):
         arg.get_embedded_integer() + 1))
 
 
+def _max(ivkbl, rcvr, args):
+    assert isinstance(rcvr, Integer)
+    arg = args[0]
+    assert isinstance(arg, Integer)
+    return ivkbl.get_universe().new_integer(
+        max(rcvr.get_embedded_integer(), arg.get_embedded_integer()))
+
+
 class IntegerPrimitives(Primitives):
 
     def install_primitives(self):
@@ -199,6 +207,7 @@ class IntegerPrimitives(Primitives):
         self._install_instance_primitive(Primitive("<=", self._universe, _lessThanOrEqual))
         self._install_instance_primitive(Primitive(">",  self._universe, _greaterThan))
         self._install_instance_primitive(Primitive("<>", self._universe, _unequals))
+        self._install_instance_primitive(Primitive("~=", self._universe, _unequals))
 
         self._install_instance_primitive(Primitive("<<", self._universe, _leftShift))
         self._install_instance_primitive(Primitive("bitXor:", self._universe, _bitXor))
@@ -206,6 +215,7 @@ class IntegerPrimitives(Primitives):
         self._install_instance_primitive(Primitive("as32BitSignedValue", self._universe, _as32BitSignedValue))
         self._install_instance_primitive(Primitive("as32BitUnsignedValue", self._universe, _as32BitUnsignedValue))
 
+        self._install_instance_primitive(Primitive("max:", self._universe, _max))
         self._install_instance_primitive(Primitive("abs", self._universe, _abs))
         self._install_instance_primitive(Primitive("to:", self._universe, _to))
 

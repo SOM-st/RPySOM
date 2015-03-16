@@ -90,5 +90,6 @@ class DoublePrimitives(Primitives):
         self._install_instance_primitive(Primitive("<=",       self._universe, _lessThanOrEqual))
         self._install_instance_primitive(Primitive(">",        self._universe, _greaterThan))
         self._install_instance_primitive(Primitive("<>",       self._universe, _unequals))
+        self._install_instance_primitive(Primitive("~=",       self._universe, _unequals))
 
         self._install_class_primitive(Primitive("PositiveInfinity", self._universe, _positive_infinity))
