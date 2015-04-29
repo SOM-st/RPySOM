@@ -12,6 +12,8 @@ University and Technische Universitaet Darmstadt (Germany) in VM courses in
 Sebastian Kanthak.
 
 PySOM is a port by Stefan Marr of SOM's Java implementation.
+RPySOM is an adaptation to RPython, which provides meta-tracing just-in-time
+compilation. It contains contributions from Carl Friedrich Bolz and Tobias Pape.
 
 2013-09-14, Stefan Marr
 <mail@stefan-marr.de>
