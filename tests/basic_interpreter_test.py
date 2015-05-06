@@ -46,7 +46,20 @@ class BasicInterpreterTest(unittest.TestCase):
         ("Arrays", "testEmptyToInts", 3, Integer),
         ("Arrays", "testPutAllInt",   5, Integer),
         ("Arrays", "testPutAllNil",   "Nil", Class),
-        ("Arrays", "testNewWithAll",  1, Integer)])
+        ("Arrays", "testNewWithAll",  1, Integer),
+
+        ("BlockInlining", "testNoInlining",                           1, Integer),
+        ("BlockInlining", "testOneLevelInlining",                     1, Integer),
+        ("BlockInlining", "testOneLevelInliningWithLocalShadowTrue",  2, Integer),
+        ("BlockInlining", "testOneLevelInliningWithLocalShadowFalse", 1, Integer),
+        ("BlockInlining", "testDeepNestedInlinedIfTrue",              3, Integer),
+        ("BlockInlining", "testDeepNestedInlinedIfFalse",            42, Integer),
+
+        ("BlockInlining", "testDeepNestedBlocksInInlinedIfTrue",      5, Integer),
+        ("BlockInlining", "testDeepNestedBlocksInInlinedIfFalse",    43, Integer),
+
+        ("BlockInlining", "testDeepDeepNestedTrue",                  10, Integer),
+        ("BlockInlining", "testDeepDeepNestedFalse",                 43, Integer)])
     def test_basic_interpreter_behavior(self, test_class, test_selector,
                                         expected_result, result_type):
         u = Universe()
