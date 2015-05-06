@@ -58,7 +58,7 @@ class BasicInterpreterTest(unittest.TestCase):
         ("BlockInlining", "testDeepNestedBlocksInInlinedIfTrue",      5, Integer),
         ("BlockInlining", "testDeepNestedBlocksInInlinedIfFalse",    43, Integer),
 
-        ("BlockInlining", "testDeepDeepNestedTrue",                  10, Integer),
+        ("BlockInlining", "testDeepDeepNestedTrue",                   9, Integer),
         ("BlockInlining", "testDeepDeepNestedFalse",                 43, Integer)])
     def test_basic_interpreter_behavior(self, test_class, test_selector,
                                         expected_result, result_type):
