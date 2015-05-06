@@ -27,7 +27,9 @@ class MethodGenerationContext(object):
 
         self._embedded_block_methods = []
 
+        # does non-local return, directly or indirectly via a nested block
         self._throws_non_local_return             = False
+
         self._needs_to_catch_non_local_returns    = False
         self._accesses_variables_of_outer_context = False
 
@@ -44,7 +46,7 @@ class MethodGenerationContext(object):
 
     def make_catch_non_local_return(self):
         self._throws_non_local_return = True
-        ctx = self._get_outer_context()
+        ctx = self._mark_outer_contexts_to_require_context_and_get_root_context()
 
         assert ctx is not None
         ctx._needs_to_catch_non_local_returns = True
@@ -53,9 +55,10 @@ class MethodGenerationContext(object):
         return (self._throws_non_local_return or
                 self._accesses_variables_of_outer_context)
 
-    def _get_outer_context(self):
+    def _mark_outer_contexts_to_require_context_and_get_root_context(self):
         ctx = self._outer_genc
         while ctx._outer_genc is not None:
+            ctx._throws_non_local_return = True
             ctx = ctx._outer_genc
         return ctx
 
