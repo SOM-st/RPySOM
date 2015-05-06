@@ -5,6 +5,7 @@ from som.vm.universe       import Universe
 
 from som.vmobjects.integer import Integer
 from som.vmobjects.clazz   import Class
+from som.vmobjects.symbol  import Symbol
 
 
 class BasicInterpreterTest(unittest.TestCase):
@@ -27,7 +28,25 @@ class BasicInterpreterTest(unittest.TestCase):
         ("Return", "returnSelf",           "Return", Class),
         ("Return", "returnSelfImplicitly", "Return", Class),
         ("Return", "noReturnReturnsSelf",  "Return", Class),
-        ("Return", "blockReturnsImplicitlyLastValue", 4, Integer)])
+        ("Return", "blockReturnsImplicitlyLastValue", 4, Integer),
+
+        ("IfTrueIfFalse", "test",  42, Integer),
+        ("IfTrueIfFalse", "test2", 33, Integer),
+        ("IfTrueIfFalse", "test3",  4, Integer),
+
+        ("CompilerSimplification", "returnConstantSymbol",  "constant", Symbol),
+        ("CompilerSimplification", "returnConstantInt",     42, Integer),
+        ("CompilerSimplification", "returnSelf",            "CompilerSimplification", Class),
+        ("CompilerSimplification", "returnSelfImplicitly",  "CompilerSimplification", Class),
+        ("CompilerSimplification", "testReturnArgumentN",   55, Integer),
+        ("CompilerSimplification", "testReturnArgumentA",   44, Integer),
+        ("CompilerSimplification", "testSetField",          "foo", Symbol),
+        ("CompilerSimplification", "testGetField",          40, Integer),
+
+        ("Arrays", "testEmptyToInts", 3, Integer),
+        ("Arrays", "testPutAllInt",   5, Integer),
+        ("Arrays", "testPutAllNil",   "Nil", Class),
+        ("Arrays", "testNewWithAll",  1, Integer)])
     def test_basic_interpreter_behavior(self, test_class, test_selector,
                                         expected_result, result_type):
         u = Universe()
@@ -48,6 +67,11 @@ class BasicInterpreterTest(unittest.TestCase):
         if result_type is Class:
             self.assertEquals(expected_result,
                               actual_result.get_name().get_string())
+            return
+
+        if result_type is Symbol:
+            self.assertEquals(expected_result,
+                              actual_result.get_string())
             return
 
         self.fail("SOM Value handler missing")
