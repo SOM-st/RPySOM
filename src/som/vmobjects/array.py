@@ -292,9 +292,21 @@ class _LongStrategy(_ArrayStrategy):
 
     def set_idx(self, array, idx, value):
         assert isinstance(array, Array)
-        assert isinstance(value, Integer)
+        if isinstance(value, Integer):
+            store = self._unerase(array._storage)
+            store[idx] = value.get_embedded_integer()
+        else:
+            self._transition_to_object_array(array, idx, value)
+
+    def _transition_to_object_array(self, array, idx, value):
         store = self._unerase(array._storage)
-        store[idx] = value.get_embedded_integer()
+        new_store = [None] * len(store)
+        for i, v in enumerate(store):
+            new_store[i] = Integer(v)
+
+        new_store[idx] = value
+        array._storage = _ObjectStrategy.new_storage_with_values(new_store)
+        array._strategy = _obj_strategy
 
     def set_all(self, array, value):
         assert isinstance(array, Array)
