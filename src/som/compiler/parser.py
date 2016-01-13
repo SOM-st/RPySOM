@@ -14,7 +14,7 @@ from .method_generation_context import MethodGenerationContext
 from .symbol                    import Symbol, symbol_as_str
 
 
-class ParseError(BaseException):
+class ParseError(Exception):
     def __init__(self, message, expected_sym, parser):
         self._message           = message
         self._source_coordinate = parser._lexer.get_source_coordinate()

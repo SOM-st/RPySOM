@@ -1,6 +1,6 @@
-class GeneralizeStorageLocationException(BaseException):
+class GeneralizeStorageLocationException(Exception):
     pass
 
 
-class UninitializedStorageLocationException(BaseException):
+class UninitializedStorageLocationException(Exception):
     pass
