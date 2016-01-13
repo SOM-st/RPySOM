@@ -15,6 +15,7 @@ def get_printable_location(block_method):
 int_driver = jit.JitDriver(
     greens=['block_method'],
     reds='auto',
+    is_recursive=True,
     # virtualizables=['frame'],
     get_printable_location=get_printable_location)
 
@@ -48,6 +49,7 @@ class IntDownToIntDoNode(AbstractToDoNode):
 double_driver = jit.JitDriver(
     greens=['block_method'],
     reds='auto',
+    is_recursive=True,
     # virtualizables=['frame'],
     get_printable_location=get_printable_location)
 

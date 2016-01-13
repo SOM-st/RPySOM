@@ -13,6 +13,7 @@ jitdriver = jit.JitDriver(
     virtualizables=['frame'],
     get_printable_location=get_printable_location,
     reds= ['arguments', 'receiver', 'frame'],
+    is_recursive=True,
 
     # the next line is a workaround around a likely bug in RPython
     # for some reason, the inlining heuristics default to "never inline" when

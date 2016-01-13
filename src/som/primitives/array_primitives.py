@@ -36,6 +36,7 @@ def get_do_index_printable_location(block_method):
 
 do_index_driver = jit.JitDriver(
     greens=['block_method'], reds='auto',
+    is_recursive=True,
     get_printable_location=get_do_index_printable_location)
 
 

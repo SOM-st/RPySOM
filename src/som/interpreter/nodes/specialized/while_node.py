@@ -61,6 +61,7 @@ def get_printable_location_while(body_method, condition_method, while_type):
 
 while_driver = jit.JitDriver(
     greens=['body_method', 'condition_method', 'node'], reds='auto',
+    is_recursive=True,
     get_printable_location = get_printable_location_while)
 
 

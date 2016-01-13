@@ -36,14 +36,19 @@ def put_all_bool_pl(block_method):
 
 
 put_all_obj_driver  = JitDriver(greens=['block_method'], reds='auto',
+                                is_recursive=True,
                                 get_printable_location=put_all_obj_pl)
 put_all_nil_driver  = JitDriver(greens=['block_method'], reds='auto',
+                                is_recursive=True,
                                 get_printable_location=put_all_nil_pl)
 put_all_double_driver = JitDriver(greens=['block_method'], reds='auto',
+                                  is_recursive=True,
                                   get_printable_location=put_all_double_pl)
 put_all_long_driver = JitDriver(greens=['block_method'], reds='auto',
+                                is_recursive=True,
                                 get_printable_location=put_all_long_pl)
 put_all_bool_driver = JitDriver(greens=['block_method'], reds='auto',
+                                is_recursive=True,
                                 get_printable_location=put_all_bool_pl)
 
 
