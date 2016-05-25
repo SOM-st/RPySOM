@@ -7,7 +7,7 @@ from .method_generation_context import MethodGenerationContext
 from .symbol                    import Symbol, symbol_as_str
 
 
-class ParseError(BaseException):
+class ParseError(Exception):
     def __init__(self, message, expected_sym, parser):
         self._message           = message
         self._line              = parser._lexer.get_current_line_number()

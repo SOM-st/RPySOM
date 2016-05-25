@@ -1,4 +1,4 @@
-class ReturnException(BaseException):
+class ReturnException(Exception):
     
     _immutable_fields_ = ["_result", "_target"]
     

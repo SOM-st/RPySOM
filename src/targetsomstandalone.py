@@ -4,7 +4,9 @@
 import sys
 
 from som.vm.universe import main, Exit
+from som.interpreter.control_flow import ReturnException
 
+import os
 
 # __________  Entry points  __________
 
@@ -13,6 +15,14 @@ def entry_point(argv):
         main(argv)
     except Exit, e:
         return e.code
+    except ReturnException, e:
+        os.write(2, "ERROR: Caught ReturnException in entry_point. result: %s, target: %s\n" %
+                 (e._result, e._target))
+        return 1
+    except Exception, e:
+        os.write(2, "ERROR: Exception thrown during execution: " + str(e) + "\n")
+        return 1
+    os.write(2, "ERROR: Program exited without raising the Exit exception.\n")
     return 1
 
 
