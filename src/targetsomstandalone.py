@@ -4,7 +4,6 @@
 import sys
 
 from som.vm.universe import main, Exit
-from som.interpreter.control_flow import ReturnException
 
 import os
 
