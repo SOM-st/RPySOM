@@ -17,7 +17,7 @@ def entry_point(argv):
     except Exception, e:
         os.write(2, "ERROR: %s thrown during execution.\n" % e)
         return 1
-    return 0
+    return 1
 
 
 # _____ Define and setup target ___
