@@ -105,6 +105,8 @@ def _leftShift(ivkbl, frame, interpreter):
     l = left.get_embedded_integer()
     r = right.get_embedded_integer()
     try:
+        if not (l == 0 or 0 <= r <= 63):
+            raise OverflowError
         result = ovfcheck(l << r)
         frame.push(universe.new_integer(result))
     except OverflowError:
