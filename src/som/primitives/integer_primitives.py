@@ -1,4 +1,4 @@
-from rpython.rlib.rarithmetic import ovfcheck
+from rpython.rlib.rarithmetic import ovfcheck, LONG_BIT
 from rpython.rlib.rbigint import rbigint
 from som.primitives.primitives import Primitives
 from som.vmobjects.integer import Integer
@@ -105,7 +105,7 @@ def _leftShift(ivkbl, frame, interpreter):
     l = left.get_embedded_integer()
     r = right.get_embedded_integer()
     try:
-        if not (l == 0 or 0 <= r <= 63):
+        if not (l == 0 or 0 <= r < LONG_BIT):
             raise OverflowError
         result = ovfcheck(l << r)
         frame.push(universe.new_integer(result))
