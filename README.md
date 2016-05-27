@@ -39,11 +39,11 @@ A simple Hello World program is executed with:
     $ ./som.sh -cp Smalltalk Examples/Hello/Hello.som
 
 To compile RTruffleSOM, a recent PyPy is recommended and the RPython source
-code is required. The source distribution of PyPy 2.4 can be used like this:
+code is required. The source distribution of PyPy 5.1 can be used like this:
 
-    wget https://bitbucket.org/pypy/pypy/downloads/pypy-2.4.0-src.tar.bz2
-    tar xvf pypy-2.4.0-src.tar.bz2
-    export PYPY_DIR=`pwd`/pypy-2.4.0-src/
+    wget https://bitbucket.org/pypy/pypy/downloads/pypy-5.1.1-src.tar.bz2
+    tar xvf pypy-5.1.1-src.tar.bz2
+    export PYPY_DIR=`pwd`/pypy-5.1.1-src/
 
 Information on previous authors are included in the AUTHORS file. This code is
 distributed under the MIT License. Please see the LICENSE file for details.
