@@ -78,6 +78,8 @@ class Lexer(object):
             self._match(Symbol.At)
         elif self._current_char() == '%':
             self._match(Symbol.Per)
+        elif self._current_char() == '-':
+            self._match(Symbol.Minus)
 
     def _lex_escape_char(self):
         if self._end_of_buffer():
@@ -181,10 +183,7 @@ class Lexer(object):
                     self._bufp += 1
                 self._sym = Symbol.Separator
             else:
-                self._bufp += 1
-                self._sym = Symbol.Minus
-                self._symc = '-'
-                self._text = "-"
+                self._lex_operator()
         
         elif self._is_operator(self._current_char()):
             self._lex_operator()
@@ -312,7 +311,7 @@ class Lexer(object):
     def _is_operator(c):
         return (c == '~'  or c == '&' or c == '|' or c == '*' or c == '/' or
                 c == '\\' or c == '+' or c == '=' or c == '>' or c == '<' or
-                c == ','  or c == '@' or c == '%')
+                c == ','  or c == '@' or c == '%' or c == '-')
 
     def _match(self, s):
         self._sym  = s
