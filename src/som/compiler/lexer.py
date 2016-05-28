@@ -225,6 +225,9 @@ class Lexer(object):
         char_after_text = self._bufchar(self._bufp + len(text))
         return not char_after_text.isalnum()
 
+    def get_peek_done(self):
+        return self._peek_done
+
     def peek(self):
         save_sym  = self._sym
         save_symc = self._symc

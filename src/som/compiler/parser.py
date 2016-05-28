@@ -485,21 +485,42 @@ class Parser(object):
         return exp
 
     def _literal(self):
-        if self._sym == Symbol.Pound:
-            return self._literal_symbol()
-        if self._sym == Symbol.STString:
-            return self._literal_string()
-        return self._literal_number()
-
-    def _literal_number(self):
         coord = self._lexer.get_source_coordinate()
 
-        if self._sym == Symbol.Minus:
-            lit = self._negative_decimal()
-        else:
-            lit = self._literal_decimal(False)
+        if self._sym == Symbol.Pound:
+            self._peek_for_next_symbol_from_lexer_if_necessary()
 
-        return self._assign_source(lit, coord)
+            if self._next_sym == Symbol.NewTerm:
+                val = self._literal_array()
+            else:
+                val = self._literal_symbol()
+        elif self._sym == Symbol.STString:
+            val = self._literal_string()
+        else:
+            is_negative = self._is_negative_number()
+            if self._sym == Symbol.Integer:
+                val = self._literal_integer(is_negative)
+            elif self._sym != Symbol.Double:
+                raise ParseError("Unexpected symbol. Expected %(expected)s, "
+                                 "but found %(found)s", self._sym, self)
+            else:
+                val = self._literal_double(is_negative)
+        lit = LiteralNode(val)
+        self._assign_source(lit, coord)
+        return lit
+
+    def _is_negative_number(self):
+        is_negative = False
+        if self._sym == Symbol.Minus:
+            self._expect(Symbol.Minus)
+            is_negative = True
+        return is_negative
+
+    def _literal_number(self):
+        if self._sym == Symbol.Minus:
+            return self._negative_decimal()
+        else:
+            return self._literal_decimal(False)
   
     def _literal_decimal(self, negate_value):
         if self._sym == Symbol.Integer:
@@ -532,7 +553,7 @@ class Parser(object):
                              "Expected a number but got '%s'" % self._text,
                              Symbol.NONE, self)
         self._expect(Symbol.Integer)
-        return LiteralNode(result)
+        return result
 
     def _literal_double(self, negate_value):
         try:
@@ -544,29 +565,46 @@ class Parser(object):
                              "Expected a number but got '%s'" % self._text,
                              Symbol.NONE, self)
         self._expect(Symbol.Double)
-        return LiteralNode(self._universe.new_double(f))
+        return self._universe.new_double(f)
  
     def _literal_symbol(self):
-        coord = self._lexer.get_source_coordinate()
-
         self._expect(Symbol.Pound)
         if self._sym == Symbol.STString:
-            s    = self._string()
-            symb = self._universe.symbol_for(s)
+            s = self._string()
+            return self._universe.symbol_for(s)
         else:
-            symb = self._selector()
-      
-        lit = LiteralNode(symb)
-        return self._assign_source(lit, coord)
+            return self._selector()
 
     def _literal_string(self):
-        coord = self._lexer.get_source_coordinate()
         s = self._string()
-     
-        string = self._universe.new_string(s)
-        lit = LiteralNode(string)
-        return self._assign_source(lit, coord)
-     
+        return self._universe.new_string(s)
+
+    def _literal_array(self):
+        literals = []
+        self._expect(Symbol.Pound)
+        self._expect(Symbol.NewTerm)
+        while self._sym != Symbol.EndTerm:
+            literals.append(self._get_object_for_current_literal())
+        self._expect(Symbol.EndTerm)
+        return self._universe.new_array_from_list(literals[:])
+
+    def _get_object_for_current_literal(self):
+        if self._sym == Symbol.Pound:
+            self._peek_for_next_symbol_from_lexer_if_necessary()
+            if self._next_sym == Symbol.NewTerm:
+                return self._literal_array()
+            else:
+                return self._literal_symbol()
+        elif self._sym == Symbol.STString:
+            return self._literal_string()
+        elif self._sym == Symbol.Integer:
+            return self._literal_integer(self._is_negative_number())
+        elif self._sym == Symbol.Double:
+            return self._literal_double(self._is_negative_number())
+        else:
+            raise ParseError("Could not parse literal array value",
+                             Symbol.NONE, self)
+
     def _selector(self):
         if (self._sym == Symbol.OperatorSequence or
             self._sym_in(self._single_op_syms)):
@@ -663,7 +701,11 @@ class Parser(object):
     def _get_symbol_from_lexer(self):
         self._sym  = self._lexer.get_sym()
         self._text = self._lexer.get_text()
-    
+
+    def _peek_for_next_symbol_from_lexer_if_necessary(self):
+        if not self._lexer.get_peek_done():
+            self._peek_for_next_symbol_from_lexer()
+
     def _peek_for_next_symbol_from_lexer(self):
         self._next_sym = self._lexer.peek()
 
