@@ -48,18 +48,25 @@ class BasicInterpreterTest(unittest.TestCase):
         ("Arrays", "testPutAllNil",   "Nil", Class),
         ("Arrays", "testNewWithAll",  1, Integer),
 
-        ("BlockInlining", "testNoInlining",                           1, Integer),
-        ("BlockInlining", "testOneLevelInlining",                     1, Integer),
-        ("BlockInlining", "testOneLevelInliningWithLocalShadowTrue",  2, Integer),
+        ("BlockInlining", "testNoInlining",                         1, Integer),
+        ("BlockInlining", "testOneLevelInlining",                   1, Integer),
+        ("BlockInlining", "testOneLevelInliningWithLocalShadowTrue", 2, Integer),
         ("BlockInlining", "testOneLevelInliningWithLocalShadowFalse", 1, Integer),
-        ("BlockInlining", "testDeepNestedInlinedIfTrue",              3, Integer),
-        ("BlockInlining", "testDeepNestedInlinedIfFalse",            42, Integer),
 
-        ("BlockInlining", "testDeepNestedBlocksInInlinedIfTrue",      5, Integer),
-        ("BlockInlining", "testDeepNestedBlocksInInlinedIfFalse",    43, Integer),
+        ("BlockInlining", "testBlockNestedInIfTrue",                2, Integer),
+        ("BlockInlining", "testBlockNestedInIfFalse",              42, Integer),
 
-        ("BlockInlining", "testDeepDeepNestedTrue",                   9, Integer),
-        ("BlockInlining", "testDeepDeepNestedFalse",                 43, Integer)])
+        ("BlockInlining", "testDeepNestedInlinedIfTrue",            3, Integer),
+        ("BlockInlining", "testDeepNestedInlinedIfFalse",          42, Integer),
+
+        ("BlockInlining", "testDeepNestedBlocksInInlinedIfTrue",    5, Integer),
+        ("BlockInlining", "testDeepNestedBlocksInInlinedIfFalse",  43, Integer),
+
+        ("BlockInlining", "testDeepDeepNestedTrue",                 9, Integer),
+        ("BlockInlining", "testDeepDeepNestedFalse",               43, Integer),
+
+        ("BlockInlining", "testToDoNestDoNestIfTrue",               2, Integer),
+    ])
     def test_basic_interpreter_behavior(self, test_class, test_selector,
                                         expected_result, result_type):
         u = Universe()
