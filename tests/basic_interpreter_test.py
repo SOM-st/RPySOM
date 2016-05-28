@@ -3,6 +3,7 @@ from parameterized import parameterized
 
 from som.vm.universe       import Universe
 
+from som.vmobjects.double  import Double
 from som.vmobjects.integer import Integer
 from som.vmobjects.clazz   import Class
 from som.vmobjects.symbol  import Symbol
@@ -66,6 +67,8 @@ class BasicInterpreterTest(unittest.TestCase):
         ("BlockInlining", "testDeepDeepNestedFalse",               43, Integer),
 
         ("BlockInlining", "testToDoNestDoNestIfTrue",               2, Integer),
+
+        ("NonLocalVars", "writeDifferentTypes", 3.75, Double)
     ])
     def test_basic_interpreter_behavior(self, test_class, test_selector,
                                         expected_result, result_type):
@@ -84,6 +87,11 @@ class BasicInterpreterTest(unittest.TestCase):
                               actual_result.get_embedded_integer())
             return
 
+        if result_type is Double:
+            self.assertEquals(expected_result,
+                              actual_result.get_embedded_double())
+            return
+
         if result_type is Class:
             self.assertEquals(expected_result,
                               actual_result.get_name().get_string())
@@ -94,7 +102,7 @@ class BasicInterpreterTest(unittest.TestCase):
                               actual_result.get_string())
             return
 
-        self.fail("SOM Value handler missing")
+        self.fail("SOM Value handler missing: " + str(result_type))
 
 import sys
 if sys.modules.has_key('pytest'):
