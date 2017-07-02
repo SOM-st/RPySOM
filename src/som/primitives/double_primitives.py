@@ -74,6 +74,20 @@ def _positive_infinity(ivkbl, rcvr, args):
     return ivkbl.get_universe().new_double(INFINITY)
 
 
+def _asInteger(ivkbl, rcvr, args):
+    return rcvr.prim_as_integer(ivkbl.get_universe())
+
+
+def _cos(ivkbl, rcvr, args):
+    result = math.cos(rcvr.get_embedded_double())
+    return ivkbl.get_universe().new_double(result)
+
+
+def _sin(ivkbl, rcvr, args):
+    result = math.sin(rcvr.get_embedded_double())
+    return ivkbl.get_universe().new_double(result)
+
+
 class DoublePrimitives(Primitives):
 
     def install_primitives(self):        
@@ -91,5 +105,9 @@ class DoublePrimitives(Primitives):
         self._install_instance_primitive(Primitive(">",        self._universe, _greaterThan))
         self._install_instance_primitive(Primitive("<>",       self._universe, _unequals))
         self._install_instance_primitive(Primitive("~=",       self._universe, _unequals))
+
+        self._install_instance_primitive(Primitive("asInteger", self._universe, _asInteger))
+        self._install_instance_primitive(Primitive("cos", self._universe, _cos))
+        self._install_instance_primitive(Primitive("sin", self._universe, _sin))
 
         self._install_class_primitive(Primitive("PositiveInfinity", self._universe, _positive_infinity))
