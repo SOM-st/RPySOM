@@ -5,16 +5,16 @@ from som.vm.universe import Universe
 
 class SomTest(unittest.TestCase):
     @parameterized.expand([
-        ("ClassStructure",),
         ("Array"         ,),
         ("Block"         ,),
         ("ClassLoading"  ,),
+        ("ClassStructure",),
 
         ("Closure"       ,),
         ("Coercion"      ,),
         ("CompilerReturn",),
-        ("Double"        ,),
         ("DoesNotUnderstand",),
+        ("Double"        ,),
 
         ("Empty"         ,),
         ("Global"        ,),
@@ -24,10 +24,10 @@ class SomTest(unittest.TestCase):
         ("Preliminary"   ,),
         ("Reflection"    ,),
         ("SelfBlock"     ,),
-        ("Set",),
         ("SpecialSelectors",),
         ("Super"         ,),
 
+        ("Set",),
         ("String"        ,),
         ("Symbol"        ,),
         ("System"        ,),
