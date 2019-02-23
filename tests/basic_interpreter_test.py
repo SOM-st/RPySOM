@@ -14,7 +14,6 @@ class BasicInterpreterTest(unittest.TestCase):
         ("MethodCall",     "test",  42, Integer),
         ("MethodCall",     "test2", 42, Integer),
 
-        ("NonLocalReturn", "test",  "NonLocalReturn", Class),
         ("NonLocalReturn", "test1", 42, Integer),
         ("NonLocalReturn", "test2", 43, Integer),
         ("NonLocalReturn", "test3",  3, Integer),
@@ -68,7 +67,10 @@ class BasicInterpreterTest(unittest.TestCase):
 
         ("BlockInlining", "testToDoNestDoNestIfTrue",               2, Integer),
 
-        ("NonLocalVars", "writeDifferentTypes", 3.75, Double)
+        ("NonLocalVars", "writeDifferentTypes", 3.75, Double),
+
+        ("Regressions", "testSymbolEquality",          1, Integer),
+        ("Regressions", "testSymbolReferenceEquality", 1, Integer)
     ])
     def test_basic_interpreter_behavior(self, test_class, test_selector,
                                         expected_result, result_type):
