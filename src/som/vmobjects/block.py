@@ -34,6 +34,13 @@ class Block(AbstractObject):
         assert args is not None
         return args[index]
 
+    def set_context_argument(self, index, value):
+        jit.promote(index)
+        args = self._outer_args
+        assert 0 <= index < len(args)
+        assert args is not None
+        args[index] = value
+
     def get_context_temp(self, index):
         jit.promote(index)
         temps = self._outer_tmps

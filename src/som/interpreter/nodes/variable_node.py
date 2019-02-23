@@ -22,13 +22,6 @@ class UninitializedReadNode(ExpressionNode):
             self._context_level, self._source_section))
 
 
-class UninitializedArgumentReadNode(UninitializedReadNode):
-
-    def _specialize(self):
-        return self.replace(self._var.get_initialized_read_node(
-            self._context_level, self._source_section))
-
-
 class UninitializedWriteNode(ExpressionNode):
 
     _immutable_fields_ = ['_var', '_context_level', '_value_expr']
@@ -129,6 +122,24 @@ class NonLocalTempWriteNode(_NonLocalVariableNode):
         return value
 
 
+class NonLocalArgumentWriteNode(_NonLocalVariableNode):
+
+    _immutable_fields_ = ['_value_expr?']
+    _child_nodes_      = ['_value_expr']
+
+    def __init__(self, access_idx, context_level, value_expr,
+                 source_section = None):
+        _NonLocalVariableNode.__init__(self, context_level, access_idx,
+                                       source_section)
+        self._value_expr = self.adopt_child(value_expr)
+
+    def execute(self, frame):
+        value = self._value_expr.execute(frame)
+        block = self.determine_block(frame)
+        block.set_context_argument(self._frame_idx, value)
+        return value
+
+
 class _LocalVariableNode(ExpressionNode):
 
     _immutable_fields_ = ['_frame_idx']
@@ -189,6 +200,21 @@ class LocalSuperReadNode(LocalSelfReadNode):
 
     def get_super_class(self):
         return self._get_lexical_super_class()
+
+
+class LocalArgumentWriteNode(_LocalVariableNode):
+
+    _immutable_fields_ = ['_expr?']
+    _child_nodes_ = ['_expr']
+
+    def __init__(self, arg_idx, expr, source_section = None):
+        _LocalVariableNode.__init__(self, arg_idx, source_section)
+        self._expr = self.adopt_child(expr)
+
+    def execute(self, frame):
+        val = self._expr.execute(frame)
+        frame.set_argument(self._frame_idx, val)
+        return val
 
 
 class _LocalVariableWriteNode(_LocalVariableNode):

@@ -684,7 +684,7 @@ class Parser(object):
         return mgenc.get_global_read(var_symbol)
 
     def _variable_write(self, mgenc, variable_name, exp):
-        variable = mgenc.get_local(variable_name)
+        variable = mgenc.get_variable(variable_name)
         if variable:
             return variable.get_write_node(
                 mgenc.get_context_level(variable_name), exp)
@@ -695,8 +695,7 @@ class Parser(object):
             return field_write
         else:
             raise RuntimeError("Neither a variable nor a field found in current"
-                               " scope that is named " + variable_name +
-                               ". Arguments are read-only.")
+                               " scope that is named " + variable_name + ".")
 
     def _get_symbol_from_lexer(self):
         self._sym  = self._lexer.get_sym()
