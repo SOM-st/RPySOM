@@ -1,12 +1,14 @@
+dist: xenial
 language: python
 
 python:
-  - "2.7"
+  - "pypy2.7-6.0.0"
+  # - "pypy2.7-7.0.0"
 
 install:
-  - wget https://bitbucket.org/pypy/pypy/downloads/pypy-5.1.1-src.tar.bz2 || wget https://bitbucket.org/pypy/pypy/downloads/pypy-5.1.1-src.tar.bz2
-  - tar -xjf pypy-5.1.1-src.tar.bz2
-  - mv pypy-5.1.1-src pypy
+  - travis_retry wget https://bitbucket.org/pypy/pypy/downloads/pypy2.7-v7.0.0-src.tar.bz2
+  - tar -xjf pypy2.7-v7.0.0-src.tar.bz2
+  - mv pypy2.7-v7.0.0-src pypy
 # command to run tests
 script:
   - PYTHONPATH=$PYTHONPATH:pypy nosetests

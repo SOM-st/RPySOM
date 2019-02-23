@@ -1,18 +1,17 @@
-from som.interpreter.nodes.variable_read_node import UninitializedReadNode, \
+from som.interpreter.nodes.variable_node import UninitializedReadNode, \
     UninitializedWriteNode, LocalSharedWriteNode, LocalUnsharedWriteNode, \
-    NonLocalArgumentReadNode, LocalSuperReadNode, \
+    NonLocalArgumentReadNode, NonLocalArgumentWriteNode, LocalSuperReadNode, \
     NonLocalTempReadNode, NonLocalTempWriteNode, NonLocalSuperReadNode, \
-    LocalArgumentReadNode, LocalSelfReadNode, NonLocalSelfReadNode, \
-    UninitializedArgumentReadNode, LocalUnsharedTempReadNode, \
-    LocalSharedTempReadNode
+    LocalArgumentReadNode, LocalArgumentWriteNode, LocalSelfReadNode, NonLocalSelfReadNode, \
+    LocalUnsharedTempReadNode, LocalSharedTempReadNode
 
 
 class _Variable(object):
 
     def __init__(self, name):
         self._name      = name
-        self._is_read   = False
-        self._is_read_out_of_context = False
+        self._is_accessed = False
+        self._is_accessed_out_of_context = False
         self._access_idx = -1
 
     def set_access_index(self, value):
@@ -20,15 +19,15 @@ class _Variable(object):
         self._access_idx = value
 
     def is_accessed(self):
-        return self._is_read
+        return self._is_accessed
 
     def is_accessed_out_of_context(self):
-        return self._is_read_out_of_context
+        return self._is_accessed_out_of_context
 
-    def _mark_reading(self, context_level):
-        self._is_read = True
+    def _mark_accessed(self, context_level):
+        self._is_accessed = True
         if context_level > 0:
-            self._is_read_out_of_context = True
+            self._is_accessed_out_of_context = True
 
 
 class Argument(_Variable):
@@ -41,23 +40,36 @@ class Argument(_Variable):
         self._arg_idx = idx
 
     def get_read_node(self, context_level):
-        self._mark_reading(context_level)
+        self._mark_accessed(context_level)
         if context_level > 0:
             if self._name == "self":
                 return NonLocalSelfReadNode(context_level, None)
             else:
-                return UninitializedArgumentReadNode(self, context_level, None)
+                return UninitializedReadNode(self, context_level, None)
         else:
             if self._name == "self":
                 return LocalSelfReadNode(None)
             else:
                 return LocalArgumentReadNode(self._arg_idx, None)
 
+    def get_write_node(self, context_level, value_expr):
+        self._mark_accessed(context_level)
+        if context_level > 0:
+            return UninitializedWriteNode(self, context_level, value_expr, None)
+        else:
+            return LocalArgumentWriteNode(self._arg_idx, value_expr, None)
+
     def get_initialized_read_node(self, context_level, source_section):
         assert context_level > 0
         assert self._access_idx >= 0
         return NonLocalArgumentReadNode(context_level, self._access_idx,
                                         source_section)
+
+    def get_initialized_write_node(self, context_level, value_expr, source_section):
+        assert context_level > 0
+        assert self._access_idx >= 0
+        return NonLocalArgumentWriteNode(self._access_idx, context_level, value_expr,
+                                         source_section)
 
     def get_argument_index(self):
         return self._arg_idx
@@ -96,7 +108,7 @@ class Local(_Variable):
                 self._is_written_out_of_context)
 
     def get_read_node(self, context_level):
-        self._mark_reading(context_level)
+        self._mark_accessed(context_level)
         return UninitializedReadNode(self, context_level, None)
 
     def get_initialized_read_node(self, context_level, source_section):
