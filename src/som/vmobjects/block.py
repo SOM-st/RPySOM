@@ -5,7 +5,7 @@ from som.vmobjects.primitive import Primitive
 
 
 class Block(AbstractObject):
-    
+
     _immutable_fields_ = ["_method", "_outer_rcvr", '_outer_args[*]',
                           '_outer_tmps']
 
@@ -26,7 +26,7 @@ class Block(AbstractObject):
 
     def get_method(self):
         return jit.promote(self._method)
-    
+
     def get_context_argument(self, index):
         jit.promote(index)
         args = self._outer_args
@@ -63,10 +63,10 @@ class Block(AbstractObject):
 
     def get_outer_self(self):
         return self._outer_rcvr
-    
+
     def get_class(self, universe):
         return universe.blockClasses[self._method.get_number_of_arguments()]
-  
+
     class Evaluation(Primitive):
 
         _immutable_fields_ = ['_number_of_arguments']
@@ -85,7 +85,7 @@ class Block(AbstractObject):
                 if num_args > 2:
                     # Add extra with: selector elements if necessary
                     signature_string += "with:" * (num_args - 2)
-          
+
             # Return the signature string
             return signature_string
 

@@ -16,7 +16,7 @@ def compile_class_from_string(stmt, system_class, universe):
 
 
 class _SourcecodeCompiler(object):
-    
+
     def __init__(self):
         self._parser = None
 
@@ -41,7 +41,7 @@ class _SourcecodeCompiler(object):
             error_println("File name %s does not match class name %s."
                           % (filename, cnameC))
             universe.exit(1)
-    
+
         return result
 
     def compile_class_string(self, stream, system_class, universe):
