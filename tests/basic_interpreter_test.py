@@ -1,6 +1,8 @@
 import unittest
 from parameterized import parameterized
 
+from som.compiler.parser import ParseError
+
 from som.vm.universe       import Universe
 
 from som.vmobjects.double  import Double
@@ -11,6 +13,9 @@ from som.vmobjects.symbol  import Symbol
 
 class BasicInterpreterTest(unittest.TestCase):
     @parameterized.expand([
+        ("Self", "testAssignSuper", 42, ParseError),
+        ("Self", "testAssignSelf",  42, ParseError),
+
         ("MethodCall",     "test",  42, Integer),
         ("MethodCall",     "test2", 42, Integer),
 
@@ -77,10 +82,15 @@ class BasicInterpreterTest(unittest.TestCase):
         u = Universe()
         u.setup_classpath("Smalltalk:TestSuite/BasicInterpreterTests")
 
-        actual_result = u.execute_method(test_class, test_selector)
+        try:
+            actual_result = u.execute_method(test_class, test_selector)
 
-        self._assert_equals_SOM_value(expected_result, actual_result,
-                                      result_type)
+            self._assert_equals_SOM_value(expected_result, actual_result,
+                                          result_type)
+        except ParseError as e:
+            # if we expect a ParseError, then all is fine, otherwise re-raise it
+            if result_type is not ParseError:
+                raise e
 
     def _assert_equals_SOM_value(self, expected_result, actual_result,
                                  result_type):

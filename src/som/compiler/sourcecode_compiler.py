@@ -32,11 +32,6 @@ class _SourcecodeCompiler(object):
                 input_file.close()
         except OSError:
             raise IOError()
-        except ParseError as e:
-            from som.vm.universe import error_println
-            error_println(str(e))
-            universe.exit(1)
-            return None
 
         cname = result.get_name()
         cnameC = cname.get_string()

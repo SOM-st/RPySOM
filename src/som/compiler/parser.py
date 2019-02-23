@@ -684,6 +684,13 @@ class Parser(object):
         return mgenc.get_global_read(var_symbol)
 
     def _variable_write(self, mgenc, variable_name, exp):
+        if variable_name == "self":
+            raise ParseError(
+                "It is not possible to write to `self`, it is a pseudo variable", Symbol.NONE, self)
+        if variable_name == "super":
+            raise ParseError(
+                "It is not possible to write to `super`, it is a pseudo variable", Symbol.NONE, self)
+
         variable = mgenc.get_variable(variable_name)
         if variable:
             return variable.get_write_node(
