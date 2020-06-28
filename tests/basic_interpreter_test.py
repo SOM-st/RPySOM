@@ -82,7 +82,9 @@ class BasicInterpreterTest(unittest.TestCase):
         ("Regressions", "testSymbolEquality",          1, Integer),
         ("Regressions", "testSymbolReferenceEquality", 1, Integer),
 
-        ("NumberOfTests", "numberOfTests", 51, Integer),
+        ("BinaryOperation", "test", 3 + 8, Integer),
+
+        ("NumberOfTests", "numberOfTests", 52, Integer),
     ])
     def test_basic_interpreter_behavior(self, test_class, test_selector,
                                         expected_result, result_type):
