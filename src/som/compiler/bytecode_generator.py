@@ -58,6 +58,9 @@ class BytecodeGenerator(object):
     def emitPUSHCONSTANT(self, mgenc, lit):
         self._emit2(mgenc, BC.push_constant, mgenc.find_literal_index(lit))
 
+    def emitPUSHCONSTANT_index(self, mgenc, lit_index):
+        self._emit2(mgenc, BC.push_constant, lit_index)
+
     def _emit1(self, mgenc, code):
         mgenc.add_bytecode(code)
 

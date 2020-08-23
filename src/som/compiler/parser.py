@@ -506,7 +506,12 @@ class Parser(object):
 
     def _literal(self, mgenc):
         if self._sym == Symbol.Pound:
-            self._literal_symbol(mgenc)
+            self._peek_for_next_symbol_from_lexer_if_necessary()
+
+            if self._next_sym == Symbol.NewTerm:
+                self._literal_array(mgenc)
+            else:
+                self._literal_symbol(mgenc)
         elif self._sym == Symbol.STString:
             self._literal_string(mgenc)
         else:
@@ -581,12 +586,45 @@ class Parser(object):
 
         self._bc_gen.emitPUSHCONSTANT(mgenc, string)
 
+    def _literal_array(self, mgenc):
+        self._expect(Symbol.Pound)
+        self._expect(Symbol.NewTerm)
+
+        array_class_name = self._universe.symbol_for("Array")
+        array_size_placeholder = self._universe.symbol_for("ArraySizeLiteralPlaceholder")
+        new_message = self._universe.symbol_for("new:")
+        at_put_message = self._universe.symbol_for("at:put:")
+
+        mgenc.add_literal_if_absent(array_class_name)
+        mgenc.add_literal_if_absent(new_message)
+        mgenc.add_literal_if_absent(at_put_message)
+
+        array_size_literal_idx = mgenc.add_literal(array_size_placeholder)
+
+        # create empty array
+        self._bc_gen.emitPUSHGLOBAL(mgenc, array_class_name)
+        self._bc_gen.emitPUSHCONSTANT_index(mgenc, array_size_literal_idx)
+        self._bc_gen.emitSEND(mgenc, new_message)
+
+        i = 1
+
+        while self._sym != Symbol.EndTerm:
+            push_idx = self._universe.new_integer(i)
+            mgenc.add_literal_if_absent(push_idx)
+            self._bc_gen.emitPUSHCONSTANT(mgenc, push_idx)
+
+            self._literal(mgenc)
+            self._bc_gen.emitSEND(mgenc, at_put_message)
+            i += 1
+
+        mgenc.update_literal(
+            array_size_placeholder, array_size_literal_idx, self._universe.new_integer(i - 1))
+        self._expect(Symbol.EndTerm)
+
     def _selector(self):
-        if (self._sym == Symbol.OperatorSequence or
-            self._sym_in(self._single_op_syms)):
+        if self._sym == Symbol.OperatorSequence or self._sym_in(self._single_op_syms):
             return self._binary_selector()
-        if (self._sym == Symbol.Keyword or
-            self._sym == Symbol.KeywordSequence):
+        if self._sym == Symbol.Keyword or self._sym == Symbol.KeywordSequence:
             return self._keyword_selector()
         return self._unary_selector()
 
@@ -687,3 +725,7 @@ class Parser(object):
 
     def _peek_for_next_symbol_from_lexer(self):
         self._next_sym = self._lexer.peek()
+
+    def _peek_for_next_symbol_from_lexer_if_necessary(self):
+        if not self._lexer.get_peek_done():
+            self._peek_for_next_symbol_from_lexer()

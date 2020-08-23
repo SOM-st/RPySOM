@@ -118,7 +118,16 @@ class MethodGenerationContext(object):
         self._outer_genc = mgenc
 
     def add_literal(self, lit):
+        i = len(self._literals)
+
+        assert i < 128
         self._literals.append(lit)
+
+        return i
+
+    def update_literal(self, old_val, index, new_val):
+        assert self._literals[index] == old_val
+        self._literals[index] = new_val
 
     def find_var(self, var, triplet):
         # triplet: index, context, isArgument
