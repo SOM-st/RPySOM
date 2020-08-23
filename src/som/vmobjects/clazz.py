@@ -119,8 +119,8 @@ class Class(Object):
         self.set_instance_invokables(self.get_instance_invokables().copy_and_extend_with(value, self._universe))
         return True
 
-    def add_instance_primitive(self, value):
-        if self.add_instance_invokable(value):
+    def add_instance_primitive(self, value, warn_if_not_existing):
+        if self.add_instance_invokable(value) and warn_if_not_existing:
             from som.vm.universe import std_print, std_println
             std_print("Warning: Primitive " + value.get_signature().get_embedded_string())
             std_println(" is not in class definition for class " + self.get_name().get_embedded_string())

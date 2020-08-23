@@ -488,7 +488,9 @@ class Universe(object):
         result = self._load_class(name, None)
 
         # Add the appropriate value primitive to the block class
-        result.add_instance_primitive(block_evaluation_primitive(number_of_arguments, self))
+        result.add_instance_primitive(
+            block_evaluation_primitive(number_of_arguments, self),
+            False)
 
         # Insert the block class into the dictionary of globals
         self.set_global(name, result)
