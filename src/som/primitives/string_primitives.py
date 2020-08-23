@@ -53,6 +53,51 @@ def _hashcode(ivkbl, frame, interpreter):
         compute_identity_hash(rcvr.get_embedded_string())))
 
 
+def _is_whitespace(ivkbl, frame, interpreter):
+    self = frame.pop()
+    s = self.get_embedded_string()
+
+    for c in s:
+        if not c.isspace():
+            frame.push(interpreter.get_universe().falseObject)
+            return
+
+    if len(s) > 0:
+        frame.push(interpreter.get_universe().trueObject)
+    else:
+        frame.push(interpreter.get_universe().falseObject)
+
+
+def _is_letters(ivkbl, frame, interpreter):
+    self = frame.pop()
+    s = self.get_embedded_string()
+
+    for c in s:
+        if not c.isalpha():
+            frame.push(interpreter.get_universe().falseObject)
+            return
+
+    if len(s) > 0:
+        frame.push(interpreter.get_universe().trueObject)
+    else:
+        frame.push(interpreter.get_universe().falseObject)
+
+
+def _is_digits(ivkbl, frame, interpreter):
+    self = frame.pop()
+    s = self.get_embedded_string()
+
+    for c in s:
+        if not c.isdigit():
+            frame.push(interpreter.get_universe().falseObject)
+            return
+
+    if len(s) > 0:
+        frame.push(interpreter.get_universe().trueObject)
+    else:
+        frame.push(interpreter.get_universe().falseObject)
+
+
 class StringPrimitives(Primitives):
 
     def install_primitives(self):
@@ -62,3 +107,7 @@ class StringPrimitives(Primitives):
         self._install_instance_primitive(Primitive("=",                     self._universe, _equals))
         self._install_instance_primitive(Primitive("primSubstringFrom:to:", self._universe, _substring))
         self._install_instance_primitive(Primitive("hashcode",              self._universe, _hashcode))
+
+        self._install_instance_primitive(Primitive("isWhiteSpace", self._universe, _is_whitespace))
+        self._install_instance_primitive(Primitive("isLetters", self._universe, _is_letters))
+        self._install_instance_primitive(Primitive("isDigits", self._universe, _is_digits))
