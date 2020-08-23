@@ -67,8 +67,8 @@ class MethodGenerationContext(object):
 
         return max_depth
 
-    def set_primitive(self, boolean):
-        self._primitive = boolean
+    def set_primitive(self):
+        self._primitive = True
 
     def set_signature(self, sig):
         self._signature = sig
@@ -83,8 +83,8 @@ class MethodGenerationContext(object):
     def is_finished(self):
         return self._finished
 
-    def set_finished(self, boolean = True):
-        self._finished = boolean
+    def set_finished(self):
+        self._finished = True
 
     def add_local_if_absent(self, local):
         if local in self._locals:

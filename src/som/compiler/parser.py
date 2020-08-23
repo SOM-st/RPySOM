@@ -208,7 +208,7 @@ class Parser(object):
         self._pattern(mgenc)
         self._expect(Symbol.Equal)
         if self._sym == Symbol.Primitive:
-            mgenc.set_primitive(True)
+            mgenc.set_primitive()
             self._primitive_block()
         else:
             self._method_block(mgenc)
@@ -332,7 +332,7 @@ class Parser(object):
         else:
             self._bc_gen.emitRETURNLOCAL(mgenc)
 
-        mgenc.set_finished(True)
+        mgenc.set_finished()
 
     def _expression(self, mgenc):
         self._peek_for_next_symbol_from_lexer()
@@ -623,7 +623,7 @@ class Parser(object):
         # a return
         if not mgenc.is_finished():
             self._bc_gen.emitRETURNLOCAL(mgenc)
-            mgenc.set_finished(True)
+            mgenc.set_finished()
 
         self._expect(Symbol.EndBlock)
 
