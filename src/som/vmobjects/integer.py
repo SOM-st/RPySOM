@@ -1,5 +1,8 @@
 from rpython.rlib.rarithmetic import ovfcheck
-from rpython.rlib.rbigint import rbigint
+from rpython.rlib.rbigint import rbigint, _divrem
+from rpython.rtyper.lltypesystem import lltype
+from rpython.rtyper.lltypesystem.lloperation import llop
+
 from som.vmobjects.abstract_object import AbstractObject
 from som.vmobjects.biginteger import BigInteger
 from som.vmobjects.double import Double
@@ -148,6 +151,18 @@ class Integer(AbstractObject):
             l = self._embedded_integer
             r = right.get_embedded_integer()
             return universe.new_integer(l % r)
+
+    def prim_remainder(self, right, universe):
+        if isinstance(right, BigInteger):
+            d, r = _divrem(rbigint.fromint(self._embedded_integer),
+                           right.get_embedded_biginteger())
+            return universe.new_biginteger(r)
+        elif isinstance(right, Double):
+            return self._to_double(universe).prim_remainder(right, universe)
+        else:
+            l = self._embedded_integer
+            r = right.get_embedded_integer()
+            return universe.new_integer(llop.int_mod(lltype.Signed, l, r))
 
     def prim_and(self, right, universe):
         if isinstance(right, BigInteger):

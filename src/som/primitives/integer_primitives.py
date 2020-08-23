@@ -1,5 +1,8 @@
 from rpython.rlib.rarithmetic import ovfcheck, LONG_BIT
 from rpython.rlib.rbigint import rbigint
+from rpython.rtyper.lltypesystem import rffi
+from rpython.rtyper.lltypesystem import lltype
+
 from som.primitives.primitives import Primitives
 from som.vmobjects.integer     import Integer
 from som.vmobjects.primitive   import Primitive
@@ -13,6 +16,18 @@ import math
 def _asString(ivkbl, frame, interpreter):
     rcvr = frame.pop()
     frame.push(rcvr.prim_as_string(interpreter.get_universe()))
+
+
+def _as32BitSignedValue(ivkbl, frame, interpreter):
+    rcvr = frame.pop()
+    val = rffi.cast(lltype.Signed, rffi.cast(rffi.INT, rcvr.get_embedded_integer()))
+    frame.push(interpreter.get_universe().new_integer(val))
+
+
+def _as32BitUnsignedValue(ivkbl, frame, interpreter):
+    rcvr = frame.pop()
+    val = rffi.cast(lltype.Signed, rffi.cast(rffi.UINT, rcvr.get_embedded_integer()))
+    frame.push(interpreter.get_universe().new_integer(val))
 
 
 def _sqrt(ivkbl, frame, interpreter):
@@ -66,6 +81,12 @@ def _mod(ivkbl, frame, interpreter):
     frame.push(left.prim_modulo(right_obj, interpreter.get_universe()))
 
 
+def _remainder(ivkbl, frame, interpreter):
+    right_obj = frame.pop()
+    left      = frame.pop()
+    frame.push(left.prim_remainder(right_obj, interpreter.get_universe()))
+
+
 def _and(ivkbl, frame, interpreter):
     right_obj = frame.pop()
     left      = frame.pop()
@@ -112,6 +133,22 @@ def _leftShift(ivkbl, frame, interpreter):
     except OverflowError:
         frame.push(universe.new_biginteger(
             rbigint.fromint(l).lshift(r)))
+
+
+def _unsignedRightShift(ivkbl, frame, interpreter):
+    right_obj = frame.pop()
+    left      = frame.pop()
+    universe  = interpreter.get_universe()
+
+    assert isinstance(right_obj, Integer)
+
+    l = left.get_embedded_integer()
+    r = right_obj.get_embedded_integer()
+
+    u_l = rffi.cast(lltype.Unsigned, l)
+    u_r = rffi.cast(lltype.Unsigned, r)
+
+    frame.push(universe.new_integer(rffi.cast(lltype.Signed, u_l >> u_r)))
 
 
 def _bitXor(ivkbl, frame, interpreter):
@@ -210,12 +247,19 @@ class IntegerPrimitives(Primitives):
         self._install_instance_primitive(Primitive("//", self._universe, _doubleDiv))
         self._install_instance_primitive(Primitive("/",  self._universe, _intDiv))
         self._install_instance_primitive(Primitive("%",  self._universe, _mod))
+        self._install_instance_primitive(Primitive("rem:", self._universe, _remainder))
         self._install_instance_primitive(Primitive("&",  self._universe, _and))
         self._install_instance_primitive(Primitive("=",  self._universe, _equals))
         self._install_instance_primitive(Primitive("<",  self._universe, _lessThan))
 
         self._install_instance_primitive(Primitive("<<", self._universe, _leftShift))
+        self._install_instance_primitive(Primitive(">>>", self._universe, _unsignedRightShift))
         self._install_instance_primitive(Primitive("bitXor:", self._universe, _bitXor))
+
+        self._install_instance_primitive(
+            Primitive("as32BitSignedValue", self._universe, _as32BitSignedValue))
+        self._install_instance_primitive(
+            Primitive("as32BitUnsignedValue", self._universe, _as32BitUnsignedValue))
 
         self._install_instance_primitive(Primitive("to:do:", self._universe, _toDo))
 

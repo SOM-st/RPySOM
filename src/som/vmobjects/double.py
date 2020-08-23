@@ -77,6 +77,10 @@ class Double(AbstractObject):
         r = self._get_float(right)
         return universe.new_double(math.fmod(self._embedded_double, r))
 
+    def prim_remainder(self, right, universe):
+        r = self._get_float(right)
+        return universe.new_double(math.fmod(self._embedded_double, r))
+
     def prim_and(self, right, universe):
         raise NotImplementedError("bit operations are unsupported on double")
 
