@@ -11,7 +11,7 @@ def _equals(ivkbl, frame, interpreter):
     op1 = frame.pop()
     op2 = frame.pop()  # rcvr
     universe = interpreter.get_universe()
-    if op1 == op2:
+    if op1 is op2:
         frame.push(universe.trueObject)
     else:
         frame.push(universe.falseObject)
