@@ -147,17 +147,6 @@ class Parser(object):
                 super_class.get_instance_fields())
             cgenc.set_class_fields_of_super(
                 super_class.get_class(self._universe).get_instance_fields())
-        else:
-            # WARNING:
-            # We hardcode here the field names for Class
-            # since Object class superclass = Class
-            # We avoid here any kind of dynamic solution to avoid further
-            # complexity. However, that makes it static, it is going to make it
-            #  harder to change the definition of Class and Object
-            field_names_of_class = ["class", "superClass", "name",
-                                    "instanceFields", "instanceInvokables"]
-            field_names = self._universe.new_array_with_strings(field_names_of_class)
-            cgenc.set_class_fields_of_super(field_names)
 
     def _sym_in(self, symbol_list):
         return self._sym in symbol_list
