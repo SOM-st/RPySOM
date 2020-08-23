@@ -45,7 +45,7 @@ class BytecodeGenerator(object):
         self._emit2(mgenc, BC.send, mgenc.find_literal_index(msg))
 
     def emitQUICKSEND(self, mgenc, msg):
-        m = msg.get_string()
+        m = msg.get_embedded_string()
         if m == "+":
             self._emit1(mgenc, BC.add)
         elif m == "*":

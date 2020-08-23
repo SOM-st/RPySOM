@@ -163,9 +163,9 @@ class Frame(object):
     def print_stack_trace(self, bytecode_index):
         # Print a stack trace starting in this frame
         from som.vm.universe import std_print, std_println
-        std_print(self.get_method().get_holder().get_name().get_string())
+        std_print(self.get_method().get_holder().get_name().get_embedded_string())
         std_println(" %d @ %s" % (bytecode_index,
-                             self.get_method().get_signature().get_string()))
-        
+                             self.get_method().get_signature().get_embedded_string()))
+
         if self.has_previous_frame():
             self.get_previous_frame().print_stack_trace()

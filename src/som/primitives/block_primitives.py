@@ -11,10 +11,10 @@ def get_printable_location(interpreter, method_body, method_condition, while_typ
     assert isinstance(method_body, Method)
     assert isinstance(method_condition, Method)
 
-    return "[%s>>%s] while [%s>>%s]" % (method_condition.get_holder().get_name().get_string(),
-                                        method_condition.get_signature().get_string(),
-                                        method_body.get_holder().get_name().get_string(),
-                                        method_body.get_signature().get_string())
+    return "[%s>>%s] while [%s>>%s]" % (method_condition.get_holder().get_name().get_embedded_string(),
+                                        method_condition.get_signature().get_embedded_string(),
+                                        method_body.get_holder().get_name().get_embedded_string(),
+                                        method_body.get_signature().get_embedded_string())
 
 jitdriver = jit.JitDriver(
     greens=['interpreter', 'method_body', 'method_condition', 'while_type'],

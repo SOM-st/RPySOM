@@ -72,4 +72,4 @@ class AbstractObject(object):
 
     def __str__(self):
         from som.vm.universe import get_current
-        return "a " + self.get_class(get_current()).get_name().get_string()
+        return "a " + self.get_class(get_current()).get_name().get_embedded_string()

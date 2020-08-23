@@ -122,9 +122,9 @@ class Class(Object):
     def add_instance_primitive(self, value):
         if self.add_instance_invokable(value):
             from som.vm.universe import std_print, std_println
-            std_print("Warning: Primitive " + value.get_signature().get_string())
-            std_println(" is not in class definition for class " + self.get_name().get_string())
-  
+            std_print("Warning: Primitive " + value.get_signature().get_embedded_string())
+            std_println(" is not in class definition for class " + self.get_name().get_embedded_string())
+
     def get_instance_field_name(self, index):
         return self.get_instance_fields().get_indexable_field(index)
 
@@ -155,4 +155,4 @@ class Class(Object):
         prims(self._universe).install_primitives_in(self)
 
     def __str__(self):
-        return "Class(" + self.get_name().get_string() + ")"
+        return "Class(" + self.get_name().get_embedded_string() + ")"

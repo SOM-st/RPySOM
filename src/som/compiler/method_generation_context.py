@@ -26,7 +26,7 @@ class MethodGenerationContext(object):
         return self._primitive
 
     def assemble_primitive(self, universe):
-        return empty_primitive(self._signature.get_string(), universe)
+        return empty_primitive(self._signature.get_embedded_string(), universe)
 
     def assemble(self, universe):
         num_locals = len(self._locals)

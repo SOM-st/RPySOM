@@ -39,7 +39,7 @@ class _SourcecodeCompiler(object):
             return None
 
         cname = result.get_name()
-        cnameC = cname.get_string()
+        cnameC = cname.get_embedded_string()
 
         if filename != cnameC:
             from som.vm.universe import error_println

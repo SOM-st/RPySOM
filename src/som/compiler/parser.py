@@ -138,11 +138,11 @@ class Parser(object):
         cgenc.set_super_name(super_name)
 
         # Load the super class, if it is not nil (break the dependency cycle)
-        if super_name.get_string() != "nil":
+        if super_name.get_embedded_string() != "nil":
             super_class = self._universe.load_class(super_name)
             if not super_class:
                 raise ParseError("Super class %s could not be loaded"
-                                 % super_name.get_string(), Symbol.NONE, self)
+                                 % super_name.get_embedded_string(), Symbol.NONE, self)
             cgenc.set_instance_fields_of_super(
                 super_class.get_instance_fields())
             cgenc.set_class_fields_of_super(
@@ -449,7 +449,7 @@ class Parser(object):
 
     @staticmethod
     def _is_quick_send(msg):
-        m = msg.get_string()
+        m = msg.get_embedded_string()
         return m == "+" or m == "-" or m == "*"
 
     def _binary_message(self, mgenc, is_super_send):
