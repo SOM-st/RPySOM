@@ -2,7 +2,7 @@ from som.interpreter.bytecodes import bytecode_length, bytecode_stack_effect, by
 from som.vmobjects.primitive   import empty_primitive
 
 class MethodGenerationContext(object):
-    
+
     def __init__(self):
         self._holder_genc = None
         self._outer_genc  = None
@@ -15,7 +15,7 @@ class MethodGenerationContext(object):
         self._finished    = False
         self._bytecode    = []
 
-  
+
     def set_holder(self, cgenc):
         self._holder_genc = cgenc
 
@@ -30,43 +30,42 @@ class MethodGenerationContext(object):
 
     def assemble(self, universe):
         num_locals = len(self._locals)
-        
+
         meth = universe.new_method(self._signature,
                                    len(self._bytecode),
                                    list(self._literals),
                                    universe.new_integer(num_locals),
                                    universe.new_integer(self._compute_stack_depth()))
-        
+
         # copy bytecodes into method
         i = 0
         for bc in self._bytecode:
             meth.set_bytecode(i, bc)
             i += 1
-    
+
         # return the method - the holder field is to be set later on!
         return meth
 
-    def _compute_stack_depth(self): 
+    def _compute_stack_depth(self):
         depth     = 0
         max_depth = 0
         i         = 0
 
         while i < len(self._bytecode):
             bc = self._bytecode[i]
-            
+
             if bytecode_stack_effect_depends_on_send(bc):
                 signature = self._literals[self._bytecode[i + 1]]
                 depth += bytecode_stack_effect(bc, signature.get_number_of_signature_arguments())
             else:
                 depth += bytecode_stack_effect(bc)
-            
+
             i += bytecode_length(bc)
-            
+
             if depth > max_depth:
                 max_depth = depth
-        
-        return max_depth
 
+        return max_depth
 
     def set_primitive(self, boolean):
         self._primitive = boolean
@@ -77,7 +76,7 @@ class MethodGenerationContext(object):
     def add_argument_if_absent(self, arg):
         if arg in self._locals:
             return False
-        
+
         self._arguments.append(arg)
         return True
 
@@ -105,7 +104,7 @@ class MethodGenerationContext(object):
     def add_literal_if_absent(self, lit):
         if lit in self._literals:
             return False
-        
+
         self._literals.append(lit)
         return True
 
@@ -114,7 +113,7 @@ class MethodGenerationContext(object):
 
     def get_holder(self):
         return self._holder_genc
-  
+
     def set_outer(self, mgenc):
         self._outer_genc = mgenc
 

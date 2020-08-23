@@ -8,9 +8,9 @@ from som.vmobjects.integer import Integer
 
 
 class Interpreter(object):
-    
+
     _immutable_fields_ = ["_universe", "_add_symbol"]
-    
+
     def __init__(self, universe):
         self._universe   = universe
         self._add_symbol      = None
@@ -21,10 +21,10 @@ class Interpreter(object):
         self._add_symbol      = self._universe.symbol_for("+")
         self._multiply_symbol = self._universe.symbol_for("*")
         self._subtract_symbol = self._universe.symbol_for("-")
-    
+
     def get_universe(self):
         return self._universe
-    
+
     def _do_dup(self, frame, method):
         # Handle the dup bytecode
         frame.push(frame.get_stack_element(0))
@@ -32,8 +32,9 @@ class Interpreter(object):
     def _do_push_local(self, bytecode_index, frame, method):
         # Handle the push local bytecode
         frame.push(
-            frame.get_local(method.get_bytecode(bytecode_index + 1),
-            method.get_bytecode(bytecode_index + 2)))
+            frame.get_local(
+                method.get_bytecode(bytecode_index + 1),
+                method.get_bytecode(bytecode_index + 2)))
 
     def _do_push_argument(self, bytecode_index, frame, method):
         # Handle the push argument bytecode

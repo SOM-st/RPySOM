@@ -1,5 +1,6 @@
 from som.vmobjects.abstract_object import AbstractObject
 
+
 class Symbol(AbstractObject):
     _immutable_fields_ = ["_string", "_number_of_signature_arguments"]
     
@@ -11,7 +12,7 @@ class Symbol(AbstractObject):
     def get_string(self):
         # Get the string associated to this symbol
         return self._string
-    
+
     def _determine_number_of_signature_arguments(self):
         # Check for binary signature
         if self._is_binary_signature():
@@ -24,7 +25,7 @@ class Symbol(AbstractObject):
             for c in self._string:
                 if c == ':':
                     number_of_colons += 1
-            
+
             # The number of arguments is equal to the number of colons plus one
             return number_of_colons + 1
 
@@ -42,6 +43,6 @@ class Symbol(AbstractObject):
 
     def __str__(self):
         return "#" + self._string
-    
+
     def get_class(self, universe):
         return universe.symbolClass

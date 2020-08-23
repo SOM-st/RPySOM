@@ -1,7 +1,8 @@
 from rpython.rlib import jit
 
+
 # Frame layout:
-# 
+#
 # +-----------------+
 # | Arguments       | 0
 # +-----------------+
@@ -12,7 +13,7 @@ from rpython.rlib import jit
 # +-----------------+
 #
 class Frame(object):
-        
+
     _immutable_fields_ = ["_method", "_context", "_stack"]
 
     def __init__(self, num_elements, method, context, previous_frame):
@@ -21,7 +22,7 @@ class Frame(object):
         self._stack          = [None] * num_elements
         self._stack_pointer  = self._get_initial_stack_pointer()
         self._previous_frame = previous_frame
-    
+
     def get_previous_frame(self):
         return self._previous_frame
 
@@ -150,7 +151,7 @@ class Frame(object):
         num_args = self.get_method().get_number_of_arguments()
         for i in range(0, num_args):
             self._stack[i] = frame.get_stack_element(num_args - 1 - i)
-    
+
     @jit.unroll_safe
     def pop_old_arguments_and_push_result(self, method, result):
         num_args = method.get_number_of_arguments()

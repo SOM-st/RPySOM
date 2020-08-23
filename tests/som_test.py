@@ -33,7 +33,7 @@ class SomTest(unittest.TestCase):
         args = ["-cp", "Smalltalk", "TestSuite/TestHarness.som", test_name]
         u = Universe(True)
         u.interpret(args)
-        
+
         self.assertEquals(0, u.last_exit_code())
 
 import sys

@@ -23,7 +23,7 @@ def _length(ivkbl, frame, interpreter):
 
 def _equals(ivkbl, frame, interpreter):
     op1 = frame.pop()
-    op2 = frame.pop() # rcvr
+    op2 = frame.pop()  # rcvr
     universe = interpreter.get_universe()
     if op1.get_class(universe) == universe.stringClass:
         if op1.get_embedded_string() == op2.get_embedded_string():
@@ -40,8 +40,8 @@ def _substring(ivkbl, frame, interpreter):
     s      = start.get_embedded_integer() - 1
     e      = end.get_embedded_integer()
     string = rcvr.get_embedded_string()
-    
-    if s < 0 or s >= len(string) or e > len(string) or e < s: 
+
+    if s < 0 or s >= len(string) or e > len(string) or e < s:
         frame.push(interpreter.get_universe().new_string("Error - index out of bounds"))
     else:
         frame.push(interpreter.get_universe().new_string(string[s:e]))
@@ -54,8 +54,8 @@ def _hashcode(ivkbl, frame, interpreter):
 
 
 class StringPrimitives(Primitives):
-    
-    def install_primitives(self):        
+
+    def install_primitives(self):
         self._install_instance_primitive(Primitive("concatenate:",          self._universe, _concat))
         self._install_instance_primitive(Primitive("asSymbol",              self._universe, _asSymbol))
         self._install_instance_primitive(Primitive("length",                self._universe, _length))

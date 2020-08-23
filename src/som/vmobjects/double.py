@@ -7,12 +7,12 @@ import math
 class Double(AbstractObject):
 
     _immutable_fields_ = ["_embedded_double"]
-    
+
     def __init__(self, value):
         AbstractObject.__init__(self)
         assert isinstance(value, float)
         self._embedded_double = value
-    
+
     def get_embedded_double(self):
         return self._embedded_double
 

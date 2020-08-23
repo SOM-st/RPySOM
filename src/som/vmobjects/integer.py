@@ -6,20 +6,20 @@ from som.vmobjects.double import Double
 
 
 class Integer(AbstractObject):
-    
+
     _immutable_fields_ = ["_embedded_integer"]
-    
+
     def __init__(self, value):
         AbstractObject.__init__(self)
         assert isinstance(value, int)
         self._embedded_integer = value
-    
+
     def get_embedded_integer(self):
         return self._embedded_integer
 
     def __str__(self):
         return str(self._embedded_integer)
-    
+
     def get_class(self, universe):
         return universe.integerClass
 

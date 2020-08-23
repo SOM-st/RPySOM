@@ -8,7 +8,7 @@ def _asString(ivkbl, frame, interpreter):
 
 
 class SymbolPrimitives(Primitives):
-    
+
     def install_primitives(self):
         self._install_instance_primitive(Primitive("asString", self._universe,
                                                    _asString))

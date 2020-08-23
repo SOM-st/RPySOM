@@ -1,7 +1,7 @@
 from som.interpreter.bytecodes import Bytecodes as BC
 
 class BytecodeGenerator(object):
-    
+
     def emitPOP(self, mgenc):
         self._emit1(mgenc, BC.pop)
 
