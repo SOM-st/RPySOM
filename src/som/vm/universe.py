@@ -4,7 +4,7 @@ from rpython.rlib.rrandom import Random
 from rpython.rlib import jit
 
 from som.interpreter.interpreter import Interpreter
-from som.interpreter.bytecodes   import Bytecodes 
+from som.interpreter.bytecodes   import Bytecodes
 from som.interpreter.frame       import Frame
 
 from som.vmobjects.object        import Object
@@ -49,9 +49,9 @@ class Assoc(object):
 
 
 class Universe(object):
-    
+
     CURRENT = None
-    
+
     _immutable_fields_ = [
             "nilObject",
             "trueObject",
@@ -84,7 +84,7 @@ class Universe(object):
         self.objectClass    = None
         self.classClass     = None
         self.metaclassClass = None
-        
+
         self.nilClass       = None
         self.integerClass   = None
         self.arrayClass     = None
@@ -111,27 +111,31 @@ class Universe(object):
             self._last_exit_code = error_code
         else:
             raise Exit(error_code)
-    
+
     def last_exit_code(self):
         return self._last_exit_code
-    
+
     def get_interpreter(self):
         return self._interpreter
-    
+
     def execute_method(self, class_name, selector):
         self._initialize_object_system()
 
         clazz = self.load_class(self.symbol_for(class_name))
+        if clazz is None:
+            raise Exception("Class " + class_name + " could not be loaded.")
 
         bootstrap_method = self._create_bootstrap_method()
         bootstrap_frame  = self._create_bootstrap_frame(bootstrap_method, clazz)
-        
+
         # Lookup the invokable on class
         invokable = clazz.get_class(self).lookup_invokable(self.symbol_for(selector))
-        
+        if invokable is None:
+            raise Exception("Lookup of " + selector + " failed in class " + class_name)
+
         invokable.invoke(bootstrap_frame, self._interpreter)
         return bootstrap_frame.pop()
-    
+
     def _create_bootstrap_method(self):
         # Create a fake bootstrap method to simplify later frame traversal
         bootstrap_method = self.new_method(self.symbol_for("bootstrap"), 1, [],
@@ -140,17 +144,17 @@ class Universe(object):
         bootstrap_method.set_bytecode(0, Bytecodes.halt)
         bootstrap_method.set_holder(self.systemClass)
         return bootstrap_method
-    
+
     def _create_bootstrap_frame(self, bootstrap_method, receiver, arguments = None):
         # Create a fake bootstrap frame with the system object on the stack
         bootstrap_frame = self._interpreter.new_frame(None, bootstrap_method, None)
         bootstrap_frame.push(receiver)
-        
+
         if arguments:
             bootstrap_frame.push(arguments)
         return bootstrap_frame
-        
-    
+
+
     def interpret(self, arguments):
         # Check for command line switches
         arguments = self.handle_arguments(arguments)
@@ -158,7 +162,7 @@ class Universe(object):
         # Initialize the known universe
         system_object = self._initialize_object_system()
         bootstrap_method = self._create_bootstrap_method()
-        
+
         # Start the shell if no filename is given
         if len(arguments) == 0:
             shell = Shell(self, self._interpreter)
@@ -172,7 +176,7 @@ class Universe(object):
             # Lookup the initialize invokable on the system class
             initialize = self.systemClass.lookup_invokable(self.symbol_for("initialize:"))
             return initialize.invoke(bootstrap_frame, self._interpreter)
-    
+
     def handle_arguments(self, arguments):
         got_classpath  = False
         remaining_args = []
@@ -192,7 +196,7 @@ class Universe(object):
             else:
                 remaining_args.append(arguments[i])
             i += 1
-    
+
         if not got_classpath:
             # Get the default class path of the appropriate size
             self.classpath = self._default_classpath()
@@ -204,25 +208,25 @@ class Universe(object):
 
             if split[0] != "":  # there was a path
                 self.classpath.insert(0, split[0])
-        
+
             remaining_args[i] = split[1]
             i += 1
-        
+
         return remaining_args
-    
+
     def setup_classpath(self, cp):
         self.classpath = cp.split(os.pathsep)
 
     @staticmethod
     def _default_classpath():
         return ['.']
-    
+
     # take argument of the form "../foo/Test.som" and return
     # "../foo", "Test", "som"
     @staticmethod
     def _get_path_class_ext(path):
         return path_split(path)
-    
+
     def _print_usage_and_exit(self):
         # Print the usage
         std_println("Usage: som [-options] [args...]                          ")
@@ -265,10 +269,10 @@ class Universe(object):
         self._initialize_system_class(self.nilClass,        self.objectClass, "Nil")
         self._initialize_system_class(self.arrayClass,      self.objectClass, "Array")
         self._initialize_system_class(self.methodClass,      self.arrayClass, "Method")
-        self._initialize_system_class(self.symbolClass,     self.objectClass, "Symbol")
         self._initialize_system_class(self.integerClass,    self.objectClass, "Integer")
         self._initialize_system_class(self.primitiveClass,  self.objectClass, "Primitive")
         self._initialize_system_class(self.stringClass,     self.objectClass, "String")
+        self._initialize_system_class(self.symbolClass,     self.stringClass, "Symbol")
         self._initialize_system_class(self.doubleClass,     self.objectClass, "Double")
 
         # Load methods and fields into the system classes
@@ -291,7 +295,7 @@ class Universe(object):
         trueClassName    = self.symbol_for("True")
         trueClass        = self.load_class(trueClassName)
         self.trueObject  = self.new_instance(trueClass)
-        
+
         falseClassName   = self.symbol_for("False")
         falseClass       = self.load_class(falseClassName)
         self.falseObject = self.new_instance(falseClass)
@@ -307,9 +311,9 @@ class Universe(object):
         self.set_global(self.symbol_for("system"), system_object)
         self.set_global(self.symbol_for("System"), self.systemClass)
         self.set_global(self.symbol_for("Block"),  self.blockClass)
-        
+
         self.set_global(self.symbol_for("Nil"),    self.nilClass)
-        
+
         self.set_global( trueClassName,  trueClass)
         self.set_global(falseClassName, falseClass)
 
@@ -326,14 +330,14 @@ class Universe(object):
         result = self._symbol_table.get(string, None)
         if result is not None:
             return result
-        
+
         # Create a new symbol and return it
         result = self._new_symbol(string)
         return result
-    
+
     def new_array_with_length(self, length):
         return Array(self.nilObject, length)
-  
+
     def new_array_from_list(self, values):
         make_sure_not_resized(values)
         return Array(self.nilObject, 0, values)
@@ -345,7 +349,7 @@ class Universe(object):
         # Copy all elements from the string array into the array
         for i in range(len(strings)):
             result.set_indexable_field(i, self.new_string(strings[i]))
-    
+
         return result
 
     @staticmethod
@@ -358,8 +362,7 @@ class Universe(object):
         result.set_class(class_class)
         return result
 
-    @staticmethod
-    def new_frame(previous_frame, method, context):
+    def new_frame(self, previous_frame, method, context):
         # Compute the maximum number of stack locations (including arguments,
         # locals and extra buffer to support doesNotUnderstand) and set the
         # number of indexable fields accordingly
@@ -367,7 +370,7 @@ class Universe(object):
                   method.get_number_of_locals().get_embedded_integer() +
                   method.get_maximum_number_of_stack_elements().get_embedded_integer() + 2)
 
-        return Frame(length, method, context, previous_frame)
+        return Frame(length, method, context, previous_frame, self.nilObject)
 
     @staticmethod
     def new_method(signature, num_bytecodes, literals,
@@ -391,7 +394,7 @@ class Universe(object):
     @staticmethod
     def new_double(value):
         return Double(value)
-    
+
     def new_metaclass_class(self):
         # Allocate the metaclass classes
         result = Class(self)
@@ -413,7 +416,7 @@ class Universe(object):
         # Insert the new symbol into the symbol table
         self._symbol_table[string] = result
         return result
-      
+
     def new_system_class(self):
         # Allocate the new system class
         system_class = Class(self)
@@ -424,7 +427,7 @@ class Universe(object):
 
         # Return the freshly allocated system class
         return system_class
-    
+
     def _initialize_system_class(self, system_class, super_class, name):
         # Initialize the superclass hierarchy
         if super_class:
@@ -447,7 +450,7 @@ class Universe(object):
 
         # Insert the system class into the dictionary of globals
         self.set_global(system_class.get_name(), system_class)
-    
+
     def get_global(self, name):
         # Return the global with the given name if it's in the dictionary of globals
         # if not, return None
@@ -488,7 +491,9 @@ class Universe(object):
         result = self._load_class(name, None)
 
         # Add the appropriate value primitive to the block class
-        result.add_instance_primitive(block_evaluation_primitive(number_of_arguments, self))
+        result.add_instance_primitive(
+            block_evaluation_primitive(number_of_arguments, self),
+            False)
 
         # Insert the block class into the dictionary of globals
         self.set_global(name, result)
@@ -517,7 +522,7 @@ class Universe(object):
         result = self._load_class(system_class.get_name(), system_class)
 
         if not result:
-            error_println(system_class.get_name().get_string()
+            error_println(system_class.get_name().get_embedded_string()
                    + " class could not be loaded. It is likely that the"
                    + " class path has not been initialized properly."
                    + " Please make sure that the '-cp' parameter is given on the command-line.")
@@ -532,7 +537,7 @@ class Universe(object):
         for cpEntry in self.classpath:
             try:
                 # Load the class from a file and return the loaded class
-                result = sourcecode_compiler.compile_class_from_file(cpEntry, name.get_string(), system_class, self)
+                result = sourcecode_compiler.compile_class_from_file(cpEntry, name.get_embedded_string(), system_class, self)
                 if self._dump_bytecodes:
                     from som.compiler.disassembler import dump
                     dump(result.get_class(self))
@@ -545,7 +550,7 @@ class Universe(object):
 
         # The class could not be found.
         return None
-    
+
     def load_shell_class(self, stmt):
         # Load the class from a stream and return the loaded class
         result = sourcecode_compiler.compile_class_from_string(stmt, None, self)

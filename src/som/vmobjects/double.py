@@ -7,12 +7,12 @@ import math
 class Double(AbstractObject):
 
     _immutable_fields_ = ["_embedded_double"]
-    
+
     def __init__(self, value):
         AbstractObject.__init__(self)
         assert isinstance(value, float)
         self._embedded_double = value
-    
+
     def get_embedded_double(self):
         return self._embedded_double
 
@@ -74,6 +74,10 @@ class Double(AbstractObject):
         return universe.new_integer(int(self._embedded_double / r))
 
     def prim_modulo(self, right, universe):
+        r = self._get_float(right)
+        return universe.new_double(math.fmod(self._embedded_double, r))
+
+    def prim_remainder(self, right, universe):
         r = self._get_float(right)
         return universe.new_double(math.fmod(self._embedded_double, r))
 

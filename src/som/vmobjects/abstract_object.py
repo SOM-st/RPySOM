@@ -1,8 +1,8 @@
 class AbstractObject(object):
-    
+
     def __init__(self):
         pass
-        
+
     def send(self, frame, selector_string, arguments, universe, interpreter):
         # Turn the selector string into a selector
         selector = universe.symbol_for(selector_string)
@@ -31,7 +31,7 @@ class AbstractObject(object):
 
         # Remove all arguments and put them in the freshly allocated array
         i = number_of_arguments - 1
-        
+
         while i >= 0:
             arguments_array.set_indexable_field(i, frame.pop())
             i -= 1
@@ -72,4 +72,4 @@ class AbstractObject(object):
 
     def __str__(self):
         from som.vm.universe import get_current
-        return "a " + self.get_class(get_current()).get_name().get_string()
+        return "a " + self.get_class(get_current()).get_name().get_embedded_string()

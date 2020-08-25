@@ -5,26 +5,29 @@ from som.vm.universe import Universe
 
 class SomTest(unittest.TestCase):
     @parameterized.expand([
-        ("ClassStructure",),
         ("Array"         ,),
         ("Block"         ,),
         ("ClassLoading"  ,),
+        ("ClassStructure",),
 
         ("Closure"       ,),
         ("Coercion"      ,),
         ("CompilerReturn",),
+        ("DoesNotUnderstand",),
         ("Double"        ,),
 
         ("Empty"         ,),
+        ("Global"        ,),
         ("Hash"          ,),
         ("Integer"       ,),
-        ("ObjectSize"    ,),
 
-        ("Preliminary"   ,),
+        ("Preliminary",),
         ("Reflection"    ,),
         ("SelfBlock"     ,),
+        ("SpecialSelectors",),
         ("Super"         ,),
 
+        ("Set"           ,),
         ("String"        ,),
         ("Symbol"        ,),
         ("System"        ,),
@@ -33,7 +36,7 @@ class SomTest(unittest.TestCase):
         args = ["-cp", "Smalltalk", "TestSuite/TestHarness.som", test_name]
         u = Universe(True)
         u.interpret(args)
-        
+
         self.assertEquals(0, u.last_exit_code())
 
 import sys

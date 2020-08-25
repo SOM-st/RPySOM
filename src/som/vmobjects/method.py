@@ -8,7 +8,7 @@ from som.vmobjects.abstract_object import AbstractObject
 
 
 class Method(AbstractObject):
-    
+
     _immutable_fields_ = ["_bytecodes[*]",
                           "_literals[*]",
                           "_inline_cache_class",
@@ -19,7 +19,7 @@ class Method(AbstractObject):
                           "_signature",
                           "_holder"]
 
-    
+
     def __init__(self, literals, num_locals, max_stack_elements,
                  num_bytecodes, signature):
         AbstractObject.__init__(self)
@@ -28,13 +28,13 @@ class Method(AbstractObject):
         self._bytecodes              = ["\x00"] * num_bytecodes
         self._inline_cache_class     = [None]   * num_bytecodes
         self._inline_cache_invokable = [None]   * num_bytecodes
-        
+
         self._literals               = literals
-        
+
         self._number_of_locals       = num_locals
         self._maximum_number_of_stack_elements = max_stack_elements
         self._signature = signature
-        
+
         self._holder = None
 
     @staticmethod
@@ -45,7 +45,7 @@ class Method(AbstractObject):
     def is_invokable():
         """ We use this method to identify methods and primitives """
         return True
-  
+
     def get_number_of_locals(self):
         # Get the number of locals
         return self._number_of_locals
@@ -81,7 +81,7 @@ class Method(AbstractObject):
     def get_number_of_arguments(self):
         # Get the number of arguments of this method
         return self.get_signature().get_number_of_signature_arguments()
-    
+
     def get_number_of_bytecodes(self):
         # Get the number of bytecodes in this method
         return len(self._bytecodes)
@@ -101,7 +101,7 @@ class Method(AbstractObject):
         # Allocate and push a new frame on the interpreter stack
         new_frame = interpreter.new_frame(frame, self, None)
         new_frame.copy_arguments_from(frame)
-        
+
         try:
             result = interpreter.interpret(self, new_frame)
             frame.pop_old_arguments_and_push_result(self, result)
@@ -116,9 +116,9 @@ class Method(AbstractObject):
                 raise e
 
     def __str__(self):
-        return ("Method(" + self.get_holder().get_name().get_string() + ">>" +
+        return ("Method(" + self.get_holder().get_name().get_embedded_string() + ">>" +
                 str(self.get_signature()) + ")")
-    
+
     def get_class(self, universe):
         return universe.methodClass
 
@@ -138,5 +138,5 @@ class Method(AbstractObject):
 
     def merge_point_string(self):
         """ debug info for the jit """
-        return "%s>>%s" % (self.get_holder().get_name().get_string(),
-                           self.get_signature().get_string())
+        return "%s>>%s" % (self.get_holder().get_name().get_embedded_string(),
+                           self.get_signature().get_embedded_string())

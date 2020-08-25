@@ -1,7 +1,7 @@
 from som.interpreter.bytecodes import Bytecodes as BC
 
 class BytecodeGenerator(object):
-    
+
     def emitPOP(self, mgenc):
         self._emit1(mgenc, BC.pop)
 
@@ -45,7 +45,7 @@ class BytecodeGenerator(object):
         self._emit2(mgenc, BC.send, mgenc.find_literal_index(msg))
 
     def emitQUICKSEND(self, mgenc, msg):
-        m = msg.get_string()
+        m = msg.get_embedded_string()
         if m == "+":
             self._emit1(mgenc, BC.add)
         elif m == "*":
@@ -57,6 +57,9 @@ class BytecodeGenerator(object):
 
     def emitPUSHCONSTANT(self, mgenc, lit):
         self._emit2(mgenc, BC.push_constant, mgenc.find_literal_index(lit))
+
+    def emitPUSHCONSTANT_index(self, mgenc, lit_index):
+        self._emit2(mgenc, BC.push_constant, lit_index)
 
     def _emit1(self, mgenc, code):
         mgenc.add_bytecode(code)

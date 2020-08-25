@@ -11,7 +11,7 @@ class BigInteger(AbstractObject):
         AbstractObject.__init__(self)
         assert isinstance(value, rbigint)
         self._embedded_biginteger = value
-    
+
     def get_embedded_biginteger(self):
         return self._embedded_biginteger
 

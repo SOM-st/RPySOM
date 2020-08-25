@@ -72,16 +72,53 @@ class Lexer(object):
             self._match(Symbol.At)
         elif self._current_char() == '%':
             self._match(Symbol.Per)
+        elif self._current_char() == '-':
+            self._match(Symbol.Minus)
+
+    def _lex_escape_char(self):
+        if self._end_of_buffer():
+            raise Exception("Invalid escape sequence")
+
+        if self._current_char() == "t":
+            self._text += "\t"
+        elif self._current_char() == "b":
+            self._text += "\b"
+        elif self._current_char() == "n":
+            self._text += "\n"
+        elif self._current_char() == "r":
+            self._text += "\r"
+        elif self._current_char() == "f":
+            self._text += "\f"
+        elif self._current_char() == "0":
+            self._text += "\0"
+        elif self._current_char() == "'":
+            self._text += "'"
+        elif self._current_char() == "\\":
+            self._text += "\\"
+
+        self._bufp += 1
+
+    def _lex_string_char(self):
+        if self._current_char() == '\\':
+            self._bufp += 1
+            self._lex_escape_char()
+        else:
+            self._text += self._current_char()
+            self._bufp += 1
+
+        while self._end_of_buffer():
+            if self._fill_buffer() == -1:
+                return
 
     def _lex_string(self):
         self._sym = Symbol.STString
         self._symc = '\0'
         self._bufp += 1
-        self._text = self._current_char()
+        self._text = ""
+
         while self._current_char() != '\'':
-            self._bufp += 1
-            self._text += self._current_char()
-        self._text = self._text[:-1]
+            self._lex_string_char()
+
         self._bufp += 1
 
     def get_sym(self):
@@ -142,10 +179,7 @@ class Lexer(object):
                     self._bufp += 1
                 self._sym = Symbol.Separator
             else:
-                self._bufp += 1
-                self._sym = Symbol.Minus
-                self._symc = '-'
-                self._text = "-"
+                self._lex_operator()
         
         elif self._is_operator(self._current_char()):
             self._lex_operator()
@@ -186,6 +220,9 @@ class Lexer(object):
             return False
         char_after_text = self._bufchar(self._bufp + len(text))
         return not char_after_text.isalnum()
+
+    def get_peek_done(self):
+        return self._peek_done
 
     def peek(self):
         save_sym  = self._sym
@@ -273,7 +310,7 @@ class Lexer(object):
     def _is_operator(c):
         return (c == '~'  or c == '&' or c == '|' or c == '*' or c == '/' or
                 c == '\\' or c == '+' or c == '=' or c == '>' or c == '<' or
-                c == ','  or c == '@' or c == '%')
+                c == ','  or c == '@' or c == '%' or c == '-')
 
     def _match(self, s):
         self._sym  = s

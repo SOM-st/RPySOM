@@ -1,7 +1,8 @@
 from rpython.rlib import jit
 
+
 # Frame layout:
-# 
+#
 # +-----------------+
 # | Arguments       | 0
 # +-----------------+
@@ -12,16 +13,16 @@ from rpython.rlib import jit
 # +-----------------+
 #
 class Frame(object):
-        
+
     _immutable_fields_ = ["_method", "_context", "_stack"]
 
-    def __init__(self, num_elements, method, context, previous_frame):
+    def __init__(self, num_elements, method, context, previous_frame, nilObject):
         self._method         = method
         self._context        = context
-        self._stack          = [None] * num_elements
+        self._stack          = [nilObject] * num_elements
         self._stack_pointer  = self._get_initial_stack_pointer()
         self._previous_frame = previous_frame
-    
+
     def get_previous_frame(self):
         return self._previous_frame
 
@@ -88,6 +89,7 @@ class Frame(object):
         """ Push an object onto the expression stack """
         stack_pointer = jit.promote(self._stack_pointer) + 1
         assert 0 <= stack_pointer < len(self._stack)
+        assert value is not None
         self._stack[stack_pointer] = value
         self._stack_pointer = stack_pointer
 
@@ -126,6 +128,7 @@ class Frame(object):
     def set_local(self, index, context_level, value):
         # Set the local with the given index in the given context to the given
         # value
+        assert value is not None
         self._get_context(context_level)._set_local(index, value)
 
     def get_argument(self, index, context_level):
@@ -150,7 +153,7 @@ class Frame(object):
         num_args = self.get_method().get_number_of_arguments()
         for i in range(0, num_args):
             self._stack[i] = frame.get_stack_element(num_args - 1 - i)
-    
+
     @jit.unroll_safe
     def pop_old_arguments_and_push_result(self, method, result):
         num_args = method.get_number_of_arguments()
@@ -162,9 +165,9 @@ class Frame(object):
     def print_stack_trace(self, bytecode_index):
         # Print a stack trace starting in this frame
         from som.vm.universe import std_print, std_println
-        std_print(self.get_method().get_holder().get_name().get_string())
+        std_print(self.get_method().get_holder().get_name().get_embedded_string())
         std_println(" %d @ %s" % (bytecode_index,
-                             self.get_method().get_signature().get_string()))
-        
+                             self.get_method().get_signature().get_embedded_string()))
+
         if self.has_previous_frame():
-            self.get_previous_frame().print_stack_trace()
+            self.get_previous_frame().print_stack_trace(0)
