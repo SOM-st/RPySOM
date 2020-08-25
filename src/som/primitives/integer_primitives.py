@@ -93,6 +93,17 @@ def _and(ivkbl, frame, interpreter):
     frame.push(left.prim_and(right_obj, interpreter.get_universe()))
 
 
+def _equalsequals(ivkbl, frame, interpreter):
+    right_obj = frame.pop()
+    left = frame.pop()
+
+    universe = interpreter.get_universe()
+    if isinstance(right_obj, Integer):
+        frame.push(left.prim_equals(right_obj, universe))
+    else:
+        frame.push(universe.falseObject)
+
+
 def _equals(ivkbl, frame, interpreter):
     right_obj = frame.pop()
     left      = frame.pop()
@@ -236,6 +247,8 @@ def _toDo(ivkbl, frame, interpreter):
 class IntegerPrimitives(Primitives):
 
     def install_primitives(self):
+        self._install_instance_primitive(Primitive("==", self._universe, _equalsequals))
+
         self._install_instance_primitive(Primitive("asString", self._universe, _asString))
         self._install_instance_primitive(Primitive("sqrt",     self._universe, _sqrt))
         self._install_instance_primitive(Primitive("atRandom", self._universe, _atRandom))
