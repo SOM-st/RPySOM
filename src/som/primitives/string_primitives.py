@@ -1,4 +1,4 @@
-from rpython.rlib.objectmodel import compute_identity_hash
+from rpython.rlib.objectmodel import compute_hash
 
 from som.primitives.primitives import Primitives
 from som.vmobjects.primitive import Primitive
@@ -50,7 +50,7 @@ def _substring(ivkbl, frame, interpreter):
 def _hashcode(ivkbl, frame, interpreter):
     rcvr = frame.pop()
     frame.push(interpreter.get_universe().new_integer(
-        compute_identity_hash(rcvr.get_embedded_string())))
+        compute_hash(rcvr.get_embedded_string())))
 
 
 def _is_whitespace(ivkbl, frame, interpreter):
