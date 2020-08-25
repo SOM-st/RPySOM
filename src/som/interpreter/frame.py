@@ -170,4 +170,4 @@ class Frame(object):
                              self.get_method().get_signature().get_embedded_string()))
 
         if self.has_previous_frame():
-            self.get_previous_frame().print_stack_trace()
+            self.get_previous_frame().print_stack_trace(0)
