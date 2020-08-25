@@ -122,13 +122,17 @@ class Universe(object):
         self._initialize_object_system()
 
         clazz = self.load_class(self.symbol_for(class_name))
+        if clazz is None:
+            raise Exception("Class " + class_name + " could not be loaded.")
 
         bootstrap_method = self._create_bootstrap_method()
         bootstrap_frame  = self._create_bootstrap_frame(bootstrap_method, clazz)
 
         # Lookup the invokable on class
         invokable = clazz.get_class(self).lookup_invokable(self.symbol_for(selector))
-        
+        if invokable is None:
+            raise Exception("Lookup of " + selector + " failed in class " + class_name)
+
         invokable.invoke(bootstrap_frame, self._interpreter)
         return bootstrap_frame.pop()
 
