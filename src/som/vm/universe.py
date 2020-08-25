@@ -362,8 +362,7 @@ class Universe(object):
         result.set_class(class_class)
         return result
 
-    @staticmethod
-    def new_frame(previous_frame, method, context):
+    def new_frame(self, previous_frame, method, context):
         # Compute the maximum number of stack locations (including arguments,
         # locals and extra buffer to support doesNotUnderstand) and set the
         # number of indexable fields accordingly
@@ -371,7 +370,7 @@ class Universe(object):
                   method.get_number_of_locals().get_embedded_integer() +
                   method.get_maximum_number_of_stack_elements().get_embedded_integer() + 2)
 
-        return Frame(length, method, context, previous_frame)
+        return Frame(length, method, context, previous_frame, self.nilObject)
 
     @staticmethod
     def new_method(signature, num_bytecodes, literals,
