@@ -20,6 +20,7 @@ jitdriver = jit.JitDriver(
     greens=['interpreter', 'method_body', 'method_condition', 'while_type'],
     reds='auto',
     # virtualizables=['frame'],
+    is_recursive=True,
     get_printable_location=get_printable_location)
 
 

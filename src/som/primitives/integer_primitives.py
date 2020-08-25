@@ -185,12 +185,14 @@ jitdriver_int = jit.JitDriver(
     greens=['interpreter', 'block_method'],
     reds='auto',
     # virtualizables=['frame'],
+    is_recursive=True,
     get_printable_location=get_printable_location)
 
 jitdriver_double = jit.JitDriver(
     greens=['interpreter', 'block_method'],
     reds='auto',
     # virtualizables=['frame'],
+    is_recursive=True,
     get_printable_location=get_printable_location)
 
 
