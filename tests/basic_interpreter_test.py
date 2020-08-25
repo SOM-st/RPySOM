@@ -30,6 +30,9 @@ class BasicInterpreterTest(unittest.TestCase):
         ("Blocks", "testArg2", 77, Integer),
         ("Blocks", "testArgAndLocal", 8, Integer),
         ("Blocks", "testArgAndContext", 8, Integer),
+        ("Blocks", "testEmptyZeroArg", 1, Integer),
+        ("Blocks", "testEmptyOneArg", 1, Integer),
+        ("Blocks", "testEmptyTwoArg", 1, Integer),
 
         ("Return", "testReturnSelf", "Return", Class),
         ("Return", "testReturnSelfImplicitly", "Return", Class),
@@ -87,7 +90,7 @@ class BasicInterpreterTest(unittest.TestCase):
 
         ("BinaryOperation", "test", 3 + 8, Integer),
 
-        ("NumberOfTests", "numberOfTests", 52, Integer)])
+        ("NumberOfTests", "numberOfTests", 57, Integer)])
     def test_basic_interpreter_behavior(self, test_class, test_selector,
                                         expected_result, result_type):
         u = Universe()

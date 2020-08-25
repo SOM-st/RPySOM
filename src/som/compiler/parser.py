@@ -297,6 +297,12 @@ class Parser(object):
                 # whether it was terminated with a . or not)
                 mgenc.remove_last_bytecode()
 
+            # if this block is empty, we need to return nil
+            if mgenc.is_block_method() and not mgenc.has_bytecode():
+                nil_sym = self._universe.symbol_for("nil")
+                mgenc.add_literal_if_absent(nil_sym)
+                self._bc_gen.emitPUSHGLOBAL(mgenc, nil_sym)
+
             self._bc_gen.emitRETURNLOCAL(mgenc)
             mgenc.set_finished()
         elif self._sym == Symbol.EndTerm:
@@ -651,6 +657,10 @@ class Parser(object):
         # expression in the block was not terminated by ., and can generate
         # a return
         if not mgenc.is_finished():
+            if not mgenc.has_bytecode():
+                nil_sym = self._universe.symbol_for("nil")
+                mgenc.add_literal_if_absent(nil_sym)
+                self._bc_gen.emitPUSHGLOBAL(mgenc, nil_sym)
             self._bc_gen.emitRETURNLOCAL(mgenc)
             mgenc.set_finished()
 

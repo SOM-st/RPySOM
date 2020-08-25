@@ -158,6 +158,9 @@ class MethodGenerationContext(object):
     def add_bytecode(self, bc):
         self._bytecode.append(bc)
 
+    def has_bytecode(self):
+        return len(self._bytecode) > 0
+
     def find_literal_index(self, lit):
         return self._literals.index(lit)
 
