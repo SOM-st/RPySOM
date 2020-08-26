@@ -1,5 +1,5 @@
 from som.vm.universe import error_print, error_println, get_current
-from som.interpreter.bytecodes import bytecode_as_str, bytecode_length, Bytecodes
+from som.interpreter.bc.bytecodes import bytecode_as_str, bytecode_length, Bytecodes
 
 def dump(clazz):
     for i in range(0, clazz.get_number_of_instance_invokables()):

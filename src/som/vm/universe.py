@@ -3,9 +3,9 @@ from rpython.rlib.rbigint import rbigint
 from rpython.rlib.rrandom import Random
 from rpython.rlib import jit
 
-from som.interpreter.interpreter import Interpreter
-from som.interpreter.bytecodes   import Bytecodes
-from som.interpreter.frame       import Frame
+from som.interpreter.bc.interpreter import Interpreter
+from som.interpreter.bc.bytecodes import Bytecodes
+from som.interpreter.bc.frame import Frame
 
 from som.vmobjects.object        import Object
 from som.vmobjects.clazz         import Class
@@ -539,7 +539,7 @@ class Universe(object):
                 # Load the class from a file and return the loaded class
                 result = sourcecode_compiler.compile_class_from_file(cpEntry, name.get_embedded_string(), system_class, self)
                 if self._dump_bytecodes:
-                    from som.compiler.disassembler import dump
+                    from som.compiler.bc.disassembler import dump
                     dump(result.get_class(self))
                     dump(result)
 
@@ -555,7 +555,7 @@ class Universe(object):
         # Load the class from a stream and return the loaded class
         result = sourcecode_compiler.compile_class_from_string(stmt, None, self)
         if self._dump_bytecodes:
-            from som.compiler.disassembler import dump
+            from som.compiler.bc.disassembler import dump
             dump(result)
         return result
 

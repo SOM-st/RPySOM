@@ -1,10 +1,11 @@
 from rpython.rlib.rarithmetic import string_to_int
 from rpython.rlib.rbigint import rbigint
 from rpython.rlib.rstring import ParseStringOverflowError
-from .lexer                     import Lexer
-from .bytecode_generator        import BytecodeGenerator
+
+from ..lexer import Lexer
+from .bytecode_generator import BytecodeGenerator
 from .method_generation_context import MethodGenerationContext
-from .symbol                    import Symbol, symbol_as_str
+from ..symbol import Symbol, symbol_as_str
 
 
 class ParseError(Exception):

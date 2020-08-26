@@ -1,4 +1,4 @@
-from som.interpreter.bytecodes import bytecode_length, bytecode_stack_effect, bytecode_stack_effect_depends_on_send
+from som.interpreter.bc.bytecodes import bytecode_length, bytecode_stack_effect, bytecode_stack_effect_depends_on_send
 from som.vmobjects.primitive   import empty_primitive
 
 class MethodGenerationContext(object):

@@ -2,7 +2,7 @@ import os
 from rpython.rlib.streamio import open_file_as_stream
 from rlib.string_stream    import StringStream
 
-from som.compiler.parser                   import Parser, ParseError
+from som.compiler.bc.parser import Parser, ParseError
 from som.compiler.class_generation_context import ClassGenerationContext
 
 
