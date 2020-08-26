@@ -5,6 +5,7 @@ import sys
 
 from som.vm.universe import main, Exit
 
+import os
 
 # __________  Entry points  __________
 
@@ -13,6 +14,9 @@ def entry_point(argv):
         main(argv)
     except Exit, e:
         return e.code
+    except Exception, e:
+        os.write(2, "ERROR: %s thrown during execution.\n" % e)
+        return 1
     return 1
 
 

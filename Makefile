@@ -10,10 +10,10 @@ all: compile
 compile: RTruffleSOM-jit
 
 RTruffleSOM-no-jit: core-lib/.git
-	PYTHONPATH=$(PYTHONPATH):$(PYPY_DIR) $(RPYTHON) --batch src/targetsomstandalone.py
+	PYTHONPATH=$(PYTHONPATH):$(PYPY_DIR) $(RPYTHON) --batch src/main-rpython.py
 
 RTruffleSOM-jit: core-lib/.git
-	PYTHONPATH=$(PYTHONPATH):$(PYPY_DIR) $(RPYTHON) --batch -Ojit src/targetsomstandalone.py
+	PYTHONPATH=$(PYTHONPATH):$(PYPY_DIR) $(RPYTHON) --batch -Ojit src/main-rpython.py
 
 test: compile core-lib/.git
 	PYTHONPATH=$(PYTHONPATH):$(PYPY_DIR) nosetests
