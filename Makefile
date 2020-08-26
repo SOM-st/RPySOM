@@ -6,23 +6,30 @@ RPYTHON  ?= $(PYPY_DIR)/rpython/bin/rpython
 
 all: compile
 
-# RTruffleSOM-no-jit 
-compile: RTruffleSOM-jit
+compile: som-ast-jit
 
-RTruffleSOM-no-jit: core-lib/.git
-	PYTHONPATH=$(PYTHONPATH):$(PYPY_DIR) $(RPYTHON) --batch src/targetsomstandalone.py
+som-ast-jit:
+	SOM_INTERP=AST PYTHONPATH=$(PYTHONPATH):$(PYPY_DIR) $(RPYTHON) --batch -Ojit src/main-rpython.py
 
-RTruffleSOM-jit: core-lib/.git
-	PYTHONPATH=$(PYTHONPATH):$(PYPY_DIR) $(RPYTHON) --batch -Ojit src/targetsomstandalone.py
+som-bc-jit:	
+	SOM_INTERP=BC  PYTHONPATH=$(PYTHONPATH):$(PYPY_DIR) $(RPYTHON) --batch -Ojit src/main-rpython.py
 
-test: compile core-lib/.git
+som-ast-interp:
+	SOM_INTERP=AST PYTHONPATH=$(PYTHONPATH):$(PYPY_DIR) $(RPYTHON) --batch src/main-rpython.py
+
+som-bc-interp:	
+	SOM_INTERP=BC  PYTHONPATH=$(PYTHONPATH):$(PYPY_DIR) $(RPYTHON) --batch src/main-rpython.py
+
+test: compile
 	PYTHONPATH=$(PYTHONPATH):$(PYPY_DIR) nosetests
-	if [ -e ./RTruffleSOM-no-jit ]; then ./RTruffleSOM-no-jit -cp Smalltalk TestSuite/TestHarness.som; fi
-	if [ -e ./RTruffleSOM-jit ];    then ./RTruffleSOM-jit    -cp Smalltalk TestSuite/TestHarness.som; fi
+	if [ -e ./som-ast-jit    ]; then ./som-ast-jit    -cp Smalltalk TestSuite/TestHarness.som; fi
+	if [ -e ./som-bc-jit     ]; then ./som-bc-jit     -cp Smalltalk TestSuite/TestHarness.som; fi
+	if [ -e ./som-ast-interp ]; then ./som-ast-interp -cp Smalltalk TestSuite/TestHarness.som; fi
+	if [ -e ./som-bc-interp  ]; then ./som-bc-interp  -cp Smalltalk TestSuite/TestHarness.som; fi
 
 clean:
-	@-rm RTruffleSOM-no-jit
-	@-rm RTruffleSOM-jit
+	@-rm som-ast-jit som-ast-interp
+	@-rm som-bc-jit  som-bc-interp
 
 core-lib/.git:
 	git submodule update --init
