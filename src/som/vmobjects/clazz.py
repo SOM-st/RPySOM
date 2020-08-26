@@ -143,15 +143,17 @@ class Class(Object):
         return (self._includes_primitives(self) or
                 self._includes_primitives(self._class))
 
-    def load_primitives(self):
+    def load_primitives(self, display_warning):
         from som.primitives.known import (primitives_for_class,
                                           PrimitivesNotFound)
         try:
             prims = primitives_for_class(self)
+            prims(self._universe).install_primitives_in(self)
         except PrimitivesNotFound:
-            prims = None
-        assert prims is not None, "Loading of prims failed for %s. We yet only support prims for known classes" % self.get_name()
-        prims(self._universe).install_primitives_in(self)
+            if display_warning:
+                from som.vm.universe import error_println
+                error_println("Loading of primitives failed for %s. Currently, "
+                              "we support primitives only for known classes" % self.get_name())
 
     def __str__(self):
         return "Class(" + self.get_name().get_embedded_string() + ")"
