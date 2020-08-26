@@ -1,5 +1,8 @@
 *.pyc
 *.DS_Store
-RPySOM-no-jit
-RPySOM-jit
+som-ast*
+som-bc*
 pypy
+.settings
+.idea
+src/attic
