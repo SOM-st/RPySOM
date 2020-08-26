@@ -10,9 +10,10 @@ install:
   - mv pypy2.7-v7.3.1-src pypy
 
 script:
+  - export SOM_INTERP=AST
   - PYTHONPATH=$PYTHONPATH:pypy nosetests
   - PYTHONPATH=$PYTHONPATH:pypy ./som.sh -cp Smalltalk TestSuite/TestHarness.som
-  - PYTHONPATH=$PYTHONPATH:pypy pypy/rpython/bin/rpython --batch src/targetsomstandalone.py
-  - ./RTruffleSOM-no-jit -cp Smalltalk TestSuite/TestHarness.som
-  #- PYTHONPATH=$PYTHONPATH:pypy pypy/rpython/bin/rpython --batch -Ojit src/targetsomstandalone.py
-  #- ./RTruffleSOM-jit -cp Smalltalk TestSuite/TestHarness.som
+  - PYTHONPATH=$PYTHONPATH:pypy pypy/rpython/bin/rpython --batch src/main-rpython.py
+  - ./som-ast-interp -cp Smalltalk TestSuite/TestHarness.som
+  #- PYTHONPATH=$PYTHONPATH:pypy pypy/rpython/bin/rpython --batch -Ojit src/main-rpython.py
+  #- ./som-ast-jit -cp Smalltalk TestSuite/TestHarness.som

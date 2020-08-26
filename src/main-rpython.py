@@ -9,6 +9,7 @@ import os
 
 # __________  Entry points  __________
 
+
 def entry_point(argv):
     try:
         main(argv)
@@ -24,10 +25,25 @@ def entry_point(argv):
 
 
 def target(driver, args):
+    interp_type = os.getenv('SOM_INTERP', None)
+    if interp_type is None or not (interp_type == 'AST' or interp_type == 'BC'):
+        print("Type of interpreter not set. Please set the SOM_INTERP environment variable")
+        print("\tSOM_INTERP=AST   Use an Abstract Syntax Tree interpreter")
+        print("\tSOM_INTERP=BC    Use a Bytecode interpreter")
+        sys.exit(1)
+
+    exe_name = 'som-'
+    if interp_type == 'AST':
+        exe_name += 'ast-'
+    elif interp_type == 'BC':
+        exe_name += 'bc-'
+
     if driver.config.translation.jit:
-        driver.exe_name = 'RTruffleSOM-jit'
+        exe_name += 'jit'
     else:
-        driver.exe_name = 'RTruffleSOM-no-jit'
+        exe_name += 'interp'
+
+    driver.exe_name = exe_name
     return entry_point, None
 
 
