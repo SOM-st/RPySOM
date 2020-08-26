@@ -52,7 +52,7 @@ class Method(AbstractObject):
         return self._invokable.invoke(receiver, args)
 
     def __str__(self):
-        return ("Method(" + self.get_holder().get_name().get_string() + ">>" +
+        return ("Method(" + self.get_holder().get_name().get_embedded_string() + ">>" +
                 str(self.get_signature()) + ")")
     
     def get_class(self, universe):
@@ -60,5 +60,5 @@ class Method(AbstractObject):
 
     def merge_point_string(self):
         """ debug info for the jit """
-        return "%s>>%s" % (self.get_holder().get_name().get_string(),
-                           self.get_signature().get_string())
+        return "%s>>%s" % (self.get_holder().get_name().get_embedded_string(),
+                           self.get_signature().get_embedded_string())

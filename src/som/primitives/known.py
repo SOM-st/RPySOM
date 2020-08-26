@@ -53,7 +53,7 @@ _primitives = unrolling_iterable(_setup_primitives())
 
 
 def primitives_for_class(cls):
-    name = cls.get_name().get_string()
+    name = cls.get_name().get_embedded_string()
     for key, primitives in _primitives:
         if key == name:
             return primitives

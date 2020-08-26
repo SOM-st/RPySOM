@@ -464,7 +464,7 @@ class Universe(object):
         result = self._load_class(system_class.get_name(), system_class)
 
         if not result:
-            error_println(system_class.get_name().get_string()
+            error_println(system_class.get_name().get_embedded_string()
                    + " class could not be loaded. It is likely that the"
                    + " class path has not been initialized properly."
                    + " Please make sure that the '-cp' parameter is given on the command-line.")
@@ -477,7 +477,8 @@ class Universe(object):
         for cpEntry in self.classpath:
             try:
                 # Load the class from a file and return the loaded class
-                result = sourcecode_compiler.compile_class_from_file(cpEntry, name.get_string(), system_class, self)
+                result = sourcecode_compiler.compile_class_from_file(
+                    cpEntry, name.get_embedded_string(), system_class, self)
                 if self._dump_bytecodes:
                     from som.compiler.disassembler import dump
                     dump(result.get_class(self))

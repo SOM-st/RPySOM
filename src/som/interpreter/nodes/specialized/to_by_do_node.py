@@ -64,7 +64,7 @@ class IntToIntByDoNode(AbstractToByDoNode):
         return (isinstance(args[0], Integer) and isinstance(rcvr, Integer) and
                 len(args) == 3 and isinstance(args[1], Integer) and
                 isinstance(args[2], Block) and
-                selector.get_string() == "to:by:do:")
+                selector.get_embedded_string() == "to:by:do:")
 
     @staticmethod
     def specialize_node(selector, rcvr, args, node):
@@ -100,7 +100,7 @@ class IntToDoubleByDoNode(AbstractToByDoNode):
         return (isinstance(args[0], Double) and isinstance(rcvr, Integer) and
                 len(args) == 3 and isinstance(args[1], Integer) and
                 isinstance(args[2], Block) and
-                selector.get_string() == "to:by:do:")
+                selector.get_embedded_string() == "to:by:do:")
 
     @staticmethod
     def specialize_node(selector, rcvr, args, node):

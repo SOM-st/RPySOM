@@ -19,7 +19,7 @@ class UninitializedGlobalReadNode(ExpressionNode):
                                                         self._universe)
 
     def _specialize(self):
-        glob = self._global_name.get_string()
+        glob = self._global_name.get_embedded_string()
         if glob == "true":
             cached = ConstantGlobalReadNode(trueObject,
                                             self.get_source_section())

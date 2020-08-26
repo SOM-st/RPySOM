@@ -89,7 +89,7 @@ class MethodGenerationContext(object):
 
     def assemble(self, method_body):
         if self._primitive:
-            return empty_primitive(self._signature.get_string(), self._universe)
+            return empty_primitive(self._signature.get_embedded_string(), self._universe)
 
         # local_args     = []
         non_local_args = []
@@ -119,8 +119,8 @@ class MethodGenerationContext(object):
         src_body = expr.get_source_section()
         assert isinstance(src_body, SourceSection)
         src_method = SourceSection(identifier = "%s>>#%s" % (
-            self._holder_genc.get_name().get_string(),
-            self._signature.get_string()),
+            self._holder_genc.get_name().get_embedded_string(),
+            self._signature.get_embedded_string()),
                                    source_section = src_body)
         return src_method
 

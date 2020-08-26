@@ -58,7 +58,7 @@ class ClassGenerationContext(object):
 
     def assemble(self):
         # build class class name
-        cc_name = self._name.get_string() + " class"
+        cc_name = self._name.get_embedded_string() + " class"
 
         # Load the super class
         super_class = self._universe.load_class(self._super_name)

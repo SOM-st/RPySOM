@@ -6,11 +6,8 @@ class Symbol(String):
     
     def __init__(self, value):
         String.__init__(self, value)
-        self._number_of_signature_arguments = self._determine_number_of_signature_arguments() # updated later
-    
-    def get_string(self):
-        # Get the string associated to this symbol
-        return self._string
+        self._number_of_signature_arguments =\
+            self._determine_number_of_signature_arguments()  # updated later
 
     def _determine_number_of_signature_arguments(self):
         # Check for binary signature

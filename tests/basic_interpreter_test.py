@@ -120,12 +120,12 @@ class BasicInterpreterTest(unittest.TestCase):
 
         if result_type is Class:
             self.assertEquals(expected_result,
-                              actual_result.get_name().get_string())
+                              actual_result.get_name().get_embedded_string())
             return
 
         if result_type is Symbol:
             self.assertEquals(expected_result,
-                              actual_result.get_string())
+                              actual_result.get_embedded_string())
             return
 
         self.fail("SOM Value handler missing: " + str(result_type))

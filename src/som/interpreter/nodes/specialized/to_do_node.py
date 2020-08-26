@@ -63,7 +63,7 @@ class IntToIntDoNode(AbstractToDoNode):
     def can_specialize(selector, rcvr, args, node):
         return (isinstance(args[0], Integer) and isinstance(rcvr, Integer) and
                 len(args) > 1 and isinstance(args[1], Block) and
-                selector.get_string() == "to:do:")
+                selector.get_embedded_string() == "to:do:")
 
     @staticmethod
     def specialize_node(selector, rcvr, args, node):
@@ -97,7 +97,7 @@ class IntToDoubleDoNode(AbstractToDoNode):
     def can_specialize(selector, rcvr, args, node):
         return (isinstance(args[0], Double) and isinstance(rcvr, Integer) and
                 len(args) > 1 and isinstance(args[1], Block) and
-                selector.get_string() == "to:do:")
+                selector.get_embedded_string() == "to:do:")
 
     @staticmethod
     def specialize_node(selector, rcvr, args, node):

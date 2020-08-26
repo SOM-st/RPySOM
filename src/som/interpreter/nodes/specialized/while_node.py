@@ -94,13 +94,13 @@ class WhileMessageNode(AbstractWhileMessageNode):
 
     @staticmethod
     def can_specialize(selector, rcvr, args, node):
-        sel = selector.get_string()
+        sel = selector.get_embedded_string()
         return isinstance(args[0], Block) and (sel == "whileTrue:" or
                                                sel == "whileFalse:")
 
     @staticmethod
     def specialize_node(selector, rcvr, args, node):
-        sel = selector.get_string()
+        sel = selector.get_embedded_string()
         if sel == "whileTrue:":
             return node.replace(
                 WhileMessageNode(node._rcvr_expr, node._arg_exprs[0],

@@ -3,7 +3,7 @@ from som.vmobjects.primitive   import Primitive
 
 
 def _asString(ivkbl, rcvr, args):
-    return ivkbl.get_universe().new_string(rcvr.get_string())
+    return ivkbl.get_universe().new_string(rcvr.get_embedded_string())
 
 
 class SymbolPrimitives(Primitives):

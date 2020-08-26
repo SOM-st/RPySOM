@@ -135,9 +135,9 @@ class Class(Object):
     def add_instance_primitive(self, value, display_warning):
         if self.add_instance_invokable(value) and display_warning:
             from som.vm.universe import std_print, std_println
-            std_print("Warning: Primitive " + value.get_signature().get_string())
-            std_println(" is not in class definition for class " + self.get_name().get_string())
-  
+            std_print("Warning: Primitive " + value.get_signature().get_embedded_string())
+            std_println(" is not in class definition for class " + self.get_name().get_embedded_string())
+
     def get_instance_field_name(self, index):
         return self.get_instance_fields().get_indexable_field(index)
  
@@ -170,7 +170,7 @@ class Class(Object):
                               "we support primitives only for known classes" % self.get_name())
 
     def __str__(self):
-        return "Class(" + self.get_name().get_string() + ")"
+        return "Class(" + self.get_name().get_embedded_string() + ")"
 
     def get_layout_for_instances(self):
         return self._layout_for_instances

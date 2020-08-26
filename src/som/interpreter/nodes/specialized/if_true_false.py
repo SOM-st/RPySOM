@@ -43,7 +43,7 @@ class IfTrueIfFalseNode(ExpressionNode):
     @staticmethod
     def can_specialize(selector, rcvr, args, node):
         return (len(args) == 2 and (rcvr is trueObject or rcvr is falseObject)
-                and selector.get_string() == "ifTrue:ifFalse:")
+                and selector.get_embedded_string() == "ifTrue:ifFalse:")
 
     @staticmethod
     def specialize_node(selector, rcvr, args, node):
@@ -90,18 +90,18 @@ class IfNode(ExpressionNode):
 
     @staticmethod
     def can_specialize(selector, rcvr, args, node):
-        sel = selector.get_string()
+        sel = selector.get_embedded_string()
         return (len(args) == 1 and (rcvr is trueObject or rcvr is falseObject)
                 and (sel == "ifTrue:" or sel == "ifFalse:"))
 
     @staticmethod
     def specialize_node(selector, rcvr, args, node):
-        if selector.get_string() == "ifTrue:":
+        if selector.get_embedded_string() == "ifTrue:":
             return node.replace(
                 IfNode(node._rcvr_expr, node._arg_exprs[0],
                        trueObject, node._universe, node._source_section))
         else:
-            assert selector.get_string() == "ifFalse:"
+            assert selector.get_embedded_string() == "ifFalse:"
             return node.replace(
                 IfNode(node._rcvr_expr, node._arg_exprs[0],
                        falseObject, node._universe, node._source_section))
