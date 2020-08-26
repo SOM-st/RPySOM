@@ -1,0 +1,34 @@
+stages:
+  - build-test-benchmark
+
+variables:
+  PYTHONUNBUFFERED: "true"
+  PYPY_DIR: /home/gitlab-runner/.local/pypy2.7-v7.3.1-src
+
+before_script:
+  - git submodule update --init
+
+build_test_benchmark_job:
+  stage: build-test-benchmark
+  tags: [benchmarks, infinity]
+  script:
+    # Setup
+    - export PYTHONPATH=$PYTHONPATH:$PYPY_DIR
+    - export RPYTHON=$PYPY_DIR/rpython/bin/rpython
+    - export PATH=$PATH:/home/gitlab-runner/.local/pypy2.7-v7.3.1-linux64/bin
+    
+    # Unit Tests
+    - nosetests
+    - ./som.sh -cp Smalltalk TestSuite/TestHarness.som
+
+    # Interpreter
+    - $RPYTHON --batch src/targetsomstandalone.py
+    - ./RPySOM-no-jit -cp Smalltalk TestSuite/TestHarness.som
+    
+    # JIT Compiled Version
+    - $RPYTHON --batch -Ojit src/targetsomstandalone.py
+    - ./RPySOM-jit -cp Smalltalk TestSuite/TestHarness.som
+    
+    # Run Benchmarks
+    - rebench --experiment="CI ID $CI_PIPELINE_ID" --branch="$CI_COMMIT_REF_NAME" -c rebench.conf RPySOM
+    - rebench --experiment="CI ID $CI_PIPELINE_ID" --report-completion rebench.conf
