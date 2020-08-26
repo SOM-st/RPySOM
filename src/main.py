@@ -1,5 +1,5 @@
 import sys
-from som.compiler.parser import ParseError
+from som.compiler.ast.parser import ParseError
 from som.vm.universe import main, Exit
 
 

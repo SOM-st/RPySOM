@@ -2,16 +2,17 @@ from rpython.rlib.rbigint import rbigint
 from rpython.rlib.rstring import ParseStringOverflowError
 from rtruffle.source_section import SourceSection
 
-from ..interpreter.nodes.block_node       import BlockNode, BlockNodeWithContext
-from ..interpreter.nodes.global_read_node import UninitializedGlobalReadNode
-from ..interpreter.nodes.literal_node     import LiteralNode
-from ..interpreter.nodes.message.uninitialized_node import UninitializedMessageNode
-from ..interpreter.nodes.return_non_local_node import ReturnNonLocalNode
-from ..interpreter.nodes.sequence_node    import SequenceNode
+from ...interpreter.nodes.block_node import BlockNode, BlockNodeWithContext
+from ...interpreter.nodes.global_read_node import UninitializedGlobalReadNode
+from ...interpreter.nodes.literal_node import LiteralNode
+from ...interpreter.nodes.message.uninitialized_node import UninitializedMessageNode
+from ...interpreter.nodes.return_non_local_node import ReturnNonLocalNode
+from ...interpreter.nodes.sequence_node import SequenceNode
 
-from .lexer                     import Lexer
+from ..lexer import Lexer
+from ..symbol import Symbol, symbol_as_str
+
 from .method_generation_context import MethodGenerationContext
-from .symbol                    import Symbol, symbol_as_str
 
 
 class ParseError(Exception):
