@@ -3,7 +3,7 @@ from rpython.rlib.jit   import unroll_safe
 
 from ..expression_node import ExpressionNode
 
-from ....vmobjects.abstract_object import AbstractObject
+from .....vmobjects.abstract_object import AbstractObject
 
 
 class AbstractMessageNode(ExpressionNode):

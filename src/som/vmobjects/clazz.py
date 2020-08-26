@@ -162,7 +162,7 @@ class Class(Object):
                                           PrimitivesNotFound)
         try:
             prim_class = primitives_for_class(self)
-            prim_class(self._universe, display_warning).install_primitives_in(self)
+            prim_class(self._universe).install_primitives_in(self)
         except PrimitivesNotFound:
             if display_warning:
                 from som.vm.universe import error_println

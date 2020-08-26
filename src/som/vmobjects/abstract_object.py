@@ -17,7 +17,7 @@ class AbstractObject(object):
         # Compute the number of arguments
         selector = jit.promote(selector)
         universe = jit.promote(universe)
-        number_of_arguments = selector.get_number_of_signature_arguments() - 1 ## without self
+        number_of_arguments = selector.get_number_of_signature_arguments() - 1  # without self
         assert number_of_arguments == len(arguments)
 
         # TODO: make sure this is still optimizing DNU properly
@@ -41,7 +41,8 @@ class AbstractObject(object):
     def get_class(self, universe):
         raise NotImplementedError("Subclasses need to implement get_class(universe).")
 
-    def is_invokable(self):
+    @staticmethod
+    def is_invokable():
         return False
 
     def __str__(self):

@@ -4,12 +4,12 @@ from som.vmobjects.abstract_object    import AbstractObject
 class Primitive(AbstractObject):
     _immutable_fields_ = ["_prim_fun", "_is_empty", "_signature", "_holder",
                           "_universe"]
-        
-    def __init__(self, signature_string, universe, prim_fun, is_empty = False):
+
+    def __init__(self, signature_string, universe, prim_fn, is_empty=False):
         AbstractObject.__init__(self)
-        
+
         self._signature = universe.symbol_for(signature_string)
-        self._prim_fun  = prim_fun
+        self._prim_fn   = prim_fn
         self._is_empty  = is_empty
         self._holder    = None
         self._universe  = universe
@@ -18,8 +18,8 @@ class Primitive(AbstractObject):
         return self._universe
 
     def invoke(self, rcvr, args):
-        inv = self._prim_fun
-        return inv(self, rcvr, args)
+        prim_fn = self._prim_fn
+        return prim_fn(self, rcvr, args)
 
     @staticmethod
     def is_primitive():
@@ -42,7 +42,7 @@ class Primitive(AbstractObject):
     def is_empty(self):
         # By default a primitive is not empty
         return self._is_empty
-    
+
     def get_class(self, universe):
         return universe.primitiveClass
 

@@ -2,10 +2,10 @@ from rpython.rlib import jit
 
 from ..expression_node import ExpressionNode
 
-from ....vmobjects.block   import Block
-from ....vmobjects.double  import Double
-from ....vmobjects.integer import Integer
-from ....vmobjects.method  import Method
+from .....vmobjects.block import Block
+from .....vmobjects.double import Double
+from .....vmobjects.integer import Integer
+from .....vmobjects.method import Method
 
 
 class AbstractToDoNode(ExpressionNode):

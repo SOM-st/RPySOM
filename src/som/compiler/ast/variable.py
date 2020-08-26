@@ -1,4 +1,4 @@
-from som.interpreter.nodes.variable_node import UninitializedReadNode, \
+from som.interpreter.ast.nodes.variable_node import UninitializedReadNode, \
     UninitializedWriteNode, LocalSharedWriteNode, LocalUnsharedWriteNode, \
     NonLocalArgumentReadNode, NonLocalArgumentWriteNode, LocalSuperReadNode, \
     NonLocalTempReadNode, NonLocalTempWriteNode, NonLocalSuperReadNode, \

@@ -1,10 +1,10 @@
 from rpython.rlib import jit
 from .to_do_node import AbstractToDoNode
 
-from ....vmobjects.block   import Block
-from ....vmobjects.double  import Double
-from ....vmobjects.integer import Integer
-from ....vmobjects.method  import Method
+from .....vmobjects.block import Block
+from .....vmobjects.double import Double
+from .....vmobjects.integer import Integer
+from .....vmobjects.method import Method
 
 
 def get_printable_location(block_method):

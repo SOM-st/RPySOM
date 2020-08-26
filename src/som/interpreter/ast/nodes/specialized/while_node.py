@@ -1,10 +1,10 @@
 from rpython.rlib import jit
 
 from ..expression_node import ExpressionNode
-from som.vm.globals import nilObject, falseObject, trueObject
+from .....vm.globals import nilObject, falseObject, trueObject
 
-from ....vmobjects.block  import Block
-from ....vmobjects.method import Method
+from .....vmobjects.block import Block
+from .....vmobjects.method import Method
 
 
 class AbstractWhileMessageNode(ExpressionNode):
