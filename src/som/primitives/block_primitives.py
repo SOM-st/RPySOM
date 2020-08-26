@@ -7,7 +7,6 @@ from rpython.rlib import jit
 
 def get_printable_location(interpreter, method_body, method_condition, while_type):
     from som.vmobjects.method import Method
-    from som.interpreter.bytecodes import bytecode_as_str
     assert isinstance(method_body, Method)
     assert isinstance(method_condition, Method)
 

@@ -2,9 +2,6 @@ from som.interpreter.bc.bytecodes import bytecode_length, Bytecodes
 from som.interpreter.control_flow import ReturnException
 
 from rpython.rlib import jit
-from som.vmobjects.biginteger import BigInteger
-from som.vmobjects.double import Double
-from som.vmobjects.integer import Integer
 
 
 class Interpreter(object):

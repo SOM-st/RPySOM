@@ -2,8 +2,6 @@ import unittest
 import sys
 from parameterized import parameterized
 
-from som.compiler.parser import ParseError
-
 from som.vm.universe       import Universe
 
 from som.vmobjects.clazz   import Class
