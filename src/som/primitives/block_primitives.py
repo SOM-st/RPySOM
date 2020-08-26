@@ -16,6 +16,7 @@ def get_printable_location(interpreter, method_body, method_condition, while_typ
                                         method_body.get_holder().get_name().get_embedded_string(),
                                         method_body.get_signature().get_embedded_string())
 
+
 jitdriver = jit.JitDriver(
     greens=['interpreter', 'method_body', 'method_condition', 'while_type'],
     reds='auto',
@@ -62,6 +63,7 @@ def _whileFalse(ivkbl, frame, interpreter):
 
 def _whileTrue(ivkbl, frame, interpreter):
     _whileLoop(frame, interpreter, interpreter.get_universe().trueObject)
+
 
 class BlockPrimitives(Primitives):
 

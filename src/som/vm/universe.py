@@ -154,7 +154,6 @@ class Universe(object):
             bootstrap_frame.push(arguments)
         return bootstrap_frame
 
-
     def interpret(self, arguments):
         # Check for command line switches
         arguments = self.handle_arguments(arguments)
@@ -402,8 +401,6 @@ class Universe(object):
 
         # Setup the metaclass hierarchy
         result.get_class(self).set_class(result)
-
-        # Return the freshly allocated metaclass class
         return result
 
     @staticmethod
@@ -424,15 +421,14 @@ class Universe(object):
         # Setup the metaclass hierarchy
         system_class.set_class(Class(self))
         system_class.get_class(self).set_class(self.metaclassClass)
-
-        # Return the freshly allocated system class
         return system_class
 
     def _initialize_system_class(self, system_class, super_class, name):
         # Initialize the superclass hierarchy
         if super_class:
             system_class.set_super_class(super_class)
-            system_class.get_class(self).set_super_class(super_class.get_class(self))
+            system_class.get_class(self).set_super_class(
+                super_class.get_class(self))
         else:
             system_class.get_class(self).set_super_class(self.classClass)
 

@@ -2,10 +2,10 @@ from .symbol import Symbol
 
 
 class Lexer(object):
-    
+
     _SEPARATOR = "----"
     _PRIMITIVE = "primitive"
-    
+
     def __init__(self, input_file):
         self._line_number = 0
         self._chars_read  = 0 # all characters read, excluding the current line
@@ -128,7 +128,7 @@ class Lexer(object):
             self._symc = self._next_symc
             self._text = self._next_text
             return self._sym
-    
+
         while True:
             if not self._has_more_input():
                 self._sym = Symbol.NONE
@@ -137,12 +137,12 @@ class Lexer(object):
                 return self._sym
             self._skip_white_space()
             self._skip_comment()
-          
-            if (not self._end_of_buffer()          and 
-                not self._current_char().isspace() and
-                not self._current_char() == '"'):
+
+            if (not self._end_of_buffer()          and
+                    not self._current_char().isspace() and
+                    not self._current_char() == '"'):
                 break
-        
+
         if self._current_char() == '\'':
             self._lex_string()
         elif self._current_char() == '[':
@@ -180,7 +180,7 @@ class Lexer(object):
                 self._sym = Symbol.Separator
             else:
                 self._lex_operator()
-        
+
         elif self._is_operator(self._current_char()):
             self._lex_operator()
 
@@ -228,21 +228,21 @@ class Lexer(object):
         save_sym  = self._sym
         save_symc = self._symc
         save_text = self._text
-        
+
         if self._peek_done:
             raise ValueError("SOM lexer: cannot peek twice!")
-        
+
         self.get_sym()
         self._next_sym  = self._sym
         self._next_symc = self._symc
         self._next_text = self._text
-        
+
         self._sym  = save_sym
         self._symc = save_symc
         self._text = save_text
-        
+
         self._peek_done = True
-        
+
         return self._next_sym
 
     def get_text(self):
@@ -256,10 +256,10 @@ class Lexer(object):
 
     def get_current_line_number(self):
         return self._line_number
-  
+
     def get_current_column(self):
         return self._bufp + 1
-  
+
     # All characters read and processed, including current line
     def get_number_of_characters_read(self):
         return self._chars_read + self._bufp

@@ -2,9 +2,10 @@ from rpython.rlib.objectmodel import compute_identity_hash
 
 from som.primitives.primitives import Primitives
 
-from som.vmobjects.object    import Object  
+from som.vmobjects.object    import Object
 from som.vmobjects.primitive import Primitive
-from som.vmobjects.array     import Array 
+from som.vmobjects.array     import Array
+
 
 
 def _equals(ivkbl, frame, interpreter):
@@ -25,7 +26,7 @@ def _hashcode(ivkbl, frame, interpreter):
 def _objectSize(ivkbl, frame, interpreter):
     rcvr = frame.pop()
     size = 0
-    
+
     if isinstance(rcvr, Object):
         size = rcvr.get_number_of_fields()
     elif isinstance(rcvr, Array):
@@ -85,11 +86,10 @@ def _halt(ivkbl, frame, interpreter):
 def _class(ivkbl, frame, interpreter):
     rcvr = frame.pop()
     frame.push(rcvr.get_class(interpreter.get_universe()))
-    
 
 
 class ObjectPrimitives(Primitives):
-    
+
     def install_primitives(self):
         self._install_instance_primitive(Primitive("==", self._universe, _equals))
         self._install_instance_primitive(Primitive("hashcode", self._universe, _hashcode))
@@ -99,7 +99,7 @@ class ObjectPrimitives(Primitives):
         self._install_instance_primitive(Primitive("perform:withArguments:", self._universe, _performWithArguments))
         self._install_instance_primitive(Primitive("instVarAt:", self._universe, _instVarAt))
         self._install_instance_primitive(Primitive("instVarAt:put:", self._universe, _instVarAtPut))
-        
+
         self._install_instance_primitive(Primitive("halt", self._universe, _halt))
         self._install_instance_primitive(Primitive("class", self._universe, _class))
 

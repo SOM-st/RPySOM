@@ -46,10 +46,10 @@ class Primitive(AbstractObject):
                 + str(self.get_signature()) + ")")
 
 
-
 def empty_primitive(signature_string, universe):
     """ Return an empty primitive with the given signature """
     return Primitive(signature_string, universe, _invoke, True)
+
 
 def _invoke(ivkbl, frame, interpreter):
     """ Write a warning to the screen """

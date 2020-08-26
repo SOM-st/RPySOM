@@ -12,7 +12,7 @@ def dump(clazz):
         if inv.is_primitive():
             error_println("<primitive>")
             continue
-  
+
         # output actual method
         dump_method(inv, "\t")
 
@@ -30,7 +30,7 @@ def dump_method(m, indent):
     b = 0
     while b < m.get_number_of_bytecodes():
         error_print(indent)
-        
+
         # bytecode index
         if b < 10:  error_print(" ")
         if b < 100: error_print(" ")
@@ -45,7 +45,7 @@ def dump_method(m, indent):
             error_println()
             b += 1
             continue
-  
+
         if bytecode == Bytecodes.push_local:
             error_println("local: " + str(m.get_bytecode(b + 1)) +
                                    ", context: " + str(m.get_bytecode(b + 2)))
@@ -61,7 +61,7 @@ def dump_method(m, indent):
         elif bytecode == Bytecodes.push_constant:
             constant = m.get_constant(b)
             error_println("(index: " + str(m.get_bytecode(b + 1)) +
-                                   ") value: (" + 
+                                   ") value: (" +
                                    str(constant.get_class(get_current()).get_name()) +
                                    ") " + str(constant))
         elif bytecode == Bytecodes.push_global:
@@ -84,7 +84,7 @@ def dump_method(m, indent):
                                    ") signature: " + str(m.get_constant(b)))
         else:
             error_println("<incorrect bytecode>")
-  
+
         b += bytecode_length(m.get_bytecode(b))
 
     error_println(indent + ")")

@@ -3,7 +3,6 @@ from __future__ import absolute_import
 from rpython.rlib import jit
 
 from som.interpreter.control_flow import ReturnException
-
 from som.vmobjects.abstract_object import AbstractObject
 
 
@@ -18,7 +17,6 @@ class Method(AbstractObject):
                           "_maximum_number_of_stack_elements",
                           "_signature",
                           "_holder"]
-
 
     def __init__(self, literals, num_locals, max_stack_elements,
                  num_bytecodes, signature):

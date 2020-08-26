@@ -43,7 +43,7 @@ class Shell(object):
                 # If success
                 if my_class:
                     current_frame.reset_stack_pointer()
-                    
+
                     # Create and push a new instance of our class on the stack
                     my_object = self._universe.new_instance(my_class)
                     current_frame.push(my_object)

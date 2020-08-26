@@ -6,7 +6,8 @@ class Symbol(String):
 
     def __init__(self, value):
         String.__init__(self, value)
-        self._number_of_signature_arguments = self._determine_number_of_signature_arguments() # updated later
+        self._number_of_signature_arguments =\
+            self._determine_number_of_signature_arguments()  # updated later
 
     def _determine_number_of_signature_arguments(self):
         # Check for binary signature

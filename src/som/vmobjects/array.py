@@ -15,11 +15,11 @@ class Array(AbstractObject):
         else:
             self._indexable_fields = values
         make_sure_not_resized(self._indexable_fields)
-        
+
     def get_indexable_field(self, index):
         # Get the indexable field with the given index
         return self._indexable_fields[index]
-  
+
     def set_indexable_field(self, index, value):
         # Set the indexable field with the given index to the given value
         self._indexable_fields[index] = value

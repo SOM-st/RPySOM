@@ -40,7 +40,7 @@ class Interpreter(object):
         # Handle the push argument bytecode
         frame.push(
             frame.get_argument(method.get_bytecode(bytecode_index + 1),
-            method.get_bytecode(bytecode_index + 2)))
+                               method.get_bytecode(bytecode_index + 2)))
 
     def _do_push_field(self, bytecode_index, frame, method):
         # Handle the push field bytecode
@@ -83,7 +83,7 @@ class Interpreter(object):
         # Handle the pop local bytecode
         frame.set_local(method.get_bytecode(bytecode_index + 1),
                         method.get_bytecode(bytecode_index + 2),
-                                   frame.pop())
+                        frame.pop())
 
     def _do_pop_argument(self, bytecode_index, frame, method):
         # Handle the pop argument bytecode
@@ -170,7 +170,6 @@ class Interpreter(object):
         self._send(method, frame, signature, receiver.get_class(self._universe),
                    bytecode_index)
 
-
     @jit.unroll_safe
     def interpret(self, method, frame):
         current_bc_idx = 0
@@ -183,7 +182,6 @@ class Interpreter(object):
                           interp=self,
                           method=method,
                           frame=frame)
-
 
             bytecode = method.get_bytecode(current_bc_idx)
 
@@ -244,7 +242,7 @@ class Interpreter(object):
 
     def _send(self, m, frame, selector, receiver_class, bytecode_index):
         # selector.inc_send_count()
-        
+
         # First try the inline cache
         cached_class = m.get_inline_cache_class(bytecode_index)
         if cached_class == receiver_class:
@@ -281,6 +279,7 @@ def get_printable_location(bytecode_index, interp, method):
     return "%s @ %d in %s" % (bytecode_as_str(bc),
                               bytecode_index,
                               method.merge_point_string())
+
 
 jitdriver = jit.JitDriver(
     greens=['bytecode_index', 'interp', 'method'],

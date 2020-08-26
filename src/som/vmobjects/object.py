@@ -35,12 +35,12 @@ class Object(AbstractObject):
     def _get_default_number_of_fields(self):
         # Return the default number of fields in an object
         return self.NUMBER_OF_OBJECT_FIELDS
-    
+
     def get_field(self, index):
         # Get the field with the given index
         assert isinstance(index, int)
         return self._fields[index]
-  
+
     def set_field(self, index, value):
         # Set the field with the given index to the given value
         assert isinstance(index, int)

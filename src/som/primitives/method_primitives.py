@@ -11,6 +11,7 @@ def _signature(ivkbl, frame, interpreter):
     rcvr = frame.pop()
     frame.push(rcvr.get_signature())
 
+
 class MethodPrimitives(Primitives):
     def install_primitives(self):
         self._install_instance_primitive(Primitive("holder",

@@ -103,7 +103,6 @@ class Class(Object):
         # Field not found
         return -1
 
-
     def add_instance_invokable(self, value):
         # Add the given invokable to the array of instance invokables
         for i in range(0, self.get_number_of_instance_invokables()):

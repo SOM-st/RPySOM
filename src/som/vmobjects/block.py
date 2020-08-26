@@ -4,23 +4,23 @@ from som.vmobjects.abstract_object import AbstractObject
 from som.vmobjects.primitive import Primitive
 
 class Block(AbstractObject):
-    
+
     _immutable_fields_ = ["_method", "_context"]
-    
+
     def __init__(self, method, context):
         AbstractObject.__init__(self)
         self._method  = method
         self._context = context
-        
+
     def get_method(self):
         return jit.promote(self._method)
-    
+
     def get_context(self):
         return self._context
-    
+
     def get_class(self, universe):
         return universe.blockClasses[self._method.get_number_of_arguments()]
-  
+
     class Evaluation(Primitive):
 
         _immutable_fields_ = ['_number_of_arguments']
@@ -39,7 +39,7 @@ class Block(AbstractObject):
                 if num_args > 2:
                     # Add extra with: selector elements if necessary
                     signature_string += "with:" * (num_args - 2)
-          
+
             # Return the signature string
             return signature_string
 

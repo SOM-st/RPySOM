@@ -1,10 +1,11 @@
 from som.vmobjects.primitive   import Primitive
 from som.primitives.primitives import Primitives
 
+
 def _at(ivkbl, frame, interpreter):
     i    = frame.pop()
     rcvr = frame.pop()
-    frame.push(rcvr.get_indexable_field(i.get_embedded_integer() - 1)) 
+    frame.push(rcvr.get_indexable_field(i.get_embedded_integer() - 1))
 
 
 def _atPut(ivkbl, frame, interpreter):
@@ -26,10 +27,10 @@ def _new(ivkbl, frame, interpreter):
 
 
 class ArrayPrimitives(Primitives):
-    
+
     def install_primitives(self):
         self._install_instance_primitive(Primitive("at:", self._universe, _at))
         self._install_instance_primitive(Primitive("at:put:", self._universe, _atPut))
         self._install_instance_primitive(Primitive("length", self._universe, _length))
-        
+
         self._install_class_primitive(Primitive("new:", self._universe, _new))
