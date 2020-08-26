@@ -91,7 +91,7 @@ def _putAll(ivkbl, rcvr, args):
 
 
 class ArrayPrimitives(Primitives):
-    
+
     def install_primitives(self):
         self._install_instance_primitive(Primitive("at:",     self._universe, _at))
         self._install_instance_primitive(Primitive("at:put:", self._universe, _atPut))

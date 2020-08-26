@@ -1,5 +1,5 @@
 class ClassGenerationContext(object):
-    
+
     def __init__(self, universe):
         self._universe = universe
 
@@ -19,15 +19,15 @@ class ClassGenerationContext(object):
 
     def set_super_name(self, symbol):
         self._super_name = symbol
-    
+
     def set_instance_fields_of_super(self, field_names):
         for i in range(0, field_names.get_number_of_indexable_fields()):
             self._instance_fields.append(field_names.get_indexable_field(i))
-    
+
     def set_class_fields_of_super(self, field_names):
         for i in range(0, field_names.get_number_of_indexable_fields()):
             self._class_fields.append(field_names.get_indexable_field(i))
-  
+
     def add_instance_method(self, method):
         self._instance_methods.append(method)
 
@@ -94,7 +94,7 @@ class ClassGenerationContext(object):
             self._universe.new_array_from_list(self._instance_methods[:]))
         system_class.set_instance_fields(
             self._universe.new_array_from_list(self._instance_fields[:]))
-    
+
         # class-bound == class-instance-bound
         super_m_class = system_class.get_class(self._universe)
         super_m_class.set_instance_invokables(

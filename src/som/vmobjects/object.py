@@ -13,7 +13,7 @@ class Object(ObjectWithoutFields):
 
     _immutable_fields_ = ["_object_layout?",
                           "_fields?", "_primFields?"]
-    
+
     # Static field indices and number of object fields
     NUMBER_OF_OBJECT_FIELDS = 0
 
@@ -168,7 +168,7 @@ class Object(ObjectWithoutFields):
         assert isinstance(field_idx, int)
 
         return self.get_location(field_idx).read_location(self)
-  
+
     def set_field(self, field_idx, value):
         # Set the field with the given index to the given value
         assert isinstance(field_idx, int)

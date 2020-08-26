@@ -17,7 +17,7 @@ def _super_class(ivkbl, rcvr, args):
 
 def _methods(ivkbl, rcvr, args):
     return rcvr.get_instance_invokables()
-    
+
 
 def _fields(ivkbl, rcvr, args):
     return rcvr.get_instance_fields()

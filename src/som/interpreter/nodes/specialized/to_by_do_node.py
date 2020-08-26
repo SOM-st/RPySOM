@@ -26,7 +26,7 @@ class AbstractToByDoNode(AbstractToDoNode):
         body  = self._body_expr.execute(frame)
         self._to_by_loop(rcvr, limit, step, body)
         return rcvr
-    
+
     def execute_evaluated(self, frame, rcvr, args):
         self._to_by_loop(rcvr, args[0], args[1], args[2])
         return rcvr

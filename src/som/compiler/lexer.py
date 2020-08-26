@@ -145,8 +145,8 @@ class Lexer(object):
             self._skip_comment()
 
             if (not self._end_of_buffer()          and
-                not self._current_char().isspace() and
-                not self._current_char() == '"'):
+                    not self._current_char().isspace() and
+                    not self._current_char() == '"'):
                 break
 
         if self._current_char() == '\'':

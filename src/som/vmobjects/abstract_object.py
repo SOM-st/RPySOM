@@ -2,10 +2,10 @@ from rpython.rlib import jit
 
 
 class AbstractObject(object):
-    
+
     def __init__(self):
         pass
-        
+
     def send(self, selector_string, arguments, universe):
         selector = universe.symbol_for(selector_string)
         invokable = self.get_class(universe).lookup_invokable(selector)

@@ -11,7 +11,7 @@ class Primitives(object):
 
         # Install the primitives from this primitives class
         self.install_primitives()
-        
+
     def install_primitives(self):
         raise NotImplementedError()
 

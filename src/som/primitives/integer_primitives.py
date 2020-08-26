@@ -86,10 +86,10 @@ def _greaterThan(ivkbl, rcvr, args):
 
 def _fromString(ivkbl, rcvr, args):
     param = args[0]
-    
+
     if not isinstance(param, String):
         return nilObject
-    
+
     int_value = int(param.get_embedded_string())
     return ivkbl.get_universe().new_integer(int_value)
 
@@ -192,7 +192,7 @@ class IntegerPrimitives(Primitives):
         self._install_instance_primitive(Primitive("asString", self._universe, _asString))
         self._install_instance_primitive(Primitive("sqrt",     self._universe, _sqrt))
         self._install_instance_primitive(Primitive("atRandom", self._universe, _atRandom))
-        
+
         self._install_instance_primitive(Primitive("+",  self._universe, _plus))
         self._install_instance_primitive(Primitive("-",  self._universe, _minus))
 

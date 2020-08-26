@@ -90,7 +90,7 @@ def _sin(ivkbl, rcvr, args):
 
 class DoublePrimitives(Primitives):
 
-    def install_primitives(self):        
+    def install_primitives(self):
         self._install_instance_primitive(Primitive("asString", self._universe, _asString))
         self._install_instance_primitive(Primitive("round",    self._universe, _round))
         self._install_instance_primitive(Primitive("sqrt",     self._universe, _sqrt))

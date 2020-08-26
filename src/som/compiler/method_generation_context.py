@@ -15,7 +15,7 @@ from ..vmobjects.primitive                     import empty_primitive
 
 
 class MethodGenerationContext(object):
-    
+
     def __init__(self, universe):
         self._holder_genc = None
         self._outer_genc  = None
@@ -34,7 +34,7 @@ class MethodGenerationContext(object):
         self._accesses_variables_of_outer_context = False
 
         self._universe = universe
-  
+
     def set_holder(self, cgenc):
         self._holder_genc = cgenc
 
@@ -159,7 +159,7 @@ class MethodGenerationContext(object):
 
     def get_holder(self):
         return self._holder_genc
-  
+
     def set_outer(self, mgenc):
         self._outer_genc = mgenc
 

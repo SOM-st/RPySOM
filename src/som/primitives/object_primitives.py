@@ -24,7 +24,7 @@ def _hashcode(ivkbl, rcvr, args):
 
 def _objectSize(ivkbl, rcvr, args):
     size = 0
-    
+
     if isinstance(rcvr, Object):
         size = rcvr.get_number_of_fields()
     elif isinstance(rcvr, Array):
@@ -84,7 +84,7 @@ def _class(ivkbl, rcvr, args):
 
 
 class ObjectPrimitives(Primitives):
-    
+
     def install_primitives(self):
         self._install_instance_primitive(Primitive("==", self._universe, _equals))
         self._install_instance_primitive(Primitive("hashcode", self._universe, _hashcode))
@@ -95,6 +95,6 @@ class ObjectPrimitives(Primitives):
         self._install_instance_primitive(Primitive("instVarAt:", self._universe, _instVarAt))
         self._install_instance_primitive(Primitive("instVarAt:put:", self._universe, _instVarAtPut))
         self._install_instance_primitive(Primitive("instVarNamed:",  self._universe, _instVarNamed))
-        
+
         self._install_instance_primitive(Primitive("halt",  self._universe, _halt))
         self._install_instance_primitive(Primitive("class", self._universe, _class))
