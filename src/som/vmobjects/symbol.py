@@ -2,7 +2,7 @@ from som.vmobjects.string import String
 
 
 class Symbol(String):
-    _immutable_fields_ = ["_number_of_signature_arguments"]
+    _immutable_fields_ = ["_string", "_number_of_signature_arguments"]
 
     def __init__(self, value):
         String.__init__(self, value)
