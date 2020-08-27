@@ -1,5 +1,6 @@
 from som.primitives.primitives import Primitives
 from som.vmobjects.primitive   import Primitive
+from som.vm.globals import trueObject, falseObject
 
 
 def _asString(ivkbl, frame, interpreter):
@@ -12,9 +13,9 @@ def _equals(ivkbl, frame, interpreter):
     op2 = frame.pop()  # rcvr
     universe = interpreter.get_universe()
     if op1 is op2:
-        frame.push(universe.trueObject)
+        frame.push(trueObject)
     else:
-        frame.push(universe.falseObject)
+        frame.push(falseObject)
 
 
 class SymbolPrimitives(Primitives):

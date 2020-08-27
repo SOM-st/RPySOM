@@ -9,7 +9,7 @@ from som.vmobjects.primitive   import Primitive
 from som.vmobjects.double      import Double
 from som.vmobjects.string      import String
 from som.vmobjects.block       import block_evaluate
-from som.vm.globals import nilObject
+from som.vm.globals import nilObject, falseObject
 
 import math
 
@@ -98,17 +98,16 @@ def _equalsequals(ivkbl, frame, interpreter):
     right_obj = frame.pop()
     left = frame.pop()
 
-    universe = interpreter.get_universe()
     if isinstance(right_obj, Integer):
-        frame.push(left.prim_equals(right_obj, universe))
+        frame.push(left.prim_equals(right_obj))
     else:
-        frame.push(universe.falseObject)
+        frame.push(falseObject)
 
 
 def _equals(ivkbl, frame, interpreter):
     right_obj = frame.pop()
     left      = frame.pop()
-    frame.push(left.prim_equals(right_obj, interpreter.get_universe()))
+    frame.push(left.prim_equals(right_obj))
 
 
 def _lessThan(ivkbl, frame, interpreter):

@@ -61,7 +61,7 @@ def _mod(ivkbl, frame, interpreter):
 def _equals(ivkbl, frame, interpreter):
     right = frame.pop()
     rcvr  = frame.pop()
-    frame.push(rcvr.prim_equals(right, interpreter.get_universe()))
+    frame.push(rcvr.prim_equals(right))
 
 
 def _lessThan(ivkbl, frame, interpreter):

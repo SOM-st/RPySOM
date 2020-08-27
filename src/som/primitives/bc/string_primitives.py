@@ -2,6 +2,7 @@ from rpython.rlib.objectmodel import compute_hash
 
 from som.primitives.primitives import Primitives
 from som.vmobjects.primitive import Primitive
+from som.vm.globals import trueObject, falseObject
 
 
 def _concat(ivkbl, frame, interpreter):
@@ -27,9 +28,9 @@ def _equals(ivkbl, frame, interpreter):
     universe = interpreter.get_universe()
     if op1.get_class(universe) == universe.stringClass:
         if op1.get_embedded_string() == op2.get_embedded_string():
-            frame.push(universe.trueObject)
+            frame.push(trueObject)
             return
-    frame.push(universe.falseObject)
+    frame.push(falseObject)
 
 
 def _substring(ivkbl, frame, interpreter):
@@ -59,13 +60,13 @@ def _is_whitespace(ivkbl, frame, interpreter):
 
     for c in s:
         if not c.isspace():
-            frame.push(interpreter.get_universe().falseObject)
+            frame.push(falseObject)
             return
 
     if len(s) > 0:
-        frame.push(interpreter.get_universe().trueObject)
+        frame.push(trueObject)
     else:
-        frame.push(interpreter.get_universe().falseObject)
+        frame.push(falseObject)
 
 
 def _is_letters(ivkbl, frame, interpreter):
@@ -74,13 +75,13 @@ def _is_letters(ivkbl, frame, interpreter):
 
     for c in s:
         if not c.isalpha():
-            frame.push(interpreter.get_universe().falseObject)
+            frame.push(falseObject)
             return
 
     if len(s) > 0:
-        frame.push(interpreter.get_universe().trueObject)
+        frame.push(trueObject)
     else:
-        frame.push(interpreter.get_universe().falseObject)
+        frame.push(falseObject)
 
 
 def _is_digits(ivkbl, frame, interpreter):
@@ -89,13 +90,13 @@ def _is_digits(ivkbl, frame, interpreter):
 
     for c in s:
         if not c.isdigit():
-            frame.push(interpreter.get_universe().falseObject)
+            frame.push(falseObject)
             return
 
     if len(s) > 0:
-        frame.push(interpreter.get_universe().trueObject)
+        frame.push(trueObject)
     else:
-        frame.push(interpreter.get_universe().falseObject)
+        frame.push(falseObject)
 
 
 class StringPrimitives(Primitives):

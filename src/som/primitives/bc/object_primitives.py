@@ -5,16 +5,16 @@ from som.primitives.primitives import Primitives
 from som.vmobjects.object    import Object
 from som.vmobjects.primitive import Primitive
 from som.vmobjects.array     import Array
-
+from som.vm.globals import trueObject, falseObject
 
 
 def _equals(ivkbl, frame, interpreter):
     op1 = frame.pop()
     op2 = frame.pop()
     if op1 is op2:
-        frame.push(interpreter.get_universe().trueObject)
+        frame.push(trueObject)
     else:
-        frame.push(interpreter.get_universe().falseObject)
+        frame.push(falseObject)
 
 
 def _hashcode(ivkbl, frame, interpreter):

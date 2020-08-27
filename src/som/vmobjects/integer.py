@@ -6,6 +6,7 @@ from rpython.rtyper.lltypesystem.lloperation import llop
 from som.vmobjects.abstract_object import AbstractObject
 from som.vmobjects.biginteger import BigInteger
 from som.vmobjects.double import Double
+from som.vm.globals import trueObject, falseObject
 
 
 class Integer(AbstractObject):
@@ -58,9 +59,9 @@ class Integer(AbstractObject):
             result = self._embedded_integer < right.get_embedded_integer()
 
         if result:
-            return universe.trueObject
+            return trueObject
         else:
-            return universe.falseObject
+            return falseObject
 
     def prim_as_string(self, universe):
         return universe.new_string(str(self._embedded_integer))
@@ -176,7 +177,7 @@ class Integer(AbstractObject):
             r = right.get_embedded_integer()
             return universe.new_integer(l & r)
 
-    def prim_equals(self, right, universe):
+    def prim_equals(self, right):
         if isinstance(right, BigInteger):
             result = rbigint.fromint(self._embedded_integer).eq(
                 right.get_embedded_biginteger())
@@ -187,9 +188,9 @@ class Integer(AbstractObject):
             r = right.get_embedded_integer()
             result = l == r
         else:
-            return universe.falseObject
+            return falseObject
 
         if result:
-            return universe.trueObject
+            return trueObject
         else:
-            return universe.falseObject
+            return falseObject

@@ -1,5 +1,6 @@
 from rpython.rlib.rfloat import formatd, DTSF_ADD_DOT_0, DTSF_STR_PRECISION
 from som.vmobjects.abstract_object import AbstractObject
+from som.vm.globals import trueObject, falseObject
 
 import math
 
@@ -84,16 +85,16 @@ class Double(AbstractObject):
     def prim_and(self, right, universe):
         raise NotImplementedError("bit operations are unsupported on double")
 
-    def prim_equals(self, right, universe):
+    def prim_equals(self, right):
         r = self._get_float(right)
         if self._embedded_double == r:
-            return universe.trueObject
+            return trueObject
         else:
-            return universe.falseObject
+            return falseObject
 
     def prim_less_than(self, right, universe):
         r = self._get_float(right)
         if self._embedded_double < r:
-            return universe.trueObject
+            return trueObject
         else:
-            return universe.falseObject
+            return falseObject

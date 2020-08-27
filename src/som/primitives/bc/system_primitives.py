@@ -1,6 +1,6 @@
 from som.primitives.primitives import Primitives
 from som.vmobjects.primitive   import Primitive
-from som.vm.globals import nilObject
+from som.vm.globals import nilObject, trueObject
 
 from som.vm.universe import std_print, std_println
 
@@ -58,7 +58,7 @@ def _ticks(ivkbl, frame, interpreter):
 def _fullGC(ivkbl, frame, interpreter):
     frame.pop()
     rgc.collect()
-    frame.push(interpreter.get_universe().trueObject)
+    frame.push(trueObject)
 
 
 class SystemPrimitives(Primitives):

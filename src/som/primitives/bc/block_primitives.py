@@ -1,7 +1,7 @@
 from som.primitives.primitives import Primitives
 from som.vmobjects.primitive   import Primitive
 from som.vmobjects.block       import block_evaluate
-from som.vm.globals import nilObject
+from som.vm.globals import nilObject, trueObject, falseObject
 
 from rpython.rlib import jit
 
@@ -58,11 +58,11 @@ def _whileLoop(frame, interpreter, while_type):
 
 
 def _whileFalse(ivkbl, frame, interpreter):
-    _whileLoop(frame, interpreter, interpreter.get_universe().falseObject)
+    _whileLoop(frame, interpreter, falseObject)
 
 
 def _whileTrue(ivkbl, frame, interpreter):
-    _whileLoop(frame, interpreter, interpreter.get_universe().trueObject)
+    _whileLoop(frame, interpreter, trueObject)
 
 
 class BlockPrimitives(Primitives):
