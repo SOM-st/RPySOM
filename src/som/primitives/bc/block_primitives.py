@@ -1,6 +1,7 @@
 from som.primitives.primitives import Primitives
 from som.vmobjects.primitive   import Primitive
 from som.vmobjects.block       import block_evaluate
+from som.vm.globals import nilObject
 
 from rpython.rlib import jit
 
@@ -53,7 +54,7 @@ def _whileLoop(frame, interpreter, while_type):
         else:
             break
 
-    frame.push(universe.nilObject)
+    frame.push(nilObject)
 
 
 def _whileFalse(ivkbl, frame, interpreter):

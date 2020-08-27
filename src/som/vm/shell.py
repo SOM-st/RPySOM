@@ -2,20 +2,20 @@ from rpython.rlib.objectmodel import we_are_translated
 
 from rlib.osext import raw_input
 
+from ..vm.globals import nilObject
+
+
 class Shell(object):
 
-    def __init__(self, universe, interpreter):
+    def __init__(self, universe, interpreter, bootstrap_method):
         self._universe    = universe
         self._interpreter = interpreter
-        self._bootstrap_method = None
-  
-    def set_bootstrap_method(self, method):
-        self._bootstrap_method = method
+        self._bootstrap_method = bootstrap_method
 
     def start(self):
         from som.vm.universe import std_println, error_println
         counter = 0
-        it = self._universe.nilObject
+        it = nilObject
 
         std_println("SOM Shell. Type \"quit\" to exit.\n")
 
@@ -27,12 +27,12 @@ class Shell(object):
                 # Read a statement from the keyboard
                 stmt = raw_input("---> ")
                 if stmt == "quit" or stmt == "":
-                    return
+                    return it
                 elif stmt == "\n":
                     continue
 
                 # Generate a temporary class with a run method
-                stmt = ("Shell_Class_" + str(counter) + 
+                stmt = ("Shell_Class_" + str(counter) +
                         " = ( run: it = ( | tmp | tmp := (" + stmt +
                         " ). 'it = ' print. ^tmp println ) )")
                 counter += 1

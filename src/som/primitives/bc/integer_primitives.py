@@ -9,6 +9,7 @@ from som.vmobjects.primitive   import Primitive
 from som.vmobjects.double      import Double
 from som.vmobjects.string      import String
 from som.vmobjects.block       import block_evaluate
+from som.vm.globals import nilObject
 
 import math
 
@@ -121,7 +122,7 @@ def _fromString(ivkbl, frame, interpreter):
     frame.pop()
 
     if not isinstance(param, String):
-        frame.push(interpreter.get_universe().nilObject)
+        frame.push(nilObject)
         return
 
     int_value = int(param.get_embedded_string())

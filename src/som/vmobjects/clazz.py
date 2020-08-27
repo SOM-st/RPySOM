@@ -1,5 +1,6 @@
 from rpython.rlib import jit
-from som.vmobjects.object      import Object
+from som.vmobjects.object import Object
+from som.vm.globals import nilObject
 
 
 class Class(Object):
@@ -12,8 +13,8 @@ class Class(Object):
                           "_universe"]
 
     def __init__(self, universe, number_of_fields=-1):
-        Object.__init__(self, universe.nilObject, number_of_fields)
-        self._super_class = universe.nilObject
+        Object.__init__(self, number_of_fields)
+        self._super_class = nilObject
         self._name        = None
         self._instance_fields = None
         self._instance_invokables = None
@@ -27,7 +28,7 @@ class Class(Object):
         self._super_class = value
 
     def has_super_class(self):
-        return self._super_class is not self._universe.nilObject
+        return self._super_class is not nilObject
 
     def get_name(self):
         return self._name
@@ -115,7 +116,7 @@ class Class(Object):
                 return False
 
         # Append the given method to the array of instance methods
-        self.set_instance_invokables(self.get_instance_invokables().copy_and_extend_with(value, self._universe))
+        self.set_instance_invokables(self.get_instance_invokables().copy_and_extend_with(value))
         return True
 
     def add_instance_primitive(self, value, warn_if_not_existing):

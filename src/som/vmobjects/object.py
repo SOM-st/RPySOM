@@ -1,18 +1,22 @@
-from som.vmobjects.abstract_object import AbstractObject
+from .abstract_object import AbstractObject
+from .object_without_fields import ObjectWithoutFields
+from ..vm.globals import nilObject
 
 
-class Object(AbstractObject):
+class Object(ObjectWithoutFields):
 
-    _immutable_fields_ = ["_class", "_fields"]
-    
+    _immutable_fields_ = ["_fields"]
+
     # Static field indices and number of object fields
     NUMBER_OF_OBJECT_FIELDS = 0
 
-    def __init__(self, nilObject, number_of_fields = -1, obj_class = None):
+    def __init__(self, number_of_fields = NUMBER_OF_OBJECT_FIELDS, obj_class = None):
+        cls = obj_class if obj_class is not None else nilObject
+        ObjectWithoutFields.__init__(self, cls)
+
         num_fields = (number_of_fields if number_of_fields != -1
                       else self._get_default_number_of_fields())
         self._fields = [nilObject] * num_fields
-        self._class = obj_class or nilObject
 
     def get_class(self, universe):
         return self._class

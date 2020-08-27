@@ -1,12 +1,14 @@
 from .abstract_object import AbstractObject
+from ..vm.globals import nilObject
+
 from rpython.rlib.debug import make_sure_not_resized
 
 
 class Array(AbstractObject):
 
     _immutable_fields_ = ["_indexable_fields"]
-    
-    def __init__(self, nilObject, number_of_indexable_fields, values = None):
+
+    def __init__(self, number_of_indexable_fields, values = None):
         AbstractObject.__init__(self)
 
         # Private array of indexable fields
@@ -31,9 +33,8 @@ class Array(AbstractObject):
         # Get the number of indexable fields in this array
         return len(self._indexable_fields)
 
-    def copy_and_extend_with(self, value, universe):
-        result = Array(universe.nilObject,
-                       self.get_number_of_indexable_fields() + 1)
+    def copy_and_extend_with(self, value):
+        result = Array(self.get_number_of_indexable_fields() + 1)
 
         self._copy_indexable_fields_to(result)
 
