@@ -21,12 +21,12 @@ class Shell(object):
                 # Read a statement from the keyboard
                 stmt = raw_input("---> ")
                 if stmt == "quit" or stmt == "":
-                    return
+                    return it
                 elif stmt == "\n":
                     continue
 
                 # Generate a temporary class with a run method
-                stmt = ("Shell_Class_" + str(counter) + 
+                stmt = ("Shell_Class_" + str(counter) +
                         " = ( run: it = ( | tmp | tmp := (" + stmt +
                         " ). 'it = ' print. ^tmp println ) )")
                 counter += 1
