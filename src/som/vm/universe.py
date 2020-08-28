@@ -1,7 +1,7 @@
 from rpython.rlib.debug import make_sure_not_resized
+from rpython.rlib.rbigint import rbigint
 from rpython.rlib.rrandom import Random
 from rpython.rlib import jit
-from som.vm.globals import nilObject, trueObject, falseObject
 
 from som.vmobjects.object        import Object
 from som.vmobjects.clazz         import Class
@@ -16,6 +16,7 @@ from som.vmobjects.biginteger    import BigInteger
 from som.vmobjects.double        import Double
 
 from som.vm.shell import Shell
+from som.vm.globals import nilObject, trueObject, falseObject
 
 import som.compiler.sourcecode_compiler as sourcecode_compiler
 
@@ -107,10 +108,13 @@ class Universe(object):
         self._initialize_object_system()
 
         clazz = self.load_class(self.symbol_for(class_name))
+        if clazz is None:
+            raise Exception("Class " + class_name + " could not be loaded.")
 
         # Lookup the invokable on class
-        invokable = clazz.get_class(self).lookup_invokable(self.symbol_for(
-            selector))
+        invokable = clazz.get_class(self).lookup_invokable(self.symbol_for(selector))
+        if invokable is None:
+            raise Exception("Lookup of " + selector + " failed in class " + class_name)
 
         return invokable.invoke(clazz, [])
 
@@ -130,8 +134,7 @@ class Universe(object):
             arguments_array = self.new_array_with_strings(arguments)
 
             # Lookup the initialize invokable on the system class
-            initialize = self.systemClass.lookup_invokable(
-                self.symbol_for("initialize:"))
+            initialize = self.systemClass.lookup_invokable(self.symbol_for("initialize:"))
             return initialize.invoke(system_object, [arguments_array])
 
     def handle_arguments(self, arguments):
@@ -291,16 +294,19 @@ class Universe(object):
         result = self._new_symbol(string)
         return result
 
-    def new_array_with_length(self, length):
+    @staticmethod
+    def new_array_with_length(length):
         return Array.from_size(length)
 
-    def new_array_from_list(self, values):
+    @staticmethod
+    def new_array_from_list(values):
         make_sure_not_resized(values)
         return Array.from_values(values)
 
-    def new_array_with_strings(self, strings):
+    @staticmethod
+    def new_array_with_strings(strings):
         # Allocate a new array with the same length as the string array
-        values = [self.new_string(s) for s in strings]
+        values = [Universe.new_string(s) for s in strings]
         return Array.from_objects(values)
 
     @staticmethod
@@ -316,7 +322,8 @@ class Universe(object):
     def new_method(self, signature, invokable, embedded_block_methods):
         return Method(signature, invokable, embedded_block_methods, self)
 
-    def new_instance(self, instance_class):
+    @staticmethod
+    def new_instance(instance_class):
         num_fields = instance_class.get_number_of_instance_fields()
         if num_fields == 0:
             return ObjectWithoutFields(instance_class)
@@ -330,6 +337,7 @@ class Universe(object):
 
     @staticmethod
     def new_biginteger(value):
+        assert isinstance(value, rbigint)
         return BigInteger(value)
 
     @staticmethod
