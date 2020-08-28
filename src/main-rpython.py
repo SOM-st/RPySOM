@@ -3,6 +3,7 @@
 
 import sys
 
+from som.compiler.bc.parser import ParseError
 from som.interp_type import is_ast_interpreter, is_bytecode_interpreter
 from som.vm.universe import main, Exit
 
@@ -16,6 +17,9 @@ def entry_point(argv):
         main(argv)
     except Exit, e:
         return e.code
+    except ParseError as e:
+        os.write(2, str(e))
+        return 1
     except Exception, e:
         os.write(2, "ERROR: %s thrown during execution.\n" % e)
         return 1
