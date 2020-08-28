@@ -2,7 +2,7 @@ import os
 from rpython.rlib.streamio import open_file_as_stream
 from rlib.string_stream    import StringStream
 
-from som.compiler.bc.parser import Parser, ParseError
+from som.compiler.bc.parser import Parser
 from som.compiler.class_generation_context import ClassGenerationContext
 
 
@@ -32,11 +32,6 @@ class _SourcecodeCompiler(object):
                 input_file.close()
         except OSError:
             raise IOError()
-        except ParseError as e:
-            from som.vm.universe import error_println
-            error_println(str(e))
-            universe.exit(1)
-            return None
 
         cname = result.get_name()
         cnameC = cname.get_embedded_string()
