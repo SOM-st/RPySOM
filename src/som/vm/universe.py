@@ -51,8 +51,6 @@ class Assoc(object):
 
 class Universe(object):
 
-    CURRENT = None
-
     _immutable_fields_ = [
             "objectClass",
             "classClass",
@@ -98,8 +96,6 @@ class Universe(object):
         self.classpath       = None
         self.start_time      = time.time()  # a float of the time in seconds
         self.random          = Random(abs(int(time.clock() * time.time())))
-
-        CURRENT = self
 
     def exit(self, error_code):
         if self._avoid_exit:
@@ -457,6 +453,7 @@ class Universe(object):
     def set_global(self, name, value):
         self.get_globals_association(name).set_value(value)
 
+    @jit.elidable_promote("all")
     def has_global(self, name):
         return name in self._globals
 
@@ -481,8 +478,7 @@ class Universe(object):
 
         # Add the appropriate value primitive to the block class
         result.add_instance_primitive(
-            block_evaluation_primitive(number_of_arguments, self),
-            False)
+            block_evaluation_primitive(number_of_arguments, self), True)
 
         # Insert the block class into the dictionary of globals
         self.set_global(name, result)
@@ -527,7 +523,8 @@ class Universe(object):
         for cpEntry in self.classpath:
             try:
                 # Load the class from a file and return the loaded class
-                result = sourcecode_compiler.compile_class_from_file(cpEntry, name.get_embedded_string(), system_class, self)
+                result = sourcecode_compiler.compile_class_from_file(
+                    cpEntry, name.get_embedded_string(), system_class, self)
                 if self._dump_bytecodes:
                     from som.compiler.bc.disassembler import dump
                     dump(result.get_class(self))
@@ -550,6 +547,9 @@ class Universe(object):
         return result
 
 
+_current = Universe()
+
+
 def error_print(msg):
     os.write(2, msg or "")
 
@@ -567,13 +567,13 @@ def std_println(msg = ""):
 
 
 def main(args):
-    u = Universe()
+    u = _current
     u.interpret(args[1:])
     u.exit(0)
 
 
 def get_current():
-    return Universe.CURRENT
+    return _current
 
 
 if __name__ == '__main__':
