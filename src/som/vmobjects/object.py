@@ -1,6 +1,6 @@
 from .abstract_object import AbstractObject
 from .object_without_fields import ObjectWithoutFields
-from ..vm.globals import nilObject
+from som.vm.globals import nilObject
 
 
 class Object(ObjectWithoutFields):

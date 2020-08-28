@@ -1,5 +1,5 @@
 from .abstract_object import AbstractObject
-from ..vm.globals import nilObject
+from som.vm.globals import nilObject
 
 from rpython.rlib.debug import make_sure_not_resized
 

@@ -1,7 +1,7 @@
 from rpython.rlib.rbigint import rbigint
 from .abstract_object import AbstractObject
 from .double          import Double
-from ..vm.globals import trueObject, falseObject
+from som.vm.globals import trueObject, falseObject
 
 
 class BigInteger(AbstractObject):

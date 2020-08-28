@@ -2,7 +2,7 @@ from rpython.rlib.objectmodel import we_are_translated
 
 from rlib.osext import raw_input
 
-from ..vm.globals import nilObject
+from som.vm.globals import nilObject
 
 
 class Shell(object):
