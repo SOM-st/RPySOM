@@ -315,8 +315,8 @@ class Universe(object):
         return Array.from_objects(values)
 
     @staticmethod
-    def new_block(method, context_values):
-        return Block(method, context_values)
+    def new_block(method, context):
+        return Block(method, context)
 
     def new_class(self, class_class):
         # Allocate a new class and set its class to be the given class class
