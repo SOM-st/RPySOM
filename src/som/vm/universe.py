@@ -15,10 +15,15 @@ from som.vmobjects.block         import Block, block_evaluation_primitive
 from som.vmobjects.biginteger    import BigInteger
 from som.vmobjects.double        import Double
 
-from som.vm.shell import Shell
 from som.vm.globals import nilObject, trueObject, falseObject
 
 import som.compiler.sourcecode_compiler as sourcecode_compiler
+from som.interp_type import is_ast_interpreter
+
+if is_ast_interpreter():
+    from som.vm.ast.shell import Shell
+else:
+    from som.vm.bc.shell import Shell
 
 import os
 import time
