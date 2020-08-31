@@ -6,6 +6,18 @@ from rpython.rlib.debug import make_sure_not_resized
 
 class Array(AbstractObject):
 
+    @staticmethod
+    def from_size(size):
+        return Array(size)
+
+    @staticmethod
+    def from_values(values):
+        return Array(0, values)
+
+    @staticmethod
+    def from_objects(values):
+        return Array.from_values(values)
+
     _immutable_fields_ = ["_indexable_fields"]
 
     def __init__(self, number_of_indexable_fields, values = None):

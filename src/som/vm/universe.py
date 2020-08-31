@@ -315,23 +315,17 @@ class Universe(object):
 
     @staticmethod
     def new_array_with_length(length):
-        return Array(length)
+        return Array.from_size(length)
 
     @staticmethod
     def new_array_from_list(values):
         make_sure_not_resized(values)
-        return Array(0, values)
+        return Array.from_values(values)
 
     @staticmethod
     def new_array_with_strings(strings):
-        # Allocate a new array with the same length as the string array
-        result = Universe.new_array_with_length(len(strings))
-
-        # Copy all elements from the string array into the array
-        for i in range(len(strings)):
-            result.set_indexable_field(i, Universe.new_string(strings[i]))
-
-        return result
+        values = [Universe.new_string(s) for s in strings]
+        return Array.from_objects(values)
 
     @staticmethod
     def new_block(method, context):
