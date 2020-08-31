@@ -1,5 +1,7 @@
-from ..vmobjects.object_without_fields import ObjectWithoutFields
+from som.vmobjects.object_without_fields import ObjectWithoutFields
 
-nilObject = ObjectWithoutFields(None)
-trueObject = ObjectWithoutFields(None)
+
+# The basic global objects
+nilObject   = ObjectWithoutFields(None)
+trueObject  = ObjectWithoutFields(None)
 falseObject = ObjectWithoutFields(None)
