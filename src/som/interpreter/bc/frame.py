@@ -1,5 +1,7 @@
 from rpython.rlib import jit
 
+from som.vm.globals import nilObject
+
 
 # Frame layout:
 #
@@ -16,7 +18,7 @@ class Frame(object):
 
     _immutable_fields_ = ["_method", "_context", "_stack"]
 
-    def __init__(self, num_elements, method, context, previous_frame, nilObject):
+    def __init__(self, num_elements, method, context, previous_frame):
         self._method         = method
         self._context        = context
         self._stack          = [nilObject] * num_elements
@@ -171,3 +173,7 @@ class Frame(object):
 
         if self.has_previous_frame():
             self.get_previous_frame().print_stack_trace(0)
+
+
+def create_frame(previous_frame, method, context):
+    return Frame(method.get_number_of_frame_elements(), method, context, previous_frame)

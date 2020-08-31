@@ -5,7 +5,7 @@ from rpython.rlib import jit
 
 from som.interpreter.bc.interpreter import Interpreter
 from som.interpreter.bc.bytecodes import Bytecodes
-from som.interpreter.bc.frame import Frame
+from som.interpreter.bc.frame import create_frame
 
 from som.vmobjects.object        import Object
 from som.vmobjects.clazz         import Class
@@ -146,7 +146,7 @@ class Universe(object):
 
     def _create_bootstrap_frame(self, bootstrap_method, receiver, arguments = None):
         # Create a fake bootstrap frame with the system object on the stack
-        bootstrap_frame = self._interpreter.new_frame(None, bootstrap_method, None)
+        bootstrap_frame = create_frame(None, bootstrap_method, None)
         bootstrap_frame.push(receiver)
 
         if arguments:
@@ -353,22 +353,12 @@ class Universe(object):
         return result
 
     @staticmethod
-    def new_block(method, context_frame):
-        return Block(method, context_frame)
+    def new_block(method, context):
+        return Block(method, context)
 
     def new_class(self, class_class):
         # Allocate a new class and set its class to be the given class class
         return Class(self, class_class.get_number_of_instance_fields(), class_class)
-
-    def new_frame(self, previous_frame, method, context):
-        # Compute the maximum number of stack locations (including arguments,
-        # locals and extra buffer to support doesNotUnderstand) and set the
-        # number of indexable fields accordingly
-        length = (method.get_number_of_arguments() +
-                  method.get_number_of_locals().get_embedded_integer() +
-                  method.get_maximum_number_of_stack_elements().get_embedded_integer() + 2)
-
-        return Frame(length, method, context, previous_frame, nilObject)
 
     @staticmethod
     def new_method(signature, num_bytecodes, literals,

@@ -2,6 +2,7 @@ from rpython.rlib.objectmodel import we_are_translated
 
 from rlib.osext import raw_input
 
+from som.interpreter.bc.frame import create_frame
 from som.vm.globals import nilObject
 
 
@@ -20,7 +21,7 @@ class Shell(object):
         std_println("SOM Shell. Type \"quit\" to exit.\n")
 
         # Create a fake bootstrap frame
-        current_frame = self._interpreter.new_frame(None, self._bootstrap_method, None)
+        current_frame = create_frame(None, self._bootstrap_method, None)
 
         while True:
             try:

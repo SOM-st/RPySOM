@@ -230,9 +230,6 @@ class Interpreter(object):
 
             current_bc_idx = next_bc_idx
 
-    def new_frame(self, prev_frame, method, context):
-        return self._universe.new_frame(prev_frame, method, context)
-
     def get_self(self, frame):
         # Get the self object from the interpreter
         return frame.get_outer_context().get_argument(0, 0)

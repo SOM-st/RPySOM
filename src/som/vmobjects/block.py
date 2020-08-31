@@ -2,6 +2,8 @@ from rpython.rlib import jit
 
 from som.vmobjects.abstract_object import AbstractObject
 from som.vmobjects.primitive import Primitive
+from som.interpreter.bc.frame import create_frame
+
 
 class Block(AbstractObject):
 
@@ -51,7 +53,7 @@ def block_evaluation_primitive(num_args, universe):
 def block_evaluate(block, interpreter, frame):
     context = block.get_context()
     method  = block.get_method()
-    new_frame = interpreter.new_frame(frame, method, context)
+    new_frame = create_frame(frame, method, context)
     new_frame.copy_arguments_from(frame)
 
     result = interpreter.interpret(method, new_frame)
