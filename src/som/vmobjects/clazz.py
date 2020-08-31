@@ -141,6 +141,7 @@ class Class(Object):
     def get_instance_field_name(self, index):
         return self.get_instance_fields().get_indexable_field(index)
 
+    @jit.elidable_promote('all')
     def get_number_of_instance_fields(self):
         # Get the total number of instance fields in this class
         return self.get_instance_fields().get_number_of_indexable_fields()
