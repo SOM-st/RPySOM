@@ -28,7 +28,7 @@ class SomTest(unittest.TestCase):
         ("SpecialSelectors",),
         ("Super"         ,),
 
-        ("Set",),
+        ("Set"           ,),
         ("String"        ,),
         ("Symbol"        ,),
         ("System"        ,),
