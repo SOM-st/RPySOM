@@ -310,7 +310,6 @@ class Universe(object):
 
     @staticmethod
     def new_array_with_strings(strings):
-        # Allocate a new array with the same length as the string array
         values = [Universe.new_string(s) for s in strings]
         return Array.from_objects(values)
 
