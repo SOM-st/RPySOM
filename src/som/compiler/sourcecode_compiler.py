@@ -2,9 +2,13 @@ import os
 from rpython.rlib.streamio import open_file_as_stream
 from rlib.string_stream    import StringStream
 
-from som.compiler.ast.parser import Parser
-from som.compiler.parse_error import ParseError
 from som.compiler.class_generation_context import ClassGenerationContext
+from som.interp_type import is_ast_interpreter
+
+if is_ast_interpreter():
+    from som.compiler.ast.parser import Parser
+else:
+    from som.compiler.bc.parser import Parser
 
 
 def compile_class_from_file(path, filename, system_class, universe):
