@@ -6,7 +6,7 @@ from ..interp_type import is_ast_interpreter, is_bytecode_interpreter
    time with RPython.
 """
 
-EXPECTED_NUMBER_OF_PRIMITIVE_FILES = 11
+EXPECTED_NUMBER_OF_PRIMITIVE_FILES = 13 if is_ast_interpreter() else 11
 
 
 class PrimitivesNotFound(Exception): pass
