@@ -1,3 +1,4 @@
+from rtruffle.source_section import SourceCoordinate
 from .symbol import Symbol
 
 
@@ -19,6 +20,11 @@ class Lexer(object):
         self._next_text   = ""
         self._buf         = ""
         self._bufp        = 0
+
+    def get_source_coordinate(self):
+        return SourceCoordinate(self._line_number,
+                                self._bufp + 1,
+                                self._chars_read + self._bufp)
 
     def _lex_number(self):
         self._sym = Symbol.Integer

@@ -4,8 +4,7 @@ from som.compiler.symbol import Symbol, symbol_as_str
 class ParseError(Exception):
     def __init__(self, message, expected_sym, parser):
         self._message           = message
-        self._line              = parser._lexer.get_current_line_number()
-        self._column            = parser._lexer.get_current_column()
+        self._source_coordinate = parser._lexer.get_source_coordinate()
         self._text              = parser._text
         self._raw_buffer        = parser._lexer.get_raw_buffer()
         self._file_name         = parser._file_name
@@ -32,8 +31,8 @@ class ParseError(Exception):
 
         return (msg % {
             'file'       : self._file_name,
-            'line'       : self._line,
-            'column'     : self._column,
+            'line'       : self._source_coordinate.get_start_line(),
+            'column'     : self._source_coordinate.get_start_column(),
             'expected'   : expected,
             'found'      : found})
 
