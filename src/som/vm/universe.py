@@ -322,9 +322,6 @@ class Universe(object):
         # Allocate a new class and set its class to be the given class class
         return Class(self, class_class.get_number_of_instance_fields(), class_class)
 
-    def new_method(self, signature, invokable, embedded_block_methods):
-        return Method(signature, invokable, embedded_block_methods, self)
-
     @staticmethod
     def new_instance(instance_class):
         num_fields = instance_class.get_number_of_instance_fields()
