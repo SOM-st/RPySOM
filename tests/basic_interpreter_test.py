@@ -3,7 +3,7 @@ import sys
 
 from parameterized import parameterized
 
-from som.compiler.bc.parser import ParseError
+from som.compiler.parse_error import ParseError
 
 from som.vm.universe       import Universe
 

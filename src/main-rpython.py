@@ -3,7 +3,7 @@
 
 import sys
 
-from som.compiler.bc.parser import ParseError
+from som.compiler.parse_error import ParseError
 from som.interp_type import is_ast_interpreter, is_bytecode_interpreter
 from som.vm.universe import main, Exit
 
