@@ -15,7 +15,7 @@ class Class(Object):
                           "_universe",
                           "_layout_for_instances?"]
 
-    def __init__(self, universe, number_of_fields = -1, obj_class = None):
+    def __init__(self, universe, number_of_fields=Object.NUMBER_OF_OBJECT_FIELDS, obj_class=None):
         Object.__init__(self, obj_class, number_of_fields)
         self._super_class = nilObject
         self._name        = None

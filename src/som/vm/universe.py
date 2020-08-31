@@ -320,9 +320,7 @@ class Universe(object):
 
     def new_class(self, class_class):
         # Allocate a new class and set its class to be the given class class
-        result = Class(self, class_class.get_number_of_instance_fields())
-        result.set_class(class_class)
-        return result
+        return Class(self, class_class.get_number_of_instance_fields(), class_class)
 
     def new_method(self, signature, invokable, embedded_block_methods):
         return Method(signature, invokable, embedded_block_methods, self)
@@ -351,7 +349,8 @@ class Universe(object):
 
     def new_metaclass_class(self):
         # Allocate the metaclass classes
-        result = Class(self, 0, Class(self, 0, None))
+        class_class = Class(self, 0, None)
+        result = Class(self, 0, class_class)
 
         # Setup the metaclass hierarchy
         result.get_class(self).set_class(result)
@@ -370,7 +369,8 @@ class Universe(object):
 
     def new_system_class(self):
         # Allocate the new system class
-        system_class = Class(self, 0, Class(self, 0, None))
+        system_class_class = Class(self, 0, None)
+        system_class = Class(self, 0, system_class_class)
 
         # Setup the metaclass hierarchy
         system_class.get_class(self).set_class(self.metaclassClass)
