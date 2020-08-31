@@ -341,13 +341,14 @@ class Universe(object):
         make_sure_not_resized(values)
         return Array(0, values)
 
-    def new_array_with_strings(self, strings):
+    @staticmethod
+    def new_array_with_strings(strings):
         # Allocate a new array with the same length as the string array
-        result = self.new_array_with_length(len(strings))
+        result = Universe.new_array_with_length(len(strings))
 
         # Copy all elements from the string array into the array
         for i in range(len(strings)):
-            result.set_indexable_field(i, self.new_string(strings[i]))
+            result.set_indexable_field(i, Universe.new_string(strings[i]))
 
         return result
 
