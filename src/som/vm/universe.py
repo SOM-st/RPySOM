@@ -383,7 +383,7 @@ class Universe(object):
         if num_fields == 0:
             return ObjectWithoutFields(instance_class)
         else:
-            return Object(instance_class.get_number_of_instance_fields(), instance_class)
+            return Object(instance_class, num_fields)
 
     @staticmethod
     def new_integer(value):

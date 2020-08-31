@@ -10,7 +10,7 @@ class Object(ObjectWithoutFields):
     # Static field indices and number of object fields
     NUMBER_OF_OBJECT_FIELDS = 0
 
-    def __init__(self, number_of_fields = NUMBER_OF_OBJECT_FIELDS, obj_class = None):
+    def __init__(self, obj_class, number_of_fields = NUMBER_OF_OBJECT_FIELDS):
         cls = obj_class if obj_class is not None else nilObject
         ObjectWithoutFields.__init__(self, cls)
 
