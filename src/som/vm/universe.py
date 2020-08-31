@@ -73,7 +73,8 @@ class Universe(object):
             "stringClass",
             "doubleClass",
             "_symbol_table",
-            "_globals"]
+            "_globals",
+            "_object_system_initialized"]
 
     def __init__(self, avoid_exit = False):
         self._interpreter    = Interpreter(self)
@@ -102,6 +103,7 @@ class Universe(object):
         self.classpath       = None
         self.start_time      = time.time()  # a float of the time in seconds
         self.random          = Random(abs(int(time.clock() * time.time())))
+        self._object_system_initialized = False
 
     def exit(self, error_code):
         if self._avoid_exit:
@@ -313,7 +315,11 @@ class Universe(object):
 
         self._interpreter.initialize_known_quick_sends()
 
+        self._object_system_initialized = True
         return system_object
+
+    def is_object_system_initialized(self):
+        return self._object_system_initialized
 
     @jit.elidable
     def symbol_for(self, string):
