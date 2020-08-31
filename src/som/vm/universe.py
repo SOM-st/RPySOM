@@ -3,16 +3,15 @@ from rpython.rlib.rbigint import rbigint
 from rpython.rlib.rrandom import Random
 from rpython.rlib import jit
 
+from som.compiler.bc.method_generation_context import create_bootstrap_method
 from som.interpreter.bc.interpreter import Interpreter
-from som.interpreter.bc.bytecodes import Bytecodes
-from som.interpreter.bc.frame import create_frame
+from som.interpreter.bc.frame import create_bootstrap_frame
 
 from som.vmobjects.object        import Object
 from som.vmobjects.clazz         import Class
 from som.vmobjects.array         import Array
 from som.vmobjects.object_without_fields import ObjectWithoutFields
 from som.vmobjects.symbol        import Symbol
-from som.vmobjects.method        import Method
 from som.vmobjects.integer       import Integer
 from som.vmobjects.string        import String
 from som.vmobjects.block         import Block, block_evaluation_primitive
@@ -124,8 +123,8 @@ class Universe(object):
         if clazz is None:
             raise Exception("Class " + class_name + " could not be loaded.")
 
-        bootstrap_method = self._create_bootstrap_method()
-        bootstrap_frame  = self._create_bootstrap_frame(bootstrap_method, clazz)
+        bootstrap_method = create_bootstrap_method(self)
+        bootstrap_frame  = create_bootstrap_frame(bootstrap_method, clazz)
 
         # Lookup the invokable on class
         invokable = clazz.get_class(self).lookup_invokable(self.symbol_for(selector))
@@ -135,31 +134,13 @@ class Universe(object):
         invokable.invoke(bootstrap_frame, self._interpreter)
         return bootstrap_frame.pop()
 
-    def _create_bootstrap_method(self):
-        # Create a fake bootstrap method to simplify later frame traversal
-        bootstrap_method = self.new_method(self.symbol_for("bootstrap"), 1, [],
-                                           self.new_integer(0),
-                                           self.new_integer(2))
-        bootstrap_method.set_bytecode(0, Bytecodes.halt)
-        bootstrap_method.set_holder(self.systemClass)
-        return bootstrap_method
-
-    def _create_bootstrap_frame(self, bootstrap_method, receiver, arguments = None):
-        # Create a fake bootstrap frame with the system object on the stack
-        bootstrap_frame = create_frame(None, bootstrap_method, None)
-        bootstrap_frame.push(receiver)
-
-        if arguments:
-            bootstrap_frame.push(arguments)
-        return bootstrap_frame
-
     def interpret(self, arguments):
         # Check for command line switches
         arguments = self.handle_arguments(arguments)
 
         # Initialize the known universe
         system_object = self._initialize_object_system()
-        bootstrap_method = self._create_bootstrap_method()
+        bootstrap_method = create_bootstrap_method(self)
 
         # Start the shell if no filename is given
         if len(arguments) == 0:
@@ -168,7 +149,7 @@ class Universe(object):
         else:
             # Convert the arguments into an array
             arguments_array = self.new_array_with_strings(arguments)
-            bootstrap_frame = self._create_bootstrap_frame(bootstrap_method, system_object, arguments_array)
+            bootstrap_frame = create_bootstrap_frame(bootstrap_method, system_object, arguments_array)
             # Lookup the initialize invokable on the system class
             initialize = self.systemClass.lookup_invokable(self.symbol_for("initialize:"))
             return initialize.invoke(bootstrap_frame, self._interpreter)
@@ -359,12 +340,6 @@ class Universe(object):
     def new_class(self, class_class):
         # Allocate a new class and set its class to be the given class class
         return Class(self, class_class.get_number_of_instance_fields(), class_class)
-
-    @staticmethod
-    def new_method(signature, num_bytecodes, literals,
-                   num_locals, maximum_number_of_stack_elements):
-        return Method(literals, num_locals, maximum_number_of_stack_elements,
-                      num_bytecodes, signature)
 
     @staticmethod
     def new_instance(instance_class):

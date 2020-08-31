@@ -177,3 +177,13 @@ class Frame(object):
 
 def create_frame(previous_frame, method, context):
     return Frame(method.get_number_of_frame_elements(), method, context, previous_frame)
+
+
+def create_bootstrap_frame(bootstrap_method, receiver, arguments = None):
+    """Create a fake bootstrap frame with the system object on the stack"""
+    bootstrap_frame = create_frame(None, bootstrap_method, None)
+    bootstrap_frame.push(receiver)
+
+    if arguments:
+        bootstrap_frame.push(arguments)
+    return bootstrap_frame

@@ -1,5 +1,7 @@
-from som.interpreter.bc.bytecodes import bytecode_length, bytecode_stack_effect, bytecode_stack_effect_depends_on_send
-from som.vmobjects.primitive   import empty_primitive
+from som.interpreter.bc.bytecodes import bytecode_length, bytecode_stack_effect,\
+    bytecode_stack_effect_depends_on_send, Bytecodes
+from som.vmobjects.primitive import empty_primitive
+from som.vmobjects.method import Method
 
 
 class MethodGenerationContext(object):
@@ -31,11 +33,11 @@ class MethodGenerationContext(object):
     def assemble(self, universe):
         num_locals = len(self._locals)
 
-        meth = universe.new_method(self._signature,
-                                   len(self._bytecode),
-                                   list(self._literals),
-                                   universe.new_integer(num_locals),
-                                   universe.new_integer(self._compute_stack_depth()))
+        meth = Method(list(self._literals),
+                      universe.new_integer(num_locals),
+                      universe.new_integer(self._compute_stack_depth()),
+                      len(self._bytecode),
+                      self. _signature)
 
         # copy bytecodes into method
         i = 0
@@ -169,3 +171,16 @@ class MethodGenerationContext(object):
 
     def get_signature(self):
         return self._signature
+
+
+def create_bootstrap_method(universe):
+    """ Create a fake bootstrap method to simplify later frame traversal """
+    bootstrap_method = Method([],
+                              universe.new_integer(0),
+                              universe.new_integer(2),
+                              1,
+                              universe.symbol_for("bootstrap"))
+
+    bootstrap_method.set_bytecode(0, Bytecodes.halt)
+    bootstrap_method.set_holder(universe.systemClass)
+    return bootstrap_method
