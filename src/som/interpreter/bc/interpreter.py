@@ -22,18 +22,21 @@ class Interpreter(object):
     def get_universe(self):
         return self._universe
 
-    def _do_dup(self, frame, method):
+    @staticmethod
+    def _do_dup(frame):
         # Handle the dup bytecode
         frame.push(frame.get_stack_element(0))
 
-    def _do_push_local(self, bytecode_index, frame, method):
+    @staticmethod
+    def _do_push_local(bytecode_index, frame, method):
         # Handle the push local bytecode
         frame.push(
             frame.get_local(
                 method.get_bytecode(bytecode_index + 1),
                 method.get_bytecode(bytecode_index + 2)))
 
-    def _do_push_argument(self, bytecode_index, frame, method):
+    @staticmethod
+    def _do_push_argument(bytecode_index, frame, method):
         # Handle the push argument bytecode
         frame.push(
             frame.get_argument(method.get_bytecode(bytecode_index + 1),
@@ -54,7 +57,8 @@ class Interpreter(object):
         # stack
         frame.push(self._universe.new_block(block_method, frame))
 
-    def _do_push_constant(self, bytecode_index, frame, method):
+    @staticmethod
+    def _do_push_constant(bytecode_index, frame, method):
         # Handle the push constant bytecode
         frame.push(method.get_constant(bytecode_index))
 
@@ -72,17 +76,20 @@ class Interpreter(object):
             # Send 'unknownGlobal:' to self
             self.get_self(frame).send_unknown_global(frame, global_name, self._universe, self)
 
-    def _do_pop(self, frame):
+    @staticmethod
+    def _do_pop(frame):
         # Handle the pop bytecode
         frame.pop()
 
-    def _do_pop_local(self, bytecode_index, frame, method):
+    @staticmethod
+    def _do_pop_local(bytecode_index, frame, method):
         # Handle the pop local bytecode
         frame.set_local(method.get_bytecode(bytecode_index + 1),
                         method.get_bytecode(bytecode_index + 2),
                         frame.pop())
 
-    def _do_pop_argument(self, bytecode_index, frame, method):
+    @staticmethod
+    def _do_pop_argument(bytecode_index, frame, method):
         # Handle the pop argument bytecode
         frame.set_argument(method.get_bytecode(bytecode_index + 1),
                            method.get_bytecode(bytecode_index + 2),
@@ -115,7 +122,8 @@ class Interpreter(object):
 
             receiver.send_does_not_understand(frame, signature, self)
 
-    def _do_return_local(self, frame):
+    @staticmethod
+    def _do_return_local(frame):
         return frame.top()
 
     @jit.unroll_safe
@@ -192,7 +200,7 @@ class Interpreter(object):
             if   bytecode == Bytecodes.halt:                            # BC: 0
                 return frame.get_stack_element(0)
             elif bytecode == Bytecodes.dup:                             # BC: 1
-                self._do_dup(frame, method)
+                self._do_dup(frame)
             elif bytecode == Bytecodes.push_local:                      # BC: 2
                 self._do_push_local(current_bc_idx, frame, method)
             elif bytecode == Bytecodes.push_argument:                   # BC: 3
@@ -230,7 +238,8 @@ class Interpreter(object):
 
             current_bc_idx = next_bc_idx
 
-    def get_self(self, frame):
+    @staticmethod
+    def get_self(frame):
         # Get the self object from the interpreter
         return frame.get_outer_context().get_argument(0, 0)
 
