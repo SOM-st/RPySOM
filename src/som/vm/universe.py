@@ -19,10 +19,8 @@ from som.vm.globals import nilObject, trueObject, falseObject
 import som.compiler.sourcecode_compiler as sourcecode_compiler
 from som.interp_type import is_ast_interpreter
 
-if is_ast_interpreter():
-    from som.vm.ast.shell import Shell
-else:
-    from som.vm.bc.shell import Shell
+from som.vm.ast.shell import Shell as AstShell
+# from som.vm.bc.shell import Shell as BcShell
 
 import os
 import time
@@ -120,7 +118,7 @@ class Universe(object):
         if invokable is None:
             raise Exception("Lookup of " + selector + " failed in class " + class_name)
 
-        return invokable.invoke(clazz, [])
+        return self._start_method_execution(clazz, invokable)
 
     def interpret(self, arguments):
         # Check for command line switches
@@ -131,15 +129,11 @@ class Universe(object):
 
         # Start the shell if no filename is given
         if len(arguments) == 0:
-            shell = Shell(self)
-            return shell.start()
+            return self._start_shell()
         else:
-            # Convert the arguments into an array
             arguments_array = self.new_array_with_strings(arguments)
-
-            # Lookup the initialize invokable on the system class
             initialize = self.systemClass.lookup_invokable(self.symbol_for("initialize:"))
-            return initialize.invoke(system_object, [arguments_array])
+            return self._start_execution(system_object, initialize, arguments_array)
 
     def handle_arguments(self, arguments):
         got_classpath  = False
@@ -506,7 +500,60 @@ class Universe(object):
         return result
 
 
-_current = Universe()
+class _ASTUniverse(Universe):
+
+    def _start_shell(self):
+        shell = AstShell(self)
+        return shell.start()
+
+    def _start_execution(self, system_object, initialize, arguments_array):
+        return initialize.invoke(system_object, [arguments_array])
+
+    def _start_method_execution(self, clazz, invokable):
+        return invokable.invoke(clazz, [])
+
+
+class _BCUniverse(Universe):
+
+    def __init__(self, avoid_exit = False):
+        self._interpreter = Interpreter(self)
+        Universe.__init__(self, avoid_exit)
+
+    def get_interpreter(self):
+        return self._interpreter
+
+    def _start_shell(self):
+        bootstrap_method = create_bootstrap_method(self)
+        shell = BcShell(self, self._interpreter, bootstrap_method)
+        return shell.start()
+
+    def _start_execution(self, system_object, initialize, arguments_array):
+        bootstrap_method = create_bootstrap_method(self)
+        bootstrap_frame = create_bootstrap_frame(bootstrap_method, system_object, arguments_array)
+        # Lookup the initialize invokable on the system class
+        return initialize.invoke(bootstrap_frame, self._interpreter)
+
+    def _start_method_execution(self, clazz, invokable):
+        bootstrap_method = create_bootstrap_method(self)
+        bootstrap_frame = create_bootstrap_frame(bootstrap_method, clazz)
+
+        invokable.invoke(bootstrap_frame, self._interpreter)
+        return bootstrap_frame.pop()
+
+    def _initialize_object_system(self):
+        system_object = Universe._initialize_object_system(self)
+        self._interpreter.initialize_known_quick_sends()
+        return system_object
+
+
+def create_universe(avoid_exit = False):
+    if is_ast_interpreter():
+        return _ASTUniverse(avoid_exit)
+    else:
+        return _BCUniverse(avoid_exit)
+
+
+_current = create_universe()
 
 
 def error_print(msg):
