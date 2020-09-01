@@ -8,7 +8,6 @@ from som.vmobjects.clazz         import Class
 from som.vmobjects.array         import Array
 from som.vmobjects.object_without_fields import ObjectWithoutFields
 from som.vmobjects.symbol        import Symbol
-from som.vmobjects.method        import Method
 from som.vmobjects.integer       import Integer
 from som.vmobjects.string        import String
 from som.vmobjects.block         import Block, block_evaluation_primitive
