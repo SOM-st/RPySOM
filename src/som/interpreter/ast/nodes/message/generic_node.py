@@ -1,7 +1,7 @@
 from rpython.rlib.debug import make_sure_not_resized
 from rpython.rlib.jit import we_are_jitted
 
-from ..dispatch import SuperDispatchNode, UninitializedDispatchNode
+from ..dispatch import SuperDispatchNode, UninitializedDispatchNode, send_does_not_understand
 from .abstract_node import AbstractMessageNode
 
 
@@ -43,8 +43,7 @@ class GenericMessageNode(AbstractMessageNode):
         if method:
             return method.invoke(rcvr, args)
         else:
-            return rcvr.send_does_not_understand(self._selector, args,
-                                                 self._universe)
+            return send_does_not_understand(rcvr, self._selector, args, self._universe)
 
     def _lookup_method(self, rcvr):
         rcvr_class = self._class_of_receiver(rcvr)

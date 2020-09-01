@@ -1,4 +1,5 @@
 from .contextual_node import ContextualNode
+from .dispatch import lookup_and_send
 from .expression_node import ExpressionNode
 
 from ...control_flow import ReturnException
@@ -23,7 +24,12 @@ class ReturnNonLocalNode(ContextualNode):
         else:
             block      = frame.get_self()
             outer_self = block.get_outer_self()
-            return outer_self.send_escaped_block(block, self._universe)
+            return self.send_escaped_block(outer_self, block, self._universe)
+
+    @staticmethod
+    def send_escaped_block(receiver, block, universe):
+        arguments = [block]
+        return lookup_and_send(receiver, "escapedBlock:", arguments, universe)
 
 
 class CatchNonLocalReturnNode(ExpressionNode):

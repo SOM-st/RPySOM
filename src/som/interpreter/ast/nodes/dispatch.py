@@ -1,3 +1,5 @@
+from rpython.rlib import jit
+
 from rtruffle.node import Node
 
 
@@ -77,8 +79,7 @@ class GenericDispatchNode(_AbstractDispatchWithLookupNode):
             return method.invoke(rcvr, args)
         else:
             # Won't use DNU caching here, because it's a megamorphic node
-            return rcvr.send_does_not_understand(self._selector, args,
-                                                 self._universe)
+            return send_does_not_understand(rcvr, self._selector, args, self._universe)
 
 
 class _AbstractCachedDispatchNode(_AbstractDispatchNode):
@@ -134,3 +135,30 @@ class SuperDispatchNode(_AbstractDispatchNode):
 
     def execute_dispatch(self, rcvr, args):
         return self._cached_method.invoke(rcvr, args)
+
+
+# @jit.unroll_safe
+def _prepare_dnu_arguments(arguments, selector, universe):
+    # Compute the number of arguments
+    selector = jit.promote(selector)
+    universe = jit.promote(universe)
+    number_of_arguments = selector.get_number_of_signature_arguments() - 1  # without self
+    assert number_of_arguments == len(arguments)
+
+    # TODO: make sure this is still optimizing DNU properly
+    # don't want to see any overhead just for using strategies
+    arguments_array = universe.new_array_from_list(arguments)
+    args = [selector, arguments_array]
+    return args
+
+
+def send_does_not_understand(receiver, selector, arguments, universe):
+    args = _prepare_dnu_arguments(arguments, selector, universe)
+    return lookup_and_send(receiver, "doesNotUnderstand:arguments:", args, universe)
+
+
+def lookup_and_send(receiver, selector_string, arguments, universe):
+    selector = universe.symbol_for(selector_string)
+    invokable = receiver.get_class(universe).lookup_invokable(selector)
+    return invokable.invoke(receiver, arguments)
+
