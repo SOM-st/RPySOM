@@ -74,7 +74,7 @@ class Interpreter(object):
             frame.push(glob)
         else:
             # Send 'unknownGlobal:' to self
-            self.get_self(frame).send_unknown_global(frame, global_name, self._universe, self)
+            self._send_unknown_global(self.get_self(frame), frame, global_name)
 
     @staticmethod
     def _do_pop(frame):
@@ -120,7 +120,7 @@ class Interpreter(object):
             # Compute the receiver
             receiver = frame.get_stack_element(num_args - 1)
 
-            receiver.send_does_not_understand(frame, signature, self)
+            self._send_does_not_understand(receiver, frame, signature)
 
     @staticmethod
     def _do_return_local(frame):
@@ -144,7 +144,7 @@ class Interpreter(object):
             sender = frame.get_previous_frame().get_outer_context().get_argument(0, 0)
 
             # ... and execute the escapedBlock message instead
-            sender.send_escaped_block(frame, block, self._universe, self)
+            self._send_escaped_block(sender, frame, block)
             return frame.top()
 
         raise ReturnException(result, context)
@@ -256,7 +256,9 @@ class Interpreter(object):
                 invokable = receiver_class.lookup_invokable(selector)
                 m.set_inline_cache(bytecode_index, receiver_class, invokable)
             else:
-                cached_class = m.get_inline_cache_class(bytecode_index + 1) # the bytecode index after the send is used by the selector constant, and can be used safely as another cache item
+                # the bytecode index after the send is used by the selector constant,
+                # and can be used safely as another cache item
+                cached_class = m.get_inline_cache_class(bytecode_index + 1)
                 if cached_class == receiver_class:
                     invokable = m.get_inline_cache_invokable(bytecode_index + 1)
                 else:
@@ -271,7 +273,40 @@ class Interpreter(object):
 
             # Compute the receiver
             receiver = frame.get_stack_element(num_args - 1)
-            receiver.send_does_not_understand(frame, selector, self)
+            self._send_does_not_understand(receiver, frame, selector)
+
+    def _send_does_not_understand(self, receiver, frame, selector):
+        # ignore self
+        number_of_arguments = selector.get_number_of_signature_arguments() - 1
+        arguments_array = self._universe.new_array_with_length(number_of_arguments)
+
+        # Remove all arguments and put them in the freshly allocated array
+        i = number_of_arguments - 1
+        while i >= 0:
+            arguments_array.set_indexable_field(i, frame.pop())
+            i -= 1
+
+        frame.pop()  # pop self from stack
+        args = [selector, arguments_array]
+        self._lookup_and_send(receiver, frame, "doesNotUnderstand:arguments:", args)
+
+    def _send_unknown_global(self, receiver, frame, global_name):
+        arguments = [global_name]
+        self._lookup_and_send(receiver, frame, "unknownGlobal:", arguments)
+
+    def _send_escaped_block(self, receiver, frame, block):
+        arguments = [block]
+        self._lookup_and_send(receiver, frame, "escapedBlock:", arguments)
+
+    def _lookup_and_send(self, receiver, frame, selector_string, arguments):
+        selector = self._universe.symbol_for(selector_string)
+        invokable = receiver.get_class(self._universe).lookup_invokable(selector)
+
+        frame.push(receiver)
+        for arg in arguments:
+            frame.push(arg)
+
+        invokable.invoke(frame, self)
 
 
 def get_printable_location(bytecode_index, interp, method):
