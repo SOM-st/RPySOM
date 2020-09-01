@@ -15,12 +15,12 @@ import os
 def entry_point(argv):
     try:
         main(argv)
-    except Exit, e:
+    except Exit as e:
         return e.code
     except ParseError as e:
         os.write(2, str(e))
         return 1
-    except Exception, e:
+    except Exception as e:
         os.write(2, "ERROR: %s thrown during execution.\n" % e)
         return 1
     return 1
