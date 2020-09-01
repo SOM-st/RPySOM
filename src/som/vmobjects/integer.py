@@ -1,14 +1,12 @@
-import math
-
 from rpython.rlib.rarithmetic import ovfcheck
 from rpython.rlib.rbigint import rbigint, _divrem
 from rpython.rtyper.lltypesystem import lltype
 from rpython.rtyper.lltypesystem.lloperation import llop
-from som.vm.globals import trueObject, falseObject
 
 from som.vmobjects.abstract_object import AbstractObject
 from som.vmobjects.biginteger import BigInteger
 from som.vmobjects.double import Double
+from som.vm.globals import trueObject, falseObject
 
 
 class Integer(AbstractObject):

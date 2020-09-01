@@ -1,8 +1,8 @@
 from rpython.rlib import jit
 from som.interpreter.objectstorage.object_layout import ObjectLayout
-from som.vm.globals import nilObject
 from som.vmobjects.array import Array
 from som.vmobjects.object import Object
+from som.vm.globals import nilObject
 
 
 class Class(Object):
@@ -132,8 +132,8 @@ class Class(Object):
         self.set_instance_invokables(self.get_instance_invokables().copy_and_extend_with(value))
         return True
 
-    def add_instance_primitive(self, value, display_warning):
-        if self.add_instance_invokable(value) and display_warning:
+    def add_instance_primitive(self, value, warn_if_not_existing):
+        if self.add_instance_invokable(value) and warn_if_not_existing:
             from som.vm.universe import std_print, std_println
             std_print("Warning: Primitive " + value.get_signature().get_embedded_string())
             std_println(" is not in class definition for class " + self.get_name().get_embedded_string())
@@ -162,8 +162,8 @@ class Class(Object):
         from som.primitives.known import (primitives_for_class,
                                           PrimitivesNotFound)
         try:
-            prim_class = primitives_for_class(self)
-            prim_class(self._universe).install_primitives_in(self)
+            prims = primitives_for_class(self)
+            prims(self._universe).install_primitives_in(self)
         except PrimitivesNotFound:
             if display_warning:
                 from som.vm.universe import error_println

@@ -1,8 +1,6 @@
 from rpython.rlib.rfloat import formatd, DTSF_ADD_DOT_0, DTSF_STR_PRECISION
-from som.vm.globals import trueObject
-from som.vm.globals import falseObject
-
 from som.vmobjects.abstract_object import AbstractObject
+from som.vm.globals import trueObject, falseObject
 
 import math
 

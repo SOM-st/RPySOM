@@ -51,11 +51,11 @@ class Primitive(AbstractObject):
                 + str(self.get_signature()) + ")")
 
 
-def empty_primitive(signature_string, universe):
-    """ Return an empty primitive with the given signature """
-    return Primitive(signature_string, universe, _invoke, True)
-
-
-def _invoke(ivkbl, rcvr, args):
+def _empty_invoke(ivkbl, rcvr, args):
     """ Write a warning to the screen """
     print "Warning: undefined primitive %s called" % str(ivkbl.get_signature())
+
+
+def empty_primitive(signature_string, universe):
+    """ Return an empty primitive with the given signature """
+    return Primitive(signature_string, universe, _empty_invoke, True)
