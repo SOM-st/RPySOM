@@ -8,7 +8,7 @@ def _at(ivkbl, frame, interpreter):
     frame.push(rcvr.get_indexable_field(i.get_embedded_integer() - 1))
 
 
-def _atPut(ivkbl, frame, interpreter):
+def _at_put(ivkbl, frame, interpreter):
     value = frame.pop()
     index = frame.pop()
     rcvr  = frame.get_stack_element(0)
@@ -22,15 +22,16 @@ def _length(ivkbl, frame, interpreter):
 
 def _new(ivkbl, frame, interpreter):
     length = frame.pop()
-    frame.pop() # not required
-    frame.push(interpreter.get_universe().new_array_with_length(length.get_embedded_integer()))
+    frame.pop()  # not required
+    frame.push(interpreter.get_universe().new_array_with_length(
+        length.get_embedded_integer()))
 
 
 class ArrayPrimitives(Primitives):
 
     def install_primitives(self):
         self._install_instance_primitive(Primitive("at:", self._universe, _at))
-        self._install_instance_primitive(Primitive("at:put:", self._universe, _atPut))
+        self._install_instance_primitive(Primitive("at:put:", self._universe, _at_put))
         self._install_instance_primitive(Primitive("length", self._universe, _length))
 
         self._install_class_primitive(Primitive("new:", self._universe, _new))

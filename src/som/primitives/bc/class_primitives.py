@@ -26,6 +26,7 @@ def _fields(ivkbl, frame, interpreter):
     rcvr = frame.pop()
     frame.push(rcvr.get_instance_fields())
 
+
 class ClassPrimitives(Primitives):
     def install_primitives(self):
         self._install_instance_primitive(Primitive("new",        self._universe, _new))

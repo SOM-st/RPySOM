@@ -33,7 +33,7 @@ def _execute_block(frame, block, block_method, interpreter):
     return frame.pop()
 
 
-def _whileLoop(frame, interpreter, while_type):
+def _while_loop(frame, interpreter, while_type):
     loop_body      = frame.pop()
     loop_condition = frame.pop()
 
@@ -57,16 +57,16 @@ def _whileLoop(frame, interpreter, while_type):
     frame.push(nilObject)
 
 
-def _whileFalse(ivkbl, frame, interpreter):
-    _whileLoop(frame, interpreter, falseObject)
+def _while_false(ivkbl, frame, interpreter):
+    _while_loop(frame, interpreter, falseObject)
 
 
-def _whileTrue(ivkbl, frame, interpreter):
-    _whileLoop(frame, interpreter, trueObject)
+def _while_true(ivkbl, frame, interpreter):
+    _while_loop(frame, interpreter, trueObject)
 
 
 class BlockPrimitives(Primitives):
 
     def install_primitives(self):
-        self._install_instance_primitive(Primitive("whileTrue:",  self._universe, _whileTrue))
-        self._install_instance_primitive(Primitive("whileFalse:", self._universe, _whileFalse))
+        self._install_instance_primitive(Primitive("whileTrue:",  self._universe, _while_true))
+        self._install_instance_primitive(Primitive("whileFalse:", self._universe, _while_false))
