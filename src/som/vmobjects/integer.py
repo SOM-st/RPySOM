@@ -63,6 +63,36 @@ class Integer(AbstractObject):
         else:
             return falseObject
 
+    def prim_less_than_or_equal(self, right, universe):
+        # Check second parameter type:
+        if isinstance(right, BigInteger):
+            result = rbigint.fromint(self._embedded_integer).le(
+                right.get_embedded_biginteger())
+        elif isinstance(right, Double):
+            return self._to_double(universe).prim_less_than_or_equal(right, universe)
+        else:
+            result = self._embedded_integer <= right.get_embedded_integer()
+
+        if result:
+            return trueObject
+        else:
+            return falseObject
+
+    def prim_greater_than(self, right, universe):
+        # Check second parameter type:
+        if isinstance(right, BigInteger):
+            result = rbigint.fromint(self._embedded_integer).gt(
+                right.get_embedded_biginteger())
+        elif isinstance(right, Double):
+            return self._to_double(universe).prim_greater_than(right, universe)
+        else:
+            result = self._embedded_integer > right.get_embedded_integer()
+
+        if result:
+            return trueObject
+        else:
+            return falseObject
+
     def prim_as_string(self, universe):
         return universe.new_string(str(self._embedded_integer))
 
@@ -189,6 +219,24 @@ class Integer(AbstractObject):
             result = l == r
         else:
             return falseObject
+
+        if result:
+            return trueObject
+        else:
+            return falseObject
+
+    def prim_unequals(self, right):
+        if isinstance(right, BigInteger):
+            result = rbigint.fromint(self._embedded_integer).ne(
+                right.get_embedded_biginteger())
+        elif isinstance(right, Double):
+            result = self._embedded_integer != right.get_embedded_double()
+        elif isinstance(right, Integer):
+            l = self._embedded_integer
+            r = right.get_embedded_integer()
+            result = l != r
+        else:
+            return trueObject
 
         if result:
             return trueObject

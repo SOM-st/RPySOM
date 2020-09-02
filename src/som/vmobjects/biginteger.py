@@ -56,6 +56,38 @@ class BigInteger(AbstractObject):
         else:
             return falseObject
 
+    def prim_less_than_or_equal(self, right, universe):
+        # Check second parameter type:
+        if isinstance(right, Double):
+            return self._to_double(universe).prim_less_than_or_equal(right, universe)
+        if not isinstance(right, BigInteger):
+            result = self._embedded_biginteger.le(
+                rbigint.fromint(right.get_embedded_integer()))
+        else:
+            result = self._embedded_biginteger.le(
+                right.get_embedded_biginteger())
+
+        if result:
+            return trueObject
+        else:
+            return falseObject
+
+    def prim_greater_than(self, right, universe):
+        # Check second parameter type:
+        if isinstance(right, Double):
+            return self._to_double(universe).prim_greater_than(right, universe)
+        if not isinstance(right, BigInteger):
+            result = self._embedded_biginteger.gt(
+                rbigint.fromint(right.get_embedded_integer()))
+        else:
+            result = self._embedded_biginteger.gt(
+                right.get_embedded_biginteger())
+
+        if result:
+            return trueObject
+        else:
+            return falseObject
+
     def prim_as_string(self, universe):
         return universe.new_string(self._embedded_biginteger.str())
 
@@ -147,6 +179,25 @@ class BigInteger(AbstractObject):
             result = self._embedded_biginteger.eq(rbigint.fromint(r))
         else:
             return falseObject
+
+        if result:
+            return trueObject
+        else:
+            return falseObject
+
+    def prim_unequals(self, right):
+        from .integer import Integer
+        if isinstance(right, BigInteger):
+            result = self._embedded_biginteger.ne(
+                right.get_embedded_biginteger())
+        elif isinstance(right, Double):
+            result = (self._embedded_biginteger.tofloat()
+                      != right.get_embedded_double())
+        elif isinstance(right, Integer):
+            r = right.get_embedded_integer()
+            result = self._embedded_biginteger.ne(rbigint.fromint(r))
+        else:
+            return trueObject
 
         if result:
             return trueObject

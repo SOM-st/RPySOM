@@ -7,24 +7,30 @@ from som.compiler.bc.method_generation_context import create_bootstrap_method
 from som.interpreter.bc.interpreter import Interpreter
 from som.interpreter.bc.frame import create_bootstrap_frame
 
-from som.vmobjects.object        import Object
+from som.interp_type import is_ast_interpreter
+
+if is_ast_interpreter():
+    from som.vmobjects.object_with_layout import ObjectWithLayout as Object
+    from som.vmobjects.array_strategy     import Array
+    from som.vmobjects.block_ast          import block_evaluation_primitive
+    from som.vm.ast.shell                 import Shell as AstShell
+else:
+    from som.vmobjects.object   import Object
+    from som.vmobjects.array    import Array
+    from som.vmobjects.block_bc import block_evaluation_primitive
+    from som.vm.bc.shell        import Shell as BcShell
+
 from som.vmobjects.clazz         import Class
-from som.vmobjects.array         import Array
 from som.vmobjects.object_without_fields import ObjectWithoutFields
 from som.vmobjects.symbol        import Symbol
 from som.vmobjects.integer       import Integer
 from som.vmobjects.string        import String
-from som.vmobjects.block_bc         import block_evaluation_primitive
 from som.vmobjects.biginteger    import BigInteger
 from som.vmobjects.double        import Double
 
 from som.vm.globals import nilObject, trueObject, falseObject
 
 import som.compiler.sourcecode_compiler as sourcecode_compiler
-from som.interp_type import is_ast_interpreter
-
-# from som.vm.ast.shell import Shell as AstShell
-from som.vm.bc.shell import Shell as BcShell
 
 import os
 import time

@@ -170,6 +170,43 @@ class _Class(Object):
         return "Class(" + self.get_name().get_embedded_string() + ")"
 
 
+class _ClassWithLayout(_Class):
+    _immutable_fields_ = ["_layout_for_instances?"]
+
+    def __init__(self, universe, number_of_fields=Object.NUMBER_OF_OBJECT_FIELDS, obj_class=None):
+        _Class.__init__(self, universe, number_of_fields, obj_class)
+        if number_of_fields >= 0:
+            self._layout_for_instances = ObjectLayout(number_of_fields, self)
+        else:
+            self._layout_for_instances = None
+
+    def set_instance_fields(self, value):
+        assert isinstance(value, Array)
+        self._instance_fields = value
+        if (self._layout_for_instances is None or
+                value.get_number_of_indexable_fields() !=
+                self._layout_for_instances.get_number_of_fields()):
+            self._layout_for_instances = ObjectLayout(
+                value.get_number_of_indexable_fields(), self)
+
+    def get_layout_for_instances(self):
+        return self._layout_for_instances
+
+    def update_instance_layout_with_initialized_field(self, field_idx,
+                                                      spec_type):
+        updated = self._layout_for_instances.with_initialized_field(field_idx,
+                                                                    spec_type)
+        if updated is not self._layout_for_instances:
+            self._layout_for_instances = updated
+        return self._layout_for_instances
+
+    def update_instance_layout_with_generalized_field(self, field_idx):
+        updated = self._layout_for_instances.with_generalized_field(field_idx)
+        if updated is not self._layout_for_instances:
+            self._layout_for_instances = updated
+        return self._layout_for_instances
+
+
 if is_ast_interpreter():
     Class = _ClassWithLayout
 else:
