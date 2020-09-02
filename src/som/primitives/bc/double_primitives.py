@@ -2,7 +2,7 @@ from rpython.rlib.rfloat import round_double, INFINITY
 from math import cos, sin
 
 from som.primitives.primitives import Primitives
-from som.vmobjects.primitive   import Primitive
+from som.vmobjects.primitive   import BcPrimitive as Primitive
 from som.vmobjects.double      import Double
 from som.vmobjects.integer     import Integer
 

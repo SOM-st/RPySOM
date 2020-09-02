@@ -5,7 +5,7 @@ from rpython.rtyper.lltypesystem import lltype
 
 from som.primitives.primitives import Primitives
 from som.vmobjects.integer     import Integer
-from som.vmobjects.primitive   import Primitive
+from som.vmobjects.primitive   import BcPrimitive as Primitive
 from som.vmobjects.double      import Double
 from som.vmobjects.string      import String
 from som.vmobjects.block_bc import block_evaluate, BcBlock

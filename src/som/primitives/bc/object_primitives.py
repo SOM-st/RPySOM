@@ -3,7 +3,7 @@ from rpython.rlib.objectmodel import compute_identity_hash
 from som.primitives.primitives import Primitives
 
 from som.vmobjects.object    import Object
-from som.vmobjects.primitive import Primitive
+from som.vmobjects.primitive import BcPrimitive as Primitive
 from som.vmobjects.array     import Array
 from som.vm.globals import trueObject, falseObject
 

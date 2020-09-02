@@ -1,6 +1,5 @@
 from som.primitives.primitives import Primitives
-
-from som.vmobjects.primitive   import Primitive
+from som.vmobjects.primitive   import BcPrimitive as Primitive
 
 
 def _new(ivkbl, frame, interpreter):

@@ -1,4 +1,4 @@
-from som.vmobjects.primitive   import Primitive
+from som.vmobjects.primitive   import BcPrimitive as Primitive
 from som.primitives.primitives import Primitives
 
 
