@@ -1,6 +1,6 @@
 from som.primitives.primitives import Primitives
 from som.vm.globals import falseObject, trueObject
-from som.vmobjects.primitive import Primitive
+from som.vmobjects.primitive import AstPrimitive as Primitive
 
 
 def _not(ivkbl, rcvr, args):

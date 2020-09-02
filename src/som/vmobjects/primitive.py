@@ -1,8 +1,9 @@
-from som.vmobjects.abstract_object    import AbstractObject
+from som.interp_type import is_ast_interpreter
+from som.vmobjects.abstract_object import AbstractObject
 
 
-class Primitive(AbstractObject):
-    _immutable_fields_ = ["_prim_fun", "_is_empty", "_signature", "_holder",
+class _Primitive(AbstractObject):
+    _immutable_fields_ = ["_prim_fn", "_is_empty", "_signature", "_holder",
                           "_universe"]
 
     def __init__(self, signature_string, universe, prim_fn, is_empty=False):
@@ -16,10 +17,6 @@ class Primitive(AbstractObject):
 
     def get_universe(self):
         return self._universe
-
-    def invoke(self, rcvr, args):
-        prim_fn = self._prim_fn
-        return prim_fn(self, rcvr, args)
 
     @staticmethod
     def is_primitive():
@@ -51,11 +48,31 @@ class Primitive(AbstractObject):
                 + str(self.get_signature()) + ")")
 
 
-def _empty_invoke(ivkbl, rcvr, args):
+class AstPrimitive(_Primitive):
+
+    def invoke(self, rcvr, args):
+        prim_fn = self._prim_fn
+        return prim_fn(self, rcvr, args)
+
+
+class BcPrimitive(_Primitive):
+
+    def invoke(self, frame, interpreter):
+        prim_fn = self._prim_fn
+        prim_fn(self, frame, interpreter)
+
+
+def _empty_invoke(ivkbl, _a, _b):
     """ Write a warning to the screen """
     print "Warning: undefined primitive %s called" % str(ivkbl.get_signature())
 
 
+if is_ast_interpreter():
+    _prim_class = AstPrimitive
+else:
+    _prim_class = BcPrimitive
+
+
 def empty_primitive(signature_string, universe):
     """ Return an empty primitive with the given signature """
-    return Primitive(signature_string, universe, _empty_invoke, True)
+    return _prim_class(signature_string, universe, _empty_invoke, True)

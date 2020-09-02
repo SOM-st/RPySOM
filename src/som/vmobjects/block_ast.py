@@ -1,7 +1,7 @@
 from rpython.rlib import jit
 
 from som.vmobjects.abstract_object import AbstractObject
-from som.vmobjects.primitive import Primitive
+from som.vmobjects.primitive import AstPrimitive as Primitive
 
 
 class AstBlock(AbstractObject):

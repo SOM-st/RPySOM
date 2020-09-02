@@ -1,11 +1,11 @@
 from rpython.rlib.objectmodel import compute_identity_hash
 
 from som.primitives.primitives import Primitives
-from som.vm.globals import nilObject, falseObject, trueObject
+from som.vm.globals import falseObject, trueObject
 
 from som.vmobjects.object    import Object
-from som.vmobjects.primitive import Primitive
-from som.vmobjects.array_strategy     import Array
+from som.vmobjects.primitive import AstPrimitive as Primitive
+from som.vmobjects.array_strategy import Array
 
 
 def _equals(ivkbl, rcvr, args):

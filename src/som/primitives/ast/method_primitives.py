@@ -4,7 +4,7 @@ from som.vm.globals import nilObject
 from som.vmobjects.abstract_object import AbstractObject
 from som.vmobjects.array_strategy  import Array
 from som.vmobjects.method_ast      import AstMethod
-from som.vmobjects.primitive       import Primitive
+from som.vmobjects.primitive       import AstPrimitive as Primitive
 
 
 def _holder(ivkbl, rcvr, args):

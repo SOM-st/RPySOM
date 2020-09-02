@@ -1,7 +1,7 @@
 from rpython.rlib import jit
 from som.vmobjects.block_ast import AstBlock
 from som.vmobjects.method_ast import AstMethod
-from som.vmobjects.primitive   import Primitive
+from som.vmobjects.primitive   import AstPrimitive as Primitive
 from som.primitives.primitives import Primitives
 
 
