@@ -4,7 +4,7 @@ from ..expression_node import ExpressionNode
 from .....vm.globals import nilObject, falseObject, trueObject
 
 from .....vmobjects.block_ast import AstBlock
-from .....vmobjects.method import Method
+from .....vmobjects.method_ast import AstMethod
 
 
 class AbstractWhileMessageNode(ExpressionNode):
@@ -29,7 +29,7 @@ class AbstractWhileMessageNode(ExpressionNode):
         return nilObject
 
 # def get_printable_location_while_value(body_method, node):
-#     assert isinstance(body_method, Method)
+#     assert isinstance(body_method, AstMethod)
 #     return "while_value: %s" % body_method.merge_point_string()
 #
 # while_value_driver = jit.JitDriver(
@@ -51,8 +51,8 @@ class AbstractWhileMessageNode(ExpressionNode):
 
 
 def get_printable_location_while(body_method, condition_method, while_type):
-    assert isinstance(condition_method, Method)
-    assert isinstance(body_method, Method)
+    assert isinstance(condition_method, AstMethod)
+    assert isinstance(body_method, AstMethod)
 
     return "%s while %s: %s" % (condition_method.merge_point_string(),
                                 while_type,

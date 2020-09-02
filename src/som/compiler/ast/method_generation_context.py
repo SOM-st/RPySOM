@@ -12,7 +12,7 @@ from ...interpreter.ast.nodes.return_non_local_node import CatchNonLocalReturnNo
 from ...interpreter.ast.invokable import Invokable
 
 from ...vmobjects.primitive import empty_primitive
-from ...vmobjects.method import Method
+from ...vmobjects.method_ast import AstMethod
 
 
 class MethodGenerationContext(object):
@@ -112,7 +112,7 @@ class MethodGenerationContext(object):
         method = Invokable(self._get_source_section_for_method(method_body),
                            method_body, arg_mapping, len(local_tmps),
                            len(non_local_tmps), self._universe)
-        return Method(self._signature, method,
+        return AstMethod(self._signature, method,
                       # copy list to make it immutable for RPython
                       self._embedded_block_methods[:],
                       self._universe)

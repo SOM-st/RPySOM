@@ -2,8 +2,8 @@ from som.primitives.primitives import Primitives
 from som.vm.globals import nilObject
 
 from som.vmobjects.abstract_object import AbstractObject
-from som.vmobjects.array_strategy           import Array
-from som.vmobjects.method          import Method
+from som.vmobjects.array_strategy  import Array
+from som.vmobjects.method_ast      import AstMethod
 from som.vmobjects.primitive       import Primitive
 
 
@@ -16,7 +16,7 @@ def _signature(ivkbl, rcvr, args):
 
 
 def _invoke_on_with(ivkbl, rcvr, args):
-    assert isinstance(rcvr,    Method)
+    assert isinstance(rcvr,    AstMethod)
     assert isinstance(args[0], AbstractObject)
     assert isinstance(args[1], Array) or args[1] is nilObject
 

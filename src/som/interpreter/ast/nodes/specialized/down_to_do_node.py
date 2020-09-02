@@ -4,11 +4,11 @@ from .to_do_node import AbstractToDoNode
 from .....vmobjects.block_ast import AstBlock
 from .....vmobjects.double import Double
 from .....vmobjects.integer import Integer
-from .....vmobjects.method import Method
+from .....vmobjects.method_ast import AstMethod
 
 
 def get_printable_location(block_method):
-    assert isinstance(block_method, Method)
+    assert isinstance(block_method, AstMethod)
     return "#to:do: %s" % block_method.merge_point_string()
 
 

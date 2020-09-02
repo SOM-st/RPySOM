@@ -1,6 +1,6 @@
 from rpython.rlib import jit
 from som.vmobjects.block_ast import AstBlock
-from som.vmobjects.method import Method
+from som.vmobjects.method_ast import AstMethod
 from som.vmobjects.primitive   import Primitive
 from som.primitives.primitives import Primitives
 
@@ -31,7 +31,7 @@ def _new(ivkbl, rcvr, args):
 
 
 def get_do_index_printable_location(block_method):
-    assert isinstance(block_method, Method)
+    assert isinstance(block_method, AstMethod)
     return "#doIndexes: %s" % block_method.merge_point_string()
 
 do_index_driver = jit.JitDriver(
@@ -54,7 +54,7 @@ def _doIndexes(ivkbl, rcvr, args):
 
 
 def get_do_printable_location(block_method):
-    assert isinstance(block_method, Method)
+    assert isinstance(block_method, AstMethod)
     return "#doIndexes: %s" % block_method.merge_point_string()
 
 do_driver = jit.JitDriver(greens=['block_method'], reds='auto',

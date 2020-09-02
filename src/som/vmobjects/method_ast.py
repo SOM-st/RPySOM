@@ -5,8 +5,8 @@ from rpython.rlib import jit
 from som.vmobjects.abstract_object import AbstractObject
 
 
-class Method(AbstractObject):
-    
+class AstMethod(AbstractObject):
+
     _immutable_fields_ = ["_signature", "_invokable",
                           "_embedded_block_methods", "_universe", "_holder"]
 

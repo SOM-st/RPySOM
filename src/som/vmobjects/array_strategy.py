@@ -6,32 +6,31 @@ from rpython.rlib.debug import make_sure_not_resized
 from som.vm.globals import nilObject, falseObject, trueObject
 from som.vmobjects.double import Double
 from som.vmobjects.integer import Integer
-from som.vmobjects.method import Method
-from som.vmobjects.object import Object
+from som.vmobjects.method_ast import AstMethod
 
 
 def put_all_obj_pl(block_method):
-    assert isinstance(block_method, Method)
+    assert isinstance(block_method, AstMethod)
     return "#putAll: (obj_strategy) %s" % block_method.merge_point_string()
 
 
 def put_all_nil_pl(block_method):
-    assert isinstance(block_method, Method)
+    assert isinstance(block_method, AstMethod)
     return "#putAll: (empty_strategy) %s" % block_method.merge_point_string()
 
 
 def put_all_double_pl(block_method):
-    assert isinstance(block_method, Method)
+    assert isinstance(block_method, AstMethod)
     return "#putAll: (double_strategy) %s" % block_method.merge_point_string()
 
 
 def put_all_long_pl(block_method):
-    assert isinstance(block_method, Method)
+    assert isinstance(block_method, AstMethod)
     return "#putAll: (long_strategy) %s" % block_method.merge_point_string()
 
 
 def put_all_bool_pl(block_method):
-    assert isinstance(block_method, Method)
+    assert isinstance(block_method, AstMethod)
     return "#putAll: (bool_strategy) %s" % block_method.merge_point_string()
 
 
