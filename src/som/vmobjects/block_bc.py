@@ -5,7 +5,7 @@ from som.vmobjects.primitive import Primitive
 from som.interpreter.bc.frame import create_frame
 
 
-class Block(AbstractObject):
+class BcBlock(AbstractObject):
 
     _immutable_fields_ = ["_method", "_context"]
 
@@ -47,7 +47,7 @@ class Block(AbstractObject):
 
 
 def block_evaluation_primitive(num_args, universe):
-    return Block.Evaluation(num_args, universe, _invoke)
+    return BcBlock.Evaluation(num_args, universe, _invoke)
 
 
 def block_evaluate(block, interpreter, frame):
@@ -62,6 +62,6 @@ def block_evaluate(block, interpreter, frame):
 
 
 def _invoke(ivkbl, frame, interpreter):
-    assert isinstance(ivkbl, Block.Evaluation)
+    assert isinstance(ivkbl, BcBlock.Evaluation)
     rcvr = frame.get_stack_element(ivkbl._number_of_arguments - 1)
     block_evaluate(rcvr, interpreter, frame)

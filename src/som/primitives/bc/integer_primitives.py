@@ -8,7 +8,7 @@ from som.vmobjects.integer     import Integer
 from som.vmobjects.primitive   import Primitive
 from som.vmobjects.double      import Double
 from som.vmobjects.string      import String
-from som.vmobjects.block       import block_evaluate
+from som.vmobjects.block_bc import block_evaluate, BcBlock
 from som.vm.globals import nilObject, falseObject
 
 import math
@@ -203,7 +203,7 @@ def _toDoInt(i, top, frame, context, interpreter, block_method, universe):
         jitdriver_int.jit_merge_point(interpreter=interpreter,
                                       block_method=block_method)
 
-        b = universe.new_block(block_method, context)
+        b = BcBlock(block_method, context)
         frame.push(b)
         frame.push(universe.new_integer(i))
         block_evaluate(b, interpreter, frame)
@@ -218,7 +218,7 @@ def _toDoDouble(i, top, frame, context, interpreter, block_method, universe):
         jitdriver_double.jit_merge_point(interpreter=interpreter,
                                          block_method=block_method)
 
-        b = universe.new_block(block_method, context)
+        b = BcBlock(block_method, context)
         frame.push(b)
         frame.push(universe.new_integer(i))
         block_evaluate(b, interpreter, frame)

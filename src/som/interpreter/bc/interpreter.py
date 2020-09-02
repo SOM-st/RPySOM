@@ -1,5 +1,6 @@
 from som.interpreter.bc.bytecodes import bytecode_length, Bytecodes
 from som.interpreter.control_flow import ReturnException
+from som.vmobjects.block_bc import BcBlock
 
 from rpython.rlib import jit
 
@@ -55,7 +56,7 @@ class Interpreter(object):
 
         # Push a new block with the current frame as context onto the
         # stack
-        frame.push(self._universe.new_block(block_method, frame))
+        frame.push(BcBlock(block_method, frame))
 
     @staticmethod
     def _do_push_constant(bytecode_index, frame, method):
