@@ -1,5 +1,5 @@
 from rpython.rlib import rerased
-from rpython.rlib.jit import promote, JitDriver
+from rpython.rlib.jit import JitDriver
 from rpython.rlib.objectmodel import instantiate
 from .abstract_object import AbstractObject
 from rpython.rlib.debug import make_sure_not_resized
