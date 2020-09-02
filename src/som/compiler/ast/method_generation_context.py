@@ -42,9 +42,6 @@ class MethodGenerationContext(object):
     def add_embedded_block_method(self, block_method):
         self._embedded_block_methods.append(block_method)
 
-    def is_primitive(self):
-        return self._primitive
-
     def make_catch_non_local_return(self):
         self._throws_non_local_return = True
         ctx = self._mark_outer_contexts_to_require_context_and_get_root_context()

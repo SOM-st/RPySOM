@@ -6,7 +6,7 @@ from som.vmobjects.method_bc import BcMethod
 
 class MethodGenerationContext(object):
 
-    def __init__(self):
+    def __init__(self, universe):
         self._holder_genc = None
         self._outer_genc  = None
         self._block_method = False
@@ -18,19 +18,18 @@ class MethodGenerationContext(object):
         self._finished    = False
         self._bytecode    = []
 
+        self._universe = universe
+
     def set_holder(self, cgenc):
         self._holder_genc = cgenc
 
     def add_argument(self, arg):
         self._arguments.append(arg)
 
-    def is_primitive(self):
-        return self._primitive
+    def assemble(self, _dummy):
+        if self._primitive:
+            return empty_primitive(self._signature.get_embedded_string(), self._universe)
 
-    def assemble_primitive(self, universe):
-        return empty_primitive(self._signature.get_embedded_string(), universe)
-
-    def assemble(self, universe):
         num_locals = len(self._locals)
 
         meth = BcMethod(list(self._literals), num_locals, self._compute_stack_depth(),
