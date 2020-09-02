@@ -22,8 +22,8 @@ def dump_method(m, indent):
 
     # output stack information
     error_println("%s<%d locals, %d stack, %d bc_count>" % (indent,
-                           m.get_number_of_locals().get_embedded_integer(),
-                           m.get_maximum_number_of_stack_elements().get_embedded_integer(),
+                           m.get_number_of_locals(),
+                           m.get_maximum_number_of_stack_elements(),
                            m.get_number_of_bytecodes()))
 
     # output bytecodes

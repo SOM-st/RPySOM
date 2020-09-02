@@ -91,8 +91,8 @@ class Method(AbstractObject):
         # locals and extra buffer to support doesNotUnderstand) and set the
         # number of indexable fields accordingly
         return (self.get_number_of_arguments() +
-                self.get_number_of_locals().get_embedded_integer() +
-                self.get_maximum_number_of_stack_elements().get_embedded_integer() + 2)
+                self._number_of_locals +
+                self._maximum_number_of_stack_elements + 2)
 
     @jit.elidable_promote('all')
     def get_bytecode(self, index):

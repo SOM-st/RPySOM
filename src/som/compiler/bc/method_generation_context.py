@@ -34,8 +34,8 @@ class MethodGenerationContext(object):
         num_locals = len(self._locals)
 
         meth = Method(list(self._literals),
-                      universe.new_integer(num_locals),
-                      universe.new_integer(self._compute_stack_depth()),
+                      num_locals,
+                      self._compute_stack_depth(),
                       len(self._bytecode),
                       self. _signature)
 
@@ -175,11 +175,7 @@ class MethodGenerationContext(object):
 
 def create_bootstrap_method(universe):
     """ Create a fake bootstrap method to simplify later frame traversal """
-    bootstrap_method = Method([],
-                              universe.new_integer(0),
-                              universe.new_integer(2),
-                              1,
-                              universe.symbol_for("bootstrap"))
+    bootstrap_method = Method([], 0, 2, 1, universe.symbol_for("bootstrap"))
 
     bootstrap_method.set_bytecode(0, Bytecodes.halt)
     bootstrap_method.set_holder(universe.systemClass)
