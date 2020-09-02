@@ -3,7 +3,7 @@ from rpython.rlib.objectmodel import compute_identity_hash
 from som.primitives.primitives import Primitives
 from som.vm.globals import falseObject, trueObject
 
-from som.vmobjects.object    import Object
+from som.vmobjects.object_with_layout    import ObjectWithLayout
 from som.vmobjects.primitive import AstPrimitive as Primitive
 from som.vmobjects.array_strategy import Array
 
@@ -25,7 +25,7 @@ def _hashcode(ivkbl, rcvr, args):
 def _objectSize(ivkbl, rcvr, args):
     size = 0
 
-    if isinstance(rcvr, Object):
+    if isinstance(rcvr, ObjectWithLayout):
         size = rcvr.get_number_of_fields()
     elif isinstance(rcvr, Array):
         size = rcvr.get_number_of_indexable_fields()

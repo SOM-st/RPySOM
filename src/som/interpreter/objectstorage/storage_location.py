@@ -80,12 +80,12 @@ class _AbstractObjectStorageLocation(_AbstractStorageLocation):
 def _make_object_direct_storage_location(field_idx):
     class _ObjectDirectStorageLocationI(_AbstractObjectStorageLocation):
         def read_location(self, obj):
-            #assert isinstance(obj, Object)
+            #assert isinstance(obj, ObjectWithLayout)
             return getattr(obj, "_field" + str(field_idx))
 
         def write_location(self, obj, value):
             assert value is not None
-            #assert isinstance(obj, Object)
+            #assert isinstance(obj, ObjectWithLayout)
             setattr(obj, "_field" + str(field_idx), value)
     return _ObjectDirectStorageLocationI
 
@@ -99,11 +99,11 @@ class ObjectArrayStorageLocation(_AbstractObjectStorageLocation):
         self._ext_idx = field_idx - NUMBER_OF_POINTER_FIELDS
 
     def read_location(self, obj):
-        #assert isinstance(obj, Object)
+        #assert isinstance(obj, ObjectWithLayout)
         return obj._fields[self._ext_idx]
 
     def write_location(self, obj, value):
-        #assert isinstance(obj, Object)
+        #assert isinstance(obj, ObjectWithLayout)
         assert value is not None
         obj._fields[self._ext_idx] = value
 
@@ -137,7 +137,7 @@ class _AbstractPrimitiveStorageLocation(_AbstractStorageLocation):
 def _make_double_direct_storage_location(field_idx):
     class _DoubleDirectStorageLocationI(_AbstractPrimitiveStorageLocation):
         def read_location(self, obj):
-            # assert isinstance(obj, Object)
+            # assert isinstance(obj, ObjectWithLayout)
             if self.is_set(obj):
                 double_val = longlong2float(
                     getattr(obj, "_primField" + str(field_idx)))
@@ -161,7 +161,7 @@ def _make_double_direct_storage_location(field_idx):
 def _make_long_direct_storage_location(field_idx):
     class _LongDirectStorageLocationI(_AbstractPrimitiveStorageLocation):
         def read_location(self, obj):
-            # assert isinstance(obj, Object)
+            # assert isinstance(obj, ObjectWithLayout)
 
             if self.is_set(obj):
                 return Integer(getattr(obj, "_primField" + str(field_idx)))

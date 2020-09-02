@@ -3,7 +3,13 @@ from rpython.rlib.rbigint import rbigint
 from rpython.rlib.rrandom import Random
 from rpython.rlib import jit
 
-from som.vmobjects.object        import Object
+from som.interp_type import is_ast_interpreter
+
+if is_ast_interpreter():
+    from som.vmobjects.object_with_layout import ObjectWithLayout as Object
+else:
+    from som.vmobjects.object import Object
+
 from som.vmobjects.clazz         import Class
 from som.vmobjects.array_strategy         import Array
 from som.vmobjects.object_without_fields import ObjectWithoutFields
@@ -17,7 +23,6 @@ from som.vmobjects.double        import Double
 from som.vm.globals import nilObject, trueObject, falseObject
 
 import som.compiler.sourcecode_compiler as sourcecode_compiler
-from som.interp_type import is_ast_interpreter
 
 from som.vm.ast.shell import Shell as AstShell
 # from som.vm.bc.shell import Shell as BcShell

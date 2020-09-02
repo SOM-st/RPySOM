@@ -4,7 +4,7 @@ from som.interpreter.objectstorage.field_accessor_node import create_read, \
     create_write
 
 from som.vmobjects.abstract_object import AbstractObject
-from som.vmobjects.object          import Object
+from som.vmobjects.object_with_layout import ObjectWithLayout
 
 
 class _AbstractFieldNode(ExpressionNode):
@@ -29,7 +29,7 @@ class FieldReadNode(_AbstractFieldNode):
 
     def execute(self, frame):
         self_obj = self._self_exp.execute(frame)
-        assert isinstance(self_obj, Object)
+        assert isinstance(self_obj, ObjectWithLayout)
         if we_are_jitted():
             return self_obj.get_field(self._field_idx)
         else:
@@ -49,7 +49,7 @@ class FieldWriteNode(_AbstractFieldNode):
     def execute(self, frame):
         self_obj = self._self_exp.execute(frame)
         value    = self._value_exp.execute(frame)
-        assert isinstance(self_obj, Object)
+        assert isinstance(self_obj, ObjectWithLayout)
         assert isinstance(value, AbstractObject)
         if we_are_jitted():
             self_obj.set_field(self._field_idx, value)

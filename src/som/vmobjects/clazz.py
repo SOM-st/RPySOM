@@ -1,19 +1,24 @@
 from rpython.rlib import jit
-from som.interpreter.objectstorage.object_layout import ObjectLayout
-from som.vmobjects.array_strategy import Array
-from som.vmobjects.object import Object
+from som.interp_type import is_ast_interpreter
 from som.vm.globals import nilObject
 
+if is_ast_interpreter():
+    from som.vmobjects.object_with_layout import ObjectWithLayout as Object
+    from som.vmobjects.array_strategy import Array
+    from som.interpreter.objectstorage.object_layout import ObjectLayout
+else:
+    from som.vmobjects.object import Object
+    from som.vmobjects.array import Array
 
-class Class(Object):
+
+class _Class(Object):
 
     _immutable_fields_ = ["_super_class"
                           "_name",
                           "_instance_fields"
                           "_instance_invokables",
                           "_invokables_table",
-                          "_universe",
-                          "_layout_for_instances?"]
+                          "_universe"]
 
     def __init__(self, universe, number_of_fields=Object.NUMBER_OF_OBJECT_FIELDS, obj_class=None):
         Object.__init__(self, obj_class, number_of_fields)
@@ -23,10 +28,6 @@ class Class(Object):
         self._instance_invokables = None
         self._invokables_table = {}
         self._universe = universe
-        if number_of_fields >= 0:
-            self._layout_for_instances = ObjectLayout(number_of_fields, self)
-        else:
-            self._layout_for_instances = None
 
     def get_super_class(self):
         return self._super_class
@@ -49,11 +50,6 @@ class Class(Object):
     def set_instance_fields(self, value):
         assert isinstance(value, Array)
         self._instance_fields = value
-        if (self._layout_for_instances is None or
-                value.get_number_of_indexable_fields() !=
-                self._layout_for_instances.get_number_of_fields()):
-            self._layout_for_instances = ObjectLayout(
-                value.get_number_of_indexable_fields(), self)
 
     def get_instance_invokables(self):
         return self._instance_invokables
@@ -173,6 +169,26 @@ class Class(Object):
     def __str__(self):
         return "Class(" + self.get_name().get_embedded_string() + ")"
 
+
+class _ClassWithLayout(_Class):
+    _immutable_fields_ = ["_layout_for_instances?"]
+
+    def __init__(self, universe, number_of_fields=Object.NUMBER_OF_OBJECT_FIELDS, obj_class=None):
+        _Class.__init__(self, universe, number_of_fields, obj_class)
+        if number_of_fields >= 0:
+            self._layout_for_instances = ObjectLayout(number_of_fields, self)
+        else:
+            self._layout_for_instances = None
+
+    def set_instance_fields(self, value):
+        assert isinstance(value, Array)
+        self._instance_fields = value
+        if (self._layout_for_instances is None or
+                value.get_number_of_indexable_fields() !=
+                self._layout_for_instances.get_number_of_fields()):
+            self._layout_for_instances = ObjectLayout(
+                value.get_number_of_indexable_fields(), self)
+
     def get_layout_for_instances(self):
         return self._layout_for_instances
 
@@ -189,3 +205,9 @@ class Class(Object):
         if updated is not self._layout_for_instances:
             self._layout_for_instances = updated
         return self._layout_for_instances
+
+
+if is_ast_interpreter():
+    Class = _ClassWithLayout
+else:
+    Class = _Class

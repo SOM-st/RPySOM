@@ -2,7 +2,7 @@ from rpython.rlib.jit import we_are_jitted
 from rtruffle.node import Node
 from som.interpreter.objectstorage.layout_transitions import \
     UninitializedStorageLocationException, GeneralizeStorageLocationException
-from som.vmobjects.object import Object
+from som.vmobjects.object_without_fields import ObjectWithoutFields
 
 
 _max_chain_length = 6
@@ -31,7 +31,7 @@ class _AbstractReadFieldNode(_AbstractFieldAccessorNode):
         return self._specialize(obj, reason, next_read_node).read(obj)
 
     def _specialize(self, obj, reason, next_read_node):
-        assert isinstance(obj, Object)
+        assert isinstance(obj, ObjectWithoutFields)
         obj.update_layout_to_match_class()
 
         layout = obj.get_object_layout()

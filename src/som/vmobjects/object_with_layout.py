@@ -9,7 +9,7 @@ from som.vm.globals import nilObject
 _EMPTY_LIST = []
 
 
-class Object(ObjectWithoutFields):
+class ObjectWithLayout(ObjectWithoutFields):
 
     _immutable_fields_ = ["_object_layout?",
                           "_fields?", "_primFields?"]

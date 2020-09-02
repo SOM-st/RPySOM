@@ -16,7 +16,7 @@ class ObjectLayout(object):
     def __init__(self, number_of_fields, for_class = None,
                  known_types = None):
         assert number_of_fields >= 0
-        from som.vmobjects.object import Object
+        from som.vmobjects.object_with_layout import ObjectWithLayout
         self._for_class = for_class
         self._storage_types = known_types or [None] * number_of_fields
         self._total_locations = number_of_fields
@@ -34,7 +34,7 @@ class ObjectLayout(object):
             elif storage_type is Double:
                 storage = create_location_for_double(self, next_free_prim_idx)
                 next_free_prim_idx += 1
-            elif storage_type is Object:
+            elif storage_type is ObjectWithLayout:
                 storage = create_location_for_object(self, next_free_ptr_idx)
                 next_free_ptr_idx += 1
             else:
@@ -54,24 +54,24 @@ class ObjectLayout(object):
         return self._total_locations
 
     def with_generalized_field(self, field_idx):
-        from som.vmobjects.object import Object
-        if self._storage_types[field_idx] is Object:
+        from som.vmobjects.object_with_layout import ObjectWithLayout
+        if self._storage_types[field_idx] is ObjectWithLayout:
             return self
         else:
             assert self._storage_types[field_idx] is not None
             with_generalized_field = self._storage_types[:]
-            with_generalized_field[field_idx] = Object
+            with_generalized_field[field_idx] = ObjectWithLayout
             return ObjectLayout(self._total_locations, self._for_class,
                                 with_generalized_field)
 
     def with_initialized_field(self, field_idx, spec_class):
-        from som.vmobjects.object import Object
+        from som.vmobjects.object_with_layout import ObjectWithLayout
         # First we generalize to Integer, Double, or Object
         # don't need more precision
         if spec_class is Integer or spec_class is Double:
             spec_type = spec_class
         else:
-            spec_type = Object
+            spec_type = ObjectWithLayout
 
         if self._storage_types[field_idx] is spec_type:
             return self
