@@ -311,9 +311,9 @@ class Interpreter(object):
 
 
 def get_printable_location(bytecode_index, interp, method):
-    from som.vmobjects.method import Method
+    from som.vmobjects.method_bc import BcMethod
     from som.interpreter.bc.bytecodes import bytecode_as_str
-    assert isinstance(method, Method)
+    assert isinstance(method, BcMethod)
     bc = method.get_bytecode(bytecode_index)
     return "%s @ %d in %s" % (bytecode_as_str(bc),
                               bytecode_index,

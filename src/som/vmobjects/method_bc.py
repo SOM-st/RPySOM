@@ -7,7 +7,7 @@ from som.interpreter.control_flow import ReturnException
 from som.vmobjects.abstract_object import AbstractObject
 
 
-class Method(AbstractObject):
+class BcMethod(AbstractObject):
 
     _immutable_fields_ = ["_bytecodes[*]",
                           "_literals[*]",

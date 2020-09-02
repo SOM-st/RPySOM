@@ -7,9 +7,9 @@ from rpython.rlib import jit
 
 
 def get_printable_location(interpreter, method_body, method_condition, while_type):
-    from som.vmobjects.method import Method
-    assert isinstance(method_body, Method)
-    assert isinstance(method_condition, Method)
+    from som.vmobjects.method_bc import BcMethod
+    assert isinstance(method_body, BcMethod)
+    assert isinstance(method_condition, BcMethod)
 
     return "[%s>>%s] while [%s>>%s]" % (method_condition.get_holder().get_name().get_embedded_string(),
                                         method_condition.get_signature().get_embedded_string(),

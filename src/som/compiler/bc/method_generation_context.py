@@ -1,7 +1,7 @@
 from som.interpreter.bc.bytecodes import bytecode_length, bytecode_stack_effect,\
     bytecode_stack_effect_depends_on_send, Bytecodes
 from som.vmobjects.primitive import empty_primitive
-from som.vmobjects.method import Method
+from som.vmobjects.method_bc import BcMethod
 
 
 class MethodGenerationContext(object):
@@ -33,11 +33,8 @@ class MethodGenerationContext(object):
     def assemble(self, universe):
         num_locals = len(self._locals)
 
-        meth = Method(list(self._literals),
-                      num_locals,
-                      self._compute_stack_depth(),
-                      len(self._bytecode),
-                      self. _signature)
+        meth = BcMethod(list(self._literals), num_locals, self._compute_stack_depth(),
+                        len(self._bytecode), self._signature)
 
         # copy bytecodes into method
         i = 0
@@ -175,7 +172,7 @@ class MethodGenerationContext(object):
 
 def create_bootstrap_method(universe):
     """ Create a fake bootstrap method to simplify later frame traversal """
-    bootstrap_method = Method([], 0, 2, 1, universe.symbol_for("bootstrap"))
+    bootstrap_method = BcMethod([], 0, 2, 1, universe.symbol_for("bootstrap"))
 
     bootstrap_method.set_bytecode(0, Bytecodes.halt)
     bootstrap_method.set_holder(universe.systemClass)

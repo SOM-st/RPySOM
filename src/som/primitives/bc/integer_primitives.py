@@ -175,8 +175,8 @@ from rpython.rlib import jit
 
 
 def get_printable_location(interpreter, block_method):
-    from som.vmobjects.method import Method
-    assert isinstance(block_method, Method)
+    from som.vmobjects.method_bc import BcMethod
+    assert isinstance(block_method, BcMethod)
     return "to:do: [%s>>%s]" % (block_method.get_holder().get_name().get_embedded_string(),
                                 block_method.get_signature().get_embedded_string())
 
