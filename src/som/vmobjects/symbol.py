@@ -3,14 +3,11 @@ from som.vmobjects.string import String
 
 class Symbol(String):
     _immutable_fields_ = ["_string", "_number_of_signature_arguments"]
-    
+
     def __init__(self, value):
         String.__init__(self, value)
-        self._number_of_signature_arguments = self._determine_number_of_signature_arguments() # updated later
-    
-    def get_string(self):
-        # Get the string associated to this symbol
-        return self._string
+        self._number_of_signature_arguments =\
+            self._determine_number_of_signature_arguments()  # updated later
 
     def _determine_number_of_signature_arguments(self):
         # Check for binary signature
@@ -24,7 +21,7 @@ class Symbol(String):
             for c in self._string:
                 if c == ':':
                     number_of_colons += 1
-            
+
             # The number of arguments is equal to the number of colons plus one
             return number_of_colons + 1
 
@@ -42,6 +39,6 @@ class Symbol(String):
 
     def __str__(self):
         return "#" + self._string
-    
+
     def get_class(self, universe):
         return universe.symbolClass

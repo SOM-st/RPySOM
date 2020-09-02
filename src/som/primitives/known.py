@@ -1,9 +1,12 @@
 from rpython.rlib.unroll import unrolling_iterable
+
+from ..interp_type import is_ast_interpreter, is_bytecode_interpreter
+
 """Captures the known primitives at load time of this module, i.e., at compile
    time with RPython.
 """
 
-EXPECTED_NUMBER_OF_PRIMITIVE_FILES = 13
+EXPECTED_NUMBER_OF_PRIMITIVE_FILES = 13 if is_ast_interpreter() else 11
 
 
 class PrimitivesNotFound(Exception): pass
@@ -24,10 +27,20 @@ def _setup_primitives():
     from importlib import import_module
     import inspect
     import py
-    directory = py.path.local(__file__).dirpath()
+    base_package = "som.primitives."
+    if is_ast_interpreter():
+        base_package += 'ast.'
+        interp_dir = 'ast'
+    elif is_bytecode_interpreter():
+        base_package += 'bc.'
+        interp_dir = 'bc'
+    else:
+        interp_dir = ''
+
+    directory = py.path.local(__file__).dirpath(interp_dir)
     files = filter(lambda ent: ent.basename.endswith("_primitives.py"),
                    directory.listdir())
-    mods = map(lambda mod: import_module("som.primitives." + mod.purebasename),
+    mods = map(lambda mod: import_module(base_package + mod.purebasename),
                files)
     all_members = map(lambda module: inspect.getmembers(module),
                       mods)
@@ -53,7 +66,7 @@ _primitives = unrolling_iterable(_setup_primitives())
 
 
 def primitives_for_class(cls):
-    name = cls.get_name().get_string()
+    name = cls.get_name().get_embedded_string()
     for key, primitives in _primitives:
         if key == name:
             return primitives

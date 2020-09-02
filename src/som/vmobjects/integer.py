@@ -1,31 +1,29 @@
-import math
-
 from rpython.rlib.rarithmetic import ovfcheck
 from rpython.rlib.rbigint import rbigint, _divrem
 from rpython.rtyper.lltypesystem import lltype
 from rpython.rtyper.lltypesystem.lloperation import llop
-from som.vm.globals import trueObject, falseObject
 
 from som.vmobjects.abstract_object import AbstractObject
 from som.vmobjects.biginteger import BigInteger
 from som.vmobjects.double import Double
+from som.vm.globals import trueObject, falseObject
 
 
 class Integer(AbstractObject):
-    
+
     _immutable_fields_ = ["_embedded_integer"]
-    
+
     def __init__(self, value):
         AbstractObject.__init__(self)
         assert isinstance(value, int)
         self._embedded_integer = value
-    
+
     def get_embedded_integer(self):
         return self._embedded_integer
 
     def __str__(self):
         return str(self._embedded_integer)
-    
+
     def get_class(self, universe):
         return universe.integerClass
 
@@ -191,7 +189,7 @@ class Integer(AbstractObject):
             r = right.get_embedded_integer()
             return universe.new_integer(l & r)
 
-    def prim_equals(self, right, universe):
+    def prim_equals(self, right):
         if isinstance(right, BigInteger):
             result = rbigint.fromint(self._embedded_integer).eq(
                 right.get_embedded_biginteger())
@@ -209,7 +207,7 @@ class Integer(AbstractObject):
         else:
             return falseObject
 
-    def prim_unequals(self, right, universe):
+    def prim_unequals(self, right):
         if isinstance(right, BigInteger):
             result = rbigint.fromint(self._embedded_integer).ne(
                 right.get_embedded_biginteger())

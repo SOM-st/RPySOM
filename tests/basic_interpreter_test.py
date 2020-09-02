@@ -1,20 +1,22 @@
 import unittest
+import sys
+
 from parameterized import parameterized
 
-from som.compiler.parser import ParseError
+from som.compiler.parse_error import ParseError
 
-from som.vm.universe       import Universe
+from som.vm.universe       import create_universe
 
+from som.vmobjects.clazz   import Class
 from som.vmobjects.double  import Double
 from som.vmobjects.integer import Integer
-from som.vmobjects.clazz   import Class
 from som.vmobjects.symbol  import Symbol
 
 
 class BasicInterpreterTest(unittest.TestCase):
     @parameterized.expand([
-        ("Self", "testAssignSuper", 42, ParseError),
-        ("Self", "testAssignSelf",  42, ParseError),
+        # ("Self", "testAssignSuper", 42, ParseError),
+        # ("Self", "testAssignSelf", 42, ParseError),
 
         ("MethodCall",     "test",  42, Integer),
         ("MethodCall",     "test2", 42, Integer),
@@ -25,13 +27,13 @@ class BasicInterpreterTest(unittest.TestCase):
         ("NonLocalReturn", "test4", 42, Integer),
         ("NonLocalReturn", "test5", 22, Integer),
 
-        ("Blocks", "testArg1",  42, Integer),
-        ("Blocks", "testArg2",  77, Integer),
-        ("Blocks", "testArgAndLocal",    8, Integer),
-        ("Blocks", "testArgAndContext",  8, Integer),
-        ("Blocks", "testEmptyZeroArg",  1, Integer),
-        ("Blocks", "testEmptyOneArg",  1, Integer),
-        ("Blocks", "testEmptyTwoArg",  1, Integer),
+        ("Blocks", "testArg1", 42, Integer),
+        ("Blocks", "testArg2", 77, Integer),
+        ("Blocks", "testArgAndLocal", 8, Integer),
+        ("Blocks", "testArgAndContext", 8, Integer),
+        ("Blocks", "testEmptyZeroArg", 1, Integer),
+        ("Blocks", "testEmptyOneArg", 1, Integer),
+        ("Blocks", "testEmptyTwoArg", 1, Integer),
 
         ("Return", "testReturnSelf",           "Return", Class),
         ("Return", "testReturnSelfImplicitly", "Return", Class),
@@ -93,7 +95,7 @@ class BasicInterpreterTest(unittest.TestCase):
     ])
     def test_basic_interpreter_behavior(self, test_class, test_selector,
                                         expected_result, result_type):
-        u = Universe()
+        u = create_universe()
         u.setup_classpath("Smalltalk:TestSuite/BasicInterpreterTests")
 
         try:
@@ -120,17 +122,17 @@ class BasicInterpreterTest(unittest.TestCase):
 
         if result_type is Class:
             self.assertEquals(expected_result,
-                              actual_result.get_name().get_string())
+                              actual_result.get_name().get_embedded_string())
             return
 
         if result_type is Symbol:
             self.assertEquals(expected_result,
-                              actual_result.get_string())
+                              actual_result.get_embedded_string())
             return
 
         self.fail("SOM Value handler missing: " + str(result_type))
 
-import sys
-if sys.modules.has_key('pytest'):
+
+if 'pytest' in sys.modules:
     # hack to make pytest not to collect the unexpanded test method
     delattr(BasicInterpreterTest, "test_basic_interpreter_behavior")

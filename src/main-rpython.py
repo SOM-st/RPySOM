@@ -3,6 +3,8 @@
 
 import sys
 
+from som.compiler.parse_error import ParseError
+from som.interp_type import is_ast_interpreter, is_bytecode_interpreter
 from som.vm.universe import main, Exit
 
 import os
@@ -13,9 +15,12 @@ import os
 def entry_point(argv):
     try:
         main(argv)
-    except Exit, e:
+    except Exit as e:
         return e.code
-    except Exception, e:
+    except ParseError as e:
+        os.write(2, str(e))
+        return 1
+    except Exception as e:
         os.write(2, "ERROR: %s thrown during execution.\n" % e)
         return 1
     return 1
@@ -25,17 +30,10 @@ def entry_point(argv):
 
 
 def target(driver, args):
-    interp_type = os.getenv('SOM_INTERP', None)
-    if interp_type is None or not (interp_type == 'AST' or interp_type == 'BC'):
-        print("Type of interpreter not set. Please set the SOM_INTERP environment variable")
-        print("\tSOM_INTERP=AST   Use an Abstract Syntax Tree interpreter")
-        print("\tSOM_INTERP=BC    Use a Bytecode interpreter")
-        sys.exit(1)
-
     exe_name = 'som-'
-    if interp_type == 'AST':
+    if is_ast_interpreter():
         exe_name += 'ast-'
-    elif interp_type == 'BC':
+    elif is_bytecode_interpreter():
         exe_name += 'bc-'
 
     if driver.config.translation.jit:

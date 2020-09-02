@@ -1,8 +1,6 @@
 from rpython.rlib.rfloat import formatd, DTSF_ADD_DOT_0, DTSF_STR_PRECISION
-from som.vm.globals import trueObject
-from som.vm.globals import falseObject
-
 from som.vmobjects.abstract_object import AbstractObject
+from som.vm.globals import trueObject, falseObject
 
 import math
 
@@ -10,12 +8,12 @@ import math
 class Double(AbstractObject):
 
     _immutable_fields_ = ["_embedded_double"]
-    
+
     def __init__(self, value):
         AbstractObject.__init__(self)
         assert isinstance(value, float)
         self._embedded_double = value
-    
+
     def get_embedded_double(self):
         return self._embedded_double
 
@@ -46,9 +44,6 @@ class Double(AbstractObject):
         s = formatd(self._embedded_double, "g", DTSF_STR_PRECISION, DTSF_ADD_DOT_0)
         return universe.new_string(s)
 
-    def prim_as_integer(self, universe):
-        return universe.new_integer(int(self._embedded_double))
-
     def prim_subtract(self, right, universe):
         r = self._get_float(right)
         return universe.new_double(self._embedded_double - r)
@@ -72,14 +67,14 @@ class Double(AbstractObject):
     def prim_and(self, right, universe):
         raise NotImplementedError("bit operations on Double are not supported.")
 
-    def prim_equals(self, right, universe):
+    def prim_equals(self, right):
         r = self._get_float(right)
         if self._embedded_double == r:
             return trueObject
         else:
             return falseObject
 
-    def prim_unequals(self, right, universe):
+    def prim_unequals(self, right):
         r = self._get_float(right)
         if self._embedded_double != r:
             return trueObject
