@@ -1,9 +1,17 @@
 from rpython.rlib import jit
-from som.vmobjects.object import Object
+from som.interp_type import is_ast_interpreter
 from som.vm.globals import nilObject
 
+if is_ast_interpreter():
+    from som.vmobjects.object_with_layout import ObjectWithLayout as Object
+    from som.vmobjects.array_strategy import Array
+    from som.interpreter.objectstorage.object_layout import ObjectLayout
+else:
+    from som.vmobjects.object import Object
+    from som.vmobjects.array import Array
 
-class Class(Object):
+
+class _Class(Object):
 
     _immutable_fields_ = ["_super_class"
                           "_name",
@@ -40,6 +48,7 @@ class Class(Object):
         return self._instance_fields
 
     def set_instance_fields(self, value):
+        assert isinstance(value, Array)
         self._instance_fields = value
 
     def get_instance_invokables(self):
@@ -159,3 +168,9 @@ class Class(Object):
 
     def __str__(self):
         return "Class(" + self.get_name().get_embedded_string() + ")"
+
+
+if is_ast_interpreter():
+    Class = _ClassWithLayout
+else:
+    Class = _Class
