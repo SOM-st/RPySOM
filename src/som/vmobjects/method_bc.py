@@ -2,12 +2,12 @@ from __future__ import absolute_import
 
 from rpython.rlib import jit
 
+from som.interpreter.bc.frame import create_frame
 from som.interpreter.control_flow import ReturnException
-
 from som.vmobjects.abstract_object import AbstractObject
 
 
-class Method(AbstractObject):
+class BcMethod(AbstractObject):
 
     _immutable_fields_ = ["_bytecodes[*]",
                           "_literals[*]",
@@ -18,7 +18,6 @@ class Method(AbstractObject):
                           "_maximum_number_of_stack_elements",
                           "_signature",
                           "_holder"]
-
 
     def __init__(self, literals, num_locals, max_stack_elements,
                  num_bytecodes, signature):
@@ -87,6 +86,15 @@ class Method(AbstractObject):
         return len(self._bytecodes)
 
     @jit.elidable_promote('all')
+    def get_number_of_frame_elements(self):
+        # Compute the maximum number of stack locations (including arguments,
+        # locals and extra buffer to support doesNotUnderstand) and set the
+        # number of indexable fields accordingly
+        return (self.get_number_of_arguments() +
+                self._number_of_locals +
+                self._maximum_number_of_stack_elements + 2)
+
+    @jit.elidable_promote('all')
     def get_bytecode(self, index):
         # Get the bytecode at the given index
         assert 0 <= index and index < len(self._bytecodes)
@@ -99,7 +107,7 @@ class Method(AbstractObject):
 
     def invoke(self, frame, interpreter):
         # Allocate and push a new frame on the interpreter stack
-        new_frame = interpreter.new_frame(frame, self, None)
+        new_frame = create_frame(frame, self, None)
         new_frame.copy_arguments_from(frame)
 
         try:

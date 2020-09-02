@@ -1,5 +1,6 @@
 from som.primitives.primitives import Primitives
-from som.vmobjects.primitive   import Primitive
+from som.vmobjects.primitive   import BcPrimitive as Primitive
+from som.vm.globals import nilObject, trueObject
 
 from som.vm.universe import std_print, std_println
 
@@ -11,7 +12,7 @@ def _load(ivkbl, frame, interpreter):
     argument = frame.pop()
     frame.pop() # not required
     result = interpreter.get_universe().load_class(argument)
-    frame.push(result if result else interpreter.get_universe().nilObject)
+    frame.push(result if result else nilObject)
 
 
 def _exit(ivkbl, frame, interpreter):
@@ -23,7 +24,7 @@ def _global(ivkbl, frame, interpreter):
     argument = frame.pop()
     frame.pop() # not required
     result = interpreter.get_universe().get_global(argument)
-    frame.push(result if result else interpreter.get_universe().nilObject)
+    frame.push(result if result else nilObject)
 
 
 def _global_put(ivkbl, frame, interpreter):
@@ -57,7 +58,7 @@ def _ticks(ivkbl, frame, interpreter):
 def _fullGC(ivkbl, frame, interpreter):
     frame.pop()
     rgc.collect()
-    frame.push(interpreter.get_universe().trueObject)
+    frame.push(trueObject)
 
 
 class SystemPrimitives(Primitives):

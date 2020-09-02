@@ -5,10 +5,11 @@ from rpython.rtyper.lltypesystem import lltype
 
 from som.primitives.primitives import Primitives
 from som.vmobjects.integer     import Integer
-from som.vmobjects.primitive   import Primitive
+from som.vmobjects.primitive   import BcPrimitive as Primitive
 from som.vmobjects.double      import Double
 from som.vmobjects.string      import String
-from som.vmobjects.block       import block_evaluate
+from som.vmobjects.block_bc import block_evaluate, BcBlock
+from som.vm.globals import nilObject, falseObject
 
 import math
 
@@ -97,17 +98,16 @@ def _equalsequals(ivkbl, frame, interpreter):
     right_obj = frame.pop()
     left = frame.pop()
 
-    universe = interpreter.get_universe()
     if isinstance(right_obj, Integer):
-        frame.push(left.prim_equals(right_obj, universe))
+        frame.push(left.prim_equals(right_obj))
     else:
-        frame.push(universe.falseObject)
+        frame.push(falseObject)
 
 
 def _equals(ivkbl, frame, interpreter):
     right_obj = frame.pop()
     left      = frame.pop()
-    frame.push(left.prim_equals(right_obj, interpreter.get_universe()))
+    frame.push(left.prim_equals(right_obj))
 
 
 def _lessThan(ivkbl, frame, interpreter):
@@ -121,7 +121,7 @@ def _fromString(ivkbl, frame, interpreter):
     frame.pop()
 
     if not isinstance(param, String):
-        frame.push(interpreter.get_universe().nilObject)
+        frame.push(nilObject)
         return
 
     int_value = int(param.get_embedded_string())
@@ -175,8 +175,8 @@ from rpython.rlib import jit
 
 
 def get_printable_location(interpreter, block_method):
-    from som.vmobjects.method import Method
-    assert isinstance(block_method, Method)
+    from som.vmobjects.method_bc import BcMethod
+    assert isinstance(block_method, BcMethod)
     return "to:do: [%s>>%s]" % (block_method.get_holder().get_name().get_embedded_string(),
                                 block_method.get_signature().get_embedded_string())
 
@@ -203,7 +203,7 @@ def _toDoInt(i, top, frame, context, interpreter, block_method, universe):
         jitdriver_int.jit_merge_point(interpreter=interpreter,
                                       block_method=block_method)
 
-        b = universe.new_block(block_method, context)
+        b = BcBlock(block_method, context)
         frame.push(b)
         frame.push(universe.new_integer(i))
         block_evaluate(b, interpreter, frame)
@@ -218,7 +218,7 @@ def _toDoDouble(i, top, frame, context, interpreter, block_method, universe):
         jitdriver_double.jit_merge_point(interpreter=interpreter,
                                          block_method=block_method)
 
-        b = universe.new_block(block_method, context)
+        b = BcBlock(block_method, context)
         frame.push(b)
         frame.push(universe.new_integer(i))
         block_evaluate(b, interpreter, frame)

@@ -1,20 +1,21 @@
 from som.primitives.primitives import Primitives
-from som.vmobjects.primitive   import Primitive
-from som.vmobjects.block       import block_evaluate
+from som.vmobjects.primitive   import BcPrimitive as Primitive
+from som.vmobjects.block_bc import block_evaluate, BcBlock
+from som.vm.globals import nilObject, trueObject, falseObject
 
 from rpython.rlib import jit
 
 
 def get_printable_location(interpreter, method_body, method_condition, while_type):
-    from som.vmobjects.method import Method
-    from som.interpreter.bytecodes import bytecode_as_str
-    assert isinstance(method_body, Method)
-    assert isinstance(method_condition, Method)
+    from som.vmobjects.method_bc import BcMethod
+    assert isinstance(method_body, BcMethod)
+    assert isinstance(method_condition, BcMethod)
 
     return "[%s>>%s] while [%s>>%s]" % (method_condition.get_holder().get_name().get_embedded_string(),
                                         method_condition.get_signature().get_embedded_string(),
                                         method_body.get_holder().get_name().get_embedded_string(),
                                         method_body.get_signature().get_embedded_string())
+
 
 jitdriver = jit.JitDriver(
     greens=['interpreter', 'method_body', 'method_condition', 'while_type'],
@@ -24,8 +25,8 @@ jitdriver = jit.JitDriver(
     get_printable_location=get_printable_location)
 
 
-def _execute_block(frame, block, block_method, interpreter, universe):
-    b = universe.new_block(block_method, block.get_context())
+def _execute_block(frame, block, block_method, interpreter):
+    b = BcBlock(block_method, block.get_context())
     frame.push(b)
 
     block_evaluate(b, interpreter, frame)
@@ -36,7 +37,7 @@ def _whileLoop(frame, interpreter, while_type):
     loop_body      = frame.pop()
     loop_condition = frame.pop()
 
-    universe = interpreter.get_universe()
+    # universe = interpreter.get_universe()
 
     method_body = loop_body.get_method()
     method_condition = loop_condition.get_method()
@@ -47,21 +48,22 @@ def _whileLoop(frame, interpreter, while_type):
                                   method_condition=method_condition,
                                   #universe=universe,
                                   while_type=while_type)
-        condition_result = _execute_block(frame, loop_condition, method_condition, interpreter, universe)
+        condition_result = _execute_block(frame, loop_condition, method_condition, interpreter)
         if condition_result is while_type:
-            _execute_block(frame, loop_body, method_body, interpreter, universe)
+            _execute_block(frame, loop_body, method_body, interpreter)
         else:
             break
 
-    frame.push(universe.nilObject)
+    frame.push(nilObject)
 
 
 def _whileFalse(ivkbl, frame, interpreter):
-    _whileLoop(frame, interpreter, interpreter.get_universe().falseObject)
+    _whileLoop(frame, interpreter, falseObject)
 
 
 def _whileTrue(ivkbl, frame, interpreter):
-    _whileLoop(frame, interpreter, interpreter.get_universe().trueObject)
+    _whileLoop(frame, interpreter, trueObject)
+
 
 class BlockPrimitives(Primitives):
 

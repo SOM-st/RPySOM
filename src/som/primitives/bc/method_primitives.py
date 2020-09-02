@@ -1,5 +1,5 @@
 from som.primitives.primitives import Primitives
-from som.vmobjects.primitive   import Primitive 
+from som.vmobjects.primitive   import BcPrimitive as Primitive
 
 
 def _holder(ivkbl, frame, interpreter):
@@ -12,7 +12,7 @@ def _signature(ivkbl, frame, interpreter):
     frame.push(rcvr.get_signature())
 
 
-class PrimitivePrimitives(Primitives):
+class MethodPrimitives(Primitives):
     def install_primitives(self):
         self._install_instance_primitive(Primitive("holder",
                                                    self._universe, _holder))

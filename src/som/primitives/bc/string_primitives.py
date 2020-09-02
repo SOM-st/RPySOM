@@ -1,7 +1,10 @@
 from rpython.rlib.objectmodel import compute_hash
 
 from som.primitives.primitives import Primitives
-from som.vmobjects.primitive import Primitive
+from som.vmobjects.primitive import BcPrimitive as Primitive
+from som.vm.globals import trueObject, falseObject
+from som.vmobjects.string import String
+from som.vmobjects.symbol import Symbol
 
 
 def _concat(ivkbl, frame, interpreter):
@@ -24,12 +27,20 @@ def _length(ivkbl, frame, interpreter):
 def _equals(ivkbl, frame, interpreter):
     op1 = frame.pop()
     op2 = frame.pop()  # rcvr
-    universe = interpreter.get_universe()
-    if op1.get_class(universe) == universe.stringClass:
-        if op1.get_embedded_string() == op2.get_embedded_string():
-            frame.push(universe.trueObject)
+
+    if isinstance(op1, String):
+        if isinstance(op1, Symbol) and isinstance(op2, Symbol):
+            if op1 is op2:
+                frame.push(trueObject)
+            else:
+                frame.push(falseObject)
             return
-    frame.push(universe.falseObject)
+        if isinstance(op2, String):
+            if op1.get_embedded_string() == op2.get_embedded_string():
+                frame.push(trueObject)
+                return
+
+    frame.push(falseObject)
 
 
 def _substring(ivkbl, frame, interpreter):
@@ -59,13 +70,13 @@ def _is_whitespace(ivkbl, frame, interpreter):
 
     for c in s:
         if not c.isspace():
-            frame.push(interpreter.get_universe().falseObject)
+            frame.push(falseObject)
             return
 
     if len(s) > 0:
-        frame.push(interpreter.get_universe().trueObject)
+        frame.push(trueObject)
     else:
-        frame.push(interpreter.get_universe().falseObject)
+        frame.push(falseObject)
 
 
 def _is_letters(ivkbl, frame, interpreter):
@@ -74,13 +85,13 @@ def _is_letters(ivkbl, frame, interpreter):
 
     for c in s:
         if not c.isalpha():
-            frame.push(interpreter.get_universe().falseObject)
+            frame.push(falseObject)
             return
 
     if len(s) > 0:
-        frame.push(interpreter.get_universe().trueObject)
+        frame.push(trueObject)
     else:
-        frame.push(interpreter.get_universe().falseObject)
+        frame.push(falseObject)
 
 
 def _is_digits(ivkbl, frame, interpreter):
@@ -89,13 +100,13 @@ def _is_digits(ivkbl, frame, interpreter):
 
     for c in s:
         if not c.isdigit():
-            frame.push(interpreter.get_universe().falseObject)
+            frame.push(falseObject)
             return
 
     if len(s) > 0:
-        frame.push(interpreter.get_universe().trueObject)
+        frame.push(trueObject)
     else:
-        frame.push(interpreter.get_universe().falseObject)
+        frame.push(falseObject)
 
 
 class StringPrimitives(Primitives):

@@ -1,8 +1,17 @@
 from rpython.rlib import jit
-from som.vmobjects.object      import Object
+from som.interp_type import is_ast_interpreter
+from som.vm.globals import nilObject
+
+if is_ast_interpreter():
+    from som.vmobjects.object_with_layout import ObjectWithLayout as Object
+    from som.vmobjects.array_strategy import Array
+    from som.interpreter.objectstorage.object_layout import ObjectLayout
+else:
+    from som.vmobjects.object import Object
+    from som.vmobjects.array import Array
 
 
-class Class(Object):
+class _Class(Object):
 
     _immutable_fields_ = ["_super_class"
                           "_name",
@@ -11,9 +20,9 @@ class Class(Object):
                           "_invokables_table",
                           "_universe"]
 
-    def __init__(self, universe, number_of_fields=-1):
-        Object.__init__(self, universe.nilObject, number_of_fields)
-        self._super_class = universe.nilObject
+    def __init__(self, universe, number_of_fields=Object.NUMBER_OF_OBJECT_FIELDS, obj_class=None):
+        Object.__init__(self, obj_class, number_of_fields)
+        self._super_class = nilObject
         self._name        = None
         self._instance_fields = None
         self._instance_invokables = None
@@ -27,7 +36,7 @@ class Class(Object):
         self._super_class = value
 
     def has_super_class(self):
-        return self._super_class is not self._universe.nilObject
+        return self._super_class is not nilObject
 
     def get_name(self):
         return self._name
@@ -39,6 +48,7 @@ class Class(Object):
         return self._instance_fields
 
     def set_instance_fields(self, value):
+        assert isinstance(value, Array)
         self._instance_fields = value
 
     def get_instance_invokables(self):
@@ -103,7 +113,6 @@ class Class(Object):
         # Field not found
         return -1
 
-
     def add_instance_invokable(self, value):
         # Add the given invokable to the array of instance invokables
         for i in range(0, self.get_number_of_instance_invokables()):
@@ -116,7 +125,7 @@ class Class(Object):
                 return False
 
         # Append the given method to the array of instance methods
-        self.set_instance_invokables(self.get_instance_invokables().copy_and_extend_with(value, self._universe))
+        self.set_instance_invokables(self.get_instance_invokables().copy_and_extend_with(value))
         return True
 
     def add_instance_primitive(self, value, warn_if_not_existing):
@@ -128,6 +137,7 @@ class Class(Object):
     def get_instance_field_name(self, index):
         return self.get_instance_fields().get_indexable_field(index)
 
+    @jit.elidable_promote('all')
     def get_number_of_instance_fields(self):
         # Get the total number of instance fields in this class
         return self.get_instance_fields().get_number_of_indexable_fields()
@@ -144,15 +154,23 @@ class Class(Object):
         return (self._includes_primitives(self) or
                 self._includes_primitives(self._class))
 
-    def load_primitives(self):
+    def load_primitives(self, display_warning):
         from som.primitives.known import (primitives_for_class,
                                           PrimitivesNotFound)
         try:
             prims = primitives_for_class(self)
+            prims(self._universe).install_primitives_in(self)
         except PrimitivesNotFound:
-            prims = None
-        assert prims is not None, "Loading of prims failed for %s. We yet only support prims for known classes" % self.get_name()
-        prims(self._universe).install_primitives_in(self)
+            if display_warning:
+                from som.vm.universe import error_println
+                error_println("Loading of primitives failed for %s. Currently, "
+                              "we support primitives only for known classes" % self.get_name())
 
     def __str__(self):
         return "Class(" + self.get_name().get_embedded_string() + ")"
+
+
+if is_ast_interpreter():
+    Class = _ClassWithLayout
+else:
+    Class = _Class

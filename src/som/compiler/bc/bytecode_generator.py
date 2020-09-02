@@ -1,4 +1,5 @@
-from som.interpreter.bytecodes import Bytecodes as BC
+from som.interpreter.bc.bytecodes import Bytecodes as BC
+
 
 class BytecodeGenerator(object):
 

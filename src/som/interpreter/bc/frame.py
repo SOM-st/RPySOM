@@ -1,5 +1,7 @@
 from rpython.rlib import jit
 
+from som.vm.globals import nilObject
+
 
 # Frame layout:
 #
@@ -16,7 +18,7 @@ class Frame(object):
 
     _immutable_fields_ = ["_method", "_context", "_stack"]
 
-    def __init__(self, num_elements, method, context, previous_frame, nilObject):
+    def __init__(self, num_elements, method, context, previous_frame):
         self._method         = method
         self._context        = context
         self._stack          = [nilObject] * num_elements
@@ -101,7 +103,7 @@ class Frame(object):
 
     def _get_initial_stack_pointer(self):
         return (self.get_number_of_arguments() +
-                self.get_method().get_number_of_locals().get_embedded_integer() - 1)
+                self.get_method().get_number_of_locals() - 1)
 
     def get_stack_element(self, index):
         # Get the stack element with the given index
@@ -171,3 +173,17 @@ class Frame(object):
 
         if self.has_previous_frame():
             self.get_previous_frame().print_stack_trace(0)
+
+
+def create_frame(previous_frame, method, context):
+    return Frame(method.get_number_of_frame_elements(), method, context, previous_frame)
+
+
+def create_bootstrap_frame(bootstrap_method, receiver, arguments = None):
+    """Create a fake bootstrap frame with the system object on the stack"""
+    bootstrap_frame = create_frame(None, bootstrap_method, None)
+    bootstrap_frame.push(receiver)
+
+    if arguments:
+        bootstrap_frame.push(arguments)
+    return bootstrap_frame

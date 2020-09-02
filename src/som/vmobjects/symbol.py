@@ -2,11 +2,12 @@ from som.vmobjects.string import String
 
 
 class Symbol(String):
-    _immutable_fields_ = ["_number_of_signature_arguments"]
+    _immutable_fields_ = ["_string", "_number_of_signature_arguments"]
 
     def __init__(self, value):
         String.__init__(self, value)
-        self._number_of_signature_arguments = self._determine_number_of_signature_arguments() # updated later
+        self._number_of_signature_arguments =\
+            self._determine_number_of_signature_arguments()  # updated later
 
     def _determine_number_of_signature_arguments(self):
         # Check for binary signature

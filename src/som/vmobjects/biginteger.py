@@ -1,6 +1,7 @@
 from rpython.rlib.rbigint import rbigint
 from .abstract_object import AbstractObject
 from .double          import Double
+from som.vm.globals import trueObject, falseObject
 
 
 class BigInteger(AbstractObject):
@@ -51,9 +52,9 @@ class BigInteger(AbstractObject):
                 right.get_embedded_biginteger())
 
         if result:
-            return universe.trueObject
+            return trueObject
         else:
-            return universe.falseObject
+            return falseObject
 
     def prim_as_string(self, universe):
         return universe.new_string(self._embedded_biginteger.str())
@@ -133,7 +134,7 @@ class BigInteger(AbstractObject):
                 right.get_embedded_integer()))
         return universe.new_biginteger(r)
 
-    def prim_equals(self, right, universe):
+    def prim_equals(self, right):
         from .integer import Integer
         if isinstance(right, BigInteger):
             result = self._embedded_biginteger.eq(
@@ -145,9 +146,9 @@ class BigInteger(AbstractObject):
             r = right.get_embedded_integer()
             result = self._embedded_biginteger.eq(rbigint.fromint(r))
         else:
-            return universe.falseObject
+            return falseObject
 
         if result:
-            return universe.trueObject
+            return trueObject
         else:
-            return universe.falseObject
+            return falseObject

@@ -1,10 +1,8 @@
-from som.interpreter.bytecodes import bytecode_length, Bytecodes
+from som.interpreter.bc.bytecodes import bytecode_length, Bytecodes
 from som.interpreter.control_flow import ReturnException
+from som.vmobjects.block_bc import BcBlock
 
 from rpython.rlib import jit
-from som.vmobjects.biginteger import BigInteger
-from som.vmobjects.double import Double
-from som.vmobjects.integer import Integer
 
 
 class Interpreter(object):
@@ -25,22 +23,25 @@ class Interpreter(object):
     def get_universe(self):
         return self._universe
 
-    def _do_dup(self, frame, method):
+    @staticmethod
+    def _do_dup(frame):
         # Handle the dup bytecode
         frame.push(frame.get_stack_element(0))
 
-    def _do_push_local(self, bytecode_index, frame, method):
+    @staticmethod
+    def _do_push_local(bytecode_index, frame, method):
         # Handle the push local bytecode
         frame.push(
             frame.get_local(
                 method.get_bytecode(bytecode_index + 1),
                 method.get_bytecode(bytecode_index + 2)))
 
-    def _do_push_argument(self, bytecode_index, frame, method):
+    @staticmethod
+    def _do_push_argument(bytecode_index, frame, method):
         # Handle the push argument bytecode
         frame.push(
             frame.get_argument(method.get_bytecode(bytecode_index + 1),
-            method.get_bytecode(bytecode_index + 2)))
+                               method.get_bytecode(bytecode_index + 2)))
 
     def _do_push_field(self, bytecode_index, frame, method):
         # Handle the push field bytecode
@@ -55,9 +56,10 @@ class Interpreter(object):
 
         # Push a new block with the current frame as context onto the
         # stack
-        frame.push(self._universe.new_block(block_method, frame))
+        frame.push(BcBlock(block_method, frame))
 
-    def _do_push_constant(self, bytecode_index, frame, method):
+    @staticmethod
+    def _do_push_constant(bytecode_index, frame, method):
         # Handle the push constant bytecode
         frame.push(method.get_constant(bytecode_index))
 
@@ -73,19 +75,22 @@ class Interpreter(object):
             frame.push(glob)
         else:
             # Send 'unknownGlobal:' to self
-            self.get_self(frame).send_unknown_global(frame, global_name, self._universe, self)
+            self._send_unknown_global(self.get_self(frame), frame, global_name)
 
-    def _do_pop(self, frame):
+    @staticmethod
+    def _do_pop(frame):
         # Handle the pop bytecode
         frame.pop()
 
-    def _do_pop_local(self, bytecode_index, frame, method):
+    @staticmethod
+    def _do_pop_local(bytecode_index, frame, method):
         # Handle the pop local bytecode
         frame.set_local(method.get_bytecode(bytecode_index + 1),
                         method.get_bytecode(bytecode_index + 2),
-                                   frame.pop())
+                        frame.pop())
 
-    def _do_pop_argument(self, bytecode_index, frame, method):
+    @staticmethod
+    def _do_pop_argument(bytecode_index, frame, method):
         # Handle the pop argument bytecode
         frame.set_argument(method.get_bytecode(bytecode_index + 1),
                            method.get_bytecode(bytecode_index + 2),
@@ -116,9 +121,10 @@ class Interpreter(object):
             # Compute the receiver
             receiver = frame.get_stack_element(num_args - 1)
 
-            receiver.send_does_not_understand(frame, signature, self)
+            self._send_does_not_understand(receiver, frame, signature)
 
-    def _do_return_local(self, frame):
+    @staticmethod
+    def _do_return_local(frame):
         return frame.top()
 
     @jit.unroll_safe
@@ -139,7 +145,7 @@ class Interpreter(object):
             sender = frame.get_previous_frame().get_outer_context().get_argument(0, 0)
 
             # ... and execute the escapedBlock message instead
-            sender.send_escaped_block(frame, block, self._universe, self)
+            self._send_escaped_block(sender, frame, block)
             return frame.top()
 
         raise ReturnException(result, context)
@@ -170,7 +176,6 @@ class Interpreter(object):
         self._send(method, frame, signature, receiver.get_class(self._universe),
                    bytecode_index)
 
-
     @jit.unroll_safe
     def interpret(self, method, frame):
         current_bc_idx = 0
@@ -184,7 +189,6 @@ class Interpreter(object):
                           method=method,
                           frame=frame)
 
-
             bytecode = method.get_bytecode(current_bc_idx)
 
             # Get the length of the current bytecode
@@ -197,7 +201,7 @@ class Interpreter(object):
             if   bytecode == Bytecodes.halt:                            # BC: 0
                 return frame.get_stack_element(0)
             elif bytecode == Bytecodes.dup:                             # BC: 1
-                self._do_dup(frame, method)
+                self._do_dup(frame)
             elif bytecode == Bytecodes.push_local:                      # BC: 2
                 self._do_push_local(current_bc_idx, frame, method)
             elif bytecode == Bytecodes.push_argument:                   # BC: 3
@@ -235,16 +239,14 @@ class Interpreter(object):
 
             current_bc_idx = next_bc_idx
 
-    def new_frame(self, prev_frame, method, context):
-        return self._universe.new_frame(prev_frame, method, context)
-
-    def get_self(self, frame):
+    @staticmethod
+    def get_self(frame):
         # Get the self object from the interpreter
         return frame.get_outer_context().get_argument(0, 0)
 
     def _send(self, m, frame, selector, receiver_class, bytecode_index):
         # selector.inc_send_count()
-        
+
         # First try the inline cache
         cached_class = m.get_inline_cache_class(bytecode_index)
         if cached_class == receiver_class:
@@ -255,7 +257,9 @@ class Interpreter(object):
                 invokable = receiver_class.lookup_invokable(selector)
                 m.set_inline_cache(bytecode_index, receiver_class, invokable)
             else:
-                cached_class = m.get_inline_cache_class(bytecode_index + 1) # the bytecode index after the send is used by the selector constant, and can be used safely as another cache item
+                # the bytecode index after the send is used by the selector constant,
+                # and can be used safely as another cache item
+                cached_class = m.get_inline_cache_class(bytecode_index + 1)
                 if cached_class == receiver_class:
                     invokable = m.get_inline_cache_invokable(bytecode_index + 1)
                 else:
@@ -270,17 +274,51 @@ class Interpreter(object):
 
             # Compute the receiver
             receiver = frame.get_stack_element(num_args - 1)
-            receiver.send_does_not_understand(frame, selector, self)
+            self._send_does_not_understand(receiver, frame, selector)
+
+    def _send_does_not_understand(self, receiver, frame, selector):
+        # ignore self
+        number_of_arguments = selector.get_number_of_signature_arguments() - 1
+        arguments_array = self._universe.new_array_with_length(number_of_arguments)
+
+        # Remove all arguments and put them in the freshly allocated array
+        i = number_of_arguments - 1
+        while i >= 0:
+            arguments_array.set_indexable_field(i, frame.pop())
+            i -= 1
+
+        frame.pop()  # pop self from stack
+        args = [selector, arguments_array]
+        self._lookup_and_send(receiver, frame, "doesNotUnderstand:arguments:", args)
+
+    def _send_unknown_global(self, receiver, frame, global_name):
+        arguments = [global_name]
+        self._lookup_and_send(receiver, frame, "unknownGlobal:", arguments)
+
+    def _send_escaped_block(self, receiver, frame, block):
+        arguments = [block]
+        self._lookup_and_send(receiver, frame, "escapedBlock:", arguments)
+
+    def _lookup_and_send(self, receiver, frame, selector_string, arguments):
+        selector = self._universe.symbol_for(selector_string)
+        invokable = receiver.get_class(self._universe).lookup_invokable(selector)
+
+        frame.push(receiver)
+        for arg in arguments:
+            frame.push(arg)
+
+        invokable.invoke(frame, self)
 
 
 def get_printable_location(bytecode_index, interp, method):
-    from som.vmobjects.method import Method
-    from som.interpreter.bytecodes import bytecode_as_str
-    assert isinstance(method, Method)
+    from som.vmobjects.method_bc import BcMethod
+    from som.interpreter.bc.bytecodes import bytecode_as_str
+    assert isinstance(method, BcMethod)
     bc = method.get_bytecode(bytecode_index)
     return "%s @ %d in %s" % (bytecode_as_str(bc),
                               bytecode_index,
                               method.merge_point_string())
+
 
 jitdriver = jit.JitDriver(
     greens=['bytecode_index', 'interp', 'method'],
