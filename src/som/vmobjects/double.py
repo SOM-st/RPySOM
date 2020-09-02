@@ -44,9 +44,6 @@ class Double(AbstractObject):
         s = formatd(self._embedded_double, "g", DTSF_STR_PRECISION, DTSF_ADD_DOT_0)
         return universe.new_string(s)
 
-    def prim_as_integer(self, universe):
-        return universe.new_integer(int(self._embedded_double))
-
     def prim_subtract(self, right, universe):
         r = self._get_float(right)
         return universe.new_double(self._embedded_double - r)
@@ -70,14 +67,14 @@ class Double(AbstractObject):
     def prim_and(self, right, universe):
         raise NotImplementedError("bit operations on Double are not supported.")
 
-    def prim_equals(self, right, universe):
+    def prim_equals(self, right):
         r = self._get_float(right)
         if self._embedded_double == r:
             return trueObject
         else:
             return falseObject
 
-    def prim_unequals(self, right, universe):
+    def prim_unequals(self, right):
         r = self._get_float(right)
         if self._embedded_double != r:
             return trueObject

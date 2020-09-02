@@ -148,7 +148,7 @@ class BigInteger(AbstractObject):
                 right.get_embedded_integer()))
         return universe.new_biginteger(r)
 
-    def prim_equals(self, right, universe):
+    def prim_equals(self, right):
         from .integer import Integer
         if isinstance(right, BigInteger):
             result = self._embedded_biginteger.eq(
@@ -167,7 +167,7 @@ class BigInteger(AbstractObject):
         else:
             return falseObject
 
-    def prim_unequals(self, right, universe):
+    def prim_unequals(self, right):
         from .integer import Integer
         if isinstance(right, BigInteger):
             result = self._embedded_biginteger.ne(

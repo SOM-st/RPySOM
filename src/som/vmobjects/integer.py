@@ -189,7 +189,7 @@ class Integer(AbstractObject):
             r = right.get_embedded_integer()
             return universe.new_integer(l & r)
 
-    def prim_equals(self, right, universe):
+    def prim_equals(self, right):
         if isinstance(right, BigInteger):
             result = rbigint.fromint(self._embedded_integer).eq(
                 right.get_embedded_biginteger())
@@ -207,7 +207,7 @@ class Integer(AbstractObject):
         else:
             return falseObject
 
-    def prim_unequals(self, right, universe):
+    def prim_unequals(self, right):
         if isinstance(right, BigInteger):
             result = rbigint.fromint(self._embedded_integer).ne(
                 right.get_embedded_biginteger())

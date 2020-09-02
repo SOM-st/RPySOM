@@ -65,11 +65,11 @@ def _and(ivkbl, rcvr, args):
 
 
 def _equals(ivkbl, rcvr, args):
-    return rcvr.prim_equals(args[0], ivkbl.get_universe())
+    return rcvr.prim_equals(args[0])
 
 
 def _unequals(ivkbl, rcvr, args):
-    return rcvr.prim_unequals(args[0], ivkbl.get_universe())
+    return rcvr.prim_unequals(args[0])
 
 
 def _lessThan(ivkbl, rcvr, args):
@@ -161,9 +161,8 @@ def _as32BitUnsignedValue(ivkbl, rcvr, args):
 
 def _equalsequals(ivkbl, rcvr, args):
     op2 = args[0]
-    universe = ivkbl.get_universe()
     if isinstance(op2, Integer) or isinstance(op2, BigInteger):
-        return rcvr.prim_equals(op2, universe)
+        return rcvr.prim_equals(op2)
     else:
         return falseObject
 

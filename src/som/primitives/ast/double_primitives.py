@@ -46,11 +46,11 @@ def _mod(ivkbl, rcvr, args):
 
 
 def _equals(ivkbl, rcvr, args):
-    return rcvr.prim_equals(args[0], ivkbl.get_universe())
+    return rcvr.prim_equals(args[0])
 
 
 def _unequals(ivkbl, rcvr, args):
-    return rcvr.prim_unequals(args[0], ivkbl.get_universe())
+    return rcvr.prim_unequals(args[0])
 
 
 def _lessThan(ivkbl, rcvr, args):
@@ -75,7 +75,7 @@ def _positive_infinity(ivkbl, rcvr, args):
 
 
 def _asInteger(ivkbl, rcvr, args):
-    return rcvr.prim_as_integer(ivkbl.get_universe())
+    return ivkbl.get_universe().new_integer(int(rcvr.get_embedded_double()))
 
 
 def _cos(ivkbl, rcvr, args):
