@@ -1,10 +1,11 @@
 from rpython.rlib.objectmodel import we_are_translated
-
 from rlib.osext import raw_input
+
+from som.interpreter.bc.frame import create_frame
 from som.vm.globals import nilObject
 
 
-class Shell(object):
+class _Shell(object):
 
     def __init__(self, universe):
         self._universe = universe
@@ -32,21 +33,45 @@ class Shell(object):
                 counter += 1
 
                 # Compile and load the newly generated class
-                my_class = self._universe.load_shell_class(stmt)
+                shell_class = self._universe.load_shell_class(stmt)
 
                 # If success
-                if my_class:
-                    # Create and push a new instance of our class on the stack
-                    my_object = self._universe.new_instance(my_class)
-
-                    # Lookup the run: method
-                    initialize = my_class.lookup_invokable(
+                if shell_class:
+                    shell_object = self._universe.new_instance(shell_class)
+                    shell_method = shell_class.lookup_invokable(
                         self._universe.symbol_for("run:"))
 
-                    # Invoke the run method
-                    it = initialize.invoke(my_object, [it])
+                    it = self._exec(shell_object, shell_method, it)
             except Exception as e:
                 if not we_are_translated():  # this cannot be done in rpython
                     import traceback
                     traceback.print_exc()
                 error_println("Caught exception: %s" % e)
+
+
+class AstShell(_Shell):
+
+    def _exec(self, shell_object, shell_method, it):
+        return shell_method.invoke(shell_object, [it])
+
+
+class BcShell(_Shell):
+
+    def __init__(self, universe, interpreter, bootstrap_method):
+        _Shell.__init__(self, universe)
+        self._interpreter = interpreter
+        self._bootstrap_method = bootstrap_method
+        # Create a fake bootstrap frame
+        self._current_frame = create_frame(None, self._bootstrap_method, None)
+
+    def _exec(self, shell_object, shell_method, it):
+        self._current_frame.reset_stack_pointer()
+        self._current_frame.push(shell_object)
+
+        # Push the old value of "it" on the stack
+        self._current_frame.push(it)
+
+        # Invoke the run method
+        shell_method.invoke(self._current_frame, self._interpreter)
+
+        return self._current_frame.pop()

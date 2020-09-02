@@ -13,12 +13,12 @@ if is_ast_interpreter():
     from som.vmobjects.object_with_layout import ObjectWithLayout as Object
     from som.vmobjects.array_strategy     import Array
     from som.vmobjects.block_ast          import block_evaluation_primitive
-    from som.vm.ast.shell                 import Shell as AstShell
+    from som.vm.shell                     import AstShell
 else:
     from som.vmobjects.object   import Object
     from som.vmobjects.array    import Array
     from som.vmobjects.block_bc import block_evaluation_primitive
-    from som.vm.bc.shell        import Shell as BcShell
+    from som.vm.shell           import BcShell
 
 from som.vmobjects.clazz         import Class
 from som.vmobjects.object_without_fields import ObjectWithoutFields
