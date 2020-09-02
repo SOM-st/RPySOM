@@ -5,7 +5,7 @@ from rpython.rlib import jit
 
 from som.vmobjects.object        import Object
 from som.vmobjects.clazz         import Class
-from som.vmobjects.array         import Array
+from som.vmobjects.array_strategy         import Array
 from som.vmobjects.object_without_fields import ObjectWithoutFields
 from som.vmobjects.symbol        import Symbol
 from som.vmobjects.integer       import Integer

@@ -1,8 +1,8 @@
 from som.primitives.primitives import Primitives
 from som.vm.globals import nilObject
 from som.vmobjects.abstract_object import AbstractObject
-from som.vmobjects.array       import Array
-from som.vmobjects.primitive   import Primitive 
+from som.vmobjects.array_strategy       import Array
+from som.vmobjects.primitive   import Primitive
 
 
 def _holder(ivkbl, rcvr, args):

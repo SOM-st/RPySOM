@@ -4,7 +4,7 @@ from rpython.rtyper.lltypesystem import rffi
 from rpython.rtyper.lltypesystem import lltype
 from som.primitives.primitives import Primitives
 from som.vm.globals import nilObject, falseObject
-from som.vmobjects.array import Array
+from som.vmobjects.array_strategy import Array
 from som.vmobjects.biginteger import BigInteger
 from som.vmobjects.primitive   import Primitive
 from som.vmobjects.integer     import Integer

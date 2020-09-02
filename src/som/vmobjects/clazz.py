@@ -1,6 +1,6 @@
 from rpython.rlib import jit
 from som.interpreter.objectstorage.object_layout import ObjectLayout
-from som.vmobjects.array import Array
+from som.vmobjects.array_strategy import Array
 from som.vmobjects.object import Object
 from som.vm.globals import nilObject
 
