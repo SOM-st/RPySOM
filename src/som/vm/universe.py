@@ -10,7 +10,7 @@ from som.vmobjects.object_without_fields import ObjectWithoutFields
 from som.vmobjects.symbol        import Symbol
 from som.vmobjects.integer       import Integer
 from som.vmobjects.string        import String
-from som.vmobjects.block         import Block, block_evaluation_primitive
+from som.vmobjects.block_ast     import block_evaluation_primitive
 from som.vmobjects.biginteger    import BigInteger
 from som.vmobjects.double        import Double
 
@@ -305,10 +305,6 @@ class Universe(object):
     def new_array_with_strings(strings):
         values = [Universe.new_string(s) for s in strings]
         return Array.from_objects(values)
-
-    @staticmethod
-    def new_block(method, context):
-        return Block(method, context)
 
     def new_class(self, class_class):
         # Allocate a new class and set its class to be the given class class

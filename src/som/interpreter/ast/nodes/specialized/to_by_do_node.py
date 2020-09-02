@@ -2,7 +2,7 @@ from rpython.rlib import jit
 
 from .to_do_node       import AbstractToDoNode
 
-from .....vmobjects.block import Block
+from .....vmobjects.block_ast import AstBlock
 from .....vmobjects.double import Double
 from .....vmobjects.integer import Integer
 from .....vmobjects.method import Method
@@ -63,7 +63,7 @@ class IntToIntByDoNode(AbstractToByDoNode):
     def can_specialize(selector, rcvr, args, node):
         return (isinstance(args[0], Integer) and isinstance(rcvr, Integer) and
                 len(args) == 3 and isinstance(args[1], Integer) and
-                isinstance(args[2], Block) and
+                isinstance(args[2], AstBlock) and
                 selector.get_embedded_string() == "to:by:do:")
 
     @staticmethod
@@ -99,7 +99,7 @@ class IntToDoubleByDoNode(AbstractToByDoNode):
     def can_specialize(selector, rcvr, args, node):
         return (isinstance(args[0], Double) and isinstance(rcvr, Integer) and
                 len(args) == 3 and isinstance(args[1], Integer) and
-                isinstance(args[2], Block) and
+                isinstance(args[2], AstBlock) and
                 selector.get_embedded_string() == "to:by:do:")
 
     @staticmethod

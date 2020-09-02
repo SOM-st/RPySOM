@@ -1,6 +1,6 @@
 from ..expression_node   import ExpressionNode
 from .....vm.globals import nilObject, trueObject, falseObject
-from .....vmobjects.block import Block
+from .....vmobjects.block_ast import AstBlock
 
 
 class IfTrueIfFalseNode(ExpressionNode):
@@ -28,7 +28,7 @@ class IfTrueIfFalseNode(ExpressionNode):
         return self._do_iftrue_iffalse(rcvr, args[0], args[1])
 
     def _value_of(self, obj):
-        if isinstance(obj, Block):
+        if isinstance(obj, AstBlock):
             return obj.get_method().invoke(obj, [])
         else:
             return obj
@@ -76,7 +76,7 @@ class IfNode(ExpressionNode):
         return self._do_if(rcvr, args[0])
 
     def _value_of(self, obj):
-        if isinstance(obj, Block):
+        if isinstance(obj, AstBlock):
             return obj.get_method().invoke(obj, [])
         else:
             return obj

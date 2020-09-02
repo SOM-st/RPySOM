@@ -1,5 +1,5 @@
 from rpython.rlib import jit
-from som.vmobjects.block import Block
+from som.vmobjects.block_ast import AstBlock
 from som.vmobjects.method import Method
 from som.vmobjects.primitive   import Primitive
 from som.primitives.primitives import Primitives
@@ -79,7 +79,7 @@ def _copy(ivkbl, rcvr, args):
 
 def _putAll(ivkbl, rcvr, args):
     arg = args[0]
-    if isinstance(arg, Block):
+    if isinstance(arg, AstBlock):
         rcvr.set_all_with_block(arg)
         return rcvr
 

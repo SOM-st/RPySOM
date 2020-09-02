@@ -2,7 +2,7 @@ from .contextual_node import ContextualNode
 from .expression_node import ExpressionNode
 
 from rpython.rlib import jit
-from som.vmobjects.block import Block
+from som.vmobjects.block_ast import AstBlock
 
 
 class UninitializedReadNode(ExpressionNode):
@@ -60,14 +60,14 @@ class _NonLocalVariableReadNode(_NonLocalVariableNode):
 class NonLocalArgumentReadNode(_NonLocalVariableReadNode):
 
     def _do_var_read(self, block):
-        assert isinstance(block, Block)
+        assert isinstance(block, AstBlock)
         return block.get_context_argument(self._frame_idx)
 
 
 class NonLocalTempReadNode(_NonLocalVariableReadNode):
 
     def _do_var_read(self, block):
-        assert isinstance(block, Block)
+        assert isinstance(block, AstBlock)
         return block.get_context_temp(self._frame_idx)
 
 

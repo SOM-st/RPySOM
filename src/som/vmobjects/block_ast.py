@@ -4,7 +4,7 @@ from som.vmobjects.abstract_object import AbstractObject
 from som.vmobjects.primitive import Primitive
 
 
-class Block(AbstractObject):
+class AstBlock(AbstractObject):
 
     _immutable_fields_ = ["_method", "_outer_rcvr", '_outer_args[*]',
                           '_outer_tmps']
@@ -18,7 +18,7 @@ class Block(AbstractObject):
         self._outer_on_stack = context_values[3]
 
     def is_same_context(self, other_block):
-        assert isinstance(other_block, Block)
+        assert isinstance(other_block, AstBlock)
         return (self._outer_rcvr == other_block._outer_rcvr and
                 self._outer_args == other_block._outer_args and
                 self._outer_tmps == other_block._outer_tmps and
@@ -91,7 +91,7 @@ class Block(AbstractObject):
 
 
 def block_evaluation_primitive(num_args, universe):
-    return Block.Evaluation(num_args, universe, _invoke)
+    return AstBlock.Evaluation(num_args, universe, _invoke)
 
 
 def block_evaluate(block, args):
@@ -100,5 +100,5 @@ def block_evaluate(block, args):
 
 
 def _invoke(ivkbl, rcvr, args):
-    assert isinstance(ivkbl, Block.Evaluation)
+    assert isinstance(ivkbl, AstBlock.Evaluation)
     return block_evaluate(rcvr, args)

@@ -1,3 +1,4 @@
+from som.vmobjects.block_ast import AstBlock
 from .literal_node import LiteralNode
 
 
@@ -10,7 +11,7 @@ class BlockNode(LiteralNode):
         self._universe = universe
 
     def execute(self, frame):
-        return self._universe.new_block(self._value, (None, None, None, None))
+        return AstBlock(self._value, (None, None, None, None))
 
 
 class BlockNodeWithContext(BlockNode):
@@ -19,4 +20,4 @@ class BlockNodeWithContext(BlockNode):
         BlockNode.__init__(self, value, universe, source_section)
 
     def execute(self, frame):
-        return self._universe.new_block(self._value, frame.get_context_values())
+        return AstBlock(self._value, frame.get_context_values())

@@ -3,7 +3,7 @@ from rpython.rlib import jit
 from ..expression_node import ExpressionNode
 from .....vm.globals import nilObject, falseObject, trueObject
 
-from .....vmobjects.block import Block
+from .....vmobjects.block_ast import AstBlock
 from .....vmobjects.method import Method
 
 
@@ -95,7 +95,7 @@ class WhileMessageNode(AbstractWhileMessageNode):
     @staticmethod
     def can_specialize(selector, rcvr, args, node):
         sel = selector.get_embedded_string()
-        return isinstance(args[0], Block) and (sel == "whileTrue:" or
+        return isinstance(args[0], AstBlock) and (sel == "whileTrue:" or
                                                sel == "whileFalse:")
 
     @staticmethod
