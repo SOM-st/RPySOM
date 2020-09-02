@@ -1,27 +1,20 @@
+from som.compiler.method_generation_context import MethodGenerationContextBase
 from som.interpreter.bc.bytecodes import bytecode_length, bytecode_stack_effect,\
     bytecode_stack_effect_depends_on_send, Bytecodes
 from som.vmobjects.primitive import empty_primitive
 from som.vmobjects.method_bc import BcMethod
 
 
-class MethodGenerationContext(object):
+class MethodGenerationContext(MethodGenerationContextBase):
 
     def __init__(self, universe):
-        self._holder_genc = None
-        self._outer_genc  = None
-        self._block_method = False
-        self._signature   = None
+        MethodGenerationContextBase.__init__(self, universe)
+
         self._arguments   = []
-        self._primitive   = False # to be changed
         self._locals      = []
         self._literals    = []
         self._finished    = False
         self._bytecode    = []
-
-        self._universe = universe
-
-    def set_holder(self, cgenc):
-        self._holder_genc = cgenc
 
     def add_argument(self, arg):
         self._arguments.append(arg)
@@ -65,12 +58,6 @@ class MethodGenerationContext(object):
 
         return max_depth
 
-    def set_primitive(self):
-        self._primitive = True
-
-    def set_signature(self, sig):
-        self._signature = sig
-
     def add_argument_if_absent(self, arg):
         if arg in self._locals:
             return False
@@ -84,20 +71,11 @@ class MethodGenerationContext(object):
     def set_finished(self):
         self._finished = True
 
-    def add_local_if_absent(self, local):
-        if local in self._locals:
-            return False
-        self._locals.append(local)
-        return True
-
     def add_local(self, local):
         self._locals.append(local)
 
     def remove_last_bytecode(self):
         self._bytecode = self._bytecode[:-1]
-
-    def is_block_method(self):
-        return self._block_method
 
     def add_literal_if_absent(self, lit):
         if lit in self._literals:
@@ -105,15 +83,6 @@ class MethodGenerationContext(object):
 
         self._literals.append(lit)
         return True
-
-    def set_is_block_method(self, boolean):
-        self._block_method = boolean
-
-    def get_holder(self):
-        return self._holder_genc
-
-    def set_outer(self, mgenc):
-        self._outer_genc = mgenc
 
     def add_literal(self, lit):
         i = len(self._literals)
@@ -144,15 +113,6 @@ class MethodGenerationContext(object):
         else:
             return False
 
-    def has_field(self, field):
-        return self._holder_genc.has_field(field)
-
-    def get_field_index(self, field):
-        return self._holder_genc.get_field_index(field)
-
-    def get_number_of_arguments(self):
-        return len(self._arguments)
-
     def add_bytecode(self, bc):
         self._bytecode.append(bc)
 
@@ -164,9 +124,6 @@ class MethodGenerationContext(object):
 
     def get_outer(self):
         return self._outer_genc
-
-    def get_signature(self):
-        return self._signature
 
 
 def create_bootstrap_method(universe):

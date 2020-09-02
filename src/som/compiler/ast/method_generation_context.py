@@ -3,6 +3,7 @@ from collections import OrderedDict
 from rtruffle.source_section import SourceSection
 
 from .variable import Argument, Local
+from ..method_generation_context import MethodGenerationContextBase
 
 from ...interpreter.ast.nodes.field_node import create_write_node, \
                                                       create_read_node
@@ -15,16 +16,13 @@ from ...vmobjects.primitive import empty_primitive
 from ...vmobjects.method_ast import AstMethod
 
 
-class MethodGenerationContext(object):
+class MethodGenerationContext(MethodGenerationContextBase):
 
     def __init__(self, universe):
-        self._holder_genc = None
-        self._outer_genc  = None
-        self._block_method = False
-        self._signature   = None
+        MethodGenerationContextBase.__init__(self, universe)
+
         self._arguments   = OrderedDict()
         self._locals      = OrderedDict()
-        self._primitive   = False  # to be changed
 
         self._embedded_block_methods = []
 
@@ -33,11 +31,6 @@ class MethodGenerationContext(object):
 
         self._needs_to_catch_non_local_returns    = False
         self._accesses_variables_of_outer_context = False
-
-        self._universe = universe
-
-    def set_holder(self, cgenc):
-        self._holder_genc = cgenc
 
     def add_embedded_block_method(self, block_method):
         self._embedded_block_methods.append(block_method)
@@ -123,12 +116,6 @@ class MethodGenerationContext(object):
                                    source_section = src_body)
         return src_method
 
-    def set_primitive(self):
-        self._primitive = True
-
-    def set_signature(self, sig):
-        self._signature = sig
-
     def add_argument(self, arg):
         if ("self" == arg or "$blockSelf" == arg) and len(self._arguments) > 0:
             raise RuntimeError("The self argument always has to be the first "
@@ -141,26 +128,9 @@ class MethodGenerationContext(object):
             return
         self.add_argument(arg)
 
-    def add_local_if_absent(self, local):
-        if local in self._locals:
-            return
-        self.add_local(local)
-
     def add_local(self, local):
         l = Local(local, len(self._locals))
         self._locals[local] = l
-
-    def is_block_method(self):
-        return self._block_method
-
-    def set_is_block_method(self, boolean):
-        self._block_method = boolean
-
-    def get_holder(self):
-        return self._holder_genc
-
-    def set_outer(self, mgenc):
-        self._outer_genc = mgenc
 
     def get_outer_self_context_level(self):
         level = 0
@@ -219,18 +189,6 @@ class MethodGenerationContext(object):
             return None
         return create_write_node(self._get_self_read(), exp,
                                  self.get_field_index(field_name))
-
-    def has_field(self, field):
-        return self._holder_genc.has_field(field)
-
-    def get_field_index(self, field):
-        return self._holder_genc.get_field_index(field)
-
-    def get_number_of_arguments(self):
-        return len(self._arguments)
-
-    def get_signature(self):
-        return self._signature
 
     def __str__(self):
         return "MethodGenC(%s>>%s)" % (self._holder_genc.get_name().get_string,
