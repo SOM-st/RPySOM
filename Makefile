@@ -3,6 +3,7 @@
 PYPY_DIR ?= pypy
 RPYTHON  ?= $(PYPY_DIR)/rpython/bin/rpython
 
+.PHONY: compile som-interp som-jit
 
 all: compile
 
@@ -19,6 +20,10 @@ som-ast-interp: core-lib/.git
 
 som-bc-interp: core-lib/.git
 	SOM_INTERP=BC  PYTHONPATH=$(PYTHONPATH):$(PYPY_DIR) $(RPYTHON) --batch src/main-rpython.py
+
+som-interp: som-ast-interp som-bc-interp
+	
+som-jit: som-ast-jit som-bc-jit
 
 test: compile
 	PYTHONPATH=$(PYTHONPATH):$(PYPY_DIR) nosetests

@@ -3,21 +3,11 @@ from math import cos, sin
 
 from som.primitives.primitives import Primitives
 from som.vmobjects.primitive   import BcPrimitive as Primitive
-from som.vmobjects.double      import Double
-from som.vmobjects.integer     import Integer
 
 import math
 
 
-def _coerce_to_double(obj, universe):
-    if isinstance(obj, Double):
-        return obj
-    if isinstance(obj, Integer):
-        return universe.new_double(float(obj.get_embedded_integer()))
-    raise ValueError("Cannot coerce %s to Double!" % obj)
-
-
-def _asString(ivkbl, frame, interpreter):
+def _as_string(ivkbl, frame, interpreter):
     rcvr = frame.pop()
     frame.push(rcvr.prim_as_string(interpreter.get_universe()))
 
@@ -46,7 +36,7 @@ def _mult(ivkbl, frame, interpreter):
     frame.push(rcvr.prim_multiply(right, interpreter.get_universe()))
 
 
-def _doubleDiv(ivkbl, frame, interpreter):
+def _double_div(ivkbl, frame, interpreter):
     right = frame.pop()
     rcvr  = frame.pop()
     frame.push(rcvr.prim_double_div(right, interpreter.get_universe()))
@@ -64,10 +54,28 @@ def _equals(ivkbl, frame, interpreter):
     frame.push(rcvr.prim_equals(right))
 
 
-def _lessThan(ivkbl, frame, interpreter):
+def _unequals(ivkbl, frame, interpreter):
+    right = frame.pop()
+    rcvr  = frame.pop()
+    frame.push(rcvr.prim_unequals(right))
+
+
+def _less_than(ivkbl, frame, interpreter):
     right = frame.pop()
     rcvr  = frame.pop()
     frame.push(rcvr.prim_less_than(right, interpreter.get_universe()))
+
+
+def _less_than_or_equal(ivkbl, frame, interpreter):
+    right = frame.pop()
+    rcvr = frame.pop()
+    frame.push(rcvr.prim_less_than_or_equal(right, ivkbl.get_universe()))
+
+
+def _greater_than(ivkbl, frame, interpreter):
+    right = frame.pop()
+    rcvr = frame.pop()
+    frame.push(rcvr.prim_greater_than(right, ivkbl.get_universe()))
 
 
 def _round(ivkbl, frame, interpreter):
@@ -76,7 +84,7 @@ def _round(ivkbl, frame, interpreter):
     frame.push(interpreter.get_universe().new_integer(int_value))
 
 
-def _asInteger(ivkbl, frame, interpreter):
+def _as_integer(ivkbl, frame, interpreter):
     rcvr = frame.pop()
     int_value = int(rcvr.get_embedded_double())
     frame.push(interpreter.get_universe().new_integer(int_value))
@@ -102,17 +110,23 @@ def _infinity(ivkbl, frame, interpreter):
 class DoublePrimitives(Primitives):
 
     def install_primitives(self):
-        self._install_instance_primitive(Primitive("asString", self._universe, _asString))
+        self._install_instance_primitive(Primitive("asString", self._universe, _as_string))
         self._install_instance_primitive(Primitive("round",    self._universe, _round))
-        self._install_instance_primitive(Primitive("asInteger", self._universe, _asInteger))
+        self._install_instance_primitive(Primitive("asInteger", self._universe, _as_integer))
+
         self._install_instance_primitive(Primitive("sqrt", self._universe, _sqrt))
         self._install_instance_primitive(Primitive("+",  self._universe, _plus))
         self._install_instance_primitive(Primitive("-",  self._universe, _minus))
         self._install_instance_primitive(Primitive("*",  self._universe, _mult))
-        self._install_instance_primitive(Primitive("//", self._universe, _doubleDiv))
+        self._install_instance_primitive(Primitive("//", self._universe, _double_div))
         self._install_instance_primitive(Primitive("%",  self._universe, _mod))
         self._install_instance_primitive(Primitive("=",  self._universe, _equals))
-        self._install_instance_primitive(Primitive("<",  self._universe, _lessThan))
+        self._install_instance_primitive(Primitive("<",  self._universe, _less_than))
+        self._install_instance_primitive(Primitive("<=", self._universe, _less_than_or_equal))
+        self._install_instance_primitive(Primitive(">",  self._universe, _greater_than))
+        self._install_instance_primitive(Primitive("<>", self._universe, _unequals))
+        self._install_instance_primitive(Primitive("~=", self._universe, _unequals))
+
         self._install_instance_primitive(Primitive("sin", self._universe, _sin))
         self._install_instance_primitive(Primitive("cos", self._universe, _cos))
 

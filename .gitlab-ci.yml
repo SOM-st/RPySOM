@@ -8,7 +8,7 @@ variables:
 before_script:
   - git submodule update --init
 
-build_test_benchmark_job:
+bc_build_test_benchmark_job:
   stage: build-test-benchmark
   tags: [benchmarks, infinity]
   script:
@@ -32,4 +32,30 @@ build_test_benchmark_job:
     
     # Run Benchmarks
     - rebench --experiment="CI ID $CI_PIPELINE_ID" --branch="$CI_COMMIT_REF_NAME" -c rebench.conf RPySOM e:RPySOM-bc-jit e:RPySOM-bc-interp
+    # - rebench --experiment="CI ID $CI_PIPELINE_ID" --report-completion rebench.conf
+
+ast_build_test_benchmark_job:
+  stage: build-test-benchmark
+  tags: [benchmarks, infinity]
+  script:
+    # Setup
+    - export PYTHONPATH=$PYTHONPATH:$PYPY_DIR
+    - export RPYTHON=$PYPY_DIR/rpython/bin/rpython
+    - export PATH=$PATH:/home/gitlab-runner/.local/pypy2.7-v7.3.1-linux64/bin
+    - export SOM_INTERP=AST
+    
+    # Unit Tests
+    - nosetests
+    - ./som.sh -cp Smalltalk TestSuite/TestHarness.som
+
+    # Interpreter
+    - $RPYTHON --batch src/main-rpython.py
+    - ./som-ast-interp -cp Smalltalk TestSuite/TestHarness.som
+    
+    # JIT Compiled Version
+    - $RPYTHON --batch -Ojit src/main-rpython.py
+    - ./som-ast-jit -cp Smalltalk TestSuite/TestHarness.som
+    
+    # Run Benchmarks
+    - rebench --experiment="CI ID $CI_PIPELINE_ID" --branch="$CI_COMMIT_REF_NAME" -c rebench.conf RPySOM e:RPySOM-ast-jit e:RPySOM-ast-interp
     - rebench --experiment="CI ID $CI_PIPELINE_ID" --report-completion rebench.conf
