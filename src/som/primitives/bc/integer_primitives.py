@@ -2,6 +2,7 @@ from rpython.rlib.rarithmetic import ovfcheck, LONG_BIT
 from rpython.rlib.rbigint import rbigint
 from rpython.rtyper.lltypesystem import rffi
 from rpython.rtyper.lltypesystem import lltype
+from rpython.rlib import jit
 
 from som.primitives.primitives import Primitives
 from som.vm.universe import Universe
@@ -111,10 +112,28 @@ def _equals(ivkbl, frame, interpreter):
     frame.push(left.prim_equals(right_obj))
 
 
+def _unequals(ivkbl, frame, interpreter):
+    right_obj = frame.pop()
+    left      = frame.pop()
+    frame.push(left.prim_unequals(right_obj))
+
+
 def _lessThan(ivkbl, frame, interpreter):
     right_obj = frame.pop()
     left      = frame.pop()
     frame.push(left.prim_less_than(right_obj, interpreter.get_universe()))
+
+
+def _lessThanOrEqual(ivkbl, frame, interpreter):
+    right_obj = frame.pop()
+    left      = frame.pop()
+    frame.push(left.prim_less_than_or_equal(right_obj, interpreter.get_universe()))
+
+
+def _greaterThan(ivkbl, frame, interpreter):
+    right_obj = frame.pop()
+    left      = frame.pop()
+    frame.push(left.prim_greater_than(right_obj, interpreter.get_universe()))
 
 
 def _fromString(ivkbl, frame, interpreter):
@@ -171,7 +190,18 @@ def _bitXor(ivkbl, frame, interpreter):
     frame.push(Universe.new_integer(result))
 
 
-from rpython.rlib import jit
+def _abs(ivkbl, frame, interpreter):
+    left  = frame.pop()
+    frame.push(Universe.new_integer(abs(left.get_embedded_integer())))
+
+
+def _max(ivkbl, frame, interpreter):
+    right = frame.pop()
+    left  = frame.pop()
+    assert isinstance(left, Integer)
+    assert isinstance(right, Integer)
+    frame.push(Universe.new_integer(
+        max(left.get_embedded_integer(), right.get_embedded_integer())))
 
 
 def get_printable_location(interpreter, block_method):
@@ -265,15 +295,21 @@ class IntegerPrimitives(Primitives):
         self._install_instance_primitive(Primitive("&",  self._universe, _and))
         self._install_instance_primitive(Primitive("=",  self._universe, _equals))
         self._install_instance_primitive(Primitive("<",  self._universe, _lessThan))
+        self._install_instance_primitive(Primitive("<=", self._universe, _lessThanOrEqual))
+        self._install_instance_primitive(Primitive(">",  self._universe, _greaterThan))
+        self._install_instance_primitive(Primitive("<>", self._universe, _unequals))
+        self._install_instance_primitive(Primitive("~=", self._universe, _unequals))
 
         self._install_instance_primitive(Primitive("<<", self._universe, _leftShift))
-        self._install_instance_primitive(Primitive(">>>", self._universe, _unsignedRightShift))
         self._install_instance_primitive(Primitive("bitXor:", self._universe, _bitXor))
-
+        self._install_instance_primitive(Primitive(">>>", self._universe, _unsignedRightShift))
         self._install_instance_primitive(
             Primitive("as32BitSignedValue", self._universe, _as32BitSignedValue))
         self._install_instance_primitive(
             Primitive("as32BitUnsignedValue", self._universe, _as32BitUnsignedValue))
+
+        self._install_instance_primitive(Primitive("max:", self._universe, _max))
+        self._install_instance_primitive(Primitive("abs", self._universe, _abs))
 
         self._install_instance_primitive(Primitive("to:do:", self._universe, _toDo))
 

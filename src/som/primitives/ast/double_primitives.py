@@ -83,6 +83,8 @@ class DoublePrimitives(Primitives):
     def install_primitives(self):
         self._install_instance_primitive(Primitive("asString", self._universe, _as_string))
         self._install_instance_primitive(Primitive("round",    self._universe, _round))
+        self._install_instance_primitive(Primitive("asInteger", self._universe, _as_integer))
+
         self._install_instance_primitive(Primitive("sqrt",     self._universe, _sqrt))
         self._install_instance_primitive(Primitive("+",        self._universe, _plus))
         self._install_instance_primitive(Primitive("-",        self._universe, _minus))
@@ -96,7 +98,7 @@ class DoublePrimitives(Primitives):
         self._install_instance_primitive(Primitive("<>",       self._universe, _unequals))
         self._install_instance_primitive(Primitive("~=",       self._universe, _unequals))
 
-        self._install_instance_primitive(Primitive("asInteger", self._universe, _as_integer))
+
         self._install_instance_primitive(Primitive("cos", self._universe, _cos))
         self._install_instance_primitive(Primitive("sin", self._universe, _sin))
 
