@@ -315,7 +315,7 @@ class Universe(object):
 
     @staticmethod
     def new_array_with_strings(strings):
-        values = [Universe.new_string(s) for s in strings]
+        values = [String(s) for s in strings]
         return Array.from_objects(values)
 
     def new_class(self, class_class):
@@ -340,10 +340,6 @@ class Universe(object):
         assert isinstance(value, rbigint)
         return BigInteger(value)
 
-    @staticmethod
-    def new_double(value):
-        return Double(value)
-
     def new_metaclass_class(self):
         # Allocate the metaclass classes
         class_class = Class(self, 0, None)
@@ -352,10 +348,6 @@ class Universe(object):
         # Setup the metaclass hierarchy
         result.get_class(self).set_class(result)
         return result
-
-    @staticmethod
-    def new_string(embedded_string):
-        return String(embedded_string)
 
     def _new_symbol(self, string):
         result = Symbol(string)

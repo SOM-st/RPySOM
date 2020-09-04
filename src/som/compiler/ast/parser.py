@@ -12,6 +12,7 @@ from ...interpreter.ast.nodes.return_non_local_node import ReturnNonLocalNode
 from ...interpreter.ast.nodes.sequence_node import SequenceNode
 
 from ..symbol import Symbol
+from ...vmobjects.string import String
 
 
 class Parser(ParserBase):
@@ -268,7 +269,7 @@ class Parser(ParserBase):
 
     def _literal_string(self):
         s = self._string()
-        return self._universe.new_string(s)
+        return String(s)
 
     def _literal_array(self):
         literals = []

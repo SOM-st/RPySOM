@@ -9,8 +9,7 @@ from som.vmobjects.symbol import Symbol
 
 def _concat(ivkbl, rcvr, args):
     argument = args[0]
-    return ivkbl.get_universe().new_string(rcvr.get_embedded_string()
-                                           + argument.get_embedded_string())
+    return String(rcvr.get_embedded_string() + argument.get_embedded_string())
 
 
 def _asSymbol(ivkbl, rcvr, args):
@@ -46,9 +45,9 @@ def _substring(ivkbl, rcvr, args):
     string = rcvr.get_embedded_string()
 
     if s < 0 or s >= len(string) or e > len(string) or e < s:
-        return ivkbl.get_universe().new_string("Error - index out of bounds")
+        return String("Error - index out of bounds")
     else:
-        return ivkbl.get_universe().new_string(string[s:e])
+        return String(string[s:e])
 
 
 def _hashcode(ivkbl, rcvr, args):

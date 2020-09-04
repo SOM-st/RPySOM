@@ -4,7 +4,7 @@ from som.vm.globals import trueObject, falseObject
 
 
 def _asString(ivkbl, rcvr, args):
-    return ivkbl.get_universe().new_string(rcvr.get_embedded_string())
+    return String(rcvr.get_embedded_string())
 
 
 def _equals(ivkbl, rcvr, args):

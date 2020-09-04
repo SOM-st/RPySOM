@@ -2,6 +2,7 @@ from .bytecode_generator import BytecodeGenerator
 from .method_generation_context import MethodGenerationContext
 from ..parser import ParserBase
 from ..symbol import Symbol
+from ...vmobjects.string import String
 
 
 class Parser(ParserBase):
@@ -274,7 +275,7 @@ class Parser(ParserBase):
     def _literal_string(self, mgenc):
         s = self._string()
 
-        string = self._universe.new_string(s)
+        string = String(s)
         mgenc.add_literal_if_absent(string)
 
         self._bc_gen.emitPUSHCONSTANT(mgenc, string)

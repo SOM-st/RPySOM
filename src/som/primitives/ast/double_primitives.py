@@ -1,38 +1,38 @@
 from rpython.rlib.rfloat import round_double, INFINITY
 
 from som.primitives.primitives import Primitives
+from som.vmobjects.double import Double
 from som.vmobjects.primitive   import AstPrimitive as Primitive
 
 import math
 
 
 def _as_string(ivkbl, rcvr, args):
-    return rcvr.prim_as_string(ivkbl.get_universe())
+    return rcvr.prim_as_string()
 
 
 def _sqrt(ivkbl, rcvr, args):
-    return ivkbl.get_universe().new_double(
-        math.sqrt(rcvr.get_embedded_double()))
+    return Double(math.sqrt(rcvr.get_embedded_double()))
 
 
 def _plus(ivkbl, rcvr, args):
-    return rcvr.prim_add(args[0], ivkbl.get_universe())
+    return rcvr.prim_add(args[0])
 
 
 def _minus(ivkbl, rcvr, args):
-    return rcvr.prim_subtract(args[0], ivkbl.get_universe())
+    return rcvr.prim_subtract(args[0])
 
 
 def _mult(ivkbl, rcvr, args):
-    return rcvr.prim_multiply(args[0], ivkbl.get_universe())
+    return rcvr.prim_multiply(args[0])
 
 
 def _double_div(ivkbl, rcvr, args):
-    return rcvr.prim_double_div(args[0], ivkbl.get_universe())
+    return rcvr.prim_double_div(args[0])
 
 
 def _mod(ivkbl, rcvr, args):
-    return rcvr.prim_modulo(args[0], ivkbl.get_universe())
+    return rcvr.prim_modulo(args[0])
 
 
 def _equals(ivkbl, rcvr, args):
@@ -44,15 +44,15 @@ def _unequals(ivkbl, rcvr, args):
 
 
 def _less_than(ivkbl, rcvr, args):
-    return rcvr.prim_less_than(args[0], ivkbl.get_universe())
+    return rcvr.prim_less_than(args[0])
 
 
 def _less_than_or_equal(ivkbl, rcvr, args):
-    return rcvr.prim_less_than_or_equal(args[0], ivkbl.get_universe())
+    return rcvr.prim_less_than_or_equal(args[0])
 
 
 def _greater_than(ivkbl, rcvr, args):
-    return rcvr.prim_greater_than(args[0], ivkbl.get_universe())
+    return rcvr.prim_greater_than(args[0])
 
 
 def _round(ivkbl, rcvr, args):
@@ -61,7 +61,7 @@ def _round(ivkbl, rcvr, args):
 
 
 def _positive_infinity(ivkbl, rcvr, args):
-    return ivkbl.get_universe().new_double(INFINITY)
+    return Double(INFINITY)
 
 
 def _as_integer(ivkbl, rcvr, args):
@@ -70,12 +70,12 @@ def _as_integer(ivkbl, rcvr, args):
 
 def _cos(ivkbl, rcvr, args):
     result = math.cos(rcvr.get_embedded_double())
-    return ivkbl.get_universe().new_double(result)
+    return Double(result)
 
 
 def _sin(ivkbl, rcvr, args):
     result = math.sin(rcvr.get_embedded_double())
-    return ivkbl.get_universe().new_double(result)
+    return Double(result)
 
 
 class DoublePrimitives(Primitives):

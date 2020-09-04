@@ -7,6 +7,7 @@ from .parse_error import ParseError, ParseErrorSymList
 from .symbol import Symbol
 
 from ..interp_type import is_ast_interpreter
+from ..vmobjects.double import Double
 
 if is_ast_interpreter():
     from .ast.method_generation_context import MethodGenerationContext
@@ -252,7 +253,7 @@ class ParserBase(object):
                              "Expected a number but got '%s'" % self._text,
                              Symbol.NONE, self)
         self._expect(Symbol.Double)
-        return self._universe.new_double(f)
+        return Double(f)
 
     def _selector(self):
         if self._sym == Symbol.OperatorSequence or self._sym_in(self._single_op_syms):

@@ -14,7 +14,7 @@ import math
 
 
 def _asString(ivkbl, rcvr, args):
-    return rcvr.prim_as_string(ivkbl.get_universe())
+    return rcvr.prim_as_string()
 
 
 def _sqrt(ivkbl, rcvr, args):
@@ -23,7 +23,7 @@ def _sqrt(ivkbl, rcvr, args):
     if res == float(int(res)):
         return ivkbl.get_universe().new_integer(int(res))
     else:
-        return ivkbl.get_universe().new_double(res)
+        return Double(res)
 
 
 def _atRandom(ivkbl, rcvr, args):
