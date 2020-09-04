@@ -51,13 +51,15 @@ def _print_newline(ivkbl, rcvr, args):
 
 
 def _time(ivkbl, rcvr, args):
+    from som.vmobjects.integer import Integer
     since_start = time.time() - ivkbl.get_universe().start_time
-    return ivkbl.get_universe().new_integer(int(since_start * 1000))
+    return Integer(int(since_start * 1000))
 
 
 def _ticks(ivkbl, rcvr, args):
+    from som.vmobjects.integer import Integer
     since_start = time.time() - ivkbl.get_universe().start_time
-    return ivkbl.get_universe().new_integer(int(since_start * 1000000))
+    return Integer(int(since_start * 1000000))
 
 
 @jit.dont_look_inside

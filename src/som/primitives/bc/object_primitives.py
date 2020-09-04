@@ -17,10 +17,12 @@ def _equals(op1, op2):
 
 
 def _hashcode(rcvr):
-    return Universe.new_integer(compute_identity_hash(rcvr))
+    from som.vmobjects.integer import Integer
+    return Integer(compute_identity_hash(rcvr))
 
 
 def _object_size(rcvr):
+    from som.vmobjects.integer import Integer
     size = 0
 
     if isinstance(rcvr, Object):
@@ -28,7 +30,7 @@ def _object_size(rcvr):
     elif isinstance(rcvr, Array):
         size = rcvr.get_number_of_indexable_fields()
 
-    return Universe.new_integer(size)
+    return Integer(size)
 
 
 def _perform(ivkbl, frame, interpreter):

@@ -56,7 +56,7 @@ class IntToIntByDoNode(AbstractToByDoNode):
         while i <= top:
             int_driver.jit_merge_point(block_method = block_method)
             block_method.invoke(body_block,
-                                [self._universe.new_integer(i)])
+                                [Integer(i)])
             i += by
 
     @staticmethod
@@ -92,7 +92,7 @@ class IntToDoubleByDoNode(AbstractToByDoNode):
         while i <= top:
             double_driver.jit_merge_point(block_method = block_method)
             block_method.invoke(body_block,
-                                [self._universe.new_integer(i)])
+                                [Integer(i)])
             i += by
 
     @staticmethod

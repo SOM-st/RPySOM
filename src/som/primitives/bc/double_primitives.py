@@ -2,7 +2,6 @@ from rpython.rlib.rfloat import round_double, INFINITY
 from math import cos, sin
 
 from som.primitives.primitives import Primitives
-from som.vm.universe import Universe
 from som.vmobjects.double import Double
 from som.vmobjects.primitive import UnaryPrimitive, BinaryPrimitive
 
@@ -58,13 +57,15 @@ def _greater_than(left, right):
 
 
 def _round(rcvr):
+    from som.vmobjects.integer import Integer
     int_value = int(round_double(rcvr.get_embedded_double(), 0))
-    return Universe.new_integer(int_value)
+    return Integer(int_value)
 
 
 def _as_integer(rcvr):
+    from som.vmobjects.integer import Integer
     int_value = int(rcvr.get_embedded_double())
-    return Universe.new_integer(int_value)
+    return Integer(int_value)
 
 
 def _cos(rcvr):

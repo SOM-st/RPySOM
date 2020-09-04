@@ -15,7 +15,8 @@ def _at_put(ivkbl, frame, interpreter):
 
 
 def _length(rcvr):
-    return Universe.new_integer(rcvr.get_number_of_indexable_fields())
+    from som.vmobjects.integer import Integer
+    return Integer(rcvr.get_number_of_indexable_fields())
 
 
 def _new(rcvr, length):

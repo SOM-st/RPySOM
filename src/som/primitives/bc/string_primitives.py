@@ -3,6 +3,7 @@ from rpython.rlib.objectmodel import compute_hash
 from som.primitives.primitives import Primitives
 from som.vm.globals import trueObject, falseObject
 from som.vm.universe import Universe
+from som.vmobjects.integer import Integer
 from som.vmobjects.primitive import Primitive, UnaryPrimitive, BinaryPrimitive, TernaryPrimitive
 from som.vmobjects.string import String
 from som.vmobjects.symbol import Symbol
@@ -18,7 +19,7 @@ def _as_symbol(ivkbl, frame, interpreter):
 
 
 def _length(rcvr):
-    return Universe.new_integer(len(rcvr.get_embedded_string()))
+    return Integer(len(rcvr.get_embedded_string()))
 
 
 def _equals(op1, op2):
@@ -46,7 +47,8 @@ def _substring(rcvr, start, end):
 
 
 def _hashcode(rcvr):
-    return Universe.new_integer(compute_hash(rcvr.get_embedded_string()))
+    from som.vmobjects.integer import Integer
+    return Integer(compute_hash(rcvr.get_embedded_string()))
 
 
 def _is_whitespace(self):

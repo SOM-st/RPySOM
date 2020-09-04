@@ -17,7 +17,8 @@ def _asSymbol(ivkbl, rcvr, args):
 
 
 def _length(ivkbl, rcvr, args):
-    return ivkbl.get_universe().new_integer(len(rcvr.get_embedded_string()))
+    from som.vmobjects.integer import Integer
+    return Integer(len(rcvr.get_embedded_string()))
 
 
 def _equals(ivkbl, rcvr, args):
@@ -51,7 +52,8 @@ def _substring(ivkbl, rcvr, args):
 
 
 def _hashcode(ivkbl, rcvr, args):
-    return ivkbl.get_universe().new_integer(
+    from som.vmobjects.integer import Integer
+    return Integer(
         compute_hash(rcvr.get_embedded_string()))
 
 

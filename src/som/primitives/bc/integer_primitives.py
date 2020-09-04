@@ -22,12 +22,12 @@ def _as_string(rcvr):
 
 def _as_32bit_signed_value(rcvr):
     val = rffi.cast(lltype.Signed, rffi.cast(rffi.INT, rcvr.get_embedded_integer()))
-    return Universe.new_integer(val)
+    return Integer(val)
 
 
 def _as_32bit_unsigned_value(rcvr):
     val = rffi.cast(lltype.Signed, rffi.cast(rffi.UINT, rcvr.get_embedded_integer()))
-    return Universe.new_integer(val)
+    return Integer(val)
 
 
 def _sqrt(rcvr):
@@ -108,7 +108,7 @@ def _from_string(rcvr, param):
         return nilObject
 
     int_value = int(param.get_embedded_string())
-    return Universe.new_integer(int_value)
+    return Integer(int_value)
 
 
 def _left_shift(left, right):
@@ -120,9 +120,10 @@ def _left_shift(left, right):
         if not (l == 0 or 0 <= r < LONG_BIT):
             raise OverflowError
         result = ovfcheck(l << r)
-        return Universe.new_integer(result)
+        return Integer(result)
     except OverflowError:
-        return Universe.new_biginteger(
+        from som.vmobjects.biginteger import BigInteger
+        return BigInteger(
             rbigint.fromint(l).lshift(r))
 
 
@@ -135,22 +136,22 @@ def _unsigned_right_shift(left, right):
     u_l = rffi.cast(lltype.Unsigned, l)
     u_r = rffi.cast(lltype.Unsigned, r)
 
-    return Universe.new_integer(rffi.cast(lltype.Signed, u_l >> u_r))
+    return Integer(rffi.cast(lltype.Signed, u_l >> u_r))
 
 
 def _bit_xor(left, right):
     result = left.get_embedded_integer() ^ right.get_embedded_integer()
-    return Universe.new_integer(result)
+    return Integer(result)
 
 
 def _abs(rcvr):
-    return Universe.new_integer(abs(rcvr.get_embedded_integer()))
+    return Integer(abs(rcvr.get_embedded_integer()))
 
 
 def _max(left, right):
     assert isinstance(left, Integer)
     assert isinstance(right, Integer)
-    return Universe.new_integer(
+    return Integer(
         max(left.get_embedded_integer(), right.get_embedded_integer()))
 
 
@@ -187,7 +188,7 @@ def _to_do_int(i, by_increment, top, frame, context, interpreter, block_method):
 
         b = BcBlock(block_method, context)
         frame.push(b)
-        frame.push(Universe.new_integer(i))
+        frame.push(Integer(i))
         block_evaluate(b, interpreter, frame)
         frame.pop()
         i += by_increment
@@ -202,7 +203,7 @@ def _to_do_double(i, by_increment, top, frame, context, interpreter, block_metho
 
         b = BcBlock(block_method, context)
         frame.push(b)
-        frame.push(Universe.new_integer(i))
+        frame.push(Integer(i))
         block_evaluate(b, interpreter, frame)
         frame.pop()
         i += by_increment

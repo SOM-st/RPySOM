@@ -43,15 +43,17 @@ def _print_newline(ivkbl, frame, interpreter):
 
 
 def _time(ivkbl, frame, interpreter):
+    from som.vmobjects.integer import Integer
     frame.pop()  # ignore
     since_start = time.time() - interpreter.get_universe().start_time
-    frame.push(Universe.new_integer(int(since_start * 1000)))
+    frame.push(Integer(int(since_start * 1000)))
 
 
 def _ticks(ivkbl, frame, interpreter):
+    from som.vmobjects.integer import Integer
     frame.pop()  # ignore
     since_start = time.time() - interpreter.get_universe().start_time
-    frame.push(Universe.new_integer(int(since_start * 1000000)))
+    frame.push(Integer(int(since_start * 1000000)))
 
 
 @jit.dont_look_inside

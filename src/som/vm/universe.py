@@ -330,16 +330,6 @@ class Universe(object):
         else:
             return Object(instance_class, num_fields)
 
-    @staticmethod
-    def new_integer(value):
-        assert isinstance(value, int)
-        return Integer(value)
-
-    @staticmethod
-    def new_biginteger(value):
-        assert isinstance(value, rbigint)
-        return BigInteger(value)
-
     def new_metaclass_class(self):
         # Allocate the metaclass classes
         class_class = Class(self, 0, None)

@@ -226,16 +226,18 @@ class ParserBase(object):
         return self._literal_decimal(True)
 
     def _literal_integer(self, negate_value):
+        from som.vmobjects.integer import Integer
         try:
             i = string_to_int(self._text)
             if negate_value:
                 i = 0 - i
-            result = self._universe.new_integer(i)
+            result = Integer(i)
         except ParseStringOverflowError:
+            from som.vmobjects.biginteger import BigInteger
             bigint = rbigint.fromstr(self._text)
             if negate_value:
                 bigint.sign = -1
-            result = self._universe.new_biginteger(bigint)
+            result = BigInteger(bigint)
         except ValueError:
             raise ParseError("Could not parse integer. "
                              "Expected a number but got '%s'" % self._text,

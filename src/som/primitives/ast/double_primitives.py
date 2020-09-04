@@ -56,8 +56,9 @@ def _greater_than(ivkbl, rcvr, args):
 
 
 def _round(ivkbl, rcvr, args):
+    from som.vmobjects.integer import Integer
     int_value = int(round_double(rcvr.get_embedded_double(), 0))
-    return ivkbl.get_universe().new_integer(int_value)
+    return Integer(int_value)
 
 
 def _positive_infinity(ivkbl, rcvr, args):
@@ -65,7 +66,8 @@ def _positive_infinity(ivkbl, rcvr, args):
 
 
 def _as_integer(ivkbl, rcvr, args):
-    return ivkbl.get_universe().new_integer(int(rcvr.get_embedded_double()))
+    from som.vmobjects.integer import Integer
+    return Integer(int(rcvr.get_embedded_double()))
 
 
 def _cos(ivkbl, rcvr, args):
