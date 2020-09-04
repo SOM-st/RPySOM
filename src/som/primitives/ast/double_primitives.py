@@ -2,7 +2,7 @@ from rpython.rlib.rfloat import round_double, INFINITY
 
 from som.primitives.primitives import Primitives
 from som.vmobjects.double import Double
-from som.vmobjects.primitive   import AstPrimitive as Primitive
+from som.vmobjects.primitive   import Primitive
 
 import math
 

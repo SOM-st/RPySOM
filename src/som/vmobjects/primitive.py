@@ -58,6 +58,42 @@ class _AstPrimitive(_AbstractPrimitive):
         return prim_fn(self, rcvr, args)
 
 
+class _AstUnaryPrimitive(_AbstractPrimitive):
+    _immutable_fields_ = ["_prim_fn"]
+
+    def __init__(self, signature_string, universe, prim_fn, is_empty=False):
+        _AbstractPrimitive.__init__(self, signature_string, universe, is_empty)
+        self._prim_fn = prim_fn
+
+    def invoke(self, rcvr, args):
+        prim_fn = self._prim_fn
+        return prim_fn(rcvr)
+
+
+class _AstBinaryPrimitive(_AbstractPrimitive):
+    _immutable_fields_ = ["_prim_fn"]
+
+    def __init__(self, signature_string, universe, prim_fn, is_empty=False):
+        _AbstractPrimitive.__init__(self, signature_string, universe, is_empty)
+        self._prim_fn = prim_fn
+
+    def invoke(self, rcvr, args):
+        prim_fn = self._prim_fn
+        return prim_fn(rcvr, args[0])
+
+
+class _AstTernaryPrimitive(_AbstractPrimitive):
+    _immutable_fields_ = ["_prim_fn"]
+
+    def __init__(self, signature_string, universe, prim_fn, is_empty=False):
+        _AbstractPrimitive.__init__(self, signature_string, universe, is_empty)
+        self._prim_fn = prim_fn
+
+    def invoke(self, rcvr, args):
+        prim_fn = self._prim_fn
+        return prim_fn(rcvr, args[0], args[1])
+
+
 class _BcPrimitive(_AbstractPrimitive):
     _immutable_fields_ = ["_prim_fn"]
 
@@ -122,9 +158,9 @@ def _empty_invoke(ivkbl, _a, _b):
 
 if is_ast_interpreter():
     Primitive = _AstPrimitive
-    UnaryPrimitive = None
-    BinaryPrimitive = None
-    TernaryPrimitive = None
+    UnaryPrimitive = _AstUnaryPrimitive
+    BinaryPrimitive = _AstBinaryPrimitive
+    TernaryPrimitive = _AstTernaryPrimitive
 else:
     Primitive = _BcPrimitive
     UnaryPrimitive = _BcUnaryPrimitive

@@ -1,6 +1,6 @@
 from som.primitives.primitives import Primitives
 from som.vm.globals import nilObject, falseObject, trueObject
-from som.vmobjects.primitive   import AstPrimitive as Primitive
+from som.vmobjects.primitive   import Primitive
 
 from som.vm.universe import std_print, std_println
 

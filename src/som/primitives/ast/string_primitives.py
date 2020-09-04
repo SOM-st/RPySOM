@@ -2,7 +2,7 @@ from rpython.rlib.objectmodel import compute_hash
 
 from som.primitives.primitives import Primitives
 from som.vm.globals import falseObject, trueObject
-from som.vmobjects.primitive import AstPrimitive as Primitive
+from som.vmobjects.primitive import Primitive
 from som.vmobjects.string import String
 from som.vmobjects.symbol import Symbol
 
