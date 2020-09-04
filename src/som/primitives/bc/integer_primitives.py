@@ -162,6 +162,7 @@ def get_printable_location(interpreter, block_method):
 
 
 jitdriver_int = jit.JitDriver(
+    name='to:do: with int',
     greens=['interpreter', 'block_method'],
     reds='auto',
     # virtualizables=['frame'],
@@ -169,6 +170,7 @@ jitdriver_int = jit.JitDriver(
     get_printable_location=get_printable_location)
 
 jitdriver_double = jit.JitDriver(
+    name='to:do: with double',
     greens=['interpreter', 'block_method'],
     reds='auto',
     # virtualizables=['frame'],
