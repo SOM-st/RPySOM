@@ -1,25 +1,22 @@
 from som.primitives.primitives import Primitives
-from som.vmobjects.primitive   import BcPrimitive as Primitive
 from som.vm.globals import trueObject, falseObject
+from som.vmobjects.primitive import UnaryPrimitive, BinaryPrimitive
+from som.vmobjects.string import String
 
 
-def _asString(ivkbl, frame, interpreter):
-    rcvr = frame.pop()
-    frame.push(interpreter.get_universe().new_string(rcvr.get_embedded_string()))
+def _as_string(rcvr):
+    return String(rcvr.get_embedded_string())
 
 
-def _equals(ivkbl, frame, interpreter):
-    op1 = frame.pop()
-    op2 = frame.pop()  # rcvr
+def _equals(op1, op2):
     if op1 is op2:
-        frame.push(trueObject)
+        return trueObject
     else:
-        frame.push(falseObject)
+        return falseObject
 
 
 class SymbolPrimitives(Primitives):
 
     def install_primitives(self):
-        self._install_instance_primitive(Primitive("asString", self._universe,
-                                                   _asString))
-        self._install_instance_primitive(Primitive("=", self._universe, _equals), False)
+        self._install_instance_primitive(UnaryPrimitive("asString", self._universe, _as_string))
+        self._install_instance_primitive(BinaryPrimitive("=", self._universe, _equals), False)

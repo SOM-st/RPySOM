@@ -1,8 +1,8 @@
 from som.primitives.primitives import Primitives
-from som.vmobjects.primitive   import BcPrimitive as Primitive
+from som.vmobjects.primitive   import Primitive
 from som.vm.globals import nilObject, trueObject
 
-from som.vm.universe import std_print, std_println
+from som.vm.universe import std_print, std_println, Universe
 
 from rpython.rlib import rgc, jit
 import time
@@ -10,7 +10,7 @@ import time
 
 def _load(ivkbl, frame, interpreter):
     argument = frame.pop()
-    frame.pop() # not required
+    frame.pop()  # not required
     result = interpreter.get_universe().load_class(argument)
     frame.push(result if result else nilObject)
 
@@ -22,7 +22,7 @@ def _exit(ivkbl, frame, interpreter):
 
 def _global(ivkbl, frame, interpreter):
     argument = frame.pop()
-    frame.pop() # not required
+    frame.pop()  # not required
     result = interpreter.get_universe().get_global(argument)
     frame.push(result if result else nilObject)
 
@@ -43,19 +43,19 @@ def _print_newline(ivkbl, frame, interpreter):
 
 
 def _time(ivkbl, frame, interpreter):
-    frame.pop() # ignore
+    frame.pop()  # ignore
     since_start = time.time() - interpreter.get_universe().start_time
-    frame.push(interpreter.get_universe().new_integer(int(since_start * 1000)))
+    frame.push(Universe.new_integer(int(since_start * 1000)))
 
 
 def _ticks(ivkbl, frame, interpreter):
-    frame.pop() # ignore
+    frame.pop()  # ignore
     since_start = time.time() - interpreter.get_universe().start_time
-    frame.push(interpreter.get_universe().new_integer(int(since_start * 1000000)))
+    frame.push(Universe.new_integer(int(since_start * 1000000)))
 
 
 @jit.dont_look_inside
-def _fullGC(ivkbl, frame, interpreter):
+def _full_gc(ivkbl, frame, interpreter):
     frame.pop()
     rgc.collect()
     frame.push(trueObject)
@@ -72,4 +72,4 @@ class SystemPrimitives(Primitives):
         self._install_instance_primitive(Primitive("printNewline", self._universe, _print_newline))
         self._install_instance_primitive(Primitive("time", self._universe, _time))
         self._install_instance_primitive(Primitive("ticks", self._universe, _ticks))
-        self._install_instance_primitive(Primitive("fullGC", self._universe, _fullGC))
+        self._install_instance_primitive(Primitive("fullGC", self._universe, _full_gc))

@@ -2,132 +2,106 @@ from rpython.rlib.rfloat import round_double, INFINITY
 from math import cos, sin
 
 from som.primitives.primitives import Primitives
-from som.vmobjects.primitive   import BcPrimitive as Primitive
+from som.vm.universe import Universe
+from som.vmobjects.double import Double
+from som.vmobjects.primitive import UnaryPrimitive, BinaryPrimitive
 
 import math
 
 
-def _as_string(ivkbl, frame, interpreter):
-    rcvr = frame.pop()
-    frame.push(rcvr.prim_as_string(interpreter.get_universe()))
+def _as_string(rcvr):
+    return rcvr.prim_as_string()
 
 
-def _sqrt(ivkbl, frame, interpreter):
-    rcvr = frame.pop()
-    frame.push(interpreter.get_universe().new_double(math.sqrt(
-        rcvr.get_embedded_double())))
+def _sqrt(rcvr):
+    return Double(math.sqrt(rcvr.get_embedded_double()))
 
 
-def _plus(ivkbl, frame, interpreter):
-    right = frame.pop()
-    rcvr  = frame.pop()
-    frame.push(rcvr.prim_add(right, interpreter.get_universe()))
+def _plus(left, right):
+    return left.prim_add(right)
 
 
-def _minus(ivkbl, frame, interpreter):
-    right = frame.pop()
-    rcvr  = frame.pop()
-    frame.push(rcvr.prim_subtract(right, interpreter.get_universe()))
+def _minus(left, right):
+    return left.prim_subtract(right)
 
 
-def _mult(ivkbl, frame, interpreter):
-    right = frame.pop()
-    rcvr  = frame.pop()
-    frame.push(rcvr.prim_multiply(right, interpreter.get_universe()))
+def _mult(left, right):
+    return left.prim_multiply(right)
 
 
-def _double_div(ivkbl, frame, interpreter):
-    right = frame.pop()
-    rcvr  = frame.pop()
-    frame.push(rcvr.prim_double_div(right, interpreter.get_universe()))
+def _double_div(left, right):
+    return left.prim_double_div(right)
 
 
-def _mod(ivkbl, frame, interpreter):
-    right = frame.pop()
-    rcvr  = frame.pop()
-    frame.push(rcvr.prim_modulo(right, interpreter.get_universe()))
+def _mod(left, right):
+    return left.prim_modulo(right)
 
 
-def _equals(ivkbl, frame, interpreter):
-    right = frame.pop()
-    rcvr  = frame.pop()
-    frame.push(rcvr.prim_equals(right))
+def _equals(left, right):
+    return left.prim_equals(right)
 
 
-def _unequals(ivkbl, frame, interpreter):
-    right = frame.pop()
-    rcvr  = frame.pop()
-    frame.push(rcvr.prim_unequals(right))
+def _unequals(left, right):
+    return left.prim_unequals(right)
 
 
-def _less_than(ivkbl, frame, interpreter):
-    right = frame.pop()
-    rcvr  = frame.pop()
-    frame.push(rcvr.prim_less_than(right, interpreter.get_universe()))
+def _less_than(left, right):
+    return left.prim_less_than(right)
 
 
-def _less_than_or_equal(ivkbl, frame, interpreter):
-    right = frame.pop()
-    rcvr = frame.pop()
-    frame.push(rcvr.prim_less_than_or_equal(right, ivkbl.get_universe()))
+def _less_than_or_equal(left, right):
+    return left.prim_less_than_or_equal(right)
 
 
-def _greater_than(ivkbl, frame, interpreter):
-    right = frame.pop()
-    rcvr = frame.pop()
-    frame.push(rcvr.prim_greater_than(right, ivkbl.get_universe()))
+def _greater_than(left, right):
+    return left.prim_greater_than(right)
 
 
-def _round(ivkbl, frame, interpreter):
-    rcvr = frame.pop()
+def _round(rcvr):
     int_value = int(round_double(rcvr.get_embedded_double(), 0))
-    frame.push(interpreter.get_universe().new_integer(int_value))
+    return Universe.new_integer(int_value)
 
 
-def _as_integer(ivkbl, frame, interpreter):
-    rcvr = frame.pop()
+def _as_integer(rcvr):
     int_value = int(rcvr.get_embedded_double())
-    frame.push(interpreter.get_universe().new_integer(int_value))
+    return Universe.new_integer(int_value)
 
 
-def _cos(ivkbl, frame, interpreter):
-    rcvr = frame.pop()
+def _cos(rcvr):
     result = cos(rcvr.get_embedded_double())
-    frame.push(interpreter.get_universe().new_double(result))
+    return Double(result)
 
 
-def _sin(ivkbl, frame, interpreter):
-    rcvr = frame.pop()
+def _sin(rcvr):
     result = sin(rcvr.get_embedded_double())
-    frame.push(interpreter.get_universe().new_double(result))
+    return Double(result)
 
 
-def _infinity(ivkbl, frame, interpreter):
-    frame.pop()  # self not required
-    frame.push(interpreter.get_universe().new_double(INFINITY))
+def _infinity(rcvr):
+    return Double(INFINITY)
 
 
 class DoublePrimitives(Primitives):
 
     def install_primitives(self):
-        self._install_instance_primitive(Primitive("asString", self._universe, _as_string))
-        self._install_instance_primitive(Primitive("round",    self._universe, _round))
-        self._install_instance_primitive(Primitive("asInteger", self._universe, _as_integer))
+        self._install_instance_primitive(UnaryPrimitive("asString", self._universe, _as_string))
+        self._install_instance_primitive(UnaryPrimitive("round",    self._universe, _round))
+        self._install_instance_primitive(UnaryPrimitive("asInteger", self._universe, _as_integer))
 
-        self._install_instance_primitive(Primitive("sqrt", self._universe, _sqrt))
-        self._install_instance_primitive(Primitive("+",  self._universe, _plus))
-        self._install_instance_primitive(Primitive("-",  self._universe, _minus))
-        self._install_instance_primitive(Primitive("*",  self._universe, _mult))
-        self._install_instance_primitive(Primitive("//", self._universe, _double_div))
-        self._install_instance_primitive(Primitive("%",  self._universe, _mod))
-        self._install_instance_primitive(Primitive("=",  self._universe, _equals))
-        self._install_instance_primitive(Primitive("<",  self._universe, _less_than))
-        self._install_instance_primitive(Primitive("<=", self._universe, _less_than_or_equal))
-        self._install_instance_primitive(Primitive(">",  self._universe, _greater_than))
-        self._install_instance_primitive(Primitive("<>", self._universe, _unequals))
-        self._install_instance_primitive(Primitive("~=", self._universe, _unequals))
+        self._install_instance_primitive(UnaryPrimitive("sqrt", self._universe, _sqrt))
+        self._install_instance_primitive(BinaryPrimitive("+",  self._universe, _plus))
+        self._install_instance_primitive(BinaryPrimitive("-",  self._universe, _minus))
+        self._install_instance_primitive(BinaryPrimitive("*",  self._universe, _mult))
+        self._install_instance_primitive(BinaryPrimitive("//", self._universe, _double_div))
+        self._install_instance_primitive(BinaryPrimitive("%",  self._universe, _mod))
+        self._install_instance_primitive(BinaryPrimitive("=",  self._universe, _equals))
+        self._install_instance_primitive(BinaryPrimitive("<",  self._universe, _less_than))
+        self._install_instance_primitive(BinaryPrimitive("<=", self._universe, _less_than_or_equal))
+        self._install_instance_primitive(BinaryPrimitive(">",  self._universe, _greater_than))
+        self._install_instance_primitive(BinaryPrimitive("<>", self._universe, _unequals))
+        self._install_instance_primitive(BinaryPrimitive("~=", self._universe, _unequals))
 
-        self._install_instance_primitive(Primitive("sin", self._universe, _sin))
-        self._install_instance_primitive(Primitive("cos", self._universe, _cos))
+        self._install_instance_primitive(UnaryPrimitive("sin", self._universe, _sin))
+        self._install_instance_primitive(UnaryPrimitive("cos", self._universe, _cos))
 
-        self._install_class_primitive(Primitive("PositiveInfinity", self._universe, _infinity))
+        self._install_class_primitive(UnaryPrimitive("PositiveInfinity", self._universe, _infinity))

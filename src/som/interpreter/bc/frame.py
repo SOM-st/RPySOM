@@ -77,6 +77,11 @@ class Frame(object):
         assert 0 <= stack_pointer < len(self._stack)
         return self._stack[stack_pointer]
 
+    def set_top(self, value):
+        stack_pointer = jit.promote(self._stack_pointer)
+        assert 0 <= stack_pointer < len(self._stack)
+        self._stack[stack_pointer] = value
+
     def pop(self):
         """ Pop an object from the expression stack and return it """
         stack_pointer = jit.promote(self._stack_pointer)

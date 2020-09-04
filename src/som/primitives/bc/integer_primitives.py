@@ -7,7 +7,7 @@ from rpython.rlib import jit
 from som.primitives.primitives import Primitives
 from som.vm.universe import Universe
 from som.vmobjects.integer     import Integer
-from som.vmobjects.primitive   import BcPrimitive as Primitive
+from som.vmobjects.primitive   import Primitive, UnaryPrimitive, BinaryPrimitive
 from som.vmobjects.double      import Double
 from som.vmobjects.string      import String
 from som.vmobjects.block_bc import block_evaluate, BcBlock
@@ -16,142 +16,102 @@ from som.vm.globals import nilObject, falseObject
 import math
 
 
-def _asString(ivkbl, frame, interpreter):
-    rcvr = frame.pop()
-    frame.push(rcvr.prim_as_string(interpreter.get_universe()))
+def _as_string(rcvr):
+    return rcvr.prim_as_string()
 
 
-def _as32BitSignedValue(ivkbl, frame, interpreter):
-    rcvr = frame.pop()
+def _as_32bit_signed_value(rcvr):
     val = rffi.cast(lltype.Signed, rffi.cast(rffi.INT, rcvr.get_embedded_integer()))
-    frame.push(Universe.new_integer(val))
+    return Universe.new_integer(val)
 
 
-def _as32BitUnsignedValue(ivkbl, frame, interpreter):
-    rcvr = frame.pop()
+def _as_32bit_unsigned_value(rcvr):
     val = rffi.cast(lltype.Signed, rffi.cast(rffi.UINT, rcvr.get_embedded_integer()))
-    frame.push(Universe.new_integer(val))
+    return Universe.new_integer(val)
 
 
-def _sqrt(ivkbl, frame, interpreter):
-    rcvr = frame.pop()
+def _sqrt(rcvr):
     res = math.sqrt(rcvr.get_embedded_integer())
     if res == float(int(res)):
-        frame.push(Universe.new_integer(int(res)))
+        return Integer(int(res))
     else:
-        frame.push(Universe.new_double(res))
+        return Double(res)
 
 
-def _atRandom(ivkbl, frame, interpreter):
+def _at_random(ivkbl, frame, interpreter):
     rcvr = frame.pop()
-    frame.push(Universe.new_integer(int(
+    frame.push(Integer(int(
         rcvr.get_embedded_integer() * interpreter.get_universe().random.random())))
 
 
-def _plus(ivkbl, frame, interpreter):
-    right_obj = frame.pop()
-    left      = frame.pop()
-    frame.push(left.prim_add(right_obj, interpreter.get_universe()))
+def _plus(left, right):
+    return left.prim_add(right)
 
 
-def _minus(ivkbl, frame, interpreter):
-    right_obj = frame.pop()
-    left      = frame.pop()
-    frame.push(left.prim_subtract(right_obj, interpreter.get_universe()))
+def _minus(left, right):
+    return left.prim_subtract(right)
 
 
-def _mult(ivkbl, frame, interpreter):
-    right_obj = frame.pop()
-    left      = frame.pop()
-    frame.push(left.prim_multiply(right_obj, interpreter.get_universe()))
+def _mult(left, right):
+    return left.prim_multiply(right)
 
 
-def _doubleDiv(ivkbl, frame, interpreter):
-    right_obj = frame.pop()
-    left      = frame.pop()
-    frame.push(left.prim_double_div(right_obj, interpreter.get_universe()))
+def _double_div(left, right):
+    return left.prim_double_div(right)
 
 
-def _intDiv(ivkbl, frame, interpreter):
-    right_obj = frame.pop()
-    left      = frame.pop()
-    frame.push(left.prim_int_div(right_obj, interpreter.get_universe()))
+def _int_div(left, right):
+    return left.prim_int_div(right)
 
 
-def _mod(ivkbl, frame, interpreter):
-    right_obj = frame.pop()
-    left      = frame.pop()
-    frame.push(left.prim_modulo(right_obj, interpreter.get_universe()))
+def _mod(left, right):
+    return left.prim_modulo(right)
 
 
-def _remainder(ivkbl, frame, interpreter):
-    right_obj = frame.pop()
-    left      = frame.pop()
-    frame.push(left.prim_remainder(right_obj, interpreter.get_universe()))
+def _remainder(left, right):
+    return left.prim_remainder(right)
 
 
-def _and(ivkbl, frame, interpreter):
-    right_obj = frame.pop()
-    left      = frame.pop()
-    frame.push(left.prim_and(right_obj, interpreter.get_universe()))
+def _and(left, right):
+    return left.prim_and(right)
 
 
-def _equalsequals(ivkbl, frame, interpreter):
-    right_obj = frame.pop()
-    left = frame.pop()
-
-    if isinstance(right_obj, Integer):
-        frame.push(left.prim_equals(right_obj))
+def _equals_equals(left, right):
+    if isinstance(right, Integer):
+        return left.prim_equals(right)
     else:
-        frame.push(falseObject)
+        return falseObject
 
 
-def _equals(ivkbl, frame, interpreter):
-    right_obj = frame.pop()
-    left      = frame.pop()
-    frame.push(left.prim_equals(right_obj))
+def _equals(left, right):
+    return left.prim_equals(right)
 
 
-def _unequals(ivkbl, frame, interpreter):
-    right_obj = frame.pop()
-    left      = frame.pop()
-    frame.push(left.prim_unequals(right_obj))
+def _unequals(left, right):
+    return left.prim_unequals(right)
 
 
-def _lessThan(ivkbl, frame, interpreter):
-    right_obj = frame.pop()
-    left      = frame.pop()
-    frame.push(left.prim_less_than(right_obj, interpreter.get_universe()))
+def _less_than(left, right):
+    return left.prim_less_than(right)
 
 
-def _lessThanOrEqual(ivkbl, frame, interpreter):
-    right_obj = frame.pop()
-    left      = frame.pop()
-    frame.push(left.prim_less_than_or_equal(right_obj, interpreter.get_universe()))
+def _less_than_or_equal(left, right):
+    return left.prim_less_than_or_equal(right)
 
 
-def _greaterThan(ivkbl, frame, interpreter):
-    right_obj = frame.pop()
-    left      = frame.pop()
-    frame.push(left.prim_greater_than(right_obj, interpreter.get_universe()))
+def _greater_than(left, right):
+    return left.prim_greater_than(right)
 
 
-def _fromString(ivkbl, frame, interpreter):
-    param = frame.pop()
-    frame.pop()
-
+def _from_string(rcvr, param):
     if not isinstance(param, String):
-        frame.push(nilObject)
-        return
+        return nilObject
 
     int_value = int(param.get_embedded_string())
-    frame.push(Universe.new_integer(int_value))
+    return Universe.new_integer(int_value)
 
 
-def _leftShift(ivkbl, frame, interpreter):
-    right = frame.pop()
-    left  = frame.pop()
-    universe  = interpreter.get_universe()
+def _left_shift(left, right):
     assert isinstance(right, Integer)
 
     l = left.get_embedded_integer()
@@ -160,48 +120,38 @@ def _leftShift(ivkbl, frame, interpreter):
         if not (l == 0 or 0 <= r < LONG_BIT):
             raise OverflowError
         result = ovfcheck(l << r)
-        frame.push(Universe.new_integer(result))
+        return Universe.new_integer(result)
     except OverflowError:
-        frame.push(Universe.new_biginteger(
-            rbigint.fromint(l).lshift(r)))
+        return Universe.new_biginteger(
+            rbigint.fromint(l).lshift(r))
 
 
-def _unsignedRightShift(ivkbl, frame, interpreter):
-    right_obj = frame.pop()
-    left      = frame.pop()
-
-    assert isinstance(right_obj, Integer)
+def _unsigned_right_shift(left, right):
+    assert isinstance(right, Integer)
 
     l = left.get_embedded_integer()
-    r = right_obj.get_embedded_integer()
+    r = right.get_embedded_integer()
 
     u_l = rffi.cast(lltype.Unsigned, l)
     u_r = rffi.cast(lltype.Unsigned, r)
 
-    frame.push(Universe.new_integer(rffi.cast(lltype.Signed, u_l >> u_r)))
+    return Universe.new_integer(rffi.cast(lltype.Signed, u_l >> u_r))
 
 
-def _bitXor(ivkbl, frame, interpreter):
-    right = frame.pop()
-    left  = frame.pop()
-
+def _bit_xor(left, right):
     result = left.get_embedded_integer() ^ right.get_embedded_integer()
-
-    frame.push(Universe.new_integer(result))
-
-
-def _abs(ivkbl, frame, interpreter):
-    left  = frame.pop()
-    frame.push(Universe.new_integer(abs(left.get_embedded_integer())))
+    return Universe.new_integer(result)
 
 
-def _max(ivkbl, frame, interpreter):
-    right = frame.pop()
-    left  = frame.pop()
+def _abs(rcvr):
+    return Universe.new_integer(abs(rcvr.get_embedded_integer()))
+
+
+def _max(left, right):
     assert isinstance(left, Integer)
     assert isinstance(right, Integer)
-    frame.push(Universe.new_integer(
-        max(left.get_embedded_integer(), right.get_embedded_integer())))
+    return Universe.new_integer(
+        max(left.get_embedded_integer(), right.get_embedded_integer()))
 
 
 def get_printable_location(interpreter, block_method):
@@ -226,7 +176,7 @@ jitdriver_double = jit.JitDriver(
     get_printable_location=get_printable_location)
 
 
-def _toDoInt(i, by_increment, top, frame, context, interpreter, block_method):
+def _to_do_int(i, by_increment, top, frame, context, interpreter, block_method):
     assert isinstance(i, int)
     assert isinstance(top, int)
     while i <= top:
@@ -241,7 +191,7 @@ def _toDoInt(i, by_increment, top, frame, context, interpreter, block_method):
         i += by_increment
 
 
-def _toDoDouble(i, by_increment, top, frame, context, interpreter, block_method):
+def _to_do_double(i, by_increment, top, frame, context, interpreter, block_method):
     assert isinstance(i, int)
     assert isinstance(top, float)
     while i <= top:
@@ -256,7 +206,7 @@ def _toDoDouble(i, by_increment, top, frame, context, interpreter, block_method)
         i += by_increment
 
 
-def _toDo(ivkbl, frame, interpreter):
+def _to_do(ivkbl, frame, interpreter):
     block = frame.pop()
     limit = frame.pop()
     self  = frame.pop()  # we do leave it on there
@@ -266,11 +216,11 @@ def _toDo(ivkbl, frame, interpreter):
 
     i = self.get_embedded_integer()
     if isinstance(limit, Double):
-        _toDoDouble(i, 1, limit.get_embedded_double(), frame, context, interpreter,
-                    block_method)
+        _to_do_double(i, 1, limit.get_embedded_double(), frame, context, interpreter,
+                      block_method)
     else:
-        _toDoInt(i, 1, limit.get_embedded_integer(), frame, context, interpreter,
-                 block_method)
+        _to_do_int(i, 1, limit.get_embedded_integer(), frame, context, interpreter,
+                   block_method)
 
     frame.push(self)
 
@@ -286,11 +236,11 @@ def _to_by_do(ivkbl, frame, interpreter):
 
     i = self.get_embedded_integer()
     if isinstance(limit, Double):
-        _toDoDouble(i, by_increment.get_embedded_integer(), limit.get_embedded_double(), frame, context, interpreter,
-                    block_method)
+        _to_do_double(i, by_increment.get_embedded_integer(), limit.get_embedded_double(), frame, context, interpreter,
+                      block_method)
     else:
-        _toDoInt(i, by_increment.get_embedded_integer(), limit.get_embedded_integer(), frame, context, interpreter,
-                 block_method)
+        _to_do_int(i, by_increment.get_embedded_integer(), limit.get_embedded_integer(), frame, context, interpreter,
+                   block_method)
 
     frame.push(self)
 
@@ -298,40 +248,40 @@ def _to_by_do(ivkbl, frame, interpreter):
 class IntegerPrimitives(Primitives):
 
     def install_primitives(self):
-        self._install_instance_primitive(Primitive("==", self._universe, _equalsequals))
+        self._install_instance_primitive(BinaryPrimitive("==", self._universe, _equals_equals))
 
-        self._install_instance_primitive(Primitive("asString", self._universe, _asString))
-        self._install_instance_primitive(Primitive("sqrt",     self._universe, _sqrt))
-        self._install_instance_primitive(Primitive("atRandom", self._universe, _atRandom))
+        self._install_instance_primitive(UnaryPrimitive("asString", self._universe, _as_string))
+        self._install_instance_primitive(UnaryPrimitive("sqrt",     self._universe, _sqrt))
+        self._install_instance_primitive(Primitive("atRandom", self._universe, _at_random))
 
-        self._install_instance_primitive(Primitive("+",  self._universe, _plus))
-        self._install_instance_primitive(Primitive("-",  self._universe, _minus))
+        self._install_instance_primitive(BinaryPrimitive("+",  self._universe, _plus))
+        self._install_instance_primitive(BinaryPrimitive("-",  self._universe, _minus))
 
-        self._install_instance_primitive(Primitive("*",  self._universe, _mult))
-        self._install_instance_primitive(Primitive("//", self._universe, _doubleDiv))
-        self._install_instance_primitive(Primitive("/",  self._universe, _intDiv))
-        self._install_instance_primitive(Primitive("%",  self._universe, _mod))
-        self._install_instance_primitive(Primitive("rem:", self._universe, _remainder))
-        self._install_instance_primitive(Primitive("&",  self._universe, _and))
-        self._install_instance_primitive(Primitive("=",  self._universe, _equals))
-        self._install_instance_primitive(Primitive("<",  self._universe, _lessThan))
-        self._install_instance_primitive(Primitive("<=", self._universe, _lessThanOrEqual))
-        self._install_instance_primitive(Primitive(">",  self._universe, _greaterThan))
-        self._install_instance_primitive(Primitive("<>", self._universe, _unequals))
-        self._install_instance_primitive(Primitive("~=", self._universe, _unequals))
+        self._install_instance_primitive(BinaryPrimitive("*",  self._universe, _mult))
+        self._install_instance_primitive(BinaryPrimitive("//", self._universe, _double_div))
+        self._install_instance_primitive(BinaryPrimitive("/",  self._universe, _int_div))
+        self._install_instance_primitive(BinaryPrimitive("%",  self._universe, _mod))
+        self._install_instance_primitive(BinaryPrimitive("rem:", self._universe, _remainder))
+        self._install_instance_primitive(BinaryPrimitive("&",  self._universe, _and))
+        self._install_instance_primitive(BinaryPrimitive("=",  self._universe, _equals))
+        self._install_instance_primitive(BinaryPrimitive("<",  self._universe, _less_than))
+        self._install_instance_primitive(BinaryPrimitive("<=", self._universe, _less_than_or_equal))
+        self._install_instance_primitive(BinaryPrimitive(">",  self._universe, _greater_than))
+        self._install_instance_primitive(BinaryPrimitive("<>", self._universe, _unequals))
+        self._install_instance_primitive(BinaryPrimitive("~=", self._universe, _unequals))
 
-        self._install_instance_primitive(Primitive("<<", self._universe, _leftShift))
-        self._install_instance_primitive(Primitive("bitXor:", self._universe, _bitXor))
-        self._install_instance_primitive(Primitive(">>>", self._universe, _unsignedRightShift))
+        self._install_instance_primitive(BinaryPrimitive("<<", self._universe, _left_shift))
+        self._install_instance_primitive(BinaryPrimitive("bitXor:", self._universe, _bit_xor))
+        self._install_instance_primitive(BinaryPrimitive(">>>", self._universe, _unsigned_right_shift))
         self._install_instance_primitive(
-            Primitive("as32BitSignedValue", self._universe, _as32BitSignedValue))
+            UnaryPrimitive("as32BitSignedValue", self._universe, _as_32bit_signed_value))
         self._install_instance_primitive(
-            Primitive("as32BitUnsignedValue", self._universe, _as32BitUnsignedValue))
+            UnaryPrimitive("as32BitUnsignedValue", self._universe, _as_32bit_unsigned_value))
 
-        self._install_instance_primitive(Primitive("max:", self._universe, _max))
-        self._install_instance_primitive(Primitive("abs", self._universe, _abs))
+        self._install_instance_primitive(BinaryPrimitive("max:", self._universe, _max))
+        self._install_instance_primitive(UnaryPrimitive("abs", self._universe, _abs))
 
-        self._install_instance_primitive(Primitive("to:do:", self._universe, _toDo))
+        self._install_instance_primitive(Primitive("to:do:", self._universe, _to_do))
         self._install_instance_primitive(Primitive("to:by:do:", self._universe, _to_by_do))
 
-        self._install_class_primitive(Primitive("fromString:", self._universe, _fromString))
+        self._install_class_primitive(BinaryPrimitive("fromString:", self._universe, _from_string))
