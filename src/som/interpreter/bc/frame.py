@@ -102,8 +102,7 @@ class Frame(object):
         self._stack_pointer = self._get_initial_stack_pointer()
 
     def _get_initial_stack_pointer(self):
-        return (self.get_number_of_arguments() +
-                self.get_method().get_number_of_locals() - 1)
+        return self.get_method().get_initial_stack_pointer()
 
     def get_stack_element(self, index):
         # Get the stack element with the given index

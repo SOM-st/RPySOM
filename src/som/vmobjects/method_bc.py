@@ -17,6 +17,9 @@ class BcMethod(AbstractObject):
                           "_number_of_locals",
                           "_maximum_number_of_stack_elements",
                           "_signature",
+                          "_number_of_arguments",
+                          "_initial_stack_pointer",
+                          "_number_of_frame_elements",
                           "_holder"]
 
     def __init__(self, literals, num_locals, max_stack_elements,
@@ -33,6 +36,10 @@ class BcMethod(AbstractObject):
         self._number_of_locals       = num_locals
         self._maximum_number_of_stack_elements = max_stack_elements
         self._signature = signature
+        self._number_of_arguments = signature.get_number_of_signature_arguments()
+        self._initial_stack_pointer = self._number_of_arguments + num_locals - 1
+        self._number_of_frame_elements = (self._number_of_arguments + num_locals
+                                          + max_stack_elements + 2)
 
         self._holder = None
 
@@ -44,6 +51,9 @@ class BcMethod(AbstractObject):
     def is_invokable():
         """ We use this method to identify methods and primitives """
         return True
+
+    def get_initial_stack_pointer(self):
+        return self._initial_stack_pointer
 
     def get_number_of_locals(self):
         # Get the number of locals
@@ -78,8 +88,7 @@ class BcMethod(AbstractObject):
         return self._literals[self.get_bytecode(bytecode_index + 1)]
 
     def get_number_of_arguments(self):
-        # Get the number of arguments of this method
-        return self.get_signature().get_number_of_signature_arguments()
+        return self._number_of_arguments
 
     def get_number_of_bytecodes(self):
         # Get the number of bytecodes in this method
@@ -90,9 +99,7 @@ class BcMethod(AbstractObject):
         # Compute the maximum number of stack locations (including arguments,
         # locals and extra buffer to support doesNotUnderstand) and set the
         # number of indexable fields accordingly
-        return (self.get_number_of_arguments() +
-                self._number_of_locals +
-                self._maximum_number_of_stack_elements + 2)
+        return self._number_of_frame_elements
 
     @jit.elidable_promote('all')
     def get_bytecode(self, index):
