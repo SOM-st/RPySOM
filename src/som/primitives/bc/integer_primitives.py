@@ -226,7 +226,7 @@ jitdriver_double = jit.JitDriver(
     get_printable_location=get_printable_location)
 
 
-def _toDoInt(i, top, frame, context, interpreter, block_method):
+def _toDoInt(i, by_increment, top, frame, context, interpreter, block_method):
     assert isinstance(i, int)
     assert isinstance(top, int)
     while i <= top:
@@ -238,10 +238,10 @@ def _toDoInt(i, top, frame, context, interpreter, block_method):
         frame.push(Universe.new_integer(i))
         block_evaluate(b, interpreter, frame)
         frame.pop()
-        i += 1
+        i += by_increment
 
 
-def _toDoDouble(i, top, frame, context, interpreter, block_method):
+def _toDoDouble(i, by_increment, top, frame, context, interpreter, block_method):
     assert isinstance(i, int)
     assert isinstance(top, float)
     while i <= top:
@@ -253,7 +253,7 @@ def _toDoDouble(i, top, frame, context, interpreter, block_method):
         frame.push(Universe.new_integer(i))
         block_evaluate(b, interpreter, frame)
         frame.pop()
-        i += 1
+        i += by_increment
 
 
 def _toDo(ivkbl, frame, interpreter):
@@ -266,10 +266,30 @@ def _toDo(ivkbl, frame, interpreter):
 
     i = self.get_embedded_integer()
     if isinstance(limit, Double):
-        _toDoDouble(i, limit.get_embedded_double(), frame, context, interpreter,
+        _toDoDouble(i, 1, limit.get_embedded_double(), frame, context, interpreter,
                     block_method)
     else:
-        _toDoInt(i, limit.get_embedded_integer(), frame, context, interpreter,
+        _toDoInt(i, 1, limit.get_embedded_integer(), frame, context, interpreter,
+                 block_method)
+
+    frame.push(self)
+
+
+def _to_by_do(ivkbl, frame, interpreter):
+    block = frame.pop()
+    by_increment = frame.pop()
+    limit = frame.pop()
+    self  = frame.pop()  # we do leave it on there
+
+    block_method = block.get_method()
+    context      = block.get_context()
+
+    i = self.get_embedded_integer()
+    if isinstance(limit, Double):
+        _toDoDouble(i, by_increment.get_embedded_integer(), limit.get_embedded_double(), frame, context, interpreter,
+                    block_method)
+    else:
+        _toDoInt(i, by_increment.get_embedded_integer(), limit.get_embedded_integer(), frame, context, interpreter,
                  block_method)
 
     frame.push(self)
@@ -312,5 +332,6 @@ class IntegerPrimitives(Primitives):
         self._install_instance_primitive(Primitive("abs", self._universe, _abs))
 
         self._install_instance_primitive(Primitive("to:do:", self._universe, _toDo))
+        self._install_instance_primitive(Primitive("to:by:do:", self._universe, _to_by_do))
 
         self._install_class_primitive(Primitive("fromString:", self._universe, _fromString))
