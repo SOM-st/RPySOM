@@ -3,18 +3,21 @@ from som.vm.globals import falseObject, trueObject
 from som.vmobjects.primitive import AstPrimitive as Primitive
 
 
-def _not(ivkbl, rcvr, args):
-    return falseObject
+def _not(ivkbl, frame, interpreter):
+    frame.pop()
+    frame.push(falseObject)
 
 
-def _or(ivkbl, rcvr, args):
-    return trueObject
+def _or(ivkbl, frame, interpreter):
+    frame.pop()
+    frame.push(trueObject)
 
 
-def _and(ivkbl, rcvr, args):
-    block = args[0]
+def _and(ivkbl, frame, interpreter):
+    block = frame.pop()
+    frame.pop()
     block_method = block.get_method()
-    return block_method.invoke(block, [])
+    block_method.invoke(frame, interpreter)
 
 
 class TruePrimitives(Primitives):

@@ -6,7 +6,7 @@ from ..interp_type import is_ast_interpreter, is_bytecode_interpreter
    time with RPython.
 """
 
-EXPECTED_NUMBER_OF_PRIMITIVE_FILES = 13 if is_ast_interpreter() else 11
+EXPECTED_NUMBER_OF_PRIMITIVE_FILES = 13
 
 
 class PrimitivesNotFound(Exception): pass
@@ -31,11 +31,10 @@ def _setup_primitives():
     if is_ast_interpreter():
         base_package += 'ast.'
         interp_dir = 'ast'
-    elif is_bytecode_interpreter():
+    else:
+        assert is_bytecode_interpreter()
         base_package += 'bc.'
         interp_dir = 'bc'
-    else:
-        interp_dir = ''
 
     directory = py.path.local(__file__).dirpath(interp_dir)
     files = filter(lambda ent: ent.basename.endswith("_primitives.py"),

@@ -259,10 +259,12 @@ class Universe(object):
         # Setup the true and false objects
         trueClassName    = self.symbol_for("True")
         trueClass        = self.load_class(trueClassName)
+        trueClass.load_primitives(False)
         trueObject.set_class(trueClass)
 
         falseClassName   = self.symbol_for("False")
         falseClass       = self.load_class(falseClassName)
+        falseClass.load_primitives(False)
         falseObject.set_class(falseClass)
 
         # Load the system class and create an instance of it
