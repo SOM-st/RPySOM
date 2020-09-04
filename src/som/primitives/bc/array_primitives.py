@@ -11,7 +11,7 @@ def _at(ivkbl, frame, interpreter):
 def _at_put(ivkbl, frame, interpreter):
     value = frame.pop()
     index = frame.pop()
-    rcvr  = frame.get_stack_element(0)
+    rcvr  = frame.top()
     rcvr.set_indexable_field(index.get_embedded_integer() - 1, value)
 
 

@@ -37,7 +37,7 @@ def _objectSize(ivkbl, frame, interpreter):
 
 def _perform(ivkbl, frame, interpreter):
     selector = frame.pop()
-    rcvr     = frame.get_stack_element(0)
+    rcvr     = frame.top()
 
     invokable = rcvr.get_class(interpreter.get_universe()).lookup_invokable(selector)
     invokable.invoke(frame, interpreter)
@@ -46,7 +46,7 @@ def _perform(ivkbl, frame, interpreter):
 def _performInSuperclass(ivkbl, frame, interpreter):
     clazz    = frame.pop()
     selector = frame.pop()
-    rcvr     = frame.get_stack_element(0)
+    # rcvr     = frame.top()
 
     invokable = clazz.lookup_invokable(selector)
     invokable.invoke(frame, interpreter)
@@ -55,7 +55,7 @@ def _performInSuperclass(ivkbl, frame, interpreter):
 def _performWithArguments(ivkbl, frame, interpreter):
     args     = frame.pop()
     selector = frame.pop()
-    rcvr     = frame.get_stack_element(0)
+    rcvr     = frame.top()
 
     for i in range(0, args.get_number_of_indexable_fields()):
         frame.push(args.get_indexable_field(i))
@@ -74,7 +74,7 @@ def _instVarAt(ivkbl, frame, interpreter):
 def _instVarAtPut(ivkbl, frame, interpreter):
     val  = frame.pop()
     idx  = frame.pop()
-    rcvr = frame.get_stack_element(0)
+    rcvr = frame.top()
 
     rcvr.set_field(idx.get_embedded_integer() - 1, val)
 

@@ -26,7 +26,7 @@ class Interpreter(object):
     @staticmethod
     def _do_dup(frame):
         # Handle the dup bytecode
-        frame.push(frame.get_stack_element(0))
+        frame.push(frame.top())
 
     @staticmethod
     def _do_push_local(bytecode_index, frame, method):
@@ -199,7 +199,7 @@ class Interpreter(object):
 
             # Handle the current bytecode
             if   bytecode == Bytecodes.halt:                            # BC: 0
-                return frame.get_stack_element(0)
+                return frame.top()
             elif bytecode == Bytecodes.dup:                             # BC: 1
                 self._do_dup(frame)
             elif bytecode == Bytecodes.push_local:                      # BC: 2

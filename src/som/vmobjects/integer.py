@@ -28,19 +28,19 @@ class Integer(AbstractObject):
         return universe.integerClass
 
     def quick_add(self, from_method, frame, interpreter, bytecode_index):
-        right = frame.get_stack_element(0)
+        right = frame.top()
         frame.pop()
         frame.pop()
         frame.push(self.prim_add(right, interpreter.get_universe()))
 
     def quick_multiply(self, from_method, frame, interpreter, bytecode_index):
-        right = frame.get_stack_element(0)
+        right = frame.top()
         frame.pop()
         frame.pop()
         frame.push(self.prim_multiply(right, interpreter.get_universe()))
 
     def quick_subtract(self, from_method, frame, interpreter, bytecode_index):
-        right = frame.get_stack_element(0)
+        right = frame.top()
         frame.pop()
         frame.pop()
         frame.push(self.prim_subtract(right, interpreter.get_universe()))
