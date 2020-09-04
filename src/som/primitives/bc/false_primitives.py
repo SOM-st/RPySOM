@@ -17,6 +17,7 @@ def _or(ivkbl, frame, interpreter):
 
 def _and(ivkbl, frame, interpreter):
     frame.pop()
+    frame.pop()
     frame.push(falseObject)
 
 

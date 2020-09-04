@@ -10,6 +10,7 @@ def _not(ivkbl, frame, interpreter):
 
 def _or(ivkbl, frame, interpreter):
     frame.pop()
+    frame.pop()
     frame.push(trueObject)
 
 
