@@ -30,7 +30,7 @@ def _objectSize(ivkbl, rcvr, args):
     elif isinstance(rcvr, Array):
         size = rcvr.get_number_of_indexable_fields()
 
-    return ivkbl.get_universe().new_integer(size)
+    return Integer(size)
 
 
 def _perform(ivkbl, rcvr, args):

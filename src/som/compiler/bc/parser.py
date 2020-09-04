@@ -2,6 +2,7 @@ from .bytecode_generator import BytecodeGenerator
 from .method_generation_context import MethodGenerationContext
 from ..parser import ParserBase
 from ..symbol import Symbol
+from ...vmobjects.integer import Integer
 from ...vmobjects.string import String
 
 
@@ -303,7 +304,7 @@ class Parser(ParserBase):
         i = 1
 
         while self._sym != Symbol.EndTerm:
-            push_idx = self._universe.new_integer(i)
+            push_idx = Integer(i)
             mgenc.add_literal_if_absent(push_idx)
             self._bc_gen.emitPUSHCONSTANT(mgenc, push_idx)
 
@@ -312,7 +313,7 @@ class Parser(ParserBase):
             i += 1
 
         mgenc.update_literal(
-            array_size_placeholder, array_size_literal_idx, self._universe.new_integer(i - 1))
+            array_size_placeholder, array_size_literal_idx, Integer(i - 1))
         self._expect(Symbol.EndTerm)
 
     def _nested_block(self, mgenc):
