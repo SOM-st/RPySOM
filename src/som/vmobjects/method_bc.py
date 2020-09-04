@@ -87,6 +87,7 @@ class BcMethod(AbstractObject):
         # Get the constant associated to a given bytecode index
         return self._literals[self.get_bytecode(bytecode_index + 1)]
 
+    @jit.elidable_promote('all')
     def get_number_of_arguments(self):
         return self._number_of_arguments
 
