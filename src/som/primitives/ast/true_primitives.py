@@ -22,6 +22,6 @@ class TruePrimitives(Primitives):
     def install_primitives(self):
         self._install_instance_primitive(Primitive("not", self._universe, _not))
         self._install_instance_primitive(Primitive("or:", self._universe, _or))
-        # self._install_instance_primitive(Primitive("and:", self._universe, _and))
         self._install_instance_primitive(Primitive("||", self._universe, _or))
+        # self._install_instance_primitive(Primitive("and:", self._universe, _and))
         # self._install_instance_primitive(Primitive("&&", self._universe, _and))
