@@ -22,7 +22,7 @@ class Frame(object):
         self._method         = method
         self._context        = context
         self._stack          = [nilObject] * num_elements
-        self._stack_pointer  = self._get_initial_stack_pointer()
+        self._stack_pointer  = method.get_initial_stack_pointer()
         self._previous_frame = previous_frame
 
     def get_previous_frame(self):
@@ -66,12 +66,6 @@ class Frame(object):
         # Return the outer context
         return frame
 
-    def get_method(self):
-        return self._method
-
-    def get_number_of_arguments(self):
-        return self._method.get_number_of_arguments()
-
     def top(self):
         stack_pointer = jit.promote(self._stack_pointer)
         assert 0 <= stack_pointer < len(self._stack)
@@ -104,10 +98,7 @@ class Frame(object):
         """ Set the stack pointer to its initial value thereby clearing
             the stack """
         # arguments are stored in front of local variables
-        self._stack_pointer = self._get_initial_stack_pointer()
-
-    def _get_initial_stack_pointer(self):
-        return self.get_method().get_initial_stack_pointer()
+        self._stack_pointer = self._method.get_initial_stack_pointer()
 
     def get_stack_element(self, index):
         # Get the stack element with the given index
@@ -152,11 +143,11 @@ class Frame(object):
         context._stack[index] = value
 
     @jit.unroll_safe
-    def copy_arguments_from(self, frame):
+    def copy_arguments_from(self, frame, num_args):
         # copy arguments from frame:
         # - arguments are at the top of the stack of frame.
         # - copy them into the argument area of the current frame
-        num_args = self.get_method().get_number_of_arguments()
+        assert num_args == self._method.get_number_of_arguments()
         for i in range(0, num_args):
             self._stack[i] = frame.get_stack_element(num_args - 1 - i)
 
@@ -171,9 +162,9 @@ class Frame(object):
     def print_stack_trace(self, bytecode_index):
         # Print a stack trace starting in this frame
         from som.vm.universe import std_print, std_println
-        std_print(self.get_method().get_holder().get_name().get_embedded_string())
+        std_print(self._method.get_holder().get_name().get_embedded_string())
         std_println(" %d @ %s" % (bytecode_index,
-                             self.get_method().get_signature().get_embedded_string()))
+                             self._method.get_signature().get_embedded_string()))
 
         if self.has_previous_frame():
             self.get_previous_frame().print_stack_trace(0)

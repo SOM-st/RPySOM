@@ -116,7 +116,7 @@ class BcMethod(AbstractObject):
     def invoke(self, frame, interpreter):
         # Allocate and push a new frame on the interpreter stack
         new_frame = create_frame(frame, self, None)
-        new_frame.copy_arguments_from(frame)
+        new_frame.copy_arguments_from(frame, self._number_of_arguments)
 
         try:
             result = interpreter.interpret(self, new_frame)
