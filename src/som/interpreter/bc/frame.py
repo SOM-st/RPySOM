@@ -122,10 +122,10 @@ class Frame(object):
         self._stack[self._stack_pointer - index] = value
 
     def _get_local(self, index):
-        return self._stack[self.get_number_of_arguments() + index]
+        return self._stack[index]
 
     def _set_local(self, index, value):
-        self._stack[self.get_number_of_arguments() + index] = value
+        self._stack[index] = value
 
     def get_local(self, index, context_level):
         # Get the local with the given index in the given context
