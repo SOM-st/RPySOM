@@ -298,22 +298,7 @@ class Parser(ParserBase):
                              Symbol.NONE, self)
 
     def _nested_block(self, mgenc):
-        self._expect(Symbol.NewBlock)
-
-        mgenc.add_argument_if_absent("$blockSelf")
-
-        if self._sym == Symbol.Colon:
-            self._block_pattern(mgenc)
-
-        # generate Block signature
-        block_sig = ("$blockMethod@" +
-                     str(self._lexer.get_current_line_number()) +
-                     "@" + str(self._lexer.get_current_column()))
-        arg_size = mgenc.get_number_of_arguments()
-        block_sig += ":" * (arg_size - 1)
-
-        mgenc.set_signature(self._universe.symbol_for(block_sig))
-
+        self._nested_block_signature(mgenc)
         expressions = self._block_contents(mgenc)
         self._expect(Symbol.EndBlock)
         return expressions

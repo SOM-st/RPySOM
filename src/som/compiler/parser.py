@@ -311,3 +311,20 @@ class ParserBase(object):
         if not self._lexer.get_peek_done():
             self._peek_for_next_symbol_from_lexer()
 
+    def _create_block_signature(self, mgenc):
+        block_sig = ("$blockMethod@" +
+                     str(self._lexer.get_current_line_number()) +
+                     "@" + str(self._lexer.get_current_column()))
+        arg_size = mgenc.get_number_of_arguments()
+        block_sig += ":" * (arg_size - 1)
+        return self._universe.symbol_for(block_sig)
+
+    def _nested_block_signature(self, mgenc):
+        self._expect(Symbol.NewBlock)
+
+        mgenc.add_argument_if_absent("$blockSelf")
+
+        if self._sym == Symbol.Colon:
+            self._block_pattern(mgenc)
+
+        mgenc.set_signature(self._create_block_signature(mgenc))
