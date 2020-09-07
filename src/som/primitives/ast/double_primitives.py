@@ -1,4 +1,4 @@
-from ..double_primitives import DoublePrimitives as Base
+from ..double_primitives import DoublePrimitives as _Base
 
 
-DoublePrimitives = Base
+DoublePrimitives = _Base

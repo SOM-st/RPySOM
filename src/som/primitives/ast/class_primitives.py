@@ -1,4 +1,4 @@
-from ..class_primitives import ClassPrimitives as Base
+from ..class_primitives import ClassPrimitives as _Base
 
 
-ClassPrimitives = Base
+ClassPrimitives = _Base

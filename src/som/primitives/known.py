@@ -16,10 +16,14 @@ def _is_primitives_class(e):
     "NOT_RPYTHON"
     from som.primitives.primitives import Primitives
     import inspect
-    _, entry = e
+    entry_name, entry = e
+
     return (inspect.isclass(entry) and
             issubclass(entry, Primitives)
-            and entry is not Primitives)
+            and entry is not Primitives
+            and entry is not None
+            and entry_name is not None
+            and not entry_name.startswith("_"))
 
 
 def _setup_primitives():
@@ -37,13 +41,12 @@ def _setup_primitives():
         interp_dir = 'bc'
 
     directory = py.path.local(__file__).dirpath(interp_dir)
-    files = filter(lambda ent: ent.basename.endswith("_primitives.py"),
-                   directory.listdir())
-    mods = map(lambda mod: import_module(base_package + mod.purebasename),
-               files)
-    all_members = map(lambda module: inspect.getmembers(module),
-                      mods)
+
+    files = filter(lambda ent: ent.basename.endswith("_primitives.py"), directory.listdir())
+    mods = map(lambda mod: import_module(base_package + mod.purebasename), files)
+    all_members = map(lambda module: inspect.getmembers(module), mods)
     all_members = reduce(lambda all, each: all + each, all_members)
+
     all_prims = filter(_is_primitives_class, all_members)
     prim_pairs = map(lambda (name, cls):
                      (name[:name.find("Primitives")], cls), all_prims)

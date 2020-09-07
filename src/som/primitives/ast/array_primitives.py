@@ -1,5 +1,5 @@
 from rpython.rlib import jit
-from som.primitives.array_primitives import ArrayPrimitivesBase
+from som.primitives.array_primitives import ArrayPrimitivesBase as _Base
 from som.vmobjects.block_ast import AstBlock
 from som.vmobjects.method_ast import AstMethod
 from som.vmobjects.primitive   import Primitive
@@ -75,10 +75,10 @@ def _put_all(ivkbl, rcvr, args):
     return rcvr
 
 
-class ArrayPrimitives(ArrayPrimitivesBase):
+class ArrayPrimitives(_Base):
 
     def install_primitives(self):
-        ArrayPrimitivesBase.install_primitives(self)
+        _Base.install_primitives(self)
         self._install_instance_primitive(Primitive("at:put:", self._universe, _at_put))
         self._install_instance_primitive(Primitive("copy",    self._universe, _copy))
 
