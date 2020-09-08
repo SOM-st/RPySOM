@@ -1,24 +1,8 @@
-from rpython.rlib.objectmodel import compute_identity_hash
-
-from som.primitives.primitives import Primitives
-from som.vm.universe import Universe
+from som.primitives.object_primitives import ObjectPrimitivesBase as _Base
 
 from som.vmobjects.object    import Object
-from som.vmobjects.primitive import Primitive, UnaryPrimitive, BinaryPrimitive
+from som.vmobjects.primitive import Primitive, UnaryPrimitive
 from som.vmobjects.array     import Array
-from som.vm.globals import trueObject, falseObject
-
-
-def _equals(op1, op2):
-    if op1 is op2:
-        return trueObject
-    else:
-        return falseObject
-
-
-def _hashcode(rcvr):
-    from som.vmobjects.integer import Integer
-    return Integer(compute_identity_hash(rcvr))
 
 
 def _object_size(rcvr):
@@ -62,10 +46,6 @@ def _perform_with_arguments(ivkbl, frame, interpreter):
     invokable.invoke(frame, interpreter)
 
 
-def _inst_var_at(rcvr, idx):
-    return rcvr.get_field(idx.get_embedded_integer() - 1)
-
-
 def _inst_var_at_put(ivkbl, frame, interpreter):
     val  = frame.pop()
     idx  = frame.pop()
@@ -84,18 +64,17 @@ def _class(ivkbl, frame, interpreter):
     frame.push(rcvr.get_class(interpreter.get_universe()))
 
 
-class ObjectPrimitives(Primitives):
+class ObjectPrimitives(_Base):
 
     def install_primitives(self):
-        self._install_instance_primitive(BinaryPrimitive("==", self._universe, _equals))
-        self._install_instance_primitive(UnaryPrimitive("hashcode", self._universe, _hashcode))
+        _Base.install_primitives(self)
         self._install_instance_primitive(UnaryPrimitive("objectSize", self._universe, _object_size))
         self._install_instance_primitive(Primitive("perform:", self._universe, _perform))
         self._install_instance_primitive(
             Primitive("perform:inSuperclass:", self._universe, _perform_in_superclass))
         self._install_instance_primitive(
             Primitive("perform:withArguments:", self._universe, _perform_with_arguments))
-        self._install_instance_primitive(BinaryPrimitive("instVarAt:", self._universe, _inst_var_at))
+
         self._install_instance_primitive(
             Primitive("instVarAt:put:", self._universe, _inst_var_at_put))
 

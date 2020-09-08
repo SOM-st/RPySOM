@@ -1,24 +1,9 @@
-from rpython.rlib.objectmodel import compute_identity_hash
-
-from som.primitives.primitives import Primitives
-from som.vm.globals import falseObject, trueObject
+from som.primitives.object_primitives import ObjectPrimitivesBase as _Base
 from som.vmobjects.integer import Integer
 
 from som.vmobjects.object_with_layout    import ObjectWithLayout
 from som.vmobjects.primitive import Primitive, TernaryPrimitive, BinaryPrimitive, UnaryPrimitive
 from som.vmobjects.array_strategy import Array
-
-
-def _equals(op1, op2):
-    if op1 is op2:
-        return trueObject
-    else:
-        return falseObject
-
-
-def _hashcode(rcvr):
-    return Integer(
-        compute_identity_hash(rcvr))
 
 
 def _object_size(rcvr):
@@ -52,10 +37,6 @@ def _perform_with_arguments(ivkbl, rcvr, arguments):
     return invokable.invoke(rcvr, arg_arr)
 
 
-def _inst_var_at(rcvr, idx):
-    return rcvr.get_field(idx.get_embedded_integer() - 1)
-
-
 def _inst_var_at_put(rcvr, idx, val):
     rcvr.set_field(idx.get_embedded_integer() - 1, val)
     return val
@@ -76,19 +57,16 @@ def _class(ivkbl, rcvr, args):
     return rcvr.get_class(ivkbl.get_universe())
 
 
-class ObjectPrimitives(Primitives):
+class ObjectPrimitives(_Base):
 
     def install_primitives(self):
-        self._install_instance_primitive(BinaryPrimitive("==", self._universe, _equals))
-        self._install_instance_primitive(UnaryPrimitive("hashcode", self._universe, _hashcode))
+        _Base.install_primitives(self)
         self._install_instance_primitive(UnaryPrimitive("objectSize", self._universe, _object_size))
         self._install_instance_primitive(Primitive("perform:", self._universe, _perform))
         self._install_instance_primitive(
             TernaryPrimitive("perform:inSuperclass:", self._universe, _perform_in_superclass))
         self._install_instance_primitive(
             Primitive("perform:withArguments:", self._universe, _perform_with_arguments))
-        self._install_instance_primitive(
-            BinaryPrimitive("instVarAt:", self._universe, _inst_var_at))
         self._install_instance_primitive(
             TernaryPrimitive("instVarAt:put:", self._universe, _inst_var_at_put))
         self._install_instance_primitive(
