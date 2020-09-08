@@ -58,10 +58,6 @@ def _do(ivkbl, rcvr, args):
         i += 1
 
 
-def _copy(ivkbl, rcvr, args):
-    return rcvr.copy()
-
-
 def _put_all(ivkbl, rcvr, args):
     arg = args[0]
     if isinstance(arg, AstBlock):
@@ -80,7 +76,6 @@ class ArrayPrimitives(_Base):
     def install_primitives(self):
         _Base.install_primitives(self)
         self._install_instance_primitive(Primitive("at:put:", self._universe, _at_put))
-        self._install_instance_primitive(Primitive("copy",    self._universe, _copy))
 
         self._install_instance_primitive(Primitive("doIndexes:", self._universe, _do_indexes))
         self._install_instance_primitive(Primitive("do:",        self._universe, _do))

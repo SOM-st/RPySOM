@@ -45,6 +45,9 @@ class Array(AbstractObject):
         # Get the number of indexable fields in this array
         return len(self._indexable_fields)
 
+    def copy(self):
+        return Array(0, self._indexable_fields[:])
+
     def copy_and_extend_with(self, value):
         result = Array(self.get_number_of_indexable_fields() + 1)
 
