@@ -2,6 +2,7 @@ from .abstract_object import AbstractObject
 from som.vm.globals import nilObject
 
 from rpython.rlib.debug import make_sure_not_resized
+from .integer import Integer
 
 
 class Array(AbstractObject):
@@ -17,6 +18,11 @@ class Array(AbstractObject):
     @staticmethod
     def from_objects(values):
         return Array.from_values(values)
+
+    @staticmethod
+    def from_integers(values):
+        integers = [Integer(val) for val in values]
+        return Array(0, integers)
 
     _immutable_fields_ = ["_indexable_fields"]
 
