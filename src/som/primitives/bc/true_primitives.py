@@ -1,14 +1,4 @@
-from som.primitives.primitives import Primitives
-from som.vm.globals import falseObject, trueObject
-from som.vmobjects.primitive import UnaryPrimitive, BinaryPrimitive
-
-
-def _not(_rcvr):
-    return falseObject
-
-
-def _or(_rcvr, _arg):
-    return trueObject
+from som.primitives.true_primitives import TruePrimitivesBase as _Base
 
 
 def _and(ivkbl, frame, interpreter):
@@ -18,11 +8,7 @@ def _and(ivkbl, frame, interpreter):
     block_method.invoke(frame, interpreter)
 
 
-class TruePrimitives(Primitives):
+TruePrimitives = _Base
 
-    def install_primitives(self):
-        self._install_instance_primitive(UnaryPrimitive("not", self._universe, _not))
-        self._install_instance_primitive(BinaryPrimitive("or:", self._universe, _or))
-        self._install_instance_primitive(BinaryPrimitive("||", self._universe, _or))
-        # self._install_instance_primitive(Primitive("and:", self._universe, _and))
-        # self._install_instance_primitive(Primitive("&&", self._universe, _and))
+# self._install_instance_primitive(Primitive("and:", self._universe, _and))
+# self._install_instance_primitive(Primitive("&&", self._universe, _and))
