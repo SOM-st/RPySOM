@@ -546,6 +546,11 @@ def create_universe(avoid_exit = False):
 _current = create_universe()
 
 
+def set_current(universe):
+    global _current
+    _current = universe
+
+
 def error_print(msg):
     os.write(2, msg or "")
 

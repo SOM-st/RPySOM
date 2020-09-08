@@ -5,7 +5,7 @@ from parameterized import parameterized
 
 from som.compiler.parse_error import ParseError
 
-from som.vm.universe       import create_universe
+from som.vm.universe import create_universe, set_current
 
 from som.vmobjects.clazz   import Class
 from som.vmobjects.double  import Double
@@ -96,6 +96,7 @@ class BasicInterpreterTest(unittest.TestCase):
     def test_basic_interpreter_behavior(self, test_class, test_selector,
                                         expected_result, result_type):
         u = create_universe()
+        set_current(u)
         u.setup_classpath("Smalltalk:TestSuite/BasicInterpreterTests")
 
         try:
