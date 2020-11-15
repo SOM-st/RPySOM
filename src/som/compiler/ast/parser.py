@@ -223,28 +223,31 @@ class Parser(ParserBase):
 
     def _literal(self):
         coord = self._lexer.get_source_coordinate()
+        val = self._get_object_for_current_literal()
 
+        lit = LiteralNode(val)
+        self._assign_source(lit, coord)
+        return lit
+
+    def _get_object_for_current_literal(self):
         if self._sym == Symbol.Pound:
             self._peek_for_next_symbol_from_lexer_if_necessary()
 
             if self._next_sym == Symbol.NewTerm:
-                val = self._literal_array()
+                return self._literal_array()
             else:
-                val = self._literal_symbol()
+                return self._literal_symbol()
         elif self._sym == Symbol.STString:
-            val = self._literal_string()
+            return self._literal_string()
         else:
             is_negative = self._is_negative_number()
             if self._sym == Symbol.Integer:
-                val = self._literal_integer(is_negative)
+                return self._literal_integer(is_negative)
             elif self._sym != Symbol.Double:
                 raise ParseError("Unexpected symbol. Expected %(expected)s, "
                                  "but found %(found)s", self._sym, self)
             else:
-                val = self._literal_double(is_negative)
-        lit = LiteralNode(val)
-        self._assign_source(lit, coord)
-        return lit
+                return self._literal_double(is_negative)
 
     def _is_negative_number(self):
         is_negative = False
@@ -279,23 +282,6 @@ class Parser(ParserBase):
             literals.append(self._get_object_for_current_literal())
         self._expect(Symbol.EndTerm)
         return self._universe.new_array_from_list(literals[:])
-
-    def _get_object_for_current_literal(self):
-        if self._sym == Symbol.Pound:
-            self._peek_for_next_symbol_from_lexer_if_necessary()
-            if self._next_sym == Symbol.NewTerm:
-                return self._literal_array()
-            else:
-                return self._literal_symbol()
-        elif self._sym == Symbol.STString:
-            return self._literal_string()
-        elif self._sym == Symbol.Integer:
-            return self._literal_integer(self._is_negative_number())
-        elif self._sym == Symbol.Double:
-            return self._literal_double(self._is_negative_number())
-        else:
-            raise ParseError("Could not parse literal array value",
-                             Symbol.NONE, self)
 
     def _nested_block(self, mgenc):
         self._nested_block_signature(mgenc)
