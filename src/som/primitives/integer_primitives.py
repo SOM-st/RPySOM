@@ -21,8 +21,7 @@ def _as_string(rcvr):
 
 
 def _as_32_bit_signed_value(rcvr):
-    val = rffi.cast(lltype.Signed, rffi.cast(rffi.INT, rcvr.get_embedded_integer()))
-    return Integer(val)
+    return rcvr.prim_as_32_bit_signed_value()
 
 
 def _as_32_bit_unsigned_value(rcvr):
@@ -143,14 +142,11 @@ def _bit_xor(left, right):
 
 
 def _abs(rcvr):
-    return Integer(abs(rcvr.get_embedded_integer()))
+    return rcvr.prim_abs()
 
 
 def _max(left, right):
-    assert isinstance(left, Integer)
-    assert isinstance(right, Integer)
-    return Integer(
-        max(left.get_embedded_integer(), right.get_embedded_integer()))
+    return left.prim_max(right)
 
 
 def _to(rcvr, arg):
