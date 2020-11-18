@@ -26,7 +26,7 @@ class Interpreter(object):
     @staticmethod
     def _do_dup(frame):
         # Handle the dup bytecode
-        frame.push(frame.get_stack_element(0))
+        frame.push(frame.top())
 
     @staticmethod
     def _do_push_local(bytecode_index, frame, method):
@@ -183,11 +183,10 @@ class Interpreter(object):
             # since methods cannot contain loops (all loops are done via primitives)
             # profiling only needs to be done on pc = 0
             if current_bc_idx == 0:
-                jitdriver.can_enter_jit(bytecode_index=current_bc_idx, interp=self, method=method, frame=frame)
-            jitdriver.jit_merge_point(bytecode_index=current_bc_idx,
-                          interp=self,
-                          method=method,
-                          frame=frame)
+                jitdriver.can_enter_jit(
+                    bytecode_index=current_bc_idx, interp=self, method=method, frame=frame)
+            jitdriver.jit_merge_point(
+                bytecode_index=current_bc_idx, interp=self, method=method, frame=frame)
 
             bytecode = method.get_bytecode(current_bc_idx)
 
@@ -199,7 +198,7 @@ class Interpreter(object):
 
             # Handle the current bytecode
             if   bytecode == Bytecodes.halt:                            # BC: 0
-                return frame.get_stack_element(0)
+                return frame.top()
             elif bytecode == Bytecodes.dup:                             # BC: 1
                 self._do_dup(frame)
             elif bytecode == Bytecodes.push_local:                      # BC: 2
@@ -321,6 +320,7 @@ def get_printable_location(bytecode_index, interp, method):
 
 
 jitdriver = jit.JitDriver(
+    name='Interpreter',
     greens=['bytecode_index', 'interp', 'method'],
     reds=['frame'],
     # virtualizables=['frame'],
@@ -334,7 +334,6 @@ jitdriver = jit.JitDriver(
     # inlined once (which means that things like Integer>>< will be inlined
     # into a while loop again, when enabling this drivers).
     should_unroll_one_iteration = lambda bytecode_index, inter, method: True)
-        #reds=['tape'])
 
 
 def jitpolicy(driver):

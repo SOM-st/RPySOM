@@ -4,8 +4,6 @@ from rpython.rtyper.lltypesystem import lltype
 from rpython.rtyper.lltypesystem.lloperation import llop
 
 from som.vmobjects.abstract_object import AbstractObject
-from som.vmobjects.biginteger import BigInteger
-from som.vmobjects.double import Double
 from som.vm.globals import trueObject, falseObject
 
 
@@ -28,33 +26,36 @@ class Integer(AbstractObject):
         return universe.integerClass
 
     def quick_add(self, from_method, frame, interpreter, bytecode_index):
-        right = frame.get_stack_element(0)
+        right = frame.top()
         frame.pop()
         frame.pop()
-        frame.push(self.prim_add(right, interpreter.get_universe()))
+        frame.push(self.prim_add(right))
 
     def quick_multiply(self, from_method, frame, interpreter, bytecode_index):
-        right = frame.get_stack_element(0)
+        right = frame.top()
         frame.pop()
         frame.pop()
-        frame.push(self.prim_multiply(right, interpreter.get_universe()))
+        frame.push(self.prim_multiply(right))
 
     def quick_subtract(self, from_method, frame, interpreter, bytecode_index):
-        right = frame.get_stack_element(0)
+        right = frame.top()
         frame.pop()
         frame.pop()
-        frame.push(self.prim_subtract(right, interpreter.get_universe()))
+        frame.push(self.prim_subtract(right))
 
-    def _to_double(self, universe):
-        return universe.new_double(float(self._embedded_integer))
+    def _to_double(self):
+        from .double import Double
+        return Double(float(self._embedded_integer))
 
-    def prim_less_than(self, right, universe):
+    def prim_less_than(self, right):
+        from .double import Double
+        from .biginteger import BigInteger
         # Check second parameter type:
         if isinstance(right, BigInteger):
             result = rbigint.fromint(self._embedded_integer).lt(
                 right.get_embedded_biginteger())
         elif isinstance(right, Double):
-            return self._to_double(universe).prim_less_than(right, universe)
+            return self._to_double().prim_less_than(right)
         else:
             result = self._embedded_integer < right.get_embedded_integer()
 
@@ -63,13 +64,15 @@ class Integer(AbstractObject):
         else:
             return falseObject
 
-    def prim_less_than_or_equal(self, right, universe):
+    def prim_less_than_or_equal(self, right):
+        from .double import Double
+        from .biginteger import BigInteger
         # Check second parameter type:
         if isinstance(right, BigInteger):
             result = rbigint.fromint(self._embedded_integer).le(
                 right.get_embedded_biginteger())
         elif isinstance(right, Double):
-            return self._to_double(universe).prim_less_than_or_equal(right, universe)
+            return self._to_double().prim_less_than_or_equal(right)
         else:
             result = self._embedded_integer <= right.get_embedded_integer()
 
@@ -78,13 +81,15 @@ class Integer(AbstractObject):
         else:
             return falseObject
 
-    def prim_greater_than(self, right, universe):
+    def prim_greater_than(self, right):
+        from .double import Double
+        from .biginteger import BigInteger
         # Check second parameter type:
         if isinstance(right, BigInteger):
             result = rbigint.fromint(self._embedded_integer).gt(
                 right.get_embedded_biginteger())
         elif isinstance(right, Double):
-            return self._to_double(universe).prim_greater_than(right, universe)
+            return self._to_double().prim_greater_than(right)
         else:
             result = self._embedded_integer > right.get_embedded_integer()
 
@@ -93,121 +98,147 @@ class Integer(AbstractObject):
         else:
             return falseObject
 
-    def prim_as_string(self, universe):
-        return universe.new_string(str(self._embedded_integer))
+    def prim_as_string(self):
+        from .string import String
+        return String(str(self._embedded_integer))
 
-    def prim_add(self, right, universe):
+    def prim_add(self, right):
+        from .double import Double
+        from .biginteger import BigInteger
         if isinstance(right, BigInteger):
-            return universe.new_biginteger(
+            return BigInteger(
                 right.get_embedded_biginteger().add(
                     rbigint.fromint(self._embedded_integer)))
         elif isinstance(right, Double):
-            return self._to_double(universe).prim_add(right, universe)
+            return self._to_double().prim_add(right)
         else:
             l = self._embedded_integer
             r = right.get_embedded_integer()
             try:
                 result = ovfcheck(l + r)
-                return universe.new_integer(result)
+                return Integer(result)
             except OverflowError:
-                return universe.new_biginteger(
+                return BigInteger(
                     rbigint.fromint(l).add(rbigint.fromint(r)))
 
-    def prim_subtract(self, right, universe):
+    def prim_subtract(self, right):
+        from .double import Double
+        from .biginteger import BigInteger
         if isinstance(right, BigInteger):
             r = rbigint.fromint(self._embedded_integer).sub(
                 right.get_embedded_biginteger())
-            return universe.new_biginteger(r)
+            return BigInteger(r)
         elif isinstance(right, Double):
-            return self._to_double(universe).prim_subtract(right, universe)
+            return self._to_double().prim_subtract(right)
         else:
             l = self._embedded_integer
             r = right.get_embedded_integer()
             try:
                 result = ovfcheck(l - r)
-                return universe.new_integer(result)
+                return Integer(result)
             except OverflowError:
-                return universe.new_biginteger(
+                return BigInteger(
                     rbigint.fromint(l).sub(rbigint.fromint(r)))
 
-    def prim_multiply(self, right, universe):
+    def prim_multiply(self, right):
+        from .double import Double
+        from .biginteger import BigInteger
+
         if isinstance(right, BigInteger):
             r = rbigint.fromint(self._embedded_integer).mul(
                 right.get_embedded_biginteger())
-            return universe.new_biginteger(r)
+            return BigInteger(r)
         elif isinstance(right, Double):
-            return self._to_double(universe).prim_multiply(right, universe)
+            return self._to_double().prim_multiply(right)
         else:
             l = self._embedded_integer
             r = right.get_embedded_integer()
             try:
                 result = ovfcheck(l * r)
-                return universe.new_integer(result)
+                return Integer(result)
             except OverflowError:
-                return universe.new_biginteger(
+                return BigInteger(
                     rbigint.fromint(l).mul(rbigint.fromint(r)))
 
-    def prim_double_div(self, right, universe):
+    def prim_double_div(self, right):
+        from .double import Double
+        from .biginteger import BigInteger
+
         if isinstance(right, BigInteger):
             r = rbigint.fromint(self._embedded_integer).truediv(
                 right.get_embedded_biginteger())
-            return universe.new_double(r)
+            return Double(r)
         elif isinstance(right, Double):
-            return self._to_double(universe).prim_double_div(right, universe)
+            return self._to_double().prim_double_div(right)
         else:
             l = self._embedded_integer
             r = right.get_embedded_integer()
-            return universe.new_double(l / float(r))
+            return Double(l / float(r))
 
-    def prim_int_div(self, right, universe):
+    def prim_int_div(self, right):
+        from .double import Double
+        from .biginteger import BigInteger
+
         if isinstance(right, BigInteger):
             r = rbigint.fromint(self._embedded_integer).floordiv(
                 right.get_embedded_biginteger())
-            return universe.new_biginteger(r)
+            return BigInteger(r)
         elif isinstance(right, Double):
-            return self._to_double(universe).prim_int_div(right, universe)
+            return self._to_double().prim_int_div(right)
         else:
             l = self._embedded_integer
             r = right.get_embedded_integer()
-            return universe.new_integer(l / r)
+            return Integer(l / r)
 
-    def prim_modulo(self, right, universe):
+    def prim_modulo(self, right):
+        from .double import Double
+        from .biginteger import BigInteger
+
         if isinstance(right, BigInteger):
             r = rbigint.fromint(self._embedded_integer).mod(
                 right.get_embedded_biginteger())
-            return universe.new_biginteger(r)
+            return BigInteger(r)
         elif isinstance(right, Double):
-            return self._to_double(universe).prim_modulo(right, universe)
+            return self._to_double().prim_modulo(right)
         else:
             l = self._embedded_integer
             r = right.get_embedded_integer()
-            return universe.new_integer(l % r)
+            return Integer(l % r)
 
-    def prim_remainder(self, right, universe):
+    def prim_remainder(self, right):
+        from .double import Double
+        from .biginteger import BigInteger
+
         if isinstance(right, BigInteger):
             d, r = _divrem(rbigint.fromint(self._embedded_integer),
                            right.get_embedded_biginteger())
-            return universe.new_biginteger(r)
+            return BigInteger(r)
         elif isinstance(right, Double):
-            return self._to_double(universe).prim_remainder(right, universe)
+            return self._to_double().prim_remainder(right)
         else:
             l = self._embedded_integer
             r = right.get_embedded_integer()
-            return universe.new_integer(llop.int_mod(lltype.Signed, l, r))
+            return Integer(llop.int_mod(lltype.Signed, l, r))
 
-    def prim_and(self, right, universe):
+    def prim_and(self, right):
+        from .double import Double
+        from .biginteger import BigInteger
+
         if isinstance(right, BigInteger):
             r = rbigint.fromint(self._embedded_integer).and_(
                 right.get_embedded_biginteger())
-            return universe.new_biginteger(r)
+            return BigInteger(r)
         elif isinstance(right, Double):
-            return self._to_double(universe).prim_and(right, universe)
+            return self._to_double().prim_and(right)
         else:
             l = self._embedded_integer
             r = right.get_embedded_integer()
-            return universe.new_integer(l & r)
+            return Integer(l & r)
 
     def prim_equals(self, right):
+        from .double import Double
+        from .biginteger import BigInteger
+
         if isinstance(right, BigInteger):
             result = rbigint.fromint(self._embedded_integer).eq(
                 right.get_embedded_biginteger())
@@ -226,6 +257,9 @@ class Integer(AbstractObject):
             return falseObject
 
     def prim_unequals(self, right):
+        from .double import Double
+        from .biginteger import BigInteger
+
         if isinstance(right, BigInteger):
             result = rbigint.fromint(self._embedded_integer).ne(
                 right.get_embedded_biginteger())

@@ -1,37 +1,16 @@
-from som.vmobjects.primitive   import BcPrimitive as Primitive
-from som.primitives.primitives import Primitives
-
-
-def _at(ivkbl, frame, interpreter):
-    i    = frame.pop()
-    rcvr = frame.pop()
-    frame.push(rcvr.get_indexable_field(i.get_embedded_integer() - 1))
+from som.primitives.array_primitives import ArrayPrimitivesBase as _Base
+from som.vmobjects.primitive import Primitive
 
 
 def _at_put(ivkbl, frame, interpreter):
     value = frame.pop()
     index = frame.pop()
-    rcvr  = frame.get_stack_element(0)
+    rcvr  = frame.top()
     rcvr.set_indexable_field(index.get_embedded_integer() - 1, value)
 
 
-def _length(ivkbl, frame, interpreter):
-    rcvr = frame.pop()
-    frame.push(interpreter.get_universe().new_integer(rcvr.get_number_of_indexable_fields()))
-
-
-def _new(ivkbl, frame, interpreter):
-    length = frame.pop()
-    frame.pop()  # not required
-    frame.push(interpreter.get_universe().new_array_with_length(
-        length.get_embedded_integer()))
-
-
-class ArrayPrimitives(Primitives):
+class ArrayPrimitives(_Base):
 
     def install_primitives(self):
-        self._install_instance_primitive(Primitive("at:", self._universe, _at))
+        _Base.install_primitives(self)
         self._install_instance_primitive(Primitive("at:put:", self._universe, _at_put))
-        self._install_instance_primitive(Primitive("length", self._universe, _length))
-
-        self._install_class_primitive(Primitive("new:", self._universe, _new))

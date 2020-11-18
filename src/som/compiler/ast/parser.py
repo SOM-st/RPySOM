@@ -12,6 +12,7 @@ from ...interpreter.ast.nodes.return_non_local_node import ReturnNonLocalNode
 from ...interpreter.ast.nodes.sequence_node import SequenceNode
 
 from ..symbol import Symbol
+from ...vmobjects.string import String
 
 
 class Parser(ParserBase):
@@ -268,7 +269,7 @@ class Parser(ParserBase):
 
     def _literal_string(self):
         s = self._string()
-        return self._universe.new_string(s)
+        return String(s)
 
     def _literal_array(self):
         literals = []
@@ -297,22 +298,7 @@ class Parser(ParserBase):
                              Symbol.NONE, self)
 
     def _nested_block(self, mgenc):
-        self._expect(Symbol.NewBlock)
-
-        mgenc.add_argument_if_absent("$blockSelf")
-
-        if self._sym == Symbol.Colon:
-            self._block_pattern(mgenc)
-
-        # generate Block signature
-        block_sig = ("$blockMethod@" +
-                     str(self._lexer.get_current_line_number()) +
-                     "@" + str(self._lexer.get_current_column()))
-        arg_size = mgenc.get_number_of_arguments()
-        block_sig += ":" * (arg_size - 1)
-
-        mgenc.set_signature(self._universe.symbol_for(block_sig))
-
+        self._nested_block_signature(mgenc)
         expressions = self._block_contents(mgenc)
         self._expect(Symbol.EndBlock)
         return expressions

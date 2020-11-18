@@ -8,6 +8,7 @@ from .frame import Frame
 def get_printable_location(invokable):
     return invokable._source_section._identifier
 
+
 jitdriver = jit.JitDriver(
     greens=['self'],
     virtualizables=['frame'],

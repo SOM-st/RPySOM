@@ -7,6 +7,7 @@ from .parse_error import ParseError, ParseErrorSymList
 from .symbol import Symbol
 
 from ..interp_type import is_ast_interpreter
+from ..vmobjects.double import Double
 
 if is_ast_interpreter():
     from .ast.method_generation_context import MethodGenerationContext
@@ -225,16 +226,18 @@ class ParserBase(object):
         return self._literal_decimal(True)
 
     def _literal_integer(self, negate_value):
+        from som.vmobjects.integer import Integer
         try:
             i = string_to_int(self._text)
             if negate_value:
                 i = 0 - i
-            result = self._universe.new_integer(i)
+            result = Integer(i)
         except ParseStringOverflowError:
+            from som.vmobjects.biginteger import BigInteger
             bigint = rbigint.fromstr(self._text)
             if negate_value:
                 bigint.sign = -1
-            result = self._universe.new_biginteger(bigint)
+            result = BigInteger(bigint)
         except ValueError:
             raise ParseError("Could not parse integer. "
                              "Expected a number but got '%s'" % self._text,
@@ -252,7 +255,7 @@ class ParserBase(object):
                              "Expected a number but got '%s'" % self._text,
                              Symbol.NONE, self)
         self._expect(Symbol.Double)
-        return self._universe.new_double(f)
+        return Double(f)
 
     def _selector(self):
         if self._sym == Symbol.OperatorSequence or self._sym_in(self._single_op_syms):
@@ -308,3 +311,20 @@ class ParserBase(object):
         if not self._lexer.get_peek_done():
             self._peek_for_next_symbol_from_lexer()
 
+    def _create_block_signature(self, mgenc):
+        block_sig = ("$blockMethod@" +
+                     str(self._lexer.get_current_line_number()) +
+                     "@" + str(self._lexer.get_current_column()))
+        arg_size = mgenc.get_number_of_arguments()
+        block_sig += ":" * (arg_size - 1)
+        return self._universe.symbol_for(block_sig)
+
+    def _nested_block_signature(self, mgenc):
+        self._expect(Symbol.NewBlock)
+
+        mgenc.add_argument_if_absent("$blockSelf")
+
+        if self._sym == Symbol.Colon:
+            self._block_pattern(mgenc)
+
+        mgenc.set_signature(self._create_block_signature(mgenc))

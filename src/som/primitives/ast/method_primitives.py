@@ -1,18 +1,9 @@
-from som.primitives.primitives import Primitives
+from som.primitives.invokable_primitives import InvokablePrimitivesBase as _Base
 from som.vm.globals import nilObject
-
 from som.vmobjects.abstract_object import AbstractObject
 from som.vmobjects.array_strategy  import Array
 from som.vmobjects.method_ast      import AstMethod
-from som.vmobjects.primitive       import AstPrimitive as Primitive
-
-
-def _holder(ivkbl, rcvr, args):
-    return rcvr.get_holder()
-
-
-def _signature(ivkbl, rcvr, args):
-    return rcvr.get_signature()
+from som.vmobjects.primitive       import Primitive
 
 
 def _invoke_on_with(ivkbl, rcvr, args):
@@ -27,11 +18,8 @@ def _invoke_on_with(ivkbl, rcvr, args):
     return rcvr.invoke(args[0], direct_args)
 
 
-class MethodPrimitives(Primitives):
+class MethodPrimitives(_Base):
     def install_primitives(self):
-        self._install_instance_primitive(Primitive("holder",
-                                                   self._universe, _holder))
-        self._install_instance_primitive(Primitive("signature",
-                                                   self._universe, _signature))
+        _Base.install_primitives(self)
         self._install_instance_primitive(Primitive("invokeOn:with:",
                                                    self._universe, _invoke_on_with))

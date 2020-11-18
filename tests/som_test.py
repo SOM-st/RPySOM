@@ -1,7 +1,7 @@
 import unittest
 import sys
 from parameterized import parameterized
-from som.vm.universe import create_universe
+from som.vm.universe import create_universe, set_current
 
 
 class SomTest(unittest.TestCase):
@@ -36,6 +36,7 @@ class SomTest(unittest.TestCase):
     def test_som_test(self, test_name):
         args = ["-cp", "Smalltalk", "TestSuite/TestHarness.som", test_name]
         u = create_universe(True)
+        set_current(u)
         u.interpret(args)
 
         self.assertEquals(0, u.last_exit_code())

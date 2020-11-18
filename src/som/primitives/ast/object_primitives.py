@@ -1,28 +1,12 @@
-from rpython.rlib.objectmodel import compute_identity_hash
-
-from som.primitives.primitives import Primitives
-from som.vm.globals import falseObject, trueObject
+from som.primitives.object_primitives import ObjectPrimitivesBase as _Base
+from som.vmobjects.integer import Integer
 
 from som.vmobjects.object_with_layout    import ObjectWithLayout
-from som.vmobjects.primitive import AstPrimitive as Primitive
+from som.vmobjects.primitive import Primitive, TernaryPrimitive, BinaryPrimitive, UnaryPrimitive
 from som.vmobjects.array_strategy import Array
 
 
-def _equals(ivkbl, rcvr, args):
-    op1 = args[0]
-    op2 = rcvr
-    if op1 is op2:
-        return trueObject
-    else:
-        return falseObject
-
-
-def _hashcode(ivkbl, rcvr, args):
-    return ivkbl.get_universe().new_integer(
-        compute_identity_hash(rcvr))
-
-
-def _objectSize(ivkbl, rcvr, args):
+def _object_size(rcvr):
     size = 0
 
     if isinstance(rcvr, ObjectWithLayout):
@@ -30,7 +14,7 @@ def _objectSize(ivkbl, rcvr, args):
     elif isinstance(rcvr, Array):
         size = rcvr.get_number_of_indexable_fields()
 
-    return ivkbl.get_universe().new_integer(size)
+    return Integer(size)
 
 
 def _perform(ivkbl, rcvr, args):
@@ -40,15 +24,12 @@ def _perform(ivkbl, rcvr, args):
     return invokable.invoke(rcvr, [])
 
 
-def _performInSuperclass(ivkbl, rcvr, args):
-    clazz    = args[1]
-    selector = args[0]
-
+def _perform_in_superclass(rcvr, selector, clazz):
     invokable = clazz.lookup_invokable(selector)
     return invokable.invoke(rcvr, [])
 
 
-def _performWithArguments(ivkbl, rcvr, arguments):
+def _perform_with_arguments(ivkbl, rcvr, arguments):
     arg_arr  = arguments[1].as_argument_array()
     selector = arguments[0]
 
@@ -56,20 +37,13 @@ def _performWithArguments(ivkbl, rcvr, arguments):
     return invokable.invoke(rcvr, arg_arr)
 
 
-def _instVarAt(ivkbl, rcvr, args):
-    idx  = args[0]
-    return rcvr.get_field(idx.get_embedded_integer() - 1)
-
-
-def _instVarAtPut(ivkbl, rcvr, args):
-    val  = args[1]
-    idx  = args[0]
+def _inst_var_at_put(rcvr, idx, val):
     rcvr.set_field(idx.get_embedded_integer() - 1, val)
     return val
 
 
-def _instVarNamed(ivkbl, rcvr, args):
-    i = rcvr.get_field_index(args[0])
+def _inst_var_named(rcvr, arg):
+    i = rcvr.get_field_index(arg)
     return rcvr.get_field(i)
 
 
@@ -83,18 +57,20 @@ def _class(ivkbl, rcvr, args):
     return rcvr.get_class(ivkbl.get_universe())
 
 
-class ObjectPrimitives(Primitives):
+class ObjectPrimitives(_Base):
 
     def install_primitives(self):
-        self._install_instance_primitive(Primitive("==", self._universe, _equals))
-        self._install_instance_primitive(Primitive("hashcode", self._universe, _hashcode))
-        self._install_instance_primitive(Primitive("objectSize", self._universe, _objectSize))
+        _Base.install_primitives(self)
+        self._install_instance_primitive(UnaryPrimitive("objectSize", self._universe, _object_size))
         self._install_instance_primitive(Primitive("perform:", self._universe, _perform))
-        self._install_instance_primitive(Primitive("perform:inSuperclass:", self._universe, _performInSuperclass))
-        self._install_instance_primitive(Primitive("perform:withArguments:", self._universe, _performWithArguments))
-        self._install_instance_primitive(Primitive("instVarAt:", self._universe, _instVarAt))
-        self._install_instance_primitive(Primitive("instVarAt:put:", self._universe, _instVarAtPut))
-        self._install_instance_primitive(Primitive("instVarNamed:",  self._universe, _instVarNamed))
+        self._install_instance_primitive(
+            TernaryPrimitive("perform:inSuperclass:", self._universe, _perform_in_superclass))
+        self._install_instance_primitive(
+            Primitive("perform:withArguments:", self._universe, _perform_with_arguments))
+        self._install_instance_primitive(
+            TernaryPrimitive("instVarAt:put:", self._universe, _inst_var_at_put))
+        self._install_instance_primitive(
+            BinaryPrimitive("instVarNamed:",  self._universe, _inst_var_named))
 
         self._install_instance_primitive(Primitive("halt",  self._universe, _halt))
         self._install_instance_primitive(Primitive("class", self._universe, _class))

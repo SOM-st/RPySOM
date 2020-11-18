@@ -3,7 +3,7 @@
 PYPY_DIR ?= pypy
 RPYTHON  ?= $(PYPY_DIR)/rpython/bin/rpython
 
-.PHONY: compile som-interp som-jit
+.PHONY: compile som-interp som-jit som-ast-jit som-bc-jit som-bc-interp som-ast-interp
 
 all: compile
 

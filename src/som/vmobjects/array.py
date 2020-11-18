@@ -2,6 +2,7 @@ from .abstract_object import AbstractObject
 from som.vm.globals import nilObject
 
 from rpython.rlib.debug import make_sure_not_resized
+from .integer import Integer
 
 
 class Array(AbstractObject):
@@ -17,6 +18,11 @@ class Array(AbstractObject):
     @staticmethod
     def from_objects(values):
         return Array.from_values(values)
+
+    @staticmethod
+    def from_integers(values):
+        integers = [Integer(val) for val in values]
+        return Array(0, integers)
 
     _immutable_fields_ = ["_indexable_fields"]
 
@@ -44,6 +50,9 @@ class Array(AbstractObject):
     def get_number_of_indexable_fields(self):
         # Get the number of indexable fields in this array
         return len(self._indexable_fields)
+
+    def copy(self):
+        return Array(0, self._indexable_fields[:])
 
     def copy_and_extend_with(self, value):
         result = Array(self.get_number_of_indexable_fields() + 1)
