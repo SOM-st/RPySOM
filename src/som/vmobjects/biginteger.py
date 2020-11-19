@@ -1,4 +1,4 @@
-from rpython.rlib.rbigint import rbigint
+from rpython.rlib.rbigint import rbigint, _divrem
 from .abstract_object import AbstractObject
 from som.vm.globals import trueObject, falseObject
 
@@ -92,6 +92,26 @@ class BigInteger(AbstractObject):
         from .string import String
         return String(self._embedded_biginteger.str())
 
+    def prim_abs(self):
+        return BigInteger(self._embedded_biginteger.abs())
+
+    def prim_as_32_bit_signed_value(self):
+        from .integer import Integer
+        return Integer(self._embedded_biginteger.digit(0))
+
+    def prim_max(self, right):
+        if isinstance(right, BigInteger):
+            if right.get_embedded_biginteger().gt(self._embedded_biginteger):
+                return right
+            return self
+        from .integer import Integer
+        assert isinstance(right, Integer)
+
+        right_big = rbigint.fromint(right.get_embedded_integer())
+        if right_big.gt(self._embedded_biginteger):
+            return right
+        return self
+
     def prim_add(self, right):
         from .double import Double
         if isinstance(right, BigInteger):
@@ -160,6 +180,19 @@ class BigInteger(AbstractObject):
         else:
             r = self._embedded_biginteger.mod(rbigint.fromint(
                 right.get_embedded_integer()))
+        return BigInteger(r)
+
+    def prim_remainder(self, right):
+        from .integer import Integer
+
+        if isinstance(right, BigInteger):
+            right_val = self._embedded_biginteger
+        else:
+            assert isinstance(right, Integer)
+            right_val = rbigint.fromint(right.get_embedded_integer())
+
+        _d, r = _divrem(self._embedded_biginteger,
+                        right_val)
         return BigInteger(r)
 
     def prim_and(self, right):

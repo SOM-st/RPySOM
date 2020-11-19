@@ -1,6 +1,6 @@
 from rpython.rlib.rarithmetic import ovfcheck
 from rpython.rlib.rbigint import rbigint, _divrem
-from rpython.rtyper.lltypesystem import lltype
+from rpython.rtyper.lltypesystem import lltype, rffi
 from rpython.rtyper.lltypesystem.lloperation import llop
 
 from som.vmobjects.abstract_object import AbstractObject
@@ -101,6 +101,25 @@ class Integer(AbstractObject):
     def prim_as_string(self):
         from .string import String
         return String(str(self._embedded_integer))
+
+    def prim_abs(self):
+        return Integer(abs(self._embedded_integer))
+
+    def prim_as_32_bit_signed_value(self):
+        val = rffi.cast(lltype.Signed, rffi.cast(rffi.INT, self._embedded_integer))
+        return Integer(val)
+
+    def prim_max(self, right):
+        from .biginteger import BigInteger
+        if isinstance(right, BigInteger):
+            left = rbigint.fromint(self._embedded_integer)
+            if right.get_embedded_biginteger().gt(left):
+                return right
+            return self
+        assert isinstance(right, Integer)
+        if right.get_embedded_integer() > self._embedded_integer:
+            return right
+        return self
 
     def prim_add(self, right):
         from .double import Double
