@@ -240,21 +240,7 @@ class Parser(ParserBase):
         elif self._sym == Symbol.STString:
             return self._literal_string()
         else:
-            is_negative = self._is_negative_number()
-            if self._sym == Symbol.Integer:
-                return self._literal_integer(is_negative)
-            elif self._sym != Symbol.Double:
-                raise ParseError("Unexpected symbol. Expected %(expected)s, "
-                                 "but found %(found)s", self._sym, self)
-            else:
-                return self._literal_double(is_negative)
-
-    def _is_negative_number(self):
-        is_negative = False
-        if self._sym == Symbol.Minus:
-            self._expect(Symbol.Minus)
-            is_negative = True
-        return is_negative
+            return self._literal_number()
 
     def _literal_number(self):
         if self._sym == Symbol.Minus:
