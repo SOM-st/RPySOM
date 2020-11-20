@@ -15,6 +15,9 @@ class BigInteger(AbstractObject):
     def get_embedded_biginteger(self):
         return self._embedded_biginteger
 
+    def __str__(self):
+        return str(self._embedded_biginteger)
+
     def get_class(self, universe):
         return universe.integerClass
 
