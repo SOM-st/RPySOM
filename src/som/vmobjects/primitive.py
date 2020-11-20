@@ -42,8 +42,11 @@ class _AbstractPrimitive(AbstractObject):
         return universe.primitiveClass
 
     def __str__(self):
-        return ("Primitive(" + self.get_holder().get_name().get_embedded_string() + ">>"
-                + str(self.get_signature()) + ")")
+        if self._holder:
+            holder = self.get_holder().get_name().get_embedded_string()
+        else:
+            holder = "nil"
+        return ("Primitive(" + holder + ">>" + str(self.get_signature()) + ")")
 
 
 class _AstPrimitive(_AbstractPrimitive):

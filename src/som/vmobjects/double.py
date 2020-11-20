@@ -17,6 +17,9 @@ class Double(AbstractObject):
     def get_embedded_double(self):
         return self._embedded_double
 
+    def __str__(self):
+        return str(self._embedded_double)
+
     def get_class(self, universe):
         return universe.doubleClass
 
