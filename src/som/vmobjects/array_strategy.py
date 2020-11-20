@@ -801,16 +801,19 @@ class Array(AbstractObject):
             if v is None or v is nilObject:
                 continue
             if isinstance(v, int) or isinstance(v, Integer):
-                only_double = False
                 is_empty    = False
+                only_double = False
+                only_bool   = False
                 continue
             if isinstance(v, float) or isinstance(v, Double):
-                only_long = False
                 is_empty  = False
+                only_long = False
+                only_bool = False
                 continue
             if isinstance(v, bool) or v is trueObject or v is falseObject:
-                only_bool = False
-                is_empty  = False
+                is_empty    = False
+                only_long   = False
+                only_double = False
                 continue
             only_long   = False
             only_double = False
