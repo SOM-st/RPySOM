@@ -52,8 +52,11 @@ class AstMethod(AbstractObject):
         return self._invokable.invoke(receiver, args)
 
     def __str__(self):
-        return ("Method(" + self.get_holder().get_name().get_embedded_string() + ">>" +
-                str(self.get_signature()) + ")")
+        if self._holder:
+            holder = self._holder.get_name().get_embedded_string()
+        else:
+            holder = 'nil'
+        return ("Method(" + holder + ">>" + str(self.get_signature()) + ")")
 
     def get_class(self, universe):
         return universe.methodClass
