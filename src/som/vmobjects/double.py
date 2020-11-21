@@ -41,10 +41,13 @@ class Double(AbstractObject):
     @staticmethod
     def _get_float(obj):
         from .integer import Integer
+        from .biginteger import BigInteger
         if isinstance(obj, Double):
             return obj.get_embedded_double()
         if isinstance(obj, Integer):
             return float(obj.get_embedded_integer())
+        if isinstance(obj, BigInteger):
+            return obj.get_embedded_biginteger().tofloat()
         raise ValueError("Cannot coerce %s to Double!" % obj)
 
     def prim_multiply(self, right):
