@@ -1,4 +1,4 @@
-from rpython.rlib import jit
+from rlib import jit
 
 from som.primitives.integer_primitives import IntegerPrimitivesBase as _Base
 from som.vmobjects.double import Double

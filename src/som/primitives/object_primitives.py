@@ -1,4 +1,4 @@
-from rpython.rlib.objectmodel import compute_identity_hash
+from rlib.objectmodel import compute_identity_hash
 from som.primitives.primitives import Primitives
 
 from som.vm.globals import trueObject, falseObject

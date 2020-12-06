@@ -1,6 +1,6 @@
 from __future__ import absolute_import
 
-from rpython.rlib import jit
+from rlib import jit
 
 from som.interpreter.bc.frame import create_frame
 from som.interpreter.control_flow import ReturnException

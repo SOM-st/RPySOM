@@ -1,4 +1,4 @@
-from rpython.rlib.rfloat import round_double, INFINITY
+from rlib.float import round_double, INFINITY
 from math import cos, sin
 
 from som.primitives.primitives import Primitives

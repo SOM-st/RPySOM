@@ -1,5 +1,5 @@
-from rpython.rlib import jit
-from rpython.rlib.debug import make_sure_not_resized
+from rlib import jit
+from rlib.debug import make_sure_not_resized
 from rtruffle.node import Node
 
 from .frame import Frame

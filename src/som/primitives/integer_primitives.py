@@ -1,7 +1,5 @@
-from rpython.rlib.rarithmetic import ovfcheck, LONG_BIT
-from rpython.rlib.rbigint import rbigint
-from rpython.rtyper.lltypesystem import rffi
-from rpython.rtyper.lltypesystem import lltype
+from rlib.arithmetic import ovfcheck, LONG_BIT, bigint_from_int
+from rlib.lltypesystem import rffi, lltype
 
 from som.primitives.primitives import Primitives
 from som.vm.globals import nilObject, falseObject
@@ -120,7 +118,7 @@ def _left_shift(left, right):
     except OverflowError:
         from som.vmobjects.biginteger import BigInteger
         return BigInteger(
-            rbigint.fromint(left_val).lshift(right_val))
+            bigint_from_int(left_val).lshift(right_val))
 
 
 def _unsigned_right_shift(left, right):

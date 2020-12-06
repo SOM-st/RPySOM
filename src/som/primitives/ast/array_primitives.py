@@ -1,4 +1,4 @@
-from rpython.rlib import jit
+from rlib import jit
 from som.primitives.array_primitives import ArrayPrimitivesBase as _Base
 from som.vmobjects.block_ast import AstBlock
 from som.vmobjects.method_ast import AstMethod

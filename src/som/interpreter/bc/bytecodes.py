@@ -1,5 +1,4 @@
-from rpython.rlib.unroll import unrolling_iterable
-from rpython.rlib import jit
+from rlib import jit
 
 
 class Bytecodes(object):

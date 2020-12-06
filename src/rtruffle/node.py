@@ -1,4 +1,4 @@
-from rpython.rlib.unroll import unrolling_iterable
+from rlib.unroll import unrolling_iterable
 from rtruffle.source_section import SourceSection
 
 

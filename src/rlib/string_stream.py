@@ -1,4 +1,11 @@
-from rpython.rlib.streamio import Stream, StreamError
+try:
+    from rpython.rlib.streamio import Stream, StreamError
+except ImportError:
+    class Stream(object):
+        pass
+
+    class StreamError(Exception):
+        pass
 
 
 class StringStream(Stream):

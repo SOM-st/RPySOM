@@ -1,4 +1,4 @@
-from rpython.rlib.rbigint import rbigint, _divrem
+from rlib.arithmetic import bigint_from_int, divrem, bigint_type
 from .abstract_object import AbstractObject
 from som.vm.globals import trueObject, falseObject
 
@@ -9,7 +9,7 @@ class BigInteger(AbstractObject):
 
     def __init__(self, value):
         AbstractObject.__init__(self)
-        assert isinstance(value, rbigint)
+        assert isinstance(value, bigint_type)
         self._embedded_biginteger = value
 
     def get_embedded_biginteger(self):
@@ -47,7 +47,7 @@ class BigInteger(AbstractObject):
             return self._to_double().prim_less_than(right)
         if not isinstance(right, BigInteger):
             result = self._embedded_biginteger.lt(
-                rbigint.fromint(right.get_embedded_integer()))
+                bigint_from_int(right.get_embedded_integer()))
         else:
             result = self._embedded_biginteger.lt(
                 right.get_embedded_biginteger())
@@ -64,7 +64,7 @@ class BigInteger(AbstractObject):
             return self._to_double().prim_less_than_or_equal(right)
         if not isinstance(right, BigInteger):
             result = self._embedded_biginteger.le(
-                rbigint.fromint(right.get_embedded_integer()))
+                bigint_from_int(right.get_embedded_integer()))
         else:
             result = self._embedded_biginteger.le(
                 right.get_embedded_biginteger())
@@ -81,7 +81,7 @@ class BigInteger(AbstractObject):
             return self._to_double().prim_greater_than(right)
         if not isinstance(right, BigInteger):
             result = self._embedded_biginteger.gt(
-                rbigint.fromint(right.get_embedded_integer()))
+                bigint_from_int(right.get_embedded_integer()))
         else:
             result = self._embedded_biginteger.gt(
                 right.get_embedded_biginteger())
@@ -110,7 +110,7 @@ class BigInteger(AbstractObject):
         from .integer import Integer
         assert isinstance(right, Integer)
 
-        right_big = rbigint.fromint(right.get_embedded_integer())
+        right_big = bigint_from_int(right.get_embedded_integer())
         if right_big.gt(self._embedded_biginteger):
             return right
         return self
@@ -124,7 +124,7 @@ class BigInteger(AbstractObject):
             return self._to_double().prim_add(right)
         else:
             return BigInteger(
-                rbigint.fromint(right.get_embedded_integer()).add(
+                bigint_from_int(right.get_embedded_integer()).add(
                     self._embedded_biginteger))
 
     def prim_subtract(self, right):
@@ -134,7 +134,7 @@ class BigInteger(AbstractObject):
         elif isinstance(right, Double):
             return self._to_double().prim_subtract(right)
         else:
-            r = self._embedded_biginteger.sub(rbigint.fromint(
+            r = self._embedded_biginteger.sub(bigint_from_int(
                 right.get_embedded_integer()))
         return BigInteger(r)
 
@@ -145,7 +145,7 @@ class BigInteger(AbstractObject):
         elif isinstance(right, Double):
             return self._to_double().prim_multiply(right)
         else:
-            r = self._embedded_biginteger.mul(rbigint.fromint(
+            r = self._embedded_biginteger.mul(bigint_from_int(
                 right.get_embedded_integer()))
         return BigInteger(r)
 
@@ -157,7 +157,7 @@ class BigInteger(AbstractObject):
         elif isinstance(right, Double):
             return self._to_double().prim_double_div(right)
         else:
-            r = self._embedded_biginteger.truediv(rbigint.fromint(
+            r = self._embedded_biginteger.truediv(bigint_from_int(
                 right.get_embedded_integer()))
         return Double(r)
 
@@ -169,7 +169,7 @@ class BigInteger(AbstractObject):
         elif isinstance(right, Double):
             return self._to_double().prim_int_div(right)
         else:
-            r = self._embedded_biginteger.floordiv(rbigint.fromint(
+            r = self._embedded_biginteger.floordiv(bigint_from_int(
                 right.get_embedded_integer()))
         return BigInteger(r)
 
@@ -181,7 +181,7 @@ class BigInteger(AbstractObject):
         elif isinstance(right, Double):
             return self._to_double().prim_modulo(right)
         else:
-            r = self._embedded_biginteger.mod(rbigint.fromint(
+            r = self._embedded_biginteger.mod(bigint_from_int(
                 right.get_embedded_integer()))
         return BigInteger(r)
 
@@ -192,9 +192,9 @@ class BigInteger(AbstractObject):
             right_val = self._embedded_biginteger
         else:
             assert isinstance(right, Integer)
-            right_val = rbigint.fromint(right.get_embedded_integer())
+            right_val = bigint_from_int(right.get_embedded_integer())
 
-        _d, r = _divrem(self._embedded_biginteger,
+        _d, r = divrem(self._embedded_biginteger,
                         right_val)
         return BigInteger(r)
 
@@ -206,7 +206,7 @@ class BigInteger(AbstractObject):
         elif isinstance(right, Double):
             return self._to_double().prim_modulo(right)
         else:
-            r = self._embedded_biginteger.and_(rbigint.fromint(
+            r = self._embedded_biginteger.and_(bigint_from_int(
                 right.get_embedded_integer()))
         return BigInteger(r)
 
@@ -221,7 +221,7 @@ class BigInteger(AbstractObject):
                       == right.get_embedded_double())
         elif isinstance(right, Integer):
             r = right.get_embedded_integer()
-            result = self._embedded_biginteger.eq(rbigint.fromint(r))
+            result = self._embedded_biginteger.eq(bigint_from_int(r))
         else:
             return falseObject
 
@@ -241,7 +241,7 @@ class BigInteger(AbstractObject):
                       != right.get_embedded_double())
         elif isinstance(right, Integer):
             r = right.get_embedded_integer()
-            result = self._embedded_biginteger.ne(rbigint.fromint(r))
+            result = self._embedded_biginteger.ne(bigint_from_int(r))
         else:
             return trueObject
 

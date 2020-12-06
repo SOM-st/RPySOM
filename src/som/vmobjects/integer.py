@@ -1,7 +1,5 @@
-from rpython.rlib.rarithmetic import ovfcheck
-from rpython.rlib.rbigint import rbigint, _divrem
-from rpython.rtyper.lltypesystem import lltype, rffi
-from rpython.rtyper.lltypesystem.lloperation import llop
+from rlib.arithmetic import ovfcheck, bigint_from_int, divrem
+from rlib.lltypesystem import lltype, rffi, llop
 
 from som.vmobjects.abstract_object import AbstractObject
 from som.vm.globals import trueObject, falseObject
@@ -52,7 +50,7 @@ class Integer(AbstractObject):
         from .biginteger import BigInteger
         # Check second parameter type:
         if isinstance(right, BigInteger):
-            result = rbigint.fromint(self._embedded_integer).lt(
+            result = bigint_from_int(self._embedded_integer).lt(
                 right.get_embedded_biginteger())
         elif isinstance(right, Double):
             return self._to_double().prim_less_than(right)
@@ -69,7 +67,7 @@ class Integer(AbstractObject):
         from .biginteger import BigInteger
         # Check second parameter type:
         if isinstance(right, BigInteger):
-            result = rbigint.fromint(self._embedded_integer).le(
+            result = bigint_from_int(self._embedded_integer).le(
                 right.get_embedded_biginteger())
         elif isinstance(right, Double):
             return self._to_double().prim_less_than_or_equal(right)
@@ -86,7 +84,7 @@ class Integer(AbstractObject):
         from .biginteger import BigInteger
         # Check second parameter type:
         if isinstance(right, BigInteger):
-            result = rbigint.fromint(self._embedded_integer).gt(
+            result = bigint_from_int(self._embedded_integer).gt(
                 right.get_embedded_biginteger())
         elif isinstance(right, Double):
             return self._to_double().prim_greater_than(right)
@@ -112,7 +110,7 @@ class Integer(AbstractObject):
     def prim_max(self, right):
         from .biginteger import BigInteger
         if isinstance(right, BigInteger):
-            left = rbigint.fromint(self._embedded_integer)
+            left = bigint_from_int(self._embedded_integer)
             if right.get_embedded_biginteger().gt(left):
                 return right
             return self
@@ -127,7 +125,7 @@ class Integer(AbstractObject):
         if isinstance(right, BigInteger):
             return BigInteger(
                 right.get_embedded_biginteger().add(
-                    rbigint.fromint(self._embedded_integer)))
+                    bigint_from_int(self._embedded_integer)))
         elif isinstance(right, Double):
             return self._to_double().prim_add(right)
         else:
@@ -138,13 +136,13 @@ class Integer(AbstractObject):
                 return Integer(result)
             except OverflowError:
                 return BigInteger(
-                    rbigint.fromint(l).add(rbigint.fromint(r)))
+                    bigint_from_int(l).add(bigint_from_int(r)))
 
     def prim_subtract(self, right):
         from .double import Double
         from .biginteger import BigInteger
         if isinstance(right, BigInteger):
-            r = rbigint.fromint(self._embedded_integer).sub(
+            r = bigint_from_int(self._embedded_integer).sub(
                 right.get_embedded_biginteger())
             return BigInteger(r)
         elif isinstance(right, Double):
@@ -157,14 +155,14 @@ class Integer(AbstractObject):
                 return Integer(result)
             except OverflowError:
                 return BigInteger(
-                    rbigint.fromint(l).sub(rbigint.fromint(r)))
+                    bigint_from_int(l).sub(bigint_from_int(r)))
 
     def prim_multiply(self, right):
         from .double import Double
         from .biginteger import BigInteger
 
         if isinstance(right, BigInteger):
-            r = rbigint.fromint(self._embedded_integer).mul(
+            r = bigint_from_int(self._embedded_integer).mul(
                 right.get_embedded_biginteger())
             return BigInteger(r)
         elif isinstance(right, Double):
@@ -177,14 +175,14 @@ class Integer(AbstractObject):
                 return Integer(result)
             except OverflowError:
                 return BigInteger(
-                    rbigint.fromint(l).mul(rbigint.fromint(r)))
+                    bigint_from_int(l).mul(bigint_from_int(r)))
 
     def prim_double_div(self, right):
         from .double import Double
         from .biginteger import BigInteger
 
         if isinstance(right, BigInteger):
-            r = rbigint.fromint(self._embedded_integer).truediv(
+            r = bigint_from_int(self._embedded_integer).truediv(
                 right.get_embedded_biginteger())
             return Double(r)
         elif isinstance(right, Double):
@@ -199,7 +197,7 @@ class Integer(AbstractObject):
         from .biginteger import BigInteger
 
         if isinstance(right, BigInteger):
-            r = rbigint.fromint(self._embedded_integer).floordiv(
+            r = bigint_from_int(self._embedded_integer).floordiv(
                 right.get_embedded_biginteger())
             return BigInteger(r)
         elif isinstance(right, Double):
@@ -214,7 +212,7 @@ class Integer(AbstractObject):
         from .biginteger import BigInteger
 
         if isinstance(right, BigInteger):
-            r = rbigint.fromint(self._embedded_integer).mod(
+            r = bigint_from_int(self._embedded_integer).mod(
                 right.get_embedded_biginteger())
             return BigInteger(r)
         elif isinstance(right, Double):
@@ -229,8 +227,8 @@ class Integer(AbstractObject):
         from .biginteger import BigInteger
 
         if isinstance(right, BigInteger):
-            d, r = _divrem(rbigint.fromint(self._embedded_integer),
-                           right.get_embedded_biginteger())
+            d, r = divrem(bigint_from_int(self._embedded_integer),
+                          right.get_embedded_biginteger())
             return BigInteger(r)
         elif isinstance(right, Double):
             return self._to_double().prim_remainder(right)
@@ -244,7 +242,7 @@ class Integer(AbstractObject):
         from .biginteger import BigInteger
 
         if isinstance(right, BigInteger):
-            r = rbigint.fromint(self._embedded_integer).and_(
+            r = bigint_from_int(self._embedded_integer).and_(
                 right.get_embedded_biginteger())
             return BigInteger(r)
         elif isinstance(right, Double):
@@ -259,7 +257,7 @@ class Integer(AbstractObject):
         from .biginteger import BigInteger
 
         if isinstance(right, BigInteger):
-            result = rbigint.fromint(self._embedded_integer).eq(
+            result = bigint_from_int(self._embedded_integer).eq(
                 right.get_embedded_biginteger())
         elif isinstance(right, Double):
             result = self._embedded_integer == right.get_embedded_double()
@@ -280,7 +278,7 @@ class Integer(AbstractObject):
         from .biginteger import BigInteger
 
         if isinstance(right, BigInteger):
-            result = rbigint.fromint(self._embedded_integer).ne(
+            result = bigint_from_int(self._embedded_integer).ne(
                 right.get_embedded_biginteger())
         elif isinstance(right, Double):
             result = self._embedded_integer != right.get_embedded_double()

@@ -1,4 +1,4 @@
-from rpython.rlib.unroll import unrolling_iterable
+from rlib.unroll import unrolling_iterable
 
 from ..interp_type import is_ast_interpreter, is_bytecode_interpreter
 

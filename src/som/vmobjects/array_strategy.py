@@ -1,8 +1,8 @@
-from rpython.rlib import rerased
-from rpython.rlib.jit import JitDriver
-from rpython.rlib.objectmodel import instantiate
+from rlib.erased import new_erasing_pair
+from rlib.jit import JitDriver
+from rlib.objectmodel import instantiate
 from .abstract_object import AbstractObject
-from rpython.rlib.debug import make_sure_not_resized
+from rlib.debug import make_sure_not_resized
 from som.vm.globals import nilObject, falseObject, trueObject
 from som.vmobjects.double import Double
 from som.vmobjects.integer import Integer
@@ -219,7 +219,7 @@ class _ArrayStrategy(object):
 
 class _ObjectStrategy(_ArrayStrategy):
 
-    _erase, _unerase = rerased.new_erasing_pair("obj_list")
+    _erase, _unerase = new_erasing_pair("obj_list")
     _erase   = staticmethod(_erase)
     _unerase = staticmethod(_unerase)
 
@@ -284,7 +284,7 @@ class _ObjectStrategy(_ArrayStrategy):
 
 class _LongStrategy(_ArrayStrategy):
 
-    _erase, _unerase = rerased.new_erasing_pair("int_list")
+    _erase, _unerase = new_erasing_pair("int_list")
     _erase   = staticmethod(_erase)
     _unerase = staticmethod(_unerase)
 
@@ -370,7 +370,7 @@ class _LongStrategy(_ArrayStrategy):
 
 class _DoubleStrategy(_ArrayStrategy):
 
-    _erase, _unerase = rerased.new_erasing_pair("double_list")
+    _erase, _unerase = new_erasing_pair("double_list")
     _erase   = staticmethod(_erase)
     _unerase = staticmethod(_unerase)
 
@@ -446,7 +446,7 @@ class _DoubleStrategy(_ArrayStrategy):
 
 class _BoolStrategy(_ArrayStrategy):
 
-    _erase, _unerase = rerased.new_erasing_pair("bool_list")
+    _erase, _unerase = new_erasing_pair("bool_list")
     _erase   = staticmethod(_erase)
     _unerase = staticmethod(_unerase)
 
@@ -524,7 +524,7 @@ class _EmptyStrategy(_ArrayStrategy):
 
     # We have these basic erase/unerase methods, and then the once to be used, which
     # do also the wrapping with Integer objects of the integer value
-    __erase, __unerase = rerased.new_erasing_pair("Integer")
+    __erase, __unerase = new_erasing_pair("Integer")
     __erase   = staticmethod(__erase)
     __unerase = staticmethod(__unerase)
 
@@ -633,7 +633,7 @@ class _PartiallyEmptyStrategy(_ArrayStrategy):
     # Thus, we track the number of empty slots left, and we track whether it
     # is homogeneous in one type
 
-    _erase, _unerase = rerased.new_erasing_pair("partial_storage")
+    _erase, _unerase = new_erasing_pair("partial_storage")
     _erase   = staticmethod(_erase)
     _unerase = staticmethod(_unerase)
 

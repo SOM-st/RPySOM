@@ -1,4 +1,4 @@
-from rpython.rlib import jit
+from rlib import jit
 
 from .to_do_node       import AbstractToDoNode
 

@@ -1,6 +1,4 @@
-from rpython.rlib.rarithmetic import string_to_int
-from rpython.rlib.rbigint import rbigint
-from rpython.rlib.rstring import ParseStringOverflowError
+from rlib.arithmetic import string_to_int, bigint_from_int, ParseStringOverflowError
 
 from .lexer import Lexer
 from .parse_error import ParseError, ParseErrorSymList
@@ -234,7 +232,7 @@ class ParserBase(object):
             result = Integer(i)
         except ParseStringOverflowError:
             from som.vmobjects.biginteger import BigInteger
-            bigint = rbigint.fromstr(self._text)
+            bigint = bigint_from_int(self._text)
             if negate_value:
                 bigint.sign = -1
             result = BigInteger(bigint)

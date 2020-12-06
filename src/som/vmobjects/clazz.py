@@ -1,4 +1,4 @@
-from rpython.rlib import jit
+from rlib import jit
 from som.interp_type import is_ast_interpreter
 from som.vm.globals import nilObject
 
@@ -132,7 +132,8 @@ class _Class(Object):
         if self.add_instance_invokable(value) and warn_if_not_existing:
             from som.vm.universe import std_print, std_println
             std_print("Warning: Primitive " + value.get_signature().get_embedded_string())
-            std_println(" is not in class definition for class " + self.get_name().get_embedded_string())
+            std_println(
+                " is not in class definition for class " + self.get_name().get_embedded_string())
 
     def get_instance_field_name(self, index):
         return self.get_instance_fields().get_indexable_field(index)

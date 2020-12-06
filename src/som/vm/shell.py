@@ -1,4 +1,4 @@
-from rpython.rlib.objectmodel import we_are_translated
+from rlib.objectmodel import we_are_translated
 from rlib.osext import raw_input
 
 from som.interpreter.bc.frame import create_frame

@@ -1,5 +1,5 @@
-from rpython.rlib.jit import we_are_jitted
 from rpython.rlib.longlong2float import longlong2float, float2longlong
+from rlib.jit import we_are_jitted
 from som.interpreter.objectstorage.layout_transitions import \
     UninitializedStorageLocationException, GeneralizeStorageLocationException
 from som.vm.globals import nilObject

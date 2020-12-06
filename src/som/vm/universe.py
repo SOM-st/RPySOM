@@ -1,7 +1,10 @@
-from rpython.rlib.debug import make_sure_not_resized
-from rpython.rlib.rbigint import rbigint
-from rpython.rlib.rrandom import Random
-from rpython.rlib import jit
+from rlib.debug import make_sure_not_resized
+from rlib import jit
+
+try:
+    from rpython.rlib.rrandom import Random
+except ImportError:
+    from random import Random
 
 from som.compiler.bc.method_generation_context import create_bootstrap_method
 from som.interpreter.bc.interpreter import Interpreter
@@ -23,10 +26,7 @@ else:
 from som.vmobjects.clazz         import Class
 from som.vmobjects.object_without_fields import ObjectWithoutFields
 from som.vmobjects.symbol        import Symbol
-from som.vmobjects.integer       import Integer
 from som.vmobjects.string        import String
-from som.vmobjects.biginteger    import BigInteger
-from som.vmobjects.double        import Double
 
 from som.vm.globals import nilObject, trueObject, falseObject
 

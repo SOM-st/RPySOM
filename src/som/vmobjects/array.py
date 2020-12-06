@@ -1,7 +1,8 @@
 from .abstract_object import AbstractObject
 from som.vm.globals import nilObject
 
-from rpython.rlib.debug import make_sure_not_resized
+from rlib.debug import make_sure_not_resized
+
 from .integer import Integer
 
 
