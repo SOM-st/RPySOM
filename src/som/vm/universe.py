@@ -104,7 +104,6 @@ class Universe(object):
         self._dump_bytecodes = False
         self.classpath       = None
         self.start_time      = time.time()  # a float of the time in seconds
-        self.random          = Random(abs(int(time.clock() * time.time())))
         self._object_system_initialized = False
 
     def exit(self, error_code):

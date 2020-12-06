@@ -27,12 +27,6 @@ def _as_32_bit_unsigned_value(rcvr):
     return Integer(val)
 
 
-def _at_random(rcvr):
-    assert isinstance(rcvr, Integer)
-    return Integer(int(
-        rcvr.get_embedded_integer() * get_current().random.random()))
-
-
 def _sqrt(rcvr):
     assert isinstance(rcvr, Integer)
     res = math.sqrt(rcvr.get_embedded_integer())
@@ -169,7 +163,6 @@ class IntegerPrimitivesBase(Primitives):
             UnaryPrimitive("as32BitSignedValue", self._universe, _as_32_bit_signed_value))
         self._install_instance_primitive(
             UnaryPrimitive("as32BitUnsignedValue", self._universe, _as_32_bit_unsigned_value))
-        self._install_instance_primitive(UnaryPrimitive("atRandom", self._universe, _at_random))
 
         self._install_instance_primitive(UnaryPrimitive("sqrt", self._universe, _sqrt))
 
