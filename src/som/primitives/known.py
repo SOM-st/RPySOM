@@ -1,4 +1,5 @@
 from rlib.unroll import unrolling_iterable
+from functools import reduce
 
 from ..interp_type import is_ast_interpreter, is_bytecode_interpreter
 
@@ -44,22 +45,23 @@ def _setup_primitives():
     files = glob(directory + "*_primitives.py")
 
     module_names = [f.replace(directory, "").replace(".py", "") for f in files]
-    mods = map(lambda mod: import_module(base_package + mod), module_names)
-    all_members = map(lambda module: inspect.getmembers(module), mods)
+    mods = [import_module(base_package + mod) for mod in module_names]
+    all_members = [inspect.getmembers(mod) for mod in mods]
     all_members = reduce(lambda all, each: all + each, all_members)
 
     all_prims = filter(_is_primitives_class, all_members)
-    prim_pairs = map(lambda (name, cls):
-                     (name[:name.find("Primitives")], cls), all_prims)
+
+    prim_pairs = [(prim_name[:prim_name.find("Primitives")], cls)
+                  for (prim_name, cls) in all_prims]
 
     if EXPECTED_NUMBER_OF_PRIMITIVE_FILES != len(prim_pairs):
-        print ""
-        print "SOM PRIMITIVE DISCOVERY: following primitives found:"
+        print("")
+        print("SOM PRIMITIVE DISCOVERY: following primitives found:")
         for name, clazz in prim_pairs:
-            print "   - %s" % name
-        print "Expected number of primitive files: %d, found %d" % (
-            EXPECTED_NUMBER_OF_PRIMITIVE_FILES, len(prim_pairs))
-        print "ERROR: did not find the expected number of primitive files!"
+            print("   - %s" % name)
+        print("Expected number of primitive files: %d, found %d" % (
+            EXPECTED_NUMBER_OF_PRIMITIVE_FILES, len(prim_pairs)))
+        print("ERROR: did not find the expected number of primitive files!")
         import sys
         sys.exit(1)
     return prim_pairs
