@@ -49,7 +49,7 @@ def _inst_var_named(rcvr, arg):
 
 def _halt(ivkbl, rcvr, args):
     # noop
-    print "BREAKPOINT"
+    print("BREAKPOINT")
     return rcvr
 
 

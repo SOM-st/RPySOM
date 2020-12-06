@@ -56,7 +56,7 @@ def _inst_var_at_put(ivkbl, frame, interpreter):
 
 def _halt(ivkbl, frame, interpreter):
     # noop
-    print "BREAKPOINT"
+    print("BREAKPOINT")
 
 
 def _class(ivkbl, frame, interpreter):
