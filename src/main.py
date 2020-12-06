@@ -5,7 +5,7 @@ from som.vm.universe import main, Exit
 
 try:
     main(sys.argv)
-except Exit, e:
+except Exit as e:
     sys.exit(e.code)
 except ParseError as e:
     from som.vm.universe import error_println

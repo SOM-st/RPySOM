@@ -279,7 +279,7 @@ class Lexer(object):
             self._line_number += 1
             self._bufp = 0
             return len(self._buf)
-        except IOError, ioe:
+        except IOError as ioe:
             raise ValueError("Error reading from input: " + str(ioe))
 
     def _has_more_input(self):
