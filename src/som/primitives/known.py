@@ -30,7 +30,7 @@ def _setup_primitives():
     "NOT_RPYTHON"
     from importlib import import_module
     import inspect
-    import py
+    from glob import glob
     base_package = "som.primitives."
     if is_ast_interpreter():
         base_package += 'ast.'
@@ -40,10 +40,11 @@ def _setup_primitives():
         base_package += 'bc.'
         interp_dir = 'bc'
 
-    directory = py.path.local(__file__).dirpath(interp_dir)
+    directory = __file__.replace("known.pyc", "").replace("known.py", "") + interp_dir + "/"
+    files = glob(directory + "*_primitives.py")
 
-    files = filter(lambda ent: ent.basename.endswith("_primitives.py"), directory.listdir())
-    mods = map(lambda mod: import_module(base_package + mod.purebasename), files)
+    module_names = [f.replace(directory, "").replace(".py", "") for f in files]
+    mods = map(lambda mod: import_module(base_package + mod), module_names)
     all_members = map(lambda module: inspect.getmembers(module), mods)
     all_members = reduce(lambda all, each: all + each, all_members)
 
