@@ -4,6 +4,7 @@ try:
     from rpython.rlib.rbigint import _divrem as divrem, rbigint as bigint_type
     from rpython.rlib.rarithmetic import string_to_int
     from rpython.rlib.rstring import ParseStringOverflowError
+    int_type = int
 except ImportError:
     def ovfcheck(value):
         return value
@@ -21,4 +22,10 @@ except ImportError:
             self.parser = parser
 
     LONG_BIT = 0x8000000000000000
-    bigint_type = long
+
+    try:
+        int_type = (int, long)
+        bigint_type = long
+    except NameError:
+        int_type = int
+        bigint_type = int
