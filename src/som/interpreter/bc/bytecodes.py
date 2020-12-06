@@ -105,6 +105,6 @@ def _sorted_bytecode_names(cls):
        For RPypthon, this means, during translation of the module.
     """
     return [key.upper() for value, key in
-            sorted([(value, key) for key, value in cls.__dict__.items()])
-            if isinstance(value, int) and key[0] != "_"]
+            sorted([(value, key) for key, value in cls.__dict__.items()
+                    if isinstance(value, int) and key[0] != "_"])]
 _bytecode_names = _sorted_bytecode_names(Bytecodes)
