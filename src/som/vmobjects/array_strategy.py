@@ -1,7 +1,8 @@
+from rlib.arithmetic import int_type
 from rlib.erased import new_erasing_pair
 from rlib.jit import JitDriver
 from rlib.objectmodel import instantiate
-from .abstract_object import AbstractObject
+from som.vmobjects.abstract_object import AbstractObject
 from rlib.debug import make_sure_not_resized
 from som.vm.globals import nilObject, falseObject, trueObject
 from som.vmobjects.double import Double
@@ -291,7 +292,7 @@ class _LongStrategy(_ArrayStrategy):
     def get_idx(self, storage, idx):
         store = self._unerase(storage)
         assert isinstance(store, list)
-        assert isinstance(store[idx], int)
+        assert isinstance(store[idx], int_type)
         return Integer(store[idx])
 
     def set_idx(self, array, idx, value):

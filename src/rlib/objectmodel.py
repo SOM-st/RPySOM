@@ -1,7 +1,15 @@
 import types
 
+import sys
+
+if sys.version_info.major > 2:
+    str_type = str
+else:
+    str_type = (str, unicode)
+
 try:
     from rpython.rlib.objectmodel import we_are_translated, compute_identity_hash, compute_hash, instantiate
+    from rpython.rlib.longlong2float import longlong2float, float2longlong
 except ImportError:
     def we_are_translated():
         return False
@@ -11,7 +19,7 @@ except ImportError:
         return object.__hash__(x)
 
     def compute_hash(x):
-        if isinstance(x, (str, unicode)):
+        if isinstance(x, str_type):
             return hash(x)
         if isinstance(x, int):
             return x
@@ -29,3 +37,9 @@ except ImportError:
             return cls.__new__(cls)
         else:
             return types.InstanceType(cls)
+
+    def longlong2float(value):
+        return value
+
+    def float2longlong(value):
+        return value
