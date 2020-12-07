@@ -1,5 +1,5 @@
 try:
-    from rpython.rlib import rgc
+    from rpython.rlib.rgc import collect
 except ImportError:
     "NOT_RPYTHON"
     def collect():
