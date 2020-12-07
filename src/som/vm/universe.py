@@ -1,5 +1,6 @@
 from rlib.debug import make_sure_not_resized
 from rlib import jit
+from rlib.string_stream import encode_to_bytes
 
 try:
     from rpython.rlib.rrandom import Random
@@ -551,19 +552,19 @@ def set_current(universe):
 
 
 def error_print(msg):
-    os.write(2, msg or "")
+    os.write(2, encode_to_bytes(msg or ""))
 
 
-def error_println(msg = ""):
-    os.write(2, msg + "\n")
+def error_println(msg = b""):
+    os.write(2, encode_to_bytes(msg + "\n"))
 
 
 def std_print(msg):
-    os.write(1, msg or "")
+    os.write(1, encode_to_bytes(msg or ""))
 
 
 def std_println(msg = ""):
-    os.write(1, msg + "\n")
+    os.write(1, encode_to_bytes(msg + "\n"))
 
 
 def main(args):

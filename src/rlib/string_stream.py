@@ -1,11 +1,22 @@
 try:
     from rpython.rlib.streamio import Stream, StreamError
+
+    def encode_to_bytes(str_value):
+        return str_value
 except ImportError:
     class Stream(object):
         pass
 
     class StreamError(Exception):
         pass
+
+    import sys
+    if sys.version_info.major > 2:
+        def encode_to_bytes(str_value):
+            return str_value.encode('utf-8')
+    else:
+        def encode_to_bytes(str_value):
+            return str_value
 
 
 class StringStream(Stream):
