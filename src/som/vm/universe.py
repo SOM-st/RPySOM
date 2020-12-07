@@ -2,10 +2,6 @@ from rlib.debug import make_sure_not_resized
 from rlib import jit
 from rlib.string_stream import encode_to_bytes
 
-try:
-    from rpython.rlib.rrandom import Random
-except ImportError:
-    from random import Random
 
 from som.compiler.bc.method_generation_context import create_bootstrap_method
 from som.interpreter.bc.interpreter import Interpreter
