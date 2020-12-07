@@ -6,6 +6,7 @@ try:
     from rpython.rlib.rstring import ParseStringOverflowError
     int_type = int
 except ImportError:
+    "NOT_RPYTHON"
     def ovfcheck(value):
         return value
 

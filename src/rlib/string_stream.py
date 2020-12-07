@@ -4,6 +4,7 @@ try:
     def encode_to_bytes(str_value):
         return str_value
 except ImportError:
+    "NOT_RPYTHON"
     class Stream(object):
         pass
 

@@ -1,9 +1,9 @@
 try:
     from rpython.rlib.jit import elidable, elidable_promote, promote, unroll_safe, JitDriver, set_param, dont_look_inside, we_are_jitted, hint
 except ImportError:
+    "NOT_RPYTHON"
     def elidable(func):
         return func
-
 
     def elidable_promote(promote_args='all'):
         def decorator(func):
@@ -39,7 +39,6 @@ except ImportError:
 
     def we_are_jitted():
         pass
-
 
     def hint(x, **kwds):
         return x

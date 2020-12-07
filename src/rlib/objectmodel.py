@@ -11,6 +11,7 @@ try:
     from rpython.rlib.objectmodel import we_are_translated, compute_identity_hash, compute_hash, instantiate
     from rpython.rlib.longlong2float import longlong2float, float2longlong
 except ImportError:
+    "NOT_RPYTHON"
     def we_are_translated():
         return False
 
