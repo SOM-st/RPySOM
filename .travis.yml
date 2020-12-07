@@ -16,6 +16,30 @@ jobs:
       before_script:
         - export SOM_INTERP=BC
         - export SOM_BIN=som-bc-interp
+    
+    - name: Python 2.7
+      dist: focal
+      python: "2.7"
+      install: []
+      before_script:
+        - export PYTHON=python
+      script:
+        - SOM_INTERP=AST nosetests
+        - SOM_INTERP=BC  nosetests
+        - SOM_INTERP=AST ./som.sh -cp Smalltalk TestSuite/TestHarness.som
+        - SOM_INTERP=BC  ./som.sh -cp Smalltalk TestSuite/TestHarness.som
+
+    - name: Python 3.8
+      dist: focal
+      python: "3.8"
+      install: []
+      before_script:
+        - export PYTHON=python
+      script:
+        - SOM_INTERP=AST nosetests
+        - SOM_INTERP=BC  nosetests
+        - SOM_INTERP=AST ./som.sh -cp Smalltalk TestSuite/TestHarness.som
+        - SOM_INTERP=BC  ./som.sh -cp Smalltalk TestSuite/TestHarness.som
 
 install:
   - travis_retry wget https://downloads.python.org/pypy/pypy2.7-v7.3.1-src.tar.bz2
