@@ -1,7 +1,5 @@
 from rlib.arithmetic import ovfcheck, bigint_from_int, divrem, int_type
-from rlib.lltypesystem import Signed
-from rlib import llop
-from rlib.llop import as_32_bit_signed_value
+from rlib.llop import as_32_bit_signed_value, int_mod, Signed
 
 from som.vmobjects.abstract_object import AbstractObject
 from som.vm.globals import trueObject, falseObject
@@ -237,7 +235,7 @@ class Integer(AbstractObject):
         else:
             l = self._embedded_integer
             r = right.get_embedded_integer()
-            return Integer(llop.int_mod(Signed, l, r))
+            return Integer(int_mod(Signed, l, r))
 
     def prim_and(self, right):
         from .double import Double
