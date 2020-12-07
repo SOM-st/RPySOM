@@ -1,5 +1,7 @@
 from rlib.arithmetic import ovfcheck, bigint_from_int, divrem, int_type
-from rlib.lltypesystem import lltype, rffi, llop
+from rlib.lltypesystem import Signed
+from rlib import llop
+from rlib.llop import as_32_bit_signed_value
 
 from som.vmobjects.abstract_object import AbstractObject
 from som.vm.globals import trueObject, falseObject
@@ -11,7 +13,7 @@ class Integer(AbstractObject):
 
     def __init__(self, value):
         AbstractObject.__init__(self)
-        assert isinstance(value, int_type)
+        assert isinstance(value, int_type), "Value: " + str(value)
         self._embedded_integer = value
 
     def get_embedded_integer(self):
@@ -104,7 +106,7 @@ class Integer(AbstractObject):
         return Integer(abs(self._embedded_integer))
 
     def prim_as_32_bit_signed_value(self):
-        val = rffi.cast(lltype.Signed, rffi.cast(rffi.INT, self._embedded_integer))
+        val = as_32_bit_signed_value(self._embedded_integer)
         return Integer(val)
 
     def prim_max(self, right):
@@ -205,7 +207,7 @@ class Integer(AbstractObject):
         else:
             l = self._embedded_integer
             r = right.get_embedded_integer()
-            return Integer(l / r)
+            return Integer(l // r)
 
     def prim_modulo(self, right):
         from .double import Double
@@ -235,7 +237,7 @@ class Integer(AbstractObject):
         else:
             l = self._embedded_integer
             r = right.get_embedded_integer()
-            return Integer(llop.int_mod(lltype.Signed, l, r))
+            return Integer(llop.int_mod(Signed, l, r))
 
     def prim_and(self, right):
         from .double import Double

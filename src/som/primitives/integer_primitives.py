@@ -1,9 +1,8 @@
 from rlib.arithmetic import ovfcheck, LONG_BIT, bigint_from_int
-from rlib.lltypesystem import rffi, lltype
+from rlib.llop import as_32_bit_unsigned_value, unsigned_right_shift
 
 from som.primitives.primitives import Primitives
 from som.vm.globals import nilObject, falseObject
-from som.vm.universe import get_current
 from som.vmobjects.array import Array
 from som.vmobjects.biginteger import BigInteger
 from som.vmobjects.double      import Double
@@ -23,7 +22,7 @@ def _as_32_bit_signed_value(rcvr):
 
 
 def _as_32_bit_unsigned_value(rcvr):
-    val = rffi.cast(lltype.Signed, rffi.cast(rffi.UINT, rcvr.get_embedded_integer()))
+    val = as_32_bit_unsigned_value(rcvr.get_embedded_integer())
     return Integer(val)
 
 
@@ -121,10 +120,7 @@ def _unsigned_right_shift(left, right):
     left_val = left.get_embedded_integer()
     right_val = right.get_embedded_integer()
 
-    u_l = rffi.cast(lltype.Unsigned, left_val)
-    u_r = rffi.cast(lltype.Unsigned, right_val)
-
-    return Integer(rffi.cast(lltype.Signed, u_l >> u_r))
+    return Integer(unsigned_right_shift(left_val, right_val))
 
 
 def _bit_xor(left, right):
