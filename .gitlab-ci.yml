@@ -13,13 +13,13 @@ bc_build_test_benchmark_job:
   tags: [benchmarks, infinity]
   script:
     # Setup
-    - export PYTHONPATH=$PYTHONPATH:$PYPY_DIR
+    - export PYTHONPATH=$PYTHONPATH:$PYPY_DIR:src
     - export RPYTHON=$PYPY_DIR/rpython/bin/rpython
     - export PATH=$PATH:/home/gitlab-runner/.local/pypy2.7-v7.3.1-linux64/bin
     - export SOM_INTERP=BC
     
     # Unit Tests
-    - nosetests
+    - PYTHONPATH=src python3 -m pytest
     - ./som.sh -cp Smalltalk TestSuite/TestHarness.som
 
     # Interpreter
@@ -39,13 +39,13 @@ ast_build_test_benchmark_job:
   tags: [benchmarks, infinity]
   script:
     # Setup
-    - export PYTHONPATH=$PYTHONPATH:$PYPY_DIR
+    - export PYTHONPATH=$PYTHONPATH:$PYPY_DIR:src
     - export RPYTHON=$PYPY_DIR/rpython/bin/rpython
     - export PATH=$PATH:/home/gitlab-runner/.local/pypy2.7-v7.3.1-linux64/bin
     - export SOM_INTERP=AST
     
     # Unit Tests
-    - nosetests
+    - PYTHONPATH=src python3 -m pytest
     - ./som.sh -cp Smalltalk TestSuite/TestHarness.som
 
     # Interpreter
