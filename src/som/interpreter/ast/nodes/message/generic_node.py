@@ -1,5 +1,5 @@
-from rpython.rlib.debug import make_sure_not_resized
-from rpython.rlib.jit import we_are_jitted
+from rlib.debug import make_sure_not_resized
+from rlib.jit import we_are_jitted
 
 from ..dispatch import SuperDispatchNode, UninitializedDispatchNode, send_does_not_understand
 from .abstract_node import AbstractMessageNode

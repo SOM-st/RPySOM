@@ -1,4 +1,4 @@
-from rpython.rlib import jit
+from rlib import jit
 
 from som.vmobjects.abstract_object import AbstractObject
 from som.vmobjects.primitive import Primitive

@@ -3,7 +3,7 @@ from som.vmobjects.primitive   import Primitive
 from som.vmobjects.block_bc import block_evaluate, BcBlock
 from som.vm.globals import nilObject, trueObject, falseObject
 
-from rpython.rlib import jit
+from rlib import jit
 
 
 def get_printable_location(interpreter, method_body, method_condition, while_type):

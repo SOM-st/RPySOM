@@ -1,4 +1,5 @@
-from rpython.rlib.unroll import unrolling_iterable
+from rlib.unroll import unrolling_iterable
+from functools import reduce
 
 from ..interp_type import is_ast_interpreter, is_bytecode_interpreter
 
@@ -30,7 +31,7 @@ def _setup_primitives():
     "NOT_RPYTHON"
     from importlib import import_module
     import inspect
-    import py
+    from glob import glob
     base_package = "som.primitives."
     if is_ast_interpreter():
         base_package += 'ast.'
@@ -40,25 +41,27 @@ def _setup_primitives():
         base_package += 'bc.'
         interp_dir = 'bc'
 
-    directory = py.path.local(__file__).dirpath(interp_dir)
+    directory = __file__.replace("known.pyc", "").replace("known.py", "") + interp_dir + "/"
+    files = glob(directory + "*_primitives.py")
 
-    files = filter(lambda ent: ent.basename.endswith("_primitives.py"), directory.listdir())
-    mods = map(lambda mod: import_module(base_package + mod.purebasename), files)
-    all_members = map(lambda module: inspect.getmembers(module), mods)
+    module_names = [f.replace(directory, "").replace(".py", "") for f in files]
+    mods = [import_module(base_package + mod) for mod in module_names]
+    all_members = [inspect.getmembers(mod) for mod in mods]
     all_members = reduce(lambda all, each: all + each, all_members)
 
     all_prims = filter(_is_primitives_class, all_members)
-    prim_pairs = map(lambda (name, cls):
-                     (name[:name.find("Primitives")], cls), all_prims)
+
+    prim_pairs = [(prim_name[:prim_name.find("Primitives")], cls)
+                  for (prim_name, cls) in all_prims]
 
     if EXPECTED_NUMBER_OF_PRIMITIVE_FILES != len(prim_pairs):
-        print ""
-        print "SOM PRIMITIVE DISCOVERY: following primitives found:"
+        print("")
+        print("SOM PRIMITIVE DISCOVERY: following primitives found:")
         for name, clazz in prim_pairs:
-            print "   - %s" % name
-        print "Expected number of primitive files: %d, found %d" % (
-            EXPECTED_NUMBER_OF_PRIMITIVE_FILES, len(prim_pairs))
-        print "ERROR: did not find the expected number of primitive files!"
+            print("   - %s" % name)
+        print("Expected number of primitive files: %d, found %d" % (
+            EXPECTED_NUMBER_OF_PRIMITIVE_FILES, len(prim_pairs)))
+        print("ERROR: did not find the expected number of primitive files!")
         import sys
         sys.exit(1)
     return prim_pairs

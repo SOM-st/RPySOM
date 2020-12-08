@@ -1,4 +1,4 @@
-from rpython.rlib.objectmodel import compute_hash
+from rlib.objectmodel import compute_hash
 from som.compiler.symbol import Symbol
 from som.primitives.primitives import Primitives
 

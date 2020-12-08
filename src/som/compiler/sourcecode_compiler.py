@@ -1,5 +1,5 @@
 import os
-from rpython.rlib.streamio import open_file_as_stream
+from rlib.streamio import open_file_as_stream
 from rlib.string_stream    import StringStream
 
 from som.compiler.class_generation_context import ClassGenerationContext

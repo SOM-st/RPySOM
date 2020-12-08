@@ -1,4 +1,4 @@
-from rpython.rlib.jit import we_are_jitted
+from rlib.jit import we_are_jitted
 from .expression_node import ExpressionNode
 from som.interpreter.objectstorage.field_accessor_node import create_read, \
     create_write

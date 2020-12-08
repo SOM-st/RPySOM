@@ -1,4 +1,4 @@
-from rpython.rlib.jit import we_are_jitted
+from rlib.jit import we_are_jitted
 from rtruffle.node import Node
 from som.interpreter.objectstorage.layout_transitions import \
     UninitializedStorageLocationException, GeneralizeStorageLocationException

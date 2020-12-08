@@ -1,6 +1,6 @@
 from .expression_node import ExpressionNode
 
-from rpython.rlib.jit import unroll_safe
+from rlib.jit import unroll_safe
 
 
 class ContextualNode(ExpressionNode):

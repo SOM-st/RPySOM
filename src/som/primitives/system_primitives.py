@@ -1,6 +1,6 @@
 import time
 
-from rpython.rlib import rgc, jit
+from rlib import rgc, jit
 
 from som.primitives.primitives import Primitives
 from som.vm.globals import nilObject, trueObject, falseObject

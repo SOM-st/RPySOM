@@ -1,7 +1,4 @@
-import unittest
-import sys
-
-from parameterized import parameterized
+import pytest
 
 from som.compiler.parse_error import ParseError
 
@@ -13,8 +10,7 @@ from som.vmobjects.integer import Integer
 from som.vmobjects.symbol  import Symbol
 
 
-class BasicInterpreterTest(unittest.TestCase):
-    @parameterized.expand([
+@pytest.mark.parametrize("test_class,test_selector,expected_result,result_type", [
         # ("Self", "testAssignSuper", 42, ParseError),
         # ("Self", "testAssignSelf", 42, ParseError),
 
@@ -93,47 +89,36 @@ class BasicInterpreterTest(unittest.TestCase):
 
         ("NumberOfTests", "numberOfTests", 57, Integer),
     ])
-    def test_basic_interpreter_behavior(self, test_class, test_selector,
-                                        expected_result, result_type):
-        u = create_universe()
-        set_current(u)
-        u.setup_classpath("Smalltalk:TestSuite/BasicInterpreterTests")
+def test_basic_interpreter_behavior(test_class, test_selector, expected_result, result_type):
+    u = create_universe()
+    set_current(u)
+    u.setup_classpath("Smalltalk:TestSuite/BasicInterpreterTests")
 
-        try:
-            actual_result = u.execute_method(test_class, test_selector)
-
-            self._assert_equals_SOM_value(expected_result, actual_result,
-                                          result_type)
-        except ParseError as e:
-            # if we expect a ParseError, then all is fine, otherwise re-raise it
-            if result_type is not ParseError:
-                raise e
-
-    def _assert_equals_SOM_value(self, expected_result, actual_result,
-                                 result_type):
-        if result_type is Integer:
-            self.assertEquals(expected_result,
-                              actual_result.get_embedded_integer())
-            return
-
-        if result_type is Double:
-            self.assertEquals(expected_result,
-                              actual_result.get_embedded_double())
-            return
-
-        if result_type is Class:
-            self.assertEquals(expected_result,
-                              actual_result.get_name().get_embedded_string())
-            return
-
-        if result_type is Symbol:
-            self.assertEquals(expected_result,
-                              actual_result.get_embedded_string())
-            return
-
-        self.fail("SOM Value handler missing: " + str(result_type))
+    try:
+        actual_result = u.execute_method(test_class, test_selector)
+        _assert_equals_som_value(expected_result, actual_result, result_type)
+    except ParseError as e:
+        # if we expect a ParseError, then all is fine, otherwise re-raise it
+        if result_type is not ParseError:
+            raise e
 
 
-if 'pytest' in sys.modules:
-    # hack to make pytest not to collect the unexpanded test method
-    delattr(BasicInterpreterTest, "test_basic_interpreter_behavior")
+def _assert_equals_som_value(expected_result, actual_result, result_type):
+    if result_type is Integer:
+        assert expected_result == actual_result.get_embedded_integer()
+        return
+
+    if result_type is Double:
+        assert expected_result == actual_result.get_embedded_double()
+        return
+
+    if result_type is Class:
+        assert expected_result == actual_result.get_name().get_embedded_string()
+        return
+
+    if result_type is Symbol:
+        assert expected_result == actual_result.get_embedded_string()
+        return
+
+    assert False, "SOM Value handler missing: " + str(result_type)
+

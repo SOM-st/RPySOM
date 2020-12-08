@@ -1,7 +1,7 @@
-from rpython.rlib.debug import make_sure_not_resized
-from rpython.rlib.rbigint import rbigint
-from rpython.rlib.rrandom import Random
-from rpython.rlib import jit
+from rlib.debug import make_sure_not_resized
+from rlib import jit
+from rlib.string_stream import encode_to_bytes
+
 
 from som.compiler.bc.method_generation_context import create_bootstrap_method
 from som.interpreter.bc.interpreter import Interpreter
@@ -23,10 +23,7 @@ else:
 from som.vmobjects.clazz         import Class
 from som.vmobjects.object_without_fields import ObjectWithoutFields
 from som.vmobjects.symbol        import Symbol
-from som.vmobjects.integer       import Integer
 from som.vmobjects.string        import String
-from som.vmobjects.biginteger    import BigInteger
-from som.vmobjects.double        import Double
 
 from som.vm.globals import nilObject, trueObject, falseObject
 
@@ -104,7 +101,6 @@ class Universe(object):
         self._dump_bytecodes = False
         self.classpath       = None
         self.start_time      = time.time()  # a float of the time in seconds
-        self.random          = Random(abs(int(time.clock() * time.time())))
         self._object_system_initialized = False
 
     def exit(self, error_code):
@@ -552,19 +548,19 @@ def set_current(universe):
 
 
 def error_print(msg):
-    os.write(2, msg or "")
+    os.write(2, encode_to_bytes(msg or ""))
 
 
-def error_println(msg = ""):
-    os.write(2, msg + "\n")
+def error_println(msg = b""):
+    os.write(2, encode_to_bytes(msg + "\n"))
 
 
 def std_print(msg):
-    os.write(1, msg or "")
+    os.write(1, encode_to_bytes(msg or ""))
 
 
 def std_println(msg = ""):
-    os.write(1, msg + "\n")
+    os.write(1, encode_to_bytes(msg + "\n"))
 
 
 def main(args):

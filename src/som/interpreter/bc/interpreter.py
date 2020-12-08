@@ -2,7 +2,7 @@ from som.interpreter.bc.bytecodes import bytecode_length, Bytecodes
 from som.interpreter.control_flow import ReturnException
 from som.vmobjects.block_bc import BcBlock
 
-from rpython.rlib import jit
+from rlib import jit
 
 
 class Interpreter(object):

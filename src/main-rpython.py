@@ -9,6 +9,13 @@ from som.vm.universe import main, Exit
 
 import os
 
+try:
+    import rpython.rlib
+except ImportError:
+    "NOT_RPYTHON"
+    print("Failed to load RPython library. Please make sure it is on PYTHONPATH")
+    sys.exit(1)
+
 # __________  Entry points  __________
 
 

@@ -1,4 +1,4 @@
-from rpython.rlib.rfloat import formatd, DTSF_ADD_DOT_0, DTSF_STR_PRECISION
+from rlib.float import float_to_str
 from som.vm.globals import trueObject, falseObject
 from som.vmobjects.abstract_object import AbstractObject
 
@@ -63,7 +63,7 @@ class Double(AbstractObject):
 
     def prim_as_string(self):
         from .string import String
-        s = formatd(self._embedded_double, "g", DTSF_STR_PRECISION, DTSF_ADD_DOT_0)
+        s = float_to_str(self._embedded_double)
         return String(s)
 
     def prim_subtract(self, right):

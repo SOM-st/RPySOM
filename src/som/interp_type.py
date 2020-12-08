@@ -1,7 +1,7 @@
 import os
 import sys
 
-from rpython.rlib import jit
+from rlib import jit
 
 _interp_type_str = os.getenv('SOM_INTERP', None)
 

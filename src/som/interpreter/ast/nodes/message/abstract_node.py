@@ -1,5 +1,5 @@
-from rpython.rlib.debug import make_sure_not_resized
-from rpython.rlib.jit   import unroll_safe
+from rlib.debug import make_sure_not_resized
+from rlib.jit   import unroll_safe
 
 from ..expression_node import ExpressionNode
 

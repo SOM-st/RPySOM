@@ -1,7 +1,7 @@
 from .contextual_node import ContextualNode
 from .expression_node import ExpressionNode
 
-from rpython.rlib import jit
+from rlib import jit
 from som.vmobjects.block_ast import AstBlock
 
 

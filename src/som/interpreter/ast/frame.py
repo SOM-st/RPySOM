@@ -1,5 +1,5 @@
-from rpython.rlib import jit
-from rpython.rlib.debug import make_sure_not_resized
+from rlib import jit
+from rlib.debug import make_sure_not_resized
 from som.vm.globals import nilObject
 
 
@@ -18,7 +18,7 @@ _EMPTY_LIST = []
 
 
 class Frame(object):
-        
+
     _immutable_fields_ = ['_receiver', '_arguments[*]', '_args_for_inner[*]',
                           '_temps', '_temps_for_inner', '_on_stack']
     _virtualizable_    = ['_temps[*]']
