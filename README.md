@@ -1,3 +1,12 @@
+# RPySOM and RTruffleSOM are reunited as PySOM
+
+This code base is now merged into PySOM, together with what was RPySOM.
+
+Please head over to https://github.com/SOM-st/PySOM for the latest code.
+
+
+Below old README.md
+
 RPySOM - The Simple Object Machine Smalltalk combining Self-Optimizing Interpreters with Meta-Tracing
 ======================================================================
 
